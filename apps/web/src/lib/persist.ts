@@ -17,6 +17,16 @@ const MAX_FINGERPRINT_LEN = 200_000;
 
 export type PersistedStubCandidate = { name: string; mapping: Assignment[]; rationale: string };
 
+export type PersistedHeuristic = {
+  mapping: Assignment[];
+  rationale: string;
+  evaluationsUsed: number;
+  evaluationsBudget: number;
+  retainedBaseline: boolean;
+  reason: string;
+  rankingExhausted: boolean;
+};
+
 export type PersistedState = {
   version: number;
   scenario: Scenario;
@@ -31,6 +41,7 @@ export type PersistedState = {
   stubBaselineId: string | null;
   stubBaselineFingerprint: string | null;
   stubRunId: string | null;
+  heuristic: PersistedHeuristic | null;
 };
 
 export function savePersisted(state: PersistedState): void {
@@ -41,6 +52,38 @@ export function savePersisted(state: PersistedState): void {
   } catch {
     // Storage full or unavailable: planner keeps running in memory.
   }
+}
+
+function parseHeuristic(raw: unknown): PersistedHeuristic | null {
+  // Historical states predate the heuristic; absence restores as null.
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw !== "object") throw new Error("bad heuristic");
+  const h = raw as Record<string, unknown>;
+  if (typeof h["rationale"] !== "string" || (h["rationale"] as string).length > MAX_RATIONALE_LEN) {
+    throw new Error("bad heuristic rationale");
+  }
+  if (!Array.isArray(h["mapping"])) throw new Error("bad heuristic mapping");
+  const mapping = (h["mapping"] as unknown[]).map((m) => assignmentSchema.parse(m));
+  const used = h["evaluationsUsed"];
+  const budget = h["evaluationsBudget"];
+  if (typeof used !== "number" || !Number.isInteger(used) || used < 0 || used > 256) {
+    throw new Error("bad heuristic evaluationsUsed");
+  }
+  if (typeof budget !== "number" || !Number.isInteger(budget) || budget < 0 || budget > 256 || used > budget) {
+    throw new Error("bad heuristic evaluationsBudget");
+  }
+  if (typeof h["retainedBaseline"] !== "boolean") throw new Error("bad heuristic retained flag");
+  if (typeof h["reason"] !== "string") throw new Error("bad heuristic reason");
+  if (typeof h["rankingExhausted"] !== "boolean") throw new Error("bad heuristic exhaustion flag");
+  return {
+    mapping,
+    rationale: h["rationale"] as string,
+    evaluationsUsed: used,
+    evaluationsBudget: budget,
+    retainedBaseline: h["retainedBaseline"] as boolean,
+    reason: h["reason"] as string,
+    rankingExhausted: h["rankingExhausted"] as boolean,
+  };
 }
 
 function parseStubCandidates(raw: unknown): PersistedStubCandidate[] {
@@ -107,6 +150,10 @@ export function loadPersisted(): { ok: true; state: PersistedState } | { ok: fal
     if (selectedCandidate !== null && typeof selectedCandidate !== "string") throw new Error("bad selection");
     if (selectedOrderId !== null && typeof selectedOrderId !== "string") throw new Error("bad order");
     const stubCandidates = parseStubCandidates(r["stubCandidates"]);
+    // The heuristic travels separately from stub proposals (distinct method,
+    // own budget); a "heuristic" row inside stubCandidates is rejected.
+    if (stubCandidates.some((c) => c.name === "heuristic")) throw new Error("heuristic must persist separately");
+    const heuristic = parseHeuristic(r["heuristic"]);
     if (stubBaselineRevision !== null && typeof stubBaselineRevision !== "number") {
       throw new Error("bad stub revision");
     }
@@ -146,6 +193,7 @@ export function loadPersisted(): { ok: true; state: PersistedState } | { ok: fal
         stubBaselineId: stubBaselineId as string | null,
         stubBaselineFingerprint: stubBaselineFingerprint as string | null,
         stubRunId: stubRunId as string | null,
+        heuristic,
       },
     };
   } catch (e) {

@@ -436,7 +436,8 @@ describe("M3 full run over fixture transport", () => {
     expect(attempts[0]?.["parseOk"]).toBe(false);
     expect(attempts[1]?.["parseOk"]).toBe(true);
     // The failed parse is retained and cannot displace the later valid result.
-    expect(approved.json["bestName"]).toBe("proposal-2");
+    // M4: the 29800-mm heuristic (same evaluator) honestly beats proposal-2.
+    expect(approved.json["bestName"]).toBe("heuristic");
   });
 
   it("rejects oversized responses by byte count, not character count", async () => {
@@ -470,7 +471,8 @@ describe("M3 full run over fixture transport", () => {
     expect(JSON.stringify(attempts[0]?.["parseError"])).toContain("byte bound");
     expect(attempts[1]?.["parseOk"]).toBe(false);
     expect(JSON.stringify(attempts[1]?.["parseError"])).toContain("byte bound");
-    expect(approved.json["bestName"]).toBe("proposal-3");
+    // M4: the 29800-mm heuristic honestly beats the valid model retry.
+    expect(approved.json["bestName"]).toBe("heuristic");
   });
 
   it("delivers delayed responses to healthy clients", async () => {
@@ -582,9 +584,14 @@ describe("M3 full run over fixture transport", () => {
     expect(JSON.stringify(attempts[1]?.["applyErrors"])).toContain("PROPOSAL_UNKNOWN_PRODUCT");
     expect(attempts[2]?.["applyOk"]).toBe(false);
     expect(JSON.stringify(attempts[2]?.["applyErrors"])).toContain("STALE_REVISION");
-    // All failures retained, best stays the valid first proposal.
-    expect(approved.json["bestName"]).toBe("proposal-1");
+    // All failures retained. M4: the 29800-mm heuristic honestly wins overall,
+    // while proposal-1 stays the best valid MODEL result (invalids displace nothing).
+    expect(approved.json["bestName"]).toBe("heuristic");
     expect(approved.json["outcome"]).toBe("IMPROVED_VALID_ASSIGNMENT");
+    const validModel = (attempts as { name: string; candidate: { valid: boolean } | null }[])
+      .filter((a) => a.candidate?.valid)
+      .map((a) => a.name);
+    expect(validModel).toEqual(["proposal-1"]);
   });
 
   it("records transport failures without retrying beyond budget", async () => {
@@ -1005,7 +1012,8 @@ describe("M3 usage, sanitization, and reports", () => {
     expect(Array.isArray(e["candidates"])).toBe(true);
     expect(Array.isArray(e["attempts"])).toBe(true);
     expect(Array.isArray(e["feedback"])).toBe(true);
-    expect(JSON.stringify(e["limitations"])).toContain("No demand heuristic yet (M4)");
+    expect(JSON.stringify(e["limitations"])).toContain("Demand heuristic runs before model proposals");
+    expect(JSON.stringify(e["limitations"])).toContain("no equal-compute claim");
     // Deterministic replay without inference.
     const replayed = replayReport({
       reportVersion: e["reportVersion"],
@@ -1024,6 +1032,348 @@ describe("M3 usage, sanitization, and reports", () => {
     expect(JSON.stringify({ ...again.json, exportedAt: null })).toBe(JSON.stringify({ ...e, exportedAt: null }));
     expect(fake.requestCount()).toBe(4);
     expect(JSON.stringify(e)).not.toContain(FAKE_KEY);
+  });
+});
+
+describe("M4 heuristic + asset integration (fixture transport)", () => {
+  const fullScript: ScriptEntry[] = [
+    { kind: "ok", contentJson: draftRequirements() },
+    { kind: "ok", contentJson: proposal(0, [{ productId: "sku-b", locationId: "L6" }], "move sku-b near packing") },
+    { kind: "ok", contentJson: proposal(0, [{ productId: "sku-c", locationId: "L6" }], "try sku-c") },
+    { kind: "ok", contentJson: proposal(0, [{ productId: "sku-d", locationId: "L6" }], "try sku-d") },
+  ];
+
+  function oracleScenario(): unknown {
+    const url = new URL("../../../fixtures/test/heuristic-oracle.json", import.meta.url);
+    return JSON.parse(readFileSync(url, "utf8")) as unknown;
+  }
+
+  function emptyRoomScenario(): unknown {
+    const url = new URL("../../../fixtures/test/oracle-empty-room.json", import.meta.url);
+    return JSON.parse(readFileSync(url, "utf8")) as unknown;
+  }
+
+  it("rejects invalid scene geometry before any run state or inference", async () => {
+    const fake = await startFakeMeta();
+    closers.push(fake.close);
+    fake.setHandler(scriptHandler([{ kind: "ok", contentJson: draftRequirements() }], FAKE_MODEL));
+    const api = await startApi(testConfig(fake));
+    closers.push(api.close);
+    const broken = sampleScenario() as { racks: Record<string, unknown>[] };
+    broken.racks.push({ ...broken.racks[0], id: "RX-OVERLAP" });
+    const res = await postJson(`${api.apiUrl}/api/runs`, {
+      scenario: broken,
+      requestText: "invalid scene must not start inference",
+      mode: "live",
+      consent: true,
+    });
+    expect(res.status).toBe(400);
+    expect(res.json["code"]).toBe("INPUT_INVALID");
+    expect(JSON.stringify(res.json)).toContain("RACK_OVERLAP");
+    expect(fake.requestCount()).toBe(0);
+  });
+
+  it("seeds feedback best-so-far with the valid baseline, never a worse heuristic", async () => {
+    const fake = await startFakeMeta();
+    closers.push(fake.close);
+    fake.setHandler(
+      scriptHandler(
+        [
+          { kind: "ok", contentJson: draftRequirements(2) },
+          { kind: "ok", contentJson: proposal(0, [], "retain") },
+          { kind: "ok", contentJson: proposal(0, [], "retain") },
+          { kind: "ok", contentJson: proposal(0, [], "retain") },
+        ],
+        FAKE_MODEL,
+      ),
+    );
+    const api = await startApi(testConfig(fake));
+    closers.push(api.close);
+    const res = await fetch(`${api.apiUrl}/api/runs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ scenario: emptyRoomScenario(), requestText: "baseline seed test", mode: "live", consent: true }),
+    });
+    expect(res.status).toBe(202);
+    const created = (await res.json()) as Record<string, unknown>;
+    const runId = created["runId"] as string;
+    const awaiting = await waitFor(api.apiUrl, runId, ["AWAITING_APPROVAL"]);
+    const approved = await postJson(`${api.apiUrl}/api/runs/${runId}/approve`, {
+      requirements: awaiting["requirementsDraft"],
+    });
+    expect(approved.json["state"]).toBe("COMPLETED");
+    // The trap: heuristic swap is valid (16000) but worse than the valid
+    // baseline (16000, 0 relocations vs 2). Feedback must keep baseline best.
+    const heuristic = approved.json["heuristic"] as Record<string, unknown>;
+    const candidate = heuristic["candidate"] as Record<string, unknown>;
+    expect(candidate["valid"]).toBe(true);
+    expect(candidate["weightedTravelMm"]).toBe(16000);
+    expect(candidate["relocationCount"]).toBe(2);
+    const report = await getJson(`${api.apiUrl}/api/runs/${runId}/report`);
+    const feedback = report.json["feedback"] as { proposalName: string; bestValidSoFar: { name: string } | null }[];
+    expect(feedback[0]?.proposalName).toBe("heuristic");
+    for (const entry of feedback) {
+      expect(entry.bestValidSoFar?.name).toBe("baseline");
+    }
+    expect(approved.json["bestName"]).toBe("baseline");
+  });
+
+  it("runs the heuristic before proposals with its own budget and labels", async () => {
+    const fake = await startFakeMeta();
+    closers.push(fake.close);
+    fake.setHandler(scriptHandler(fullScript, FAKE_MODEL));
+    const api = await startApi(testConfig(fake));
+    closers.push(api.close);
+    const created = await createLive(api.apiUrl);
+    const runId = created["runId"] as string;
+    const awaiting = await waitFor(api.apiUrl, runId, ["AWAITING_APPROVAL"]);
+    const approved = await postJson(`${api.apiUrl}/api/runs/${runId}/approve`, {
+      requirements: awaiting["requirementsDraft"],
+    });
+    expect(approved.json["state"]).toBe("COMPLETED");
+    // Phase order: baseline, then heuristic, then the first model proposal.
+    const phases = (approved.json["phaseHistory"] as { phase: string }[]).map((p) => p.phase);
+    expect(phases.indexOf("EVALUATING_BASELINE")).toBeLessThan(phases.indexOf("RUNNING_HEURISTIC"));
+    expect(phases.indexOf("RUNNING_HEURISTIC")).toBeLessThan(phases.indexOf("REQUESTING_PROPOSAL"));
+    // Heuristic result: 29800-mm swap, 2 relocations, own evaluation budget.
+    const heuristic = approved.json["heuristic"] as Record<string, unknown>;
+    expect(heuristic["name"]).toBe("heuristic");
+    expect(heuristic["retainedBaseline"]).toBe(false);
+    expect(heuristic["evaluationsUsed"]).toBe(15);
+    expect(heuristic["evaluationsBudget"]).toBe(32);
+    const candidate = heuristic["candidate"] as Record<string, unknown>;
+    expect(candidate["valid"]).toBe(true);
+    expect(candidate["weightedTravelMm"]).toBe(29800);
+    expect(candidate["relocationCount"]).toBe(2);
+    // The heuristic consumes no model requests; model budgets are unchanged.
+    expect(approved.json["modelRequestsUsed"]).toBe(4);
+    expect(approved.json["proposalsUsed"]).toBe(3);
+    const budgets = approved.json["candidateBudgets"] as Record<string, Record<string, number>>;
+    expect(budgets["heuristic"]).toEqual({ evaluationsUsed: 15, evaluationsBudget: 32 });
+    expect(budgets["model"]).toEqual({ proposalsUsed: 3, maxProposals: 3, requestsUsed: 4, maxRequests: 4 });
+    // Exact method labels over baseline plus every evaluated mapping.
+    expect(approved.json["methodLabels"]).toEqual({
+      baseline: "current",
+      heuristic: "heuristic",
+      "proposal-1": "meta-first",
+      "proposal-2": "meta-feedback",
+      "proposal-3": "meta-feedback",
+    });
+    // Honest win: the heuristic beats every fixture proposal.
+    expect(approved.json["bestName"]).toBe("heuristic");
+    expect(approved.json["outcome"]).toBe("IMPROVED_VALID_ASSIGNMENT");
+  });
+
+  it("feeds the measured heuristic result to the first model proposal", async () => {
+    const fake = await startFakeMeta();
+    closers.push(fake.close);
+    fake.setHandler(scriptHandler(fullScript, FAKE_MODEL));
+    const api = await startApi(testConfig(fake));
+    closers.push(api.close);
+    const created = await createLive(api.apiUrl);
+    const runId = created["runId"] as string;
+    const awaiting = await waitFor(api.apiUrl, runId, ["AWAITING_APPROVAL"]);
+    await postJson(`${api.apiUrl}/api/runs/${runId}/approve`, {
+      requirements: awaiting["requirementsDraft"],
+    });
+    const firstProposal = fake.requests[1]?.bodyJson;
+    const messages = firstProposal?.["messages"] as { role: string; content: string }[];
+    const userContent = messages[1]?.content ?? "";
+    expect(userContent).toContain("heuristic");
+    expect(userContent).toContain("29800");
+  });
+
+  it("reports a heuristic win on the independent oracle without model help", async () => {
+    const fake = await startFakeMeta();
+    closers.push(fake.close);
+    fake.setHandler(
+      scriptHandler(
+        [
+          { kind: "ok", contentJson: draftRequirements(2) },
+          { kind: "ok", contentJson: proposal(0, [], "retain baseline") },
+          { kind: "ok", contentJson: proposal(0, [{ productId: "ghost", locationId: "L-near" }], "invalid") },
+          { kind: "ok", contentJson: proposal(0, [], "retain baseline") },
+        ],
+        FAKE_MODEL,
+      ),
+    );
+    const api = await startApi(testConfig(fake));
+    closers.push(api.close);
+    const res = await fetch(`${api.apiUrl}/api/runs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ scenario: oracleScenario(), requestText: "swap demand test", mode: "live", consent: true }),
+    });
+    expect(res.status).toBe(202);
+    const created = (await res.json()) as Record<string, unknown>;
+    const runId = created["runId"] as string;
+    const awaiting = await waitFor(api.apiUrl, runId, ["AWAITING_APPROVAL"]);
+    const approved = await postJson(`${api.apiUrl}/api/runs/${runId}/approve`, {
+      requirements: awaiting["requirementsDraft"],
+    });
+    expect(approved.json["state"]).toBe("COMPLETED");
+    const heuristic = approved.json["heuristic"] as Record<string, unknown>;
+    const candidate = heuristic["candidate"] as Record<string, unknown>;
+    expect(candidate["valid"]).toBe(true);
+    expect(candidate["weightedTravelMm"]).toBe(26000);
+    expect(candidate["relocationCount"]).toBe(2);
+    expect(approved.json["bestName"]).toBe("heuristic");
+    expect(approved.json["outcome"]).toBe("IMPROVED_VALID_ASSIGNMENT");
+    const report = await getJson(`${api.apiUrl}/api/runs/${runId}/report`);
+    const names = ((report.json["candidates"] as Record<string, unknown>[]) ?? []).map((c) => c["name"]);
+    expect(names).toContain("heuristic");
+  });
+
+  it("zero heuristic budget disables evaluation without breaking the run", async () => {
+    const fake = await startFakeMeta();
+    closers.push(fake.close);
+    fake.setHandler(scriptHandler(fullScript, FAKE_MODEL));
+    const api = await startApi(testConfig(fake, { HEURISTIC_MAX_EVALUATIONS: "0" }));
+    closers.push(api.close);
+    const created = await createLive(api.apiUrl);
+    const runId = created["runId"] as string;
+    const awaiting = await waitFor(api.apiUrl, runId, ["AWAITING_APPROVAL"]);
+    const approved = await postJson(`${api.apiUrl}/api/runs/${runId}/approve`, {
+      requirements: awaiting["requirementsDraft"],
+    });
+    expect(approved.json["state"]).toBe("COMPLETED");
+    const heuristic = approved.json["heuristic"] as Record<string, unknown>;
+    expect(heuristic["evaluationsUsed"]).toBe(0);
+    expect(heuristic["evaluationsBudget"]).toBe(0);
+    expect(heuristic["candidate"]).toBeNull();
+    expect((approved.json["methodLabels"] as Record<string, unknown>)["heuristic"]).toBeUndefined();
+    const report = await getJson(`${api.apiUrl}/api/runs/${runId}/report`);
+    const names = ((report.json["candidates"] as Record<string, unknown>[]) ?? []).map((c) => c["name"]);
+    expect(names).not.toContain("heuristic");
+    // Model-only best selection still works: proposal-1 (35600) wins.
+    expect(approved.json["bestName"]).toBe("proposal-1");
+  });
+
+  it("sends complete geometry, nav, demand, and mapping context to the model", async () => {
+    const fake = await startFakeMeta();
+    closers.push(fake.close);
+    fake.setHandler(scriptHandler(fullScript, FAKE_MODEL));
+    const api = await startApi(testConfig(fake));
+    closers.push(api.close);
+    const created = await createLive(api.apiUrl);
+    const runId = created["runId"] as string;
+    const awaiting = await waitFor(api.apiUrl, runId, ["AWAITING_APPROVAL"]);
+    await postJson(`${api.apiUrl}/api/runs/${runId}/approve`, {
+      requirements: awaiting["requirementsDraft"],
+    });
+    const firstProposal = fake.requests[1]?.bodyJson;
+    const messages = firstProposal?.["messages"] as { role: string; content: string }[];
+    const userContent = messages[1]?.content ?? "";
+    // Brief section 20 input context: packing + approach points, nav
+    // settings, allowlists, split demand semantics, measured distances.
+    for (const field of [
+      "packingPointMm",
+      "pickPointMm",
+      "minimumPassageWidthMm",
+      "gridSizeMm",
+      "allowedLocationIds",
+      "allowedProductIds",
+      "demandFrequency",
+      "demandUnits",
+      "packingDistances",
+    ]) {
+      expect(userContent).toContain(field);
+    }
+    const summaryText = userContent.split("\nApproved constraints:")[0]?.replace("Scenario summary: ", "") ?? "{}";
+    const summary = JSON.parse(summaryText) as Record<string, unknown>;
+    expect(summary["packingPointMm"]).toEqual({ x: 3000, z: 3000 });
+    const locations = summary["locations"] as Record<string, unknown>[];
+    expect(locations[0]?.["pickPointMm"]).toEqual({ x: 2900, z: 1500 });
+    const products = summary["products"] as Record<string, unknown>[];
+    const skuA = products.find((p) => p["id"] === "sku-a") as Record<string, unknown>;
+    // Distinct-order frequency (4) is separate from quantity-weighted units (8).
+    expect(skuA["demandFrequency"]).toBe(4);
+    expect(skuA["demandUnits"]).toBe(8);
+    const nav = summary["nav"] as Record<string, unknown>;
+    expect((nav["cart"] as Record<string, unknown>)["widthMm"]).toBe(600);
+    expect(nav["minimumPassageWidthMm"]).toBe(1400);
+    expect(nav["gridSizeMm"]).toBe(100);
+    const distances = summary["packingDistances"] as { locationId: string; distanceMm: number | null; status: string }[];
+    expect(distances).toHaveLength(8);
+    const l6 = distances.find((d) => d.locationId === "L6");
+    expect(l6?.status).toBe("reachable");
+    expect(typeof l6?.distanceMm).toBe("number");
+    // Feedback carries baseline-relative changes, not scores alone: the
+    // heuristic entry maps the actual winning moves, and best-so-far names
+    // the heuristic with its changes (29800 beats baseline 36800).
+    const feedbackText = userContent.split("Evaluator feedback (most recent last): ")[1] ?? "[]";
+    const feedback = JSON.parse(feedbackText) as Record<string, unknown>[];
+    expect(feedback[0]?.["proposalName"]).toBe("heuristic");
+    expect(feedback[0]?.["changes"]).toEqual([
+      { productId: "sku-b", locationId: "L4" },
+      { productId: "sku-d", locationId: "L2" },
+    ]);
+    expect(feedback[0]?.["bestValidSoFar"]).toEqual({
+      name: "heuristic",
+      weightedTravelMm: 29800,
+      relocationCount: 2,
+      changes: [
+        { productId: "sku-b", locationId: "L4" },
+        { productId: "sku-d", locationId: "L2" },
+      ],
+    });
+    // Later proposals see evaluated model mappings too: proposal-1 moved
+    // sku-b to L6, and the heuristic stays best-so-far.
+    const secondProposal = fake.requests[2]?.bodyJson;
+    const messages2 = secondProposal?.["messages"] as { role: string; content: string }[];
+    const feedback2 = JSON.parse(
+      (messages2[1]?.content ?? "").split("Evaluator feedback (most recent last): ")[1] ?? "[]",
+    ) as Record<string, unknown>[];
+    expect(feedback2[1]?.["proposalName"]).toBe("proposal-1");
+    expect(feedback2[1]?.["changes"]).toEqual([{ productId: "sku-b", locationId: "L6" }]);
+    expect((feedback2[1]?.["bestValidSoFar"] as Record<string, unknown>)["name"]).toBe("heuristic");
+  });
+
+  it("exposes configured allowlists in the scenario summary", async () => {
+    const { buildScenarioSummary } = await import("../src/prompts.js");
+    const { parseScenario } = await import("@layoutlab/core");
+    const scenario = parseScenario(sampleScenario());
+    scenario.products[0]!.allowedLocationIds = ["L1"];
+    scenario.locations[0]!.allowedProductIds = ["sku-a"];
+    const summary = JSON.parse(buildScenarioSummary(scenario, { maxChars: 20000 })) as Record<string, unknown>;
+    const products = summary["products"] as Record<string, unknown>[];
+    const locations = summary["locations"] as Record<string, unknown>[];
+    expect(products[0]?.["allowedLocationIds"]).toEqual(["L1"]);
+    expect(products[1]?.["allowedLocationIds"]).toBeNull();
+    expect(locations[0]?.["allowedProductIds"]).toEqual(["sku-a"]);
+    expect(locations[1]?.["allowedProductIds"]).toBeNull();
+  });
+
+  it("report asset refs are locked to the manifest and tracked GLB bytes", async () => {
+    const { createHash } = await import("node:crypto");
+    const manifestUrl = new URL("../../../assets/manifests/rack_large_empty_a01.manifest.json", import.meta.url);
+    const manifest = JSON.parse(readFileSync(manifestUrl, "utf8")) as Record<string, unknown>;
+    const derivative = manifest["derivative"] as Record<string, unknown>;
+    const glbUrl = new URL(`../../../${derivative["path"] as string}`, import.meta.url);
+    const glbBytes = readFileSync(glbUrl);
+    expect(glbBytes.length).toBe(derivative["bytes"]);
+    expect(createHash("sha256").update(glbBytes).digest("hex")).toBe(derivative["sha256"]);
+
+    const fake = await startFakeMeta();
+    closers.push(fake.close);
+    fake.setHandler(scriptHandler(fullScript, FAKE_MODEL));
+    const api = await startApi(testConfig(fake));
+    closers.push(api.close);
+    const created = await createLive(api.apiUrl);
+    const runId = created["runId"] as string;
+    const awaiting = await waitFor(api.apiUrl, runId, ["AWAITING_APPROVAL"]);
+    await postJson(`${api.apiUrl}/api/runs/${runId}/approve`, {
+      requirements: awaiting["requirementsDraft"],
+    });
+    const report = await getJson(`${api.apiUrl}/api/runs/${runId}/report`);
+    const refs = report.json["assetRefs"] as Record<string, unknown>[];
+    expect(refs).toHaveLength(4);
+    for (const ref of refs) {
+      expect(ref["kind"]).toBe("simready-glb");
+      expect(ref["ref"]).toBe("/assets/rack_large_empty_a01.glb");
+      expect(ref["sha256"]).toBe(derivative["sha256"]);
+      expect(JSON.stringify(ref["note"])).toContain("CC-BY-4.0");
+    }
   });
 });
 

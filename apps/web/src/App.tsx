@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  HEURISTIC_NAME,
   applyAssignment,
   applyProposal,
   buildNavContext,
@@ -7,11 +8,14 @@ import {
   evaluateBaseline,
   evaluateCandidate,
   freezeScenario,
+  methodLabelFor,
   parseProposal,
   parseRequirements,
   parseScenario,
+  runHeuristic,
   settingsFingerprint,
   shortestPathPointsMm,
+  validateScene,
   type Assignment,
   type CandidateResult,
   type PlanningRequirements,
@@ -33,7 +37,7 @@ import {
   type ApiStatus,
   type RunSummary,
 } from "./lib/api";
-import { buildExportEnvelope, newRunId, replayAnyEnvelope } from "./lib/export";
+import { buildExportEnvelope, newRunId, replayAnyEnvelope, type M4HeuristicMeta } from "./lib/export";
 import {
   clearPersisted,
   loadPersisted,
@@ -70,6 +74,7 @@ export type StubRunState = {
   bestName: string | null;
   outcome: string | null;
   progress: string;
+  heuristicMeta: M4HeuristicMeta | null;
 };
 
 const IDLE_RUN: StubRunState = {
@@ -82,6 +87,7 @@ const IDLE_RUN: StubRunState = {
   bestName: null,
   outcome: null,
   progress: "",
+  heuristicMeta: null,
 };
 
 const delay = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
@@ -154,7 +160,7 @@ export function App(): React.JSX.Element {
         s.stubBaselineId === s.scenario.id &&
         s.stubBaselineRevision === s.scenario.revision &&
         s.stubBaselineFingerprint === settingsFingerprint(s.scenario);
-      if (s.mode === "STUB" && s.stubCandidates.length > 0 && identityOk) {
+      if (s.mode === "STUB" && (s.stubCandidates.length > 0 || s.heuristic !== null) && identityOk) {
         const proposals: StubProposalState[] = s.stubCandidates.map((c) => ({
           name: c.name,
           rationale: c.rationale,
@@ -164,6 +170,29 @@ export function App(): React.JSX.Element {
           applyErrors: [],
           candidate: evaluateCandidate(s.scenario, s.requirements, c.mapping, c.name),
         }));
+        // The heuristic restores first (it ran before the stub proposals),
+        // re-evaluated through core like every restored candidate.
+        let heuristicMeta: M4HeuristicMeta | null = null;
+        if (s.heuristic) {
+          proposals.unshift({
+            name: HEURISTIC_NAME,
+            rationale: s.heuristic.rationale,
+            parseOk: true,
+            parseError: null,
+            applyOk: true,
+            applyErrors: [],
+            candidate: evaluateCandidate(s.scenario, s.requirements, s.heuristic.mapping, HEURISTIC_NAME),
+          });
+          heuristicMeta = {
+            evaluationsUsed: s.heuristic.evaluationsUsed,
+            evaluationsBudget: s.heuristic.evaluationsBudget,
+            method: "demand-greedy-swaps/1",
+            reason: s.heuristic.reason,
+            retainedBaseline: s.heuristic.retainedBaseline,
+            sceneOk: true,
+            rankingExhausted: s.heuristic.rankingExhausted,
+          };
+        }
         const entries = proposals
           .filter((p) => p.candidate !== null)
           .map((p) => ({ name: p.name, mapping: (p.candidate as CandidateResult).assignment }));
@@ -179,6 +208,7 @@ export function App(): React.JSX.Element {
           bestName: report.bestName,
           outcome: report.outcome,
           progress: `Restored run ${s.stubRunId} from saved state; re-evaluated with core (restored provenance).`,
+          heuristicMeta,
         });
         setSelectedCandidate(s.selectedCandidate ?? report.bestName ?? "baseline");
       } else {
@@ -216,12 +246,14 @@ export function App(): React.JSX.Element {
   useEffect(() => {
     if (!scenario) return;
     const stubCandidates: PersistedStubCandidate[] = stubRun.proposals
-      .filter((p) => p.candidate !== null)
+      .filter((p) => p.candidate !== null && p.name !== HEURISTIC_NAME)
       .map((p) => ({
         name: p.name,
         mapping: (p.candidate as CandidateResult).assignment,
         rationale: p.rationale,
       }));
+    // The heuristic persists separately (distinct method, own budget).
+    const heuristicEntry = stubRun.proposals.find((p) => p.name === HEURISTIC_NAME && p.candidate !== null);
     const completed = stubRun.status === "completed";
     savePersisted({
       version: 1,
@@ -237,6 +269,18 @@ export function App(): React.JSX.Element {
       stubBaselineId: completed ? (stubRun.baseline?.id ?? null) : null,
       stubBaselineFingerprint: completed ? (stubRun.baselineFingerprint ?? null) : null,
       stubRunId: completed ? (stubRun.runId ?? null) : null,
+      heuristic:
+        completed && heuristicEntry?.candidate && stubRun.heuristicMeta
+          ? {
+              mapping: heuristicEntry.candidate.assignment,
+              rationale: heuristicEntry.rationale,
+              evaluationsUsed: stubRun.heuristicMeta.evaluationsUsed,
+              evaluationsBudget: stubRun.heuristicMeta.evaluationsBudget,
+              retainedBaseline: stubRun.heuristicMeta.retainedBaseline,
+              reason: stubRun.heuristicMeta.reason,
+              rankingExhausted: stubRun.heuristicMeta.rankingExhausted,
+            }
+          : null,
     });
   }, [scenario, requirements, approved, approvedSnapshot, mode, selectedCandidate, selectedOrderId, stubRun]);
 
@@ -363,21 +407,59 @@ export function App(): React.JSX.Element {
     const alive = (): boolean => seq === runSeq.current;
     const frozen = freezeScenario(scenario);
     const reqSnap = structuredClone(requirements);
+    // Shared scene gate (brief section 13): invalid fixed geometry blocks the
+    // run before any assignment search. Assignment-invalid baselines still run.
+    const sceneCheck = validateScene(frozen);
+    if (!sceneCheck.ok) {
+      setNotice(
+        `Stub blocked: scene geometry is invalid (INPUT_INVALID: ${sceneCheck.issues.map((i) => i.code).join(", ")}); fix racks, locations, or packing before generating.`,
+      );
+      return;
+    }
     const proposals = generateStubProposals(frozen, reqSnap, 3);
     const runId = newRunId();
+    // Bounded demand heuristic FIRST (synchronous, deterministic, no model),
+    // then the explicitly labeled stub proposals.
+    const heuristic = runHeuristic(frozen, reqSnap);
+    const heuristicMeta: M4HeuristicMeta = {
+      evaluationsUsed: heuristic.evaluationsUsed,
+      evaluationsBudget: heuristic.evaluationsBudget,
+      method: heuristic.method,
+      reason: heuristic.reason,
+      retainedBaseline: heuristic.retainedBaseline,
+      sceneOk: heuristic.sceneOk,
+      rankingExhausted: heuristic.rankingExhausted,
+    };
+    const heuristicEntry: StubProposalState | null = heuristic.candidate
+      ? {
+          name: HEURISTIC_NAME,
+          rationale:
+            `Heuristic ${heuristic.method}: ${heuristic.reason} ` +
+            `(${heuristic.evaluationsUsed}/${heuristic.evaluationsBudget} candidate evaluations, no model used)` +
+            (heuristic.rankingExhausted
+              ? " [location ranking exhausted its computation budget; unranked locations were not treated as unreachable]."
+              : "."),
+          parseOk: true,
+          parseError: null,
+          applyOk: true,
+          applyErrors: [],
+          candidate: heuristic.candidate,
+        }
+      : null;
     setStubRun({
       status: "running",
       runId,
       baseline: frozen,
       baselineFingerprint: settingsFingerprint(frozen),
       requirements: reqSnap,
-      proposals: [],
+      proposals: heuristicEntry ? [heuristicEntry] : [],
       bestName: null,
       outcome: null,
-      progress: `Starting stub run ${runId} (0/${proposals.length})…`,
+      progress: `Starting stub run ${runId} (heuristic done, 0/${proposals.length} stub)…`,
+      heuristicMeta,
     });
     setApplyMessage(null);
-    const done: StubProposalState[] = [];
+    const done: StubProposalState[] = heuristicEntry ? [heuristicEntry] : [];
     for (let i = 0; i < proposals.length; i++) {
       if (!alive() || cancelRef.current) break;
       setStubRun((r) => (seq === runSeq.current ? { ...r, progress: `Generating stub proposal ${i + 1}/${proposals.length}…` } : r));
@@ -429,13 +511,16 @@ export function App(): React.JSX.Element {
       .filter((p) => p.candidate !== null)
       .map((p) => ({ name: p.name, mapping: (p.candidate as CandidateResult).assignment }));
     const report = createReport(frozen, reqSnap, entries);
+    const generatedCount = done.filter((p) => p.name !== HEURISTIC_NAME).length;
+    const heuristicCount = done.some((p) => p.name === HEURISTIC_NAME) ? 1 : 0;
     setStubRun((r) => ({
       ...r,
       status: "completed",
       proposals: done,
       bestName: report.bestName,
       outcome: report.outcome,
-      progress: `Completed: ${done.length} proposal(s), best ${report.bestName ?? "none"} (${report.outcome}).`,
+      progress: `Completed: ${generatedCount} generated proposal(s) + ${heuristicCount} heuristic candidate, best ${report.bestName ?? "none"} (${report.outcome}).`,
+      heuristicMeta,
     }));
     setMode("STUB");
     setSelectedCandidate(report.bestName ?? "baseline");
@@ -749,6 +834,7 @@ export function App(): React.JSX.Element {
       entries,
       provider: useStub ? "stub" : "manual",
       runId: useStub ? (stubRun.runId ?? newRunId()) : newRunId(),
+      heuristic: useStub ? (stubRun.heuristicMeta ?? null) : null,
     });
     downloadJson(`layoutlab-m2-${envelope.provider}-${envelope.runId.slice(0, 8)}.json`, envelope);
   };
@@ -803,6 +889,46 @@ export function App(): React.JSX.Element {
   // terminal states stay inspectable with apply disabled.
   const liveComparison: StubRunState = useMemo(() => {
     if (!liveRun || liveRun.state === "CANCELLED" || liveRun.attempts.length === 0) return IDLE_RUN;
+    // Server heuristic first (it ran before the model proposals), then attempts.
+    const proposals: StubProposalState[] = [];
+    let heuristicMeta: M4HeuristicMeta | null = null;
+    if (liveRun.heuristic?.candidate) {
+      const h = liveRun.heuristic;
+      proposals.push({
+        name: HEURISTIC_NAME,
+        rationale:
+          `Heuristic ${h.method}: ${h.reason} ` +
+          `(${h.evaluationsUsed}/${h.evaluationsBudget} candidate evaluations, no model used)` +
+          (h.rankingExhausted
+            ? " [location ranking exhausted its computation budget; unranked locations were not treated as unreachable]."
+            : "."),
+        parseOk: true,
+        parseError: null,
+        applyOk: true,
+        applyErrors: [],
+        candidate: h.candidate,
+      });
+      heuristicMeta = {
+        evaluationsUsed: h.evaluationsUsed,
+        evaluationsBudget: h.evaluationsBudget,
+        method: h.method,
+        reason: h.reason,
+        retainedBaseline: h.retainedBaseline,
+        sceneOk: h.sceneOk,
+        rankingExhausted: h.rankingExhausted,
+      };
+    }
+    for (const a of liveRun.attempts) {
+      proposals.push({
+        name: a.name,
+        rationale: a.rationale,
+        parseOk: a.parseOk,
+        parseError: a.parseError,
+        applyOk: a.applyOk,
+        applyErrors: a.applyErrors,
+        candidate: a.candidate,
+      });
+    }
     return {
       status:
         liveRun.state === "COMPLETED"
@@ -814,23 +940,45 @@ export function App(): React.JSX.Element {
       baseline: liveBaseline,
       baselineFingerprint: liveBaselineFingerprint,
       requirements: liveRun.requirements,
-      proposals: liveRun.attempts.map((a) => ({
-        name: a.name,
-        rationale: a.rationale,
-        parseOk: a.parseOk,
-        parseError: a.parseError,
-        applyOk: a.applyOk,
-        applyErrors: a.applyErrors,
-        candidate: a.candidate,
-      })),
+      proposals,
       bestName: liveRun.bestName,
       outcome: liveRun.outcome,
       progress: `Live ${liveRun.state}: ${liveRun.proposalsUsed} proposal(s), best ${liveRun.bestName ?? "none"}.`,
+      heuristicMeta,
     };
   }, [liveRun, liveBaseline, liveBaselineFingerprint]);
 
   const comparisonRun = mode === "LIVE" ? liveComparison : stubRun;
   const comparisonProvider = mode === "LIVE" ? "live" : "stub";
+  // Exact method labels: server-provided for live, core-derived for stub.
+  const comparisonLabels: Record<string, string> = useMemo(() => {
+    if (mode === "LIVE" && liveRun?.methodLabels) return { ...liveRun.methodLabels };
+    const labels: Record<string, string> = { baseline: methodLabelFor("baseline") };
+    for (const p of comparisonRun.proposals) {
+      if (p.candidate) labels[p.name] = methodLabelFor(p.name);
+    }
+    return labels;
+  }, [mode, liveRun, comparisonRun.proposals]);
+  const comparisonBudgets = useMemo(() => {
+    if (mode === "LIVE" && liveRun) {
+      return {
+        heuristic: { ...liveRun.candidateBudgets.heuristic },
+        generated: {
+          proposalsUsed: liveRun.proposalsUsed,
+          maxProposals: liveRun.budgets.maxProposals,
+          extra: `${liveRun.modelRequestsUsed}/${liveRun.budgets.maxRequests} model requests`,
+        },
+      };
+    }
+    const stubCount = comparisonRun.proposals.filter((p) => p.candidate !== null && p.name !== HEURISTIC_NAME).length;
+    return {
+      heuristic: {
+        evaluationsUsed: comparisonRun.heuristicMeta?.evaluationsUsed ?? 0,
+        evaluationsBudget: comparisonRun.heuristicMeta?.evaluationsBudget ?? 0,
+      },
+      generated: { proposalsUsed: stubCount, maxProposals: 3, extra: "0 model requests" },
+    };
+  }, [mode, liveRun, comparisonRun]);
 
   const selectedStub = useMemo(
     () => comparisonRun.proposals.find((p) => p.name === selectedCandidate) ?? null,
@@ -1004,8 +1152,8 @@ export function App(): React.JSX.Element {
                   />
                 </div>
                 <div className="viewbox" data-testid="view-3d">
-                  <span className="proxy-ribbon">DEVELOPMENT PROXIES</span>
-                  <h3>3D proxy (Three.js)</h3>
+                  <span className="proxy-ribbon">SIMREADY RACKS · PROXY MARKERS</span>
+                  <h3>3D warehouse</h3>
                   <ThreeView
                     scenario={scenario}
                     assignment={displayedAssignment ?? scenario.assignments}
@@ -1068,6 +1216,8 @@ export function App(): React.JSX.Element {
           onSelect={setSelectedCandidate}
           onApply={mode === "LIVE" ? applyLiveCandidate : applyCandidate}
           providerLabel={comparisonProvider}
+          methodLabels={comparisonLabels}
+          budgets={comparisonBudgets}
         />
       </div>
     </div>

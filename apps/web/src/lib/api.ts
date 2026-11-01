@@ -31,6 +31,18 @@ export type LiveAttempt = {
   transportError: string | null;
 };
 
+export type LiveHeuristic = {
+  name: "heuristic";
+  method: string;
+  sceneOk: boolean;
+  retainedBaseline: boolean;
+  rankingExhausted: boolean;
+  evaluationsUsed: number;
+  evaluationsBudget: number;
+  reason: string;
+  candidate: CandidateResult | null;
+};
+
 export type RunSummary = {
   runId: string;
   state: "INTERPRETING" | "AWAITING_APPROVAL" | "RUNNING" | "COMPLETED" | "FAILED" | "CANCELLED" | "TIMED_OUT";
@@ -46,6 +58,12 @@ export type RunSummary = {
   interpretError: string | null;
   requirements: PlanningRequirements | null;
   baseline: CandidateResult | null;
+  heuristic: LiveHeuristic | null;
+  methodLabels: Record<string, string>;
+  candidateBudgets: {
+    heuristic: { evaluationsUsed: number; evaluationsBudget: number };
+    model: { proposalsUsed: number; maxProposals: number; requestsUsed: number; maxRequests: number };
+  };
   attempts: LiveAttempt[];
   bestName: string | null;
   outcome: string | null;

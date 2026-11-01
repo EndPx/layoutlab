@@ -27,6 +27,8 @@ The preflight used the server's four-request, bounded-prompt and 2,000-output-to
 
 Future failure handling should retain available usage, response ID and finish reason even when message content is absent. The historical evidence remains unchanged and incomplete where those values were not captured.
 
+Subsequent source review found another limitation of the M3 request context: its summary included rack geometry but omitted the packing point, per-location approach points, navigation settings and configured allowlists. Feedback contained scores but not the prior candidate mapping. M4 is tasked with completing this context before benchmarking. The M3 smoke remains a valid runtime/validation observation, but is insufficient for a fair inference about model optimization ability; the incomplete context is not asserted to be the sole cause of the observed failures or worse proposal.
+
 ## Artifacts
 
 - `evidence/sanitized/m3-live-smoke.json`: authorization, source revision, preflight bound, requirements review and final observations.

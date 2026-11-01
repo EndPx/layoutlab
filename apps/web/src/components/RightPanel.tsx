@@ -223,7 +223,9 @@ export function RightPanel(props: {
               Run <span className="mono">{live.run.runId.slice(0, 8)}</span> · {live.run.state} ·{" "}
               phase <span className="mono">{live.run.phase}</span> ·{" "}
               requests {live.run.modelRequestsUsed}/{live.run.budgets.maxRequests} · proposals{" "}
-              {live.run.proposalsUsed}/{live.run.budgets.maxProposals} ·{" "}
+              {live.run.proposalsUsed}/{live.run.budgets.maxProposals} · heuristic{" "}
+              {live.run.candidateBudgets.heuristic.evaluationsUsed}/{live.run.candidateBudgets.heuristic.evaluationsBudget}{" "}
+              evals ·{" "}
               <span className="mono">{live.run.providerKind}</span> (real Meta {live.run.realMetaRequests})
               {live.run.interpretError !== null && <> · <span className="error">interpret: {live.run.interpretError}</span></>}
               {live.run.lastError !== null && <> · <span className="error">{live.run.lastError}</span></>}
@@ -267,6 +269,15 @@ export function RightPanel(props: {
           />
           <h3>Live proposal timeline</h3>
           {(live.run === null || live.run.attempts.length === 0) && <p>No live proposals yet.</p>}
+          {live.run?.heuristic?.candidate && (
+            <p data-testid="timeline-heuristic">
+              <strong className="mono">heuristic</strong> —{" "}
+              {live.run.heuristic.candidate.valid
+                ? `valid ✓ ${live.run.heuristic.candidate.weightedTravelMm} mm`
+                : `invalid × ${live.run.heuristic.candidate.errors[0]?.code ?? "error"}`}{" "}
+              · {live.run.heuristic.evaluationsUsed}/{live.run.heuristic.evaluationsBudget} evals, no model used
+            </p>
+          )}
           <ol className="timeline" data-testid="live-timeline">
             {(live.run?.attempts ?? []).map((a) => (
               <li key={a.name} data-testid={`timeline-${a.name}`}>
@@ -357,6 +368,9 @@ export function RightPanel(props: {
             <p data-testid="stub-outcome">
               Outcome <strong className="mono">{stubRun.outcome}</strong> · best{" "}
               <strong className="mono">{stubRun.bestName ?? "none"}</strong> · model requests 0
+              {stubRun.heuristicMeta && (
+                <> · heuristic {stubRun.heuristicMeta.evaluationsUsed}/{stubRun.heuristicMeta.evaluationsBudget} evals</>
+              )}
             </p>
           )}
         </>

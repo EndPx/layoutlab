@@ -94,5 +94,16 @@ export {
 } from "./objective.js";
 export type { ComparableResult, RankedCandidate } from "./objective.js";
 export { applyAssignment, freezeScenario } from "./snapshot.js";
+export {
+  DEFAULT_HEURISTIC_MAX_EVALUATIONS,
+  HEURISTIC_METHOD,
+  HEURISTIC_NAME,
+  MAX_HEURISTIC_EVALUATIONS,
+  computeDemandFrequency,
+  methodLabelFor,
+  rankLocationsByPackingDistance,
+  runHeuristic,
+} from "./heuristic.js";
+export type { HeuristicOptions, HeuristicResult, LocationRank, LocationRankStatus, MethodLabel } from "./heuristic.js";
 export { compareCandidates, createReport, evaluateBaseline, evaluateCandidate, replayReport, REPORT_LIMITATIONS } from "./report.js";
 export type { CandidateResult, Comparison, EvaluationReport, ReportOutcome } from "./report.js";

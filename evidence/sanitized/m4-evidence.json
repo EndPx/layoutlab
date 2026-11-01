@@ -1,0 +1,171 @@
+{
+  "generatedAt": "2026-11-01T18:32:24.886Z",
+  "node": "v24.18.0",
+  "npm": "11.8.0",
+  "providerKind": "fixture",
+  "realMetaRequests": 0,
+  "transportRequestCount": 4,
+  "liveMetaTested": false,
+  "liveMetaNote": "No live Meta inference was performed or authorized in M4; all runtime evidence uses the local fixture transport. The M3 one-run allowance stays consumed.",
+  "modelId": "fixture-muse-shape",
+  "promptVersion": "layoutlab.m4prompt/1",
+  "envelopeVersion": "layoutlab.m3report/1",
+  "appVersion": "0.3.0",
+  "apiVersion": "0.4.0",
+  "coreVersion": "0.1.0",
+  "reportVersion": "layoutlab.report/1",
+  "routePolicy": "nearest-neighbor-a-star/1",
+  "run": {
+    "runId": "738ff6bb-f2ff-448f-97b6-0fe138c716c3",
+    "state": "COMPLETED",
+    "phase": "FINALIZING",
+    "outcome": "IMPROVED_VALID_ASSIGNMENT",
+    "bestName": "heuristic",
+    "modelRequestsUsed": 4,
+    "proposalsUsed": 3,
+    "budgets": {
+      "maxProposals": 3,
+      "maxRequests": 4,
+      "timeoutMs": 120000
+    },
+    "candidateBudgets": {
+      "heuristic": {
+        "evaluationsUsed": 15,
+        "evaluationsBudget": 32
+      },
+      "model": {
+        "proposalsUsed": 3,
+        "maxProposals": 3,
+        "requestsUsed": 4,
+        "maxRequests": 4
+      }
+    },
+    "methodLabels": {
+      "baseline": "current",
+      "heuristic": "heuristic",
+      "proposal-1": "meta-first",
+      "proposal-3": "meta-feedback"
+    },
+    "usageTotals": {
+      "promptTokens": 200,
+      "completionTokens": 40,
+      "totalTokens": 240
+    },
+    "baselineWeightedMm": 36800,
+    "heuristic": {
+      "weightedTravelMm": 29800,
+      "relocationCount": 2,
+      "evaluationsUsed": 15,
+      "evaluationsBudget": 32,
+      "retainedBaseline": false
+    },
+    "candidates": [
+      {
+        "name": "heuristic",
+        "valid": true,
+        "weightedTravelMm": 29800,
+        "relocationCount": 2
+      },
+      {
+        "name": "proposal-1",
+        "valid": true,
+        "weightedTravelMm": 35600,
+        "relocationCount": 1
+      },
+      {
+        "name": "proposal-3",
+        "valid": true,
+        "weightedTravelMm": 36000,
+        "relocationCount": 1
+      }
+    ],
+    "attempts": [
+      {
+        "name": "proposal-1",
+        "parseOk": true,
+        "applyOk": true,
+        "valid": true
+      },
+      {
+        "name": "proposal-2",
+        "parseOk": true,
+        "applyOk": false,
+        "valid": null
+      },
+      {
+        "name": "proposal-3",
+        "parseOk": true,
+        "applyOk": true,
+        "valid": true
+      }
+    ],
+    "feedbackBest": [
+      {
+        "proposalName": "heuristic",
+        "bestValidSoFar": "heuristic"
+      },
+      {
+        "proposalName": "proposal-1",
+        "bestValidSoFar": "heuristic"
+      },
+      {
+        "proposalName": "proposal-2",
+        "bestValidSoFar": "heuristic"
+      },
+      {
+        "proposalName": "proposal-3",
+        "bestValidSoFar": "heuristic"
+      }
+    ],
+    "improvementPercents": {
+      "baseline": 0,
+      "heuristic": 19.02173913043478,
+      "proposal-1": 3.260869565217391,
+      "proposal-3": 2.1739130434782608
+    }
+  },
+  "asset": {
+    "package": "rack_large_empty_a01",
+    "revision": "4763fbfaa4f8e97658e68b57d01b4c86659e08b5",
+    "license": "CC-BY-4.0",
+    "derivativeBytes": 3176476,
+    "derivativeSha256": "571cc601bbbf8759977e05c5104a1d9381a682d2537942a238c68ebf8f8ae9ea",
+    "transformedBoundsMin_m": [
+      -1.999988,
+      0,
+      -1.033291
+    ],
+    "transformedBoundsMax_m": [
+      1.999989,
+      3.010001,
+      1.03329
+    ],
+    "calibratedWithin1mm": true,
+    "manifestRef": "assets/manifests/rack_large_empty_a01.manifest.json"
+  },
+  "replay": {
+    "matchesSaved": true,
+    "mismatches": []
+  },
+  "webBundle": {
+    "files": 1,
+    "bytes": 1027138,
+    "secretScan": "pass (no key/endpoint/Bearer)"
+  },
+  "gates": {
+    "coreTests": "96 passed",
+    "apiTests": "41 passed",
+    "e2e": "46 passed, 0 skipped",
+    "typecheck": "clean (core + api + web)",
+    "build": "ok (core + api + web)"
+  },
+  "limitations": [
+    "Conservative 2D clearance model: not a safety certification or complete maneuverability assessment.",
+    "Nearest-neighbor routing is deterministic but not globally optimal.",
+    "Bounding-box fit does not prove real-world packability, rack load safety, or handling suitability.",
+    "Travel reduction is not converted to labor, monetary, or throughput improvement.",
+    "Demand heuristic runs before model proposals with its own candidate-evaluation budget; budgets differ across methods (no equal-compute claim).",
+    "Rack meshes are SimReady GLB (CC-BY-4.0, see asset manifest); markers and route remain DEVELOPMENT PROXIES.",
+    "M4 evidence is fixture-only; live Meta behavior with the heuristic is implemented but untested."
+  ]
+}

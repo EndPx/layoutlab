@@ -3,7 +3,7 @@
 // budgets). The key is never logged or serialized.
 import { readFileSync } from "node:fs";
 
-export const API_VERSION = "0.3.0";
+export const API_VERSION = "0.4.0";
 export const BRIEF_MAX_PROPOSALS = 3;
 export const BRIEF_MAX_REQUESTS = 4;
 export const BRIEF_MAX_TIMEOUT_MS = 120000;
@@ -30,6 +30,7 @@ export type ApiConfig = {
   maxCompletionTokens: number;
   maxResponseBytes: number;
   maxContextChars: number;
+  heuristicMaxEvaluations: number;
 };
 
 function clampInt(raw: string | undefined, fallback: number, min: number, max: number): number {
@@ -52,6 +53,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
   const concurrency = clampInt(env["API_CONCURRENCY"], 1, 1, 64);
   const rateMax = clampInt(env["API_RATE_MAX"], 60, 1, 100000);
   const rateWindowMs = clampInt(env["API_RATE_WINDOW_MS"], 60000, 1000, 3600000);
+  // Heuristic candidate-evaluation budget (core default 32, hard cap 256).
+  // Zero disables heuristic evaluation; it never consumes model requests.
+  const heuristicMaxEvaluations = clampInt(env["HEURISTIC_MAX_EVALUATIONS"], 32, 0, 256);
   const trimmedBase = baseUrl.replace(/\/+$/, "");
   return {
     baseUrl: trimmedBase,
@@ -71,6 +75,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
     maxCompletionTokens: 2000,
     maxResponseBytes: 65536,
     maxContextChars: 20000,
+    heuristicMaxEvaluations,
   };
 }
 

@@ -1,2 +1,4 @@
 # Preserve upstream asset bytes so source BOM hashes survive Windows checkout.
 assets/** -text
+# Preserve the converted GLB derivative byte-for-byte as well.
+*.glb -text

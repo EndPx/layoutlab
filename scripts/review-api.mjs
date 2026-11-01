@@ -65,6 +65,15 @@ async function poll(id, desired) {
   throw new Error('Review fixture polling exhausted.');
 }
 try {
+  const invalidScene = structuredClone(scenario);
+  invalidScene.racks[0].positionMm.x = -1000;
+  const invalidResponse = await fetch(base + '/api/runs', { method: 'POST',
+    headers: { 'content-type': 'application/json' }, body: JSON.stringify({ scenario: invalidScene,
+      requestText: 'Invalid fixed scene must not start inference.', mode: 'live', consent: true }) });
+  assert.equal(invalidResponse.status, 400);
+  assert.equal((await invalidResponse.json()).code, 'INPUT_INVALID');
+  assert.equal(captured.length, 0);
+  console.log('PASS invalid scene rejected before any transport request');
   const created = await request('/api/runs', { scenario, requestText: 'Keep all constraints; move at most two products.', mode: 'live', consent: true });
   const interpreted = await poll(created.runId, ['AWAITING_APPROVAL', 'FAILED']);
   assert.equal(interpreted.state, 'AWAITING_APPROVAL');
@@ -83,11 +92,29 @@ try {
   assert.equal(done.attempts[1].candidate.relocationCount, 2);
   assert.equal(done.bestName, 'baseline');
   assert.equal(done.outcome, 'NO_IMPROVEMENT_FOUND');
+  const userContent = captured[1].messages.find(m => m.role === 'user').content;
+  const summaryLine = userContent.split('\n').find(line => line.startsWith('Scenario summary: '));
+  const sentScenario = JSON.parse(summaryLine.slice('Scenario summary: '.length));
+  assert.deepEqual(sentScenario.packingPointMm, scenario.packingPointMm);
+  assert.deepEqual(sentScenario.nav.cart, scenario.cart);
+  assert.equal(sentScenario.nav.gridSizeMm, scenario.gridSizeMm);
+  assert.equal(sentScenario.nav.minimumPassageWidthMm, scenario.minimumPassageWidthMm);
+  assert.deepEqual(sentScenario.locations[0].pickPointMm, scenario.locations[0].pickPointMm);
+  assert.ok(Object.hasOwn(sentScenario.locations[0], 'allowedProductIds'));
+  assert.ok(Object.hasOwn(sentScenario.products[0], 'allowedLocationIds'));
+  assert.ok(Object.hasOwn(sentScenario.products[0], 'demandFrequency'));
+  const laterContent = captured[3].messages.find(m => m.role === 'user').content;
+  const feedbackLine = laterContent.split('\n').find(line => line.startsWith('Evaluator feedback (most recent last): '));
+  const feedback = JSON.parse(feedbackLine.slice('Evaluator feedback (most recent last): '.length));
+  assert.equal(feedback.at(-1).bestValidSoFar.name, 'baseline');
+  assert.deepEqual(feedback.at(-1).bestValidSoFar.changes, []);
+  assert.equal(feedback.at(-1).changes.length, 2);
   const report = await request(`/api/runs/${created.runId}/report`);
   assert.equal(report.baseline.weightedTravelMm, 16000);
   assert.equal(replayReport(report).matchesSaved, true);
   fs.writeFileSync('.coordination/review-api-report.json', JSON.stringify(report, null, 2));
   console.log('PASS actual local HTTP: 4 requests/3 proposals, atomic occupancy rejection, 16000-mm tie keeps baseline, fixture provenance, report replay');
+  console.log('PASS actual request context: packing/approach/navigation/allowlists/demand and baseline-relative feedback mappings');
 
   slow = true;
   let enteredResolve;

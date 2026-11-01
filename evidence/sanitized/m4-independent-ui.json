@@ -1,0 +1,51 @@
+{
+  "checkedAt": "2026-11-01T18:45:16.078Z",
+  "observations": [
+    {
+      "width": 390,
+      "pageScrollWidth": 390,
+      "racksLoaded": 4,
+      "deliveredGlbSha256": "571cc601bbbf8759977e05c5104a1d9381a682d2537942a238c68ebf8f8ae9ea",
+      "rackBboxM": [
+        [
+          0.5,
+          0,
+          1.1
+        ],
+        [
+          2.1,
+          2,
+          1.9
+        ]
+      ],
+      "heuristicEvaluations": 15,
+      "generatedProposalStatus": "completed: Completed: 3 generated proposal(s) + 1 heuristic candidate, best heuristic (IMPROVED_VALID_ASSIGNMENT).",
+      "modelRequests": 0,
+      "replayMatched": true,
+      "pageErrors": []
+    },
+    {
+      "width": 1440,
+      "pageScrollWidth": 1440,
+      "racksLoaded": 4,
+      "deliveredGlbSha256": "571cc601bbbf8759977e05c5104a1d9381a682d2537942a238c68ebf8f8ae9ea",
+      "rackBboxM": [
+        [
+          0.5,
+          0,
+          1.1
+        ],
+        [
+          2.1,
+          2,
+          1.9
+        ]
+      ],
+      "heuristicEvaluations": 15,
+      "generatedProposalStatus": "completed: Completed: 3 generated proposal(s) + 1 heuristic candidate, best heuristic (IMPROVED_VALID_ASSIGNMENT).",
+      "modelRequests": 0,
+      "replayMatched": true,
+      "pageErrors": []
+    }
+  ]
+}

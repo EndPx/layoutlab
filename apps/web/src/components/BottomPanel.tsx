@@ -1,6 +1,22 @@
-import { improvementPercent, type CandidateResult, type Scenario } from "@layoutlab/core";
+import {
+  improvementPercent,
+  methodLabelFor,
+  rankCandidates,
+  type CandidateResult,
+  type Scenario,
+} from "@layoutlab/core";
 import { buildRelocationRows } from "../lib/planner";
 import type { StubRunState } from "../App";
+
+export type ComparisonBudgets = {
+  heuristic: { evaluationsUsed: number; evaluationsBudget: number };
+  generated: { proposalsUsed: number; maxProposals: number; extra: string };
+};
+
+function travelOf(c: CandidateResult | null | undefined): string {
+  if (!c || !c.valid || c.weightedTravelMm === null) return "n/a";
+  return `${c.weightedTravelMm} mm`;
+}
 
 export function BottomPanel(props: {
   baselineResult: CandidateResult | null;
@@ -10,9 +26,12 @@ export function BottomPanel(props: {
   onSelect: (name: string) => void;
   onApply: (name: string) => void;
   providerLabel?: string;
+  methodLabels?: Record<string, string>;
+  budgets?: ComparisonBudgets;
 }): React.JSX.Element {
   const { baselineResult, stubRun, scenario, selectedCandidate, onSelect, onApply } = props;
   const providerLabel = props.providerLabel ?? "stub";
+  const labelOf = (name: string): string => props.methodLabels?.[name] ?? methodLabelFor(name);
   const candidates: CandidateResult[] = stubRun.proposals
     .filter((p) => p.candidate !== null)
     .map((p) => p.candidate as CandidateResult);
@@ -24,9 +43,27 @@ export function BottomPanel(props: {
     scenario && shown && shown.name !== "baseline"
       ? buildRelocationRows(baselineMapping, shown.assignment, scenario, (pid) => {
         const entry = stubRun.proposals.find((p) => p.name === shown.name);
-        return entry ? `${providerLabel}: ${entry.rationale.slice(0, 90)}` : `move ${pid}`;
+        return entry ? `${shown.name === "heuristic" ? "heuristic" : providerLabel}: ${entry.rationale.slice(0, 90)}` : `move ${pid}`;
       })
       : [];
+
+  // Attribution convention (brief comparison): Meta first is the actual
+  // attempt 1 (N/A when invalid, never first-valid substitution); Meta
+  // feedback-selected is the best valid META proposal among all actual
+  // attempts with its winning iteration (N/A when none). The overall selected
+  // assignment is separate and spans baseline+heuristic+Meta, so a retained
+  // baseline or heuristic win is never credited to Meta. Stub runs show the
+  // stub best instead of Meta rows.
+  const heuristic = candidates.find((c) => c.name === "heuristic") ?? null;
+  const metaFirst = candidates.find((c) => c.name === "proposal-1") ?? null;
+  const metaSelected = rankCandidates(candidates.filter((c) => /^proposal-\d+$/.test(c.name))).find(
+    (c) => c.valid,
+  ) ?? null;
+  const stubBest = rankCandidates(candidates.filter((c) => /^stub-\d+$/.test(c.name))).find(
+    (c) => c.valid,
+  ) ?? null;
+  const hasMeta = metaFirst !== null || metaSelected !== null;
+  const budgets = props.budgets;
 
   return (
     <div className="panel" data-testid="bottom-panel">
@@ -37,11 +74,12 @@ export function BottomPanel(props: {
           <div style={{ overflowX: "auto" }}>
           <table data-testid="comparison-table">
             <thead>
-              <tr><th>Candidate</th><th>Valid</th><th>Weighted mm</th><th>Mean mm</th><th>Reloc</th><th>Δ vs baseline</th><th>Select</th></tr>
+              <tr><th>Candidate</th><th>Method</th><th>Valid</th><th>Weighted mm</th><th>Mean mm</th><th>Reloc</th><th>Δ vs baseline</th><th>Select</th></tr>
             </thead>
             <tbody>
               <tr className={selectedCandidate === "baseline" ? "selected" : ""} data-testid="compare-baseline">
                 <td className="mono">baseline (current)</td>
+                <td className="mono">{labelOf("baseline")}</td>
                 <td>{baselineResult.valid ? "✓ valid" : `× ${baselineResult.errors[0]?.code ?? "invalid"}`}</td>
                 <td>{baselineResult.weightedTravelMm ?? "n/a"}</td>
                 <td>{baselineResult.workload?.meanOrderDistanceMm?.toFixed(1) ?? "n/a"}</td>
@@ -58,6 +96,7 @@ export function BottomPanel(props: {
                     data-testid={`compare-${c.name}`}
                   >
                     <td className="mono">{c.name}</td>
+                    <td className="mono">{labelOf(c.name)}</td>
                     <td>{c.valid ? "✓ valid" : `× ${c.errors[0]?.code ?? "invalid"}`}</td>
                     <td>{c.weightedTravelMm ?? "n/a"}</td>
                     <td>{c.workload?.meanOrderDistanceMm?.toFixed(1) ?? "n/a"}</td>
@@ -81,6 +120,30 @@ export function BottomPanel(props: {
             </tbody>
           </table>
           </div>
+          {budgets && (
+            <p data-testid="candidate-budgets">
+              Budgets: heuristic {budgets.heuristic.evaluationsUsed}/{budgets.heuristic.evaluationsBudget} candidate
+              evaluations · {providerLabel} {budgets.generated.proposalsUsed}/{budgets.generated.maxProposals} proposals
+              ({budgets.generated.extra}). Budgets differ across methods — not an equal-compute comparison.
+            </p>
+          )}
+          {(heuristic || hasMeta || stubBest) && (
+            <p data-testid="method-summary">
+              Current: {travelOf(baselineResult)}
+              {heuristic && <> · Heuristic: {travelOf(heuristic)} ({heuristic.name})</>}
+              {hasMeta && (
+                <>
+                  {" "}· Meta first: {travelOf(metaFirst)} (proposal-1)
+                  {" "}· Meta feedback-selected: {travelOf(metaSelected)}
+                  {metaSelected ? ` (best valid Meta proposal, ${metaSelected.name})` : ""}
+                </>
+              )}
+              {!hasMeta && stubBest && <> · Stub best: {travelOf(stubBest)} ({stubBest.name})</>}
+              {stubRun.bestName && (
+                <> · <strong>Overall selected: {stubRun.bestName} ({labelOf(stubRun.bestName)})</strong></>
+              )}
+            </p>
+          )}
           <h3>Relocation list {shown && shown.name !== "baseline" ? `for ${shown.name}` : ""}</h3>
           {!shown || shown.name === "baseline" ? (
             <p>Select a {providerLabel} candidate to inspect its explicit relocation table.</p>

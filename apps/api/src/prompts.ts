@@ -3,9 +3,21 @@
 // response_format.type=json_schema (see https://dev.meta.ai/docs/structured-output).
 // developer role preferred; max_completion_tokens bounds output (max_output_tokens
 // is rejected on Chat Completions). No tools, no reasoning-trace requests.
-import type { CandidateResult, PlanningRequirements, Scenario } from "@layoutlab/core";
+import {
+  computeDemandFrequency,
+  type CandidateResult,
+  type LocationRank,
+  type PlanningRequirements,
+  type Scenario,
+} from "@layoutlab/core";
 
-export const PROMPT_VERSION = "layoutlab.m3prompt/1";
+// M4: evaluator feedback now leads with the measured heuristic result (and
+// best-so-far seeds from it); instructions are otherwise unchanged.
+// M4 context completeness (brief section 20): the scenario summary carries
+// packing + approach points, nav settings, configured allowlists, split
+// demand semantics, and measured packing distances; feedback carries
+// baseline-relative mappings, not scores alone.
+export const PROMPT_VERSION = "layoutlab.m4prompt/1";
 
 export const INTERPRET_INSTRUCTION = [
   "You are LayoutLab's planning request interpreter.",
@@ -77,42 +89,78 @@ export const proposalJsonSchema = {
   additionalProperties: false,
 } as const;
 
+export type BaselineChange = { productId: string; locationId: string };
+
 export type ProposalFeedback = {
   proposalName: string;
   valid: boolean;
   errors: string[];
   relocationCount: number | null;
   weightedTravelMm: number | null;
-  bestValidSoFar: { name: string; weightedTravelMm: number; relocationCount: number } | null;
+  // Baseline-relative changes of the evaluated mapping (sorted by productId),
+  // null when the attempt produced no mapping. The model revises actual
+  // placements from these, not from scores alone.
+  changes: BaselineChange[] | null;
+  bestValidSoFar: {
+    name: string;
+    weightedTravelMm: number;
+    relocationCount: number;
+    changes: BaselineChange[] | null;
+  } | null;
 };
 
 export function buildScenarioSummary(
   scenario: Scenario,
-  opts: { maxChars: number; requirements?: PlanningRequirements; baseline?: CandidateResult | null },
+  opts: {
+    maxChars: number;
+    requirements?: PlanningRequirements;
+    baseline?: CandidateResult | null;
+    // Measured packing distances reused from the heuristic location rank when
+    // available (proposal summaries, built after the heuristic runs). These
+    // are evaluator measurements, never model estimates.
+    locationRank?: LocationRank[] | null;
+  },
 ): string {
-  const demand = new Map<string, number>();
-  for (const p of scenario.products) demand.set(p.id, 0);
+  const units = new Map<string, number>();
+  for (const p of scenario.products) units.set(p.id, 0);
   for (const o of scenario.orders) {
-    for (const l of o.lines) demand.set(l.productId, (demand.get(l.productId) ?? 0) + o.frequency * l.quantity);
+    for (const l of o.lines) units.set(l.productId, (units.get(l.productId) ?? 0) + o.frequency * l.quantity);
   }
+  // Distinct-order frequency is separate from quantity-weighted units: one
+  // order visits each distinct product once.
+  const frequency = computeDemandFrequency(scenario);
   const summary = {
     scenarioId: scenario.id,
     revision: scenario.revision,
     room: scenario.room,
+    packingPointMm: scenario.packingPointMm,
+    // Navigation settings the evaluator routes with (brief section 20 input).
+    nav: {
+      cart: scenario.cart,
+      minimumPassageWidthMm: scenario.minimumPassageWidthMm,
+      gridSizeMm: scenario.gridSizeMm,
+    },
     racks: scenario.racks.map((r) => ({ id: r.id, positionMm: r.positionMm, dimensionsMm: r.dimensionsMm, yawDeg: r.yawDeg })),
     locations: scenario.locations.map((l) => ({
       id: l.id,
       rackId: l.rackId,
       storageClass: l.storageClass,
       usableDimensionsMm: l.usableDimensionsMm,
+      pickPointMm: l.pickPointMm,
+      allowedProductIds: l.allowedProductIds ?? null,
     })),
     products: scenario.products.map((p) => ({
       id: p.id,
       requiredStorageClass: p.requiredStorageClass,
       storedLoadDimensionsMm: p.storedLoadDimensionsMm,
       lockedLocationId: p.lockedLocationId ?? null,
-      demandUnits: demand.get(p.id) ?? 0,
+      allowedLocationIds: p.allowedLocationIds ?? null,
+      demandFrequency: frequency.get(p.id) ?? 0,
+      demandUnits: units.get(p.id) ?? 0,
     })),
+    packingDistances: opts.locationRank
+      ? opts.locationRank.map((r) => ({ locationId: r.locationId, distanceMm: r.distanceMm, status: r.status }))
+      : null,
     baselineAssignments: scenario.assignments,
     orders: scenario.orders.map((o) => ({ id: o.id, frequency: o.frequency, products: o.lines.map((l) => l.productId) })),
     requirements: opts.requirements

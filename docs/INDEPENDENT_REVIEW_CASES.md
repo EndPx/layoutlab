@@ -26,3 +26,9 @@ For cart width 600 and length 800, circumscribed radius is sqrt(300^2+400^2) = 5
 ## Trust boundary review
 
 Check safe integers and workload bounds; duplicate IDs and references; unknown fields; locked-product overrides; timeout/cancellation and actual network request accounting; report metadata and secret absence. A retry or interpretation call consumes the same four-request run budget. No browser bundle may include the runtime key. A stub report must identify the stub provider and cannot claim live Meta provenance.
+
+## M4 demand heuristic oracle
+
+Packing (1000,1000), near location (2000,1000), far location (4000,1000), no intervening obstacle. Product A starts far; B starts near. An A-only order has frequency 10, and a B-only order frequency 1. Baseline travel is 10*6000 + 1*2000 = 62000 mm. With equal compatibility and relocation budget two, swapping gives 10*2000 + 1*6000 = 26000 mm and two relocations. No empty location is present: budget one cannot admit the swap. Locking A or making the near location incompatible must prevent that move. Valid rack geometry can be placed away from these routes so all fixture references remain intact.
+
+Demand rank counts a distinct product once per order times frequency. Order quantity changes reported units, not this visit-frequency rank or the number of route visits.

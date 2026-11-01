@@ -209,7 +209,7 @@ export function createApp(opts: {
       e?.status ??
       (code === "UNKNOWN_RUN"
         ? 404
-        : code === "BAD_REQUIREMENTS" || code === "BAD_REQUEST" || code === "UNRESOLVED_QUESTIONS"
+        : code === "BAD_REQUIREMENTS" || code === "BAD_REQUEST" || code === "UNRESOLVED_QUESTIONS" || code === "INPUT_INVALID"
           ? 400
           : code === "RUN_EXPIRED"
             ? 408

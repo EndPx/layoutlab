@@ -8,7 +8,7 @@ Scope authority: [Implementation Brief v2](IMPLEMENTATION_BRIEF_V2.md). Codex pl
 | M1 | Strict runtime schemas, atomic assignment validation, conservative geometry/navigation, deterministic routing and objective; independently calculated expected values and required negative cases | Accepted: 75 tests, typecheck, build, consumer smoke and independent assertions pass |
 | M2 | Browser load, manual edit, evaluate, compare, apply, persistence, report export and replay; English UI, 2D and basic 3D, revision protection | Accepted: 83 core tests, 22 browser tests; independent 390/1440 flow and replay checks pass |
 | M3 | Server-side Meta interpretation and proposals with measured feedback; maximum 3 proposals and 4 requests including repairs; timeout, cancellation, concurrency and input limits; separate live evidence | Local and live smoke accepted: one authorized run, 4 real requests, 2 failed attempts + 1 valid worse proposal; baseline retained, replay matched |
-| M4 | Bounded demand heuristic sharing evaluator; actual SimReady asset loaded, inspected and attributed; proxies clearly labeled until replaced | Pending |
+| M4 | Bounded demand heuristic sharing evaluator; actual SimReady asset loaded, inspected and attributed; proxies clearly labeled until replaced | Accepted: 96 core + 41 API + 46 browser tests, independent heuristic/source/GLB/browser checks; final wording follow-up verified |
 | M5 | Six frozen scenarios, three actual model runs each when authorized; first versus feedback and heuristic comparison, all failures and budgets recorded; deterministic report replay | Pending |
 | M6 | Documentation and demo agree with evidence; GitHub repository layoutlab requested for later; deployment requires authorization and public verification | Pending |
 
@@ -71,3 +71,13 @@ Scope authority: [Implementation Brief v2](IMPLEMENTATION_BRIEF_V2.md). Codex pl
 - Actual: interpretation plus three proposal attempts; first two had no parseable message content; third was valid but 45600 mm versus baseline 36800 mm. Outcome NO_IMPROVEMENT_FOUND, baseline retained. Node and browser report replay matched.
 - Usage is partial (usageIncomplete true); no exact charge or model-superiority claim. Conservative preflight cost bound US$0.0664192; invoice not retrieved. No second run or paid retry.
 - Evidence and limitations: docs/LIVE_SMOKE.md and sanitized m3-live-smoke artifacts. Future failure handling must retain available usage/finish diagnostics for empty-content responses; historical missing values cannot be invented.
+
+## M4 review
+
+- Result: bounded demand heuristic with separate budgets/counters; baseline-aware measured feedback; exact first-attempt versus best-valid-Meta attribution; actual pinned NVIDIA rack geometry converted to GLB and browser-loaded with calibrated scale/yaw. Markers remain labeled proxies. Physics/MDL metadata is not preserved.
+- Repo gates: 96 core + 41 API + 46 browser tests passed, typecheck/build passed. Final copy-only follow-up passed web typecheck/focused flow and independent 390/1440 UI assertions.
+- Independent checks: 62000-to-26000-mm oracle with two relocations; budget-one retention; finite NaN normalization; invalid-scene no-search; ranking exhaustion distinguished; old real-Meta report replay preserved.
+- Independent artifact check downloaded the pinned NVIDIA geometry and verified hash/bytes, parsed the GLB using Three.js, checked 44104 triangles, source-mapped bounds and canonical rack footprints/ground height at all four yaws. Independent browser checks verified delivered GLB hash, four loaded racks, actual bbox, no page overflow/errors, heuristic/stub separation and report replay at 390/1440.
+- Input/feedback review completed: actual HTTP request now includes packing/approach/nav/allowlists, visit frequency separate from units, measured packing distances, and previous/best baseline-relative mapping changes. Invalid scene rejected before any transport call.
+- Final display corrections: status counts three generated proposals separately from one heuristic; heuristic relocation reasons use the heuristic label; 3D heading contains no framework name. Updated screenshots retained.
+- Next gate: M5 six frozen benchmark scenarios, failure diagnostics and a reviewed benchmark runner. No further paid inference is authorized; the one-run smoke allowance is consumed.

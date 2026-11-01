@@ -1,0 +1,128 @@
+{
+  "manifestVersion": "layoutlab.asset-manifest/1",
+  "package": "rack_large_empty_a01",
+  "dataset": "nvidia/simready-assets",
+  "datasetUrl": "https://huggingface.co/datasets/nvidia/simready-assets",
+  "sourceRevision": "4763fbfaa4f8e97658e68b57d01b4c86659e08b5",
+  "sourceRevisionPinnedOn": "2026-11-01",
+  "sourceFileUrlPattern": "https://huggingface.co/datasets/nvidia/simready-assets/resolve/4763fbfaa4f8e97658e68b57d01b4c86659e08b5/rack_large_empty_a01/<path>",
+  "rootUsd": "simready_usd/sm_rack_large_empty_a01_01.usd",
+  "stagedSourceFiles": [
+    {
+      "path": "simready_usd/sm_rack_large_empty_a01_01.usd",
+      "bytes": 25823,
+      "sha256": "55b2b06e2578f9f6fe96b8abb6a88776c05dedc747be7a710df3a898188f8e14",
+      "bomVerified": true
+    },
+    {
+      "path": "simready_usd/payloads/base.usda",
+      "bytes": 11338,
+      "sha256": "46defc3b435d387c9d51219be41de969e43a9bd6f8b176f899c1597523ea3c19",
+      "bomVerified": true
+    },
+    {
+      "path": "simready_usd/payloads/instances.usda",
+      "bytes": 10470,
+      "sha256": "e2d7745083be72fb7e2050c5f6a848f86e2ef123b1d40432e646fa3122c49343",
+      "bomVerified": true
+    },
+    {
+      "path": "simready_usd/payloads/materials.usda",
+      "bytes": 19591,
+      "sha256": "e739052fece8deb39bb4373df9c24d42a887855970b2418e393cbe829b6f67ca",
+      "bomVerified": true
+    },
+    {
+      "path": "simready_usd/payloads/Physics/physics.usda",
+      "bytes": 9360,
+      "sha256": "a6932bd0c3deb6808ce0896c7046229a2a6cf03953c9eb75cd0a9733b1dcd3b7",
+      "bomVerified": true
+    },
+    {
+      "path": "simready_usd/payloads/geometries.usd",
+      "bytes": 3297376,
+      "sha256": "900dfcc15582dc9b73ed74118b2a7dcd6b761a6586efcd6c949402f94e7c0e6e",
+      "sha256First1m": "c69110a5778ff55f6ae6ac2fff72f11950c4ab494fe5ee20b6fe76e02051f249",
+      "bomVerified": true
+    }
+  ],
+  "bomSha256": "5fc05f006754a5108e0115390fee1f04faaa0c45b578e409d0d9d2adaf0eb89b",
+  "packageHashSha256": "a064aca98708c3e64ed7c70de7a8fc7fed5df329ef25dcb2dfed20dd00bc49ed",
+  "license": "CC-BY-4.0",
+  "licenseSources": [
+    "dataset tag license:cc-by-4.0",
+    "com.nvidia.simready.packaging.json",
+    ".metadata/LICENSE.txt"
+  ],
+  "licenseCopy": "assets/licenses/rack_large_empty_a01-LICENSE.txt",
+  "attribution": "Rack mesh derived from NVIDIA SimReady Assets package rack_large_empty_a01 (https://huggingface.co/datasets/nvidia/simready-assets), revision 4763fbfaa4f8e97658e68b57d01b4c86659e08b5, used under CC-BY-4.0. Geometry converted to GLB with axis remap and a simplified neutral material; see discardedFeatures. (c) NVIDIA Corporation; changes by LayoutLab documented in this manifest.",
+  "observedSource": {
+    "metersPerUnit": 1.0,
+    "upAxis": "Z",
+    "defaultPrim": "/RootNode",
+    "instancePrim": "/RootNode/Geometry/sm_rack_a01_obj_00",
+    "meshPrim": "/__Prototype_1/sm_rack_a01_mesh_00",
+    "worldTransform": "identity (no xformOps on instance or mesh; verified via XformCache)",
+    "worldBoundsMin_m": [-1.999988, -1.03329, 0.0],
+    "worldBoundsMax_m": [1.999989, 1.033291, 3.010001],
+    "sizeXYZ_m": [3.999977, 2.066581, 3.010001],
+    "sourcePoints": 22504,
+    "sourceFaces": 24904,
+    "quadFaces": 19200,
+    "triangleFaces": 5704,
+    "normals": "faceVarying, 93912 corners",
+    "subdivisionScheme": "none",
+    "doubleSided": true,
+    "hasUVs": true,
+    "geomSubsets": 2
+  },
+  "toolVersions": {
+    "python": "3.12.10",
+    "usd-core": "26.11",
+    "node": "v24.18.0",
+    "tooling": "scratch TEMP venv + stdlib-only scripts (no numpy, no Docker, no Blender)"
+  },
+  "conversionCommands": [
+    "node scripts/m4-asset-fetch.mjs",
+    "<temp-venv>/Scripts/python scripts/m4-usd-inspect.py <stage>/simready_usd/sm_rack_large_empty_a01_01.usd",
+    "<temp-venv>/Scripts/python scripts/m4-usd-to-glb.py <stage>/simready_usd/sm_rack_large_empty_a01_01.usd <out>/rack_large_empty_a01.glb",
+    "node scripts/m4-asset-verify.mjs <out>/rack_large_empty_a01.glb"
+  ],
+  "derivative": {
+    "path": "apps/web/public/assets/rack_large_empty_a01.glb",
+    "bytes": 3176476,
+    "sha256": "571cc601bbbf8759977e05c5104a1d9381a682d2537942a238c68ebf8f8ae9ea",
+    "format": "glTF 2.0 binary (GLB), 1 mesh, 1 TRIANGLES primitive, non-indexed soup",
+    "triangles": 44104,
+    "soupVertices": 132312,
+    "material": "layoutlab-neutral-rack: baseColor [0.62, 0.64, 0.68, 1.0], metallic 0.0, roughness 0.9, doubleSided true",
+    "transformedBoundsMin_m": [-1.999988, 0.0, -1.033291],
+    "transformedBoundsMax_m": [1.999989, 3.010001, 1.03329],
+    "transformedSizeXYZ_m": [3.999977, 3.010001, 2.066581],
+    "axisMap": "(x, y, z)Z-up -> (x, z, -y)Y-up (proper rotation, det +1; winding preserved)",
+    "originMap": "ground origin preserved: source z=0 -> GLB y=0",
+    "scaleBaked": "none: GLB keeps source meters; per-rack canonical scaling is applied in the browser",
+    "calibratedWithin1mm": true
+  },
+  "canonicalScaling": {
+    "rule": "per rack: scale = (widthM / 3.999977, heightM / 3.010001, depthM / 2.066581); position = (centerXMm * 0.001, 0, centerZMm * 0.001); rotationY = yawDeg. Scale applies in mesh-local space before yaw, so yaw 90/270 swaps the world footprint exactly like the core footprint convention. The evaluator never reads the visual mesh.",
+    "exampleWarehouseBasicR1": {
+      "canonicalMm": { "width": 1600, "height": 2000, "depth": 800 },
+      "scale": [0.4000023, 0.6644516, 0.3871128]
+    }
+  },
+  "discardedFeatures": [
+    "SimReady physics payloads and MuJoCo/Newton/PhysX variants (GLB conversion does NOT preserve SimReady physics metadata)",
+    "mass (1170.4934) and centerOfMass (z 1.4321336)",
+    "GeomSubset material splits (2 subsets merged into one neutral material)",
+    "UVs (present in source, unused by the untextured material)",
+    "MDL materials (OmniPBR.mdl) and UDIM PNG textures (never downloaded; original MDL not preserved)",
+    "validation metadata (Robotics-Prop 3.1.0 feature checks) and runtime-testing metadata",
+    "conformance and packaging metadata (kept only as provenance records, not in the GLB)"
+  ],
+  "integration": {
+    "racks": "actual GLB loaded in the browser 3D view (one instance per rack with canonical scale/yaw)",
+    "otherObjects": "location markers, packing marker, and route line remain labeled DEVELOPMENT PROXIES",
+    "evaluatorDependence": "none: measurement uses core geometry only; the 2D plan is unaffected"
+  }
+}

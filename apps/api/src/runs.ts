@@ -12,13 +12,19 @@ import {
   evaluateBaseline,
   evaluateCandidate,
   freezeScenario,
+  HEURISTIC_NAME,
+  methodLabelFor,
   parseProposal,
   parseRequirements,
   parseScenario,
   REPORT_VERSION,
   ROUTE_POLICY_ID,
+  runHeuristic,
+  validateScene,
   type Assignment,
   type CandidateResult,
+  type HeuristicResult,
+  type MethodLabel,
   type PlanningRequirements,
   type Scenario,
 } from "@layoutlab/core";
@@ -31,6 +37,7 @@ import {
   PROMPT_VERSION,
   proposalJsonSchema,
   requirementsJsonSchema,
+  type BaselineChange,
   type ProposalFeedback,
 } from "./prompts.js";
 import { chatCompletionJson, type FetchLike, type ProviderUsage } from "./provider.js";
@@ -44,16 +51,54 @@ export type RunState =
   | "CANCELLED"
   | "TIMED_OUT";
 
-// Brief section 22 execution phases (heuristic is M4 and stays absent).
+// Brief section 22 execution phases. The heuristic runs after the baseline
+// and before the first model proposal (M4).
 export type RunPhase =
   | "VALIDATING_INPUT"
   | "INTERPRETING"
   | "AWAITING_APPROVAL"
   | "EVALUATING_BASELINE"
+  | "RUNNING_HEURISTIC"
   | "REQUESTING_PROPOSAL"
   | "VALIDATING_PROPOSAL"
   | "EVALUATING_PROPOSAL"
   | "FINALIZING";
+
+// Browser rack asset provenance (single-sourced in the manifest; an API test
+// locks these values to assets/manifests/rack_large_empty_a01.manifest.json
+// and the tracked GLB bytes).
+export const RACK_ASSET = {
+  assetId: "rack_large_empty_a01",
+  glbRef: "/assets/rack_large_empty_a01.glb",
+  glbSha256: "571cc601bbbf8759977e05c5104a1d9381a682d2537942a238c68ebf8f8ae9ea",
+  manifestRef: "assets/manifests/rack_large_empty_a01.manifest.json",
+  license: "CC-BY-4.0",
+} as const;
+
+export type AssetRef = {
+  rackId: string;
+  kind: "simready-glb";
+  ref: string;
+  sha256: string;
+  note: string;
+};
+
+export type HeuristicSummary = {
+  name: typeof HEURISTIC_NAME;
+  method: string;
+  sceneOk: boolean;
+  retainedBaseline: boolean;
+  rankingExhausted: boolean;
+  evaluationsUsed: number;
+  evaluationsBudget: number;
+  reason: string;
+  candidate: CandidateResult | null;
+};
+
+export type CandidateBudgets = {
+  heuristic: { evaluationsUsed: number; evaluationsBudget: number };
+  model: { proposalsUsed: number; maxProposals: number; requestsUsed: number; maxRequests: number };
+};
 
 export type ProposalAttempt = {
   name: string;
@@ -85,6 +130,7 @@ export type RunRecord = {
   requirements: PlanningRequirements | null;
   baselinePreview: CandidateResult | null;
   baseline: CandidateResult | null;
+  heuristic: HeuristicResult | null;
   attempts: ProposalAttempt[];
   modelRequestsUsed: number;
   proposalsUsed: number;
@@ -117,6 +163,9 @@ export type RunSummary = {
   interpretError: string | null;
   requirements: PlanningRequirements | null;
   baseline: CandidateResult | null;
+  heuristic: HeuristicSummary | null;
+  methodLabels: Record<string, MethodLabel>;
+  candidateBudgets: CandidateBudgets;
   attempts: ProposalAttempt[];
   bestName: string | null;
   outcome: string | null;
@@ -157,6 +206,10 @@ export type M3ReportEnvelope = {
   interpretedUnresolved: string[];
   baseline: CandidateResult;
   candidates: CandidateResult[];
+  heuristic: HeuristicSummary | null;
+  methodLabels: Record<string, MethodLabel>;
+  candidateBudgets: CandidateBudgets;
+  assetRefs: AssetRef[];
   attempts: ProposalAttempt[];
   feedback: ProposalFeedback[];
   bestName: string | null;
@@ -170,8 +223,8 @@ export const M3_LIMITATIONS = [
   "Nearest-neighbor routing is deterministic but not globally optimal.",
   "Bounding-box fit does not prove real-world packability, rack load safety, or handling suitability.",
   "Travel reduction is not converted to labor, monetary, or throughput improvement.",
-  "No demand heuristic yet (M4); comparison is baseline vs model proposals only.",
-  "3D scene uses DEVELOPMENT PROXIES; no SimReady asset loaded yet (M4).",
+  "Demand heuristic runs before model proposals with its own candidate-evaluation budget; budgets differ across methods (no equal-compute claim).",
+  "Rack meshes are SimReady GLB (CC-BY-4.0, see asset manifest); markers and route remain DEVELOPMENT PROXIES.",
 ] as const;
 
 function newRunId(): string {
@@ -191,19 +244,103 @@ function setPhase(record: RunRecord, phase: RunPhase): void {
   if (record.phaseHistory.length > 32) record.phaseHistory.splice(0, record.phaseHistory.length - 32);
 }
 
-function feedbackOf(attempts: ProposalAttempt[]): ProposalFeedback[] {
-  let best: ProposalFeedback["bestValidSoFar"] = null;
+type BestSoFar = {
+  name: string;
+  weightedTravelMm: number;
+  relocationCount: number;
+  assignmentKey: string;
+  changes: BaselineChange[] | null;
+};
+
+// Baseline-relative changes of a mapping (sorted by productId), so feedback
+// shows actual placements. Null without a baseline mapping to diff against.
+function relativeChanges(
+  baselineMapping: Assignment[] | undefined,
+  mapping: Assignment[] | undefined,
+): BaselineChange[] | null {
+  if (!baselineMapping || !mapping) return null;
+  const base = new Map(baselineMapping.map((a) => [a.productId, a.locationId]));
+  return mapping
+    .filter((a) => base.get(a.productId) !== a.locationId)
+    .map((a) => ({ productId: a.productId, locationId: a.locationId }))
+    .sort((x, y) => (x.productId < y.productId ? -1 : x.productId > y.productId ? 1 : 0));
+}
+
+// Shared objective for best-so-far: lowest travel, fewest relocations,
+// stable assignment key. Identical ordering to core selection.
+function beats(challenger: BestSoFar, incumbent: BestSoFar | null): boolean {
+  if (incumbent === null) return true;
+  if (challenger.weightedTravelMm !== incumbent.weightedTravelMm) {
+    return challenger.weightedTravelMm < incumbent.weightedTravelMm;
+  }
+  if (challenger.relocationCount !== incumbent.relocationCount) {
+    return challenger.relocationCount < incumbent.relocationCount;
+  }
+  return challenger.assignmentKey < incumbent.assignmentKey;
+}
+
+function feedbackOf(
+  baseline: CandidateResult | null,
+  heuristic: HeuristicResult | null,
+  attempts: ProposalAttempt[],
+): ProposalFeedback[] {
+  // Seed with the actual valid baseline: a valid-but-worse heuristic must
+  // never be labeled bestValidSoFar. Invalid baselines seed null.
+  let best: BestSoFar | null = null;
+  if (baseline?.valid && baseline.weightedTravelMm !== null) {
+    best = {
+      name: "baseline",
+      weightedTravelMm: baseline.weightedTravelMm,
+      relocationCount: baseline.relocationCount,
+      assignmentKey: baseline.assignmentKey,
+      changes: [],
+    };
+  }
+  const snapshot = (): ProposalFeedback["bestValidSoFar"] =>
+    best
+      ? {
+          name: best.name,
+          weightedTravelMm: best.weightedTravelMm,
+          relocationCount: best.relocationCount,
+          changes: best.changes,
+        }
+      : null;
   const out: ProposalFeedback[] = [];
+  // Measured heuristic feedback leads: the model revises against it.
+  if (heuristic?.candidate) {
+    const h = heuristic.candidate;
+    const hChanges = relativeChanges(baseline?.assignment, heuristic.mapping);
+    if (h.valid && h.weightedTravelMm !== null) {
+      const cand: BestSoFar = {
+        name: HEURISTIC_NAME,
+        weightedTravelMm: h.weightedTravelMm,
+        relocationCount: h.relocationCount,
+        assignmentKey: h.assignmentKey,
+        changes: hChanges,
+      };
+      if (beats(cand, best)) best = cand;
+    }
+    out.push({
+      proposalName: HEURISTIC_NAME,
+      valid: h.valid,
+      errors: h.errors.map((e) => `${e.code}: ${e.message}`.slice(0, 300)).slice(0, 12),
+      relocationCount: h.relocationCount,
+      weightedTravelMm: h.weightedTravelMm,
+      changes: hChanges,
+      bestValidSoFar: snapshot(),
+    });
+  }
   for (const a of attempts) {
+    const aChanges = relativeChanges(baseline?.assignment, a.candidate?.assignment);
     if (a.candidate?.valid && a.candidate.weightedTravelMm !== null) {
-      const cand = { name: a.name, weightedTravelMm: a.candidate.weightedTravelMm, relocationCount: a.candidate.relocationCount };
-      if (
-        best === null ||
-        cand.weightedTravelMm < best.weightedTravelMm ||
-        (cand.weightedTravelMm === best.weightedTravelMm && cand.relocationCount < best.relocationCount)
-      ) {
-        best = cand;
-      }
+      const cand: BestSoFar = {
+        name: a.name,
+        weightedTravelMm: a.candidate.weightedTravelMm,
+        relocationCount: a.candidate.relocationCount,
+        assignmentKey: a.candidate.assignmentKey,
+        changes: aChanges,
+      };
+      if (beats(cand, best)) best = cand;
     }
     const errors: string[] = [];
     if (!a.parseOk && a.parseError) errors.push(`PARSE: ${a.parseError}`);
@@ -216,7 +353,8 @@ function feedbackOf(attempts: ProposalAttempt[]): ProposalFeedback[] {
       errors: errors.slice(0, 12),
       relocationCount: a.candidate?.relocationCount ?? null,
       weightedTravelMm: a.candidate?.weightedTravelMm ?? null,
-      bestValidSoFar: best ? { ...best } : null,
+      changes: aChanges,
+      bestValidSoFar: snapshot(),
     });
   }
   return out;
@@ -248,6 +386,85 @@ function realRequests(record: RunRecord, config: ApiConfig): number {
   return config.providerKind === "meta" ? record.modelRequestsUsed : 0;
 }
 
+function heuristicSummaryOf(heuristic: HeuristicResult | null): HeuristicSummary | null {
+  if (!heuristic) return null;
+  return {
+    name: HEURISTIC_NAME,
+    method: heuristic.method,
+    sceneOk: heuristic.sceneOk,
+    retainedBaseline: heuristic.retainedBaseline,
+    rankingExhausted: heuristic.rankingExhausted,
+    evaluationsUsed: heuristic.evaluationsUsed,
+    evaluationsBudget: heuristic.evaluationsBudget,
+    reason: heuristic.reason,
+    candidate: heuristic.candidate ? structuredClone(heuristic.candidate) : null,
+  };
+}
+
+// Shared fixed-scene gate (brief section 13): invalid geometry must surface
+// INPUT_INVALID diagnostics before any assignment search or paid inference.
+// An assignment-invalid baseline is still searchable and passes this gate.
+function assertSceneValid(scenario: Scenario): void {
+  const check = validateScene(scenario);
+  if (!check.ok) {
+    const err = new Error(
+      `Scene geometry invalid (INPUT_INVALID: ${check.issues.map((i) => i.code).join(", ")}). ` +
+        "Fix racks, locations, or packing before running search or inference.",
+    ) as Error & { code?: string };
+    err.code = "INPUT_INVALID";
+    throw err;
+  }
+}
+
+function candidateBudgetsOf(record: RunRecord, config: ApiConfig): CandidateBudgets {
+  return {
+    heuristic: {
+      evaluationsUsed: record.heuristic?.evaluationsUsed ?? 0,
+      evaluationsBudget: record.heuristic?.evaluationsBudget ?? config.heuristicMaxEvaluations,
+    },
+    model: {
+      proposalsUsed: record.proposalsUsed,
+      maxProposals: config.maxProposals,
+      requestsUsed: record.modelRequestsUsed,
+      maxRequests: config.maxRequests,
+    },
+  };
+}
+
+// Exact method labels over baseline plus every evaluated candidate mapping.
+// Attempts without a mapping (parse/apply/transport failures) carry no label.
+function methodLabelsOf(record: RunRecord): Record<string, MethodLabel> {
+  const labels: Record<string, MethodLabel> = { baseline: "current" };
+  if (record.heuristic?.candidate) labels[HEURISTIC_NAME] = methodLabelFor(HEURISTIC_NAME);
+  for (const a of record.attempts) {
+    if (a.candidate) labels[a.name] = methodLabelFor(a.name);
+  }
+  return labels;
+}
+
+function assetRefsOf(scenario: Scenario): AssetRef[] {
+  return scenario.racks.map((r) => ({
+    rackId: r.id,
+    kind: "simready-glb",
+    ref: RACK_ASSET.glbRef,
+    sha256: RACK_ASSET.glbSha256,
+    note: `SimReady ${RACK_ASSET.assetId} GLB (${RACK_ASSET.license}); manifest ${RACK_ASSET.manifestRef}.`,
+  }));
+}
+
+function reportEntries(record: RunRecord): { name: string; mapping: Assignment[] }[] {
+  const entries: { name: string; mapping: Assignment[] }[] = [];
+  // Heuristic first: it ran before the model proposals and joins measured
+  // best selection on equal footing (budgets reported separately).
+  if (record.heuristic?.candidate) {
+    entries.push({ name: HEURISTIC_NAME, mapping: record.heuristic.mapping });
+  }
+  for (const a of record.attempts) {
+    if (a.candidate !== null) entries.push({ name: a.name, mapping: a.candidate.assignment });
+  }
+  return entries;
+}
+
 export function toSummary(record: RunRecord, config: ApiConfig): RunSummary {
   return {
     runId: record.id,
@@ -265,6 +482,9 @@ export function toSummary(record: RunRecord, config: ApiConfig): RunSummary {
     interpretError: record.interpretError,
     requirements: record.requirements ? structuredClone(record.requirements) : null,
     baseline: record.baseline ? structuredClone(record.baseline) : record.baselinePreview ? structuredClone(record.baselinePreview) : null,
+    heuristic: heuristicSummaryOf(record.heuristic),
+    methodLabels: methodLabelsOf(record),
+    candidateBudgets: candidateBudgetsOf(record, config),
     attempts: structuredClone(record.attempts),
     bestName: record.bestName,
     outcome: record.outcome,
@@ -344,9 +564,7 @@ export class RunStore {
     // Best/outcome from evaluated candidates only; parse/apply failures have
     // no mapping and stay in the timeline, never in the core report.
     if (record.requirements && record.baseline) {
-      const entries = record.attempts
-        .filter((a) => a.candidate !== null)
-        .map((a) => ({ name: a.name, mapping: (a.candidate as CandidateResult).assignment }));
+      const entries = reportEntries(record);
       try {
         const report = createReport(record.scenario, record.requirements, entries);
         record.bestName = report.bestName;
@@ -385,6 +603,8 @@ export class RunStore {
   createRun(scenarioInput: unknown, requestText: string): RunRecord {
     const scenario = parseScenario(scenarioInput);
     const frozen = freezeScenario(scenario);
+    // Scene gate before any run state, slot, or inference spend.
+    assertSceneValid(frozen);
     this.evictIfNeeded();
     if (this.runs.size >= this.config.maxRuns) {
       const err = new Error("Run store is full; retry after older runs expire.") as Error & { code?: string };
@@ -413,6 +633,7 @@ export class RunStore {
       requirements: null,
       baselinePreview: null,
       baseline: null,
+      heuristic: null,
       attempts: [],
       modelRequestsUsed: 0,
       proposalsUsed: 0,
@@ -623,6 +844,18 @@ export class RunStore {
         throw err;
       }
     }
+    // Defense-in-depth scene gate: creation already enforces it, so reaching
+    // here with invalid geometry ends the run without search or inference.
+    if (!validateScene(record.scenario).ok) {
+      record.requirements = structuredClone(approved);
+      Object.freeze(record.requirements);
+      record.state = "FAILED";
+      record.completedAt = new Date().toISOString();
+      record.lastError = "Scene geometry invalid (INPUT_INVALID); no heuristic, proposals, or further inference.";
+      this.clearDeadline(record);
+      this.finishReportFields(record);
+      return record;
+    }
     if (!this.acquireSlot()) {
       const err = new Error("Server is busy (concurrency limit); retry shortly.") as Error & { code?: string };
       err.code = "CONCURRENCY_LIMIT";
@@ -637,12 +870,21 @@ export class RunStore {
     try {
       setPhase(record, "EVALUATING_BASELINE");
       record.baseline = evaluateBaseline(record.scenario, approved);
+      // Bounded demand heuristic BEFORE any model proposal: deterministic,
+      // no inference, joins measured feedback and best selection.
+      setPhase(record, "RUNNING_HEURISTIC");
+      record.heuristic = runHeuristic(record.scenario, approved, {
+        maxCandidateEvaluations: this.config.heuristicMaxEvaluations,
+      });
       let summary: string;
       try {
+        // Proposal summary is built after the heuristic runs, so it reuses
+        // the measured location rank (evaluator data, never model estimates).
         summary = buildScenarioSummary(record.scenario, {
           maxChars: this.config.maxContextChars,
           requirements: approved,
           baseline: record.baseline,
+          locationRank: record.heuristic?.locationRank ?? null,
         });
       } catch (e) {
         record.state = "FAILED";
@@ -660,7 +902,7 @@ export class RunStore {
         }
         const attemptIndex = record.proposalsUsed;
         const name = `proposal-${attemptIndex + 1}`;
-        const feedback = feedbackOf(record.attempts);
+        const feedback = feedbackOf(record.baseline, record.heuristic, record.attempts);
         const userContent = buildProposalUserContent(summary, approved, record.baseline, feedback, attemptIndex);
         // Count before sending; never reset when continuing after approval or error.
         setPhase(record, "REQUESTING_PROPOSAL");
@@ -855,9 +1097,7 @@ export class RunStore {
       err.code = "RUN_NOT_COMPLETED";
       throw err;
     }
-    const entries: { name: string; mapping: Assignment[] }[] = record.attempts
-      .filter((a) => a.candidate !== null)
-      .map((a) => ({ name: a.name, mapping: (a.candidate as CandidateResult).assignment }));
+    const entries = reportEntries(record);
     // Deterministic recompute without inference; reuse core report contracts.
     const report = createReport(record.scenario, record.requirements, entries);
     return {
@@ -887,8 +1127,12 @@ export class RunStore {
       interpretedUnresolved: [...record.interpretedUnresolved],
       baseline: structuredClone(report.baseline),
       candidates: structuredClone(report.candidates),
+      heuristic: heuristicSummaryOf(record.heuristic),
+      methodLabels: methodLabelsOf(record),
+      candidateBudgets: candidateBudgetsOf(record, this.config),
+      assetRefs: assetRefsOf(record.scenario),
       attempts: structuredClone(record.attempts),
-      feedback: feedbackOf(record.attempts),
+      feedback: feedbackOf(record.baseline, record.heuristic, record.attempts),
       bestName: report.bestName,
       improvementPercents: structuredClone(report.improvementPercents),
       timingsMs: { createdAt: record.createdAt, completedAt: record.completedAt, durationsMs: [...record.durationsMs] },

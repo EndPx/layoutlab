@@ -1,0 +1,104 @@
+{
+  "checkedAt": "2026-11-01T18:09:40.062Z",
+  "reviewer": "Codex coordinator",
+  "sourceRevision": "4763fbfaa4f8e97658e68b57d01b4c86659e08b5",
+  "sourceGeometryUrl": "https://huggingface.co/datasets/nvidia/simready-assets/resolve/4763fbfaa4f8e97658e68b57d01b4c86659e08b5/rack_large_empty_a01/simready_usd/payloads/geometries.usd",
+  "sourceGeometryBytes": 3297376,
+  "sourceSha256Matched": true,
+  "derivativeSha256Matched": true,
+  "glbParsedWithThreeLoader": true,
+  "meshes": 1,
+  "vertices": 132312,
+  "triangles": 44104,
+  "boundsM": {
+    "min": [
+      -1.9999884366989136,
+      0,
+      -1.0332906246185303
+    ],
+    "max": [
+      1.9999887943267822,
+      3.010000705718994,
+      1.0332903861999512
+    ]
+  },
+  "canonicalYawChecks": [
+    {
+      "yawDeg": 0,
+      "expectedFootprintMm": {
+        "minX": 500,
+        "maxX": 2100,
+        "minZ": 1100,
+        "maxZ": 1900
+      },
+      "actualMinM": [
+        0.5000000715259808,
+        0,
+        1.099999953852556
+      ],
+      "actualMaxM": [
+        2.1000000715259812,
+        2,
+        1.8999999538525558
+      ]
+    },
+    {
+      "yawDeg": 90,
+      "expectedFootprintMm": {
+        "minX": 900,
+        "maxX": 1700,
+        "minZ": 700,
+        "maxZ": 2300
+      },
+      "actualMinM": [
+        0.8999999538525558,
+        0,
+        0.6999999284740189
+      ],
+      "actualMaxM": [
+        1.699999953852556,
+        2,
+        2.299999928474019
+      ]
+    },
+    {
+      "yawDeg": 180,
+      "expectedFootprintMm": {
+        "minX": 500,
+        "maxX": 2100,
+        "minZ": 1100,
+        "maxZ": 1900
+      },
+      "actualMinM": [
+        0.4999999284740191,
+        0,
+        1.100000046147444
+      ],
+      "actualMaxM": [
+        2.0999999284740194,
+        2,
+        1.9000000461474442
+      ]
+    },
+    {
+      "yawDeg": 270,
+      "expectedFootprintMm": {
+        "minX": 900,
+        "maxX": 1700,
+        "minZ": 700,
+        "maxZ": 2300
+      },
+      "actualMinM": [
+        0.900000046147444,
+        0,
+        0.7000000715259806
+      ],
+      "actualMaxM": [
+        1.7000000461474443,
+        2,
+        2.300000071525981
+      ]
+    }
+  ],
+  "boundary": "Independent source/hash/geometry/scale check. Browser loading is verified separately. No physics-metadata preservation claim."
+}
