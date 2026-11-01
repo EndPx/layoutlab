@@ -31,6 +31,7 @@ import {
   approveLiveRun,
   cancelLiveRun,
   createLiveRun,
+  getLiveFailureReport,
   getLiveReport,
   getLiveRun,
   getStatus,
@@ -127,6 +128,7 @@ export function App(): React.JSX.Element {
     mismatches: string[];
     provider: string;
     runId: string;
+    failureNotice: string | null;
   } | null>(null);
   const [replayError, setReplayError] = useState<string | null>(null);
   const [applyMessage, setApplyMessage] = useState<string | null>(null);
@@ -794,6 +796,13 @@ export function App(): React.JSX.Element {
     liveRun !== null &&
     liveRun.requirements !== null &&
     (liveRun.state === "COMPLETED" || liveRun.state === "FAILED" || liveRun.state === "TIMED_OUT");
+  // A terminal live run WITHOUT approved requirements (failure/cancel/
+  // timeout before approval) exports the honest server failure audit —
+  // never a silent manual-success report with synthetic metrics.
+  const liveFailureExportable =
+    liveRun !== null &&
+    liveRun.requirements === null &&
+    (liveRun.state === "FAILED" || liveRun.state === "CANCELLED" || liveRun.state === "TIMED_OUT");
 
   const downloadJson = (filename: string, data: unknown): void => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -815,6 +824,15 @@ export function App(): React.JSX.Element {
         downloadJson(`layoutlab-m3-live-${liveRun.runId.slice(0, 8)}.json`, report);
       } catch (e) {
         setNotice(e instanceof Error ? `Live export failed: ${e.message}` : "Live export failed.");
+      }
+      return;
+    }
+    if (liveFailureExportable && liveRun) {
+      try {
+        const audit = await getLiveFailureReport(liveRun.runId);
+        downloadJson(`layoutlab-m5-failure-${liveRun.runId.slice(0, 8)}.json`, audit);
+      } catch (e) {
+        setNotice(e instanceof Error ? `Failure-audit export failed: ${e.message}` : "Failure-audit export failed.");
       }
       return;
     }
@@ -854,6 +872,7 @@ export function App(): React.JSX.Element {
         mismatches: result.mismatches,
         provider: result.provider,
         runId: result.runId,
+        failureNotice: result.failure?.notice ?? null,
       });
       setMode("REPLAY");
     } catch (e) {
@@ -1063,7 +1082,13 @@ export function App(): React.JSX.Element {
           />
         </label>
         <button type="button" onClick={() => void exportJson()} disabled={!scenario} data-testid="btn-export">
-          {liveExportable ? "Export live run report" : stubRun.status === "completed" ? "Export run report" : "Export current evaluation"}
+          {liveExportable
+            ? "Export live run report"
+            : liveFailureExportable
+              ? "Export failure audit (no measurements)"
+              : stubRun.status === "completed"
+                ? "Export run report"
+                : "Export current evaluation"}
         </button>
         <label style={{ display: "inline-block", width: "auto" }}>
           Import/Replay
@@ -1101,8 +1126,9 @@ export function App(): React.JSX.Element {
                 Provider <span className="mono">{replayInfo.provider}</span> · run{" "}
                 <span className="mono">{replayInfo.runId}</span>
               </p>
-              <p data-testid="replay-verdict" className={replayInfo.matches ? "okline" : "error"}>
-                {replayInfo.matches ? "✓ matches saved measurements" : `× MISMATCH: ${replayInfo.mismatches.join(", ")}`}
+              <p data-testid="replay-verdict" className={replayInfo.matches || replayInfo.failureNotice ? "okline" : "error"}>
+                {replayInfo.failureNotice ??
+                  (replayInfo.matches ? "✓ matches saved measurements" : `× MISMATCH: ${replayInfo.mismatches.join(", ")}`)}
               </p>
             </div>
           )}

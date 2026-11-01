@@ -1,0 +1,262 @@
+{
+  "benchmarkVersion": "layoutlab.m5benchmark/1",
+  "generatedAt": "2026-11-01T19:53:46.029Z",
+  "mode": "offline",
+  "providerKind": "fixture",
+  "realMetaRequests": 0,
+  "freeze": {
+    "sourceCommit": "84d4bca83091dac40b92f26f5ada8921052d2fbc",
+    "sourceDirty": true,
+    "protocol": "meta-chat-completions/json_schema-strict/1",
+    "promptVersion": "layoutlab.m4prompt/1",
+    "generationSettings": {
+      "reasoningEffort": "low",
+      "maxCompletionTokens": 2000
+    },
+    "apiVersion": "0.4.0",
+    "coreVersion": "0.1.0",
+    "reportVersion": "layoutlab.report/1",
+    "routePolicy": "nearest-neighbor-a-star/1",
+    "modelId": "fixture-muse-shape",
+    "manifest": {
+      "benchmarkVersion": "layoutlab.m5benchmark/1",
+      "frozenAt": "2026-11-01T19:21:09.210Z",
+      "sourceCommit": "84d4bca83091dac40b92f26f5ada8921052d2fbc",
+      "scenarios": [
+        {
+          "id": "bm-01-demand-skew",
+          "file": "bm-01-demand-skew.json",
+          "bytes": 2457,
+          "sha256": "0da42b9adbfdb352e6359148cf6f80b0e7943c530dc0f94f189343ab16437450"
+        },
+        {
+          "id": "bm-02-copick-cluster",
+          "file": "bm-02-copick-cluster.json",
+          "bytes": 5840,
+          "sha256": "d9309140e8252f3670d4590fd90e8ea2cacff23f98d3ab639fe5475ea0829f1a"
+        },
+        {
+          "id": "bm-03-tight-relocation",
+          "file": "bm-03-tight-relocation.json",
+          "bytes": 2029,
+          "sha256": "399ed4c23470989a30146a5693e1c7f3a7ddbd9f0be744ff7d9a988d9346f80e"
+        },
+        {
+          "id": "bm-04-constraints",
+          "file": "bm-04-constraints.json",
+          "bytes": 2498,
+          "sha256": "f98e70ab3fd6b5b973afe96d6857bdab71ac7d04b8790db0684f69c85db889f3"
+        },
+        {
+          "id": "bm-05-locked-frequent",
+          "file": "bm-05-locked-frequent.json",
+          "bytes": 5507,
+          "sha256": "d90c40ca241883c2a318305a034017f06231d09e41f69e1df1bd119c1fe897dc"
+        },
+        {
+          "id": "bm-06-unreachable-repair",
+          "file": "bm-06-unreachable-repair.json",
+          "bytes": 2135,
+          "sha256": "a880e98ae87b620c31e353bcdbe102f171a2b44f39821a9aeaaf8340be9cc164"
+        }
+      ],
+      "requirements": {
+        "file": "requirements.json",
+        "bytes": 2779,
+        "sha256": "7481d4514d3731c804d6d857c5a6fc1e730d499e78e7ce4a19f4bd66be811fd7"
+      }
+    },
+    "rackAsset": {
+      "assetId": "rack_large_empty_a01",
+      "glbSha256": "571cc601bbbf8759977e05c5104a1d9381a682d2537942a238c68ebf8f8ae9ea"
+    }
+  },
+  "totals": {
+    "scenarios": 6,
+    "trialsPlanned": 0,
+    "trialsRun": 0,
+    "trialsNotRun": 0,
+    "modelRequests": 0,
+    "realMetaRequests": 0,
+    "failures": 0,
+    "reportsAvailable": 0,
+    "reportsMissing": 0,
+    "requestsReserved": 0,
+    "ambiguousTrials": 0,
+    "requestsUnknown": false
+  },
+  "costs": {
+    "reservationUsd": 0,
+    "usageEstimated": null,
+    "invoiceUsd": null,
+    "invoiceNote": "No invoice retrieved; reservation and usage estimate are reported separately and never merged.",
+    "pricingSource": "https://dev.meta.ai/docs/pricing-rate-limits"
+  },
+  "scenarios": [
+    {
+      "scenarioId": "bm-01-demand-skew",
+      "offline": {
+        "baseline": {
+          "name": "baseline",
+          "method": "baseline",
+          "valid": true,
+          "reachableOrders": 3,
+          "weightedTravelMm": 78000,
+          "meanOrderDistanceMm": 5200,
+          "relocationCount": 0,
+          "improvementPercent": 0
+        },
+        "heuristic": {
+          "name": "heuristic",
+          "method": "heuristic",
+          "valid": true,
+          "reachableOrders": 3,
+          "weightedTravelMm": 32000,
+          "meanOrderDistanceMm": 2133.3333333333335,
+          "relocationCount": 3,
+          "improvementPercent": 58.97435897435897
+        }
+      },
+      "trials": []
+    },
+    {
+      "scenarioId": "bm-02-copick-cluster",
+      "offline": {
+        "baseline": {
+          "name": "baseline",
+          "method": "baseline",
+          "valid": true,
+          "reachableOrders": 10,
+          "weightedTravelMm": 218000,
+          "meanOrderDistanceMm": 6812.5,
+          "relocationCount": 0,
+          "improvementPercent": 0
+        },
+        "heuristic": {
+          "name": "heuristic",
+          "method": "heuristic",
+          "valid": true,
+          "reachableOrders": 10,
+          "weightedTravelMm": 186000,
+          "meanOrderDistanceMm": 5812.5,
+          "relocationCount": 2,
+          "improvementPercent": 14.678899082568808
+        }
+      },
+      "trials": []
+    },
+    {
+      "scenarioId": "bm-03-tight-relocation",
+      "offline": {
+        "baseline": {
+          "name": "baseline",
+          "method": "baseline",
+          "valid": true,
+          "reachableOrders": 2,
+          "weightedTravelMm": 38000,
+          "meanOrderDistanceMm": 5428.571428571428,
+          "relocationCount": 0,
+          "improvementPercent": 0
+        },
+        "heuristic": {
+          "name": "heuristic",
+          "method": "heuristic",
+          "valid": true,
+          "reachableOrders": 2,
+          "weightedTravelMm": 26000,
+          "meanOrderDistanceMm": 3714.285714285714,
+          "relocationCount": 1,
+          "improvementPercent": 31.57894736842105
+        }
+      },
+      "trials": []
+    },
+    {
+      "scenarioId": "bm-04-constraints",
+      "offline": {
+        "baseline": {
+          "name": "baseline",
+          "method": "baseline",
+          "valid": true,
+          "reachableOrders": 3,
+          "weightedTravelMm": 36000,
+          "meanOrderDistanceMm": 3272.7272727272725,
+          "relocationCount": 0,
+          "improvementPercent": 0
+        },
+        "heuristic": {
+          "name": "heuristic",
+          "method": "heuristic",
+          "valid": true,
+          "reachableOrders": 3,
+          "weightedTravelMm": 36000,
+          "meanOrderDistanceMm": 3272.7272727272725,
+          "relocationCount": 0,
+          "improvementPercent": 0
+        }
+      },
+      "trials": []
+    },
+    {
+      "scenarioId": "bm-05-locked-frequent",
+      "offline": {
+        "baseline": {
+          "name": "baseline",
+          "method": "baseline",
+          "valid": true,
+          "reachableOrders": 10,
+          "weightedTravelMm": 222000,
+          "meanOrderDistanceMm": 7400,
+          "relocationCount": 0,
+          "improvementPercent": 0
+        },
+        "heuristic": {
+          "name": "heuristic",
+          "method": "heuristic",
+          "valid": true,
+          "reachableOrders": 10,
+          "weightedTravelMm": 196000,
+          "meanOrderDistanceMm": 6533.333333333333,
+          "relocationCount": 1,
+          "improvementPercent": 11.711711711711711
+        }
+      },
+      "trials": []
+    },
+    {
+      "scenarioId": "bm-06-unreachable-repair",
+      "offline": {
+        "baseline": {
+          "name": "baseline",
+          "method": "baseline",
+          "valid": false,
+          "reachableOrders": 1,
+          "weightedTravelMm": null,
+          "meanOrderDistanceMm": null,
+          "relocationCount": 0,
+          "improvementPercent": null
+        },
+        "heuristic": {
+          "name": "heuristic",
+          "method": "heuristic",
+          "valid": true,
+          "reachableOrders": 2,
+          "weightedTravelMm": 12000,
+          "meanOrderDistanceMm": 2000,
+          "relocationCount": 1,
+          "improvementPercent": null
+        }
+      },
+      "trials": []
+    }
+  ],
+  "limitations": [
+    "Conservative 2D clearance model: not a safety certification or complete maneuverability assessment.",
+    "Nearest-neighbor routing is deterministic but not globally optimal.",
+    "Travel reduction is not converted to labor, monetary, or throughput improvement.",
+    "Benchmark scenarios are declared synthetic fixtures, not published datasets or reconstructions.",
+    "Method budgets differ across baseline, heuristic, and Meta runs (no equal-compute claim).",
+    "Fixture trials exercise orchestration only; they say nothing about live model behavior.",
+    "Costs report a conservative reservation and a usage estimate separately; no invoice is retrieved and no complete billed usage is invented."
+  ]
+}

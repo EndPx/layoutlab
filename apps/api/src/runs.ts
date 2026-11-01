@@ -11,23 +11,31 @@ import {
   createReport,
   evaluateBaseline,
   evaluateCandidate,
+  FAILURE_NO_EVALUATION,
   freezeScenario,
   HEURISTIC_NAME,
+  M5_FAILURE_VERSION,
   methodLabelFor,
   parseProposal,
   parseRequirements,
   parseScenario,
   REPORT_VERSION,
+  replayFailureRecord,
   ROUTE_POLICY_ID,
   runHeuristic,
+  validateCanonicalRefs,
   validateScene,
   type Assignment,
   type CandidateResult,
+  type FailureEnvelope,
   type HeuristicResult,
   type MethodLabel,
   type PlanningRequirements,
   type Scenario,
 } from "@layoutlab/core";
+
+export { FAILURE_NO_EVALUATION, M5_FAILURE_VERSION, replayFailureRecord };
+export type { FailureEnvelope };
 import { API_VERSION, sanitizeMessage, type ApiConfig, type ProviderKind } from "./config.js";
 import {
   buildProposalUserContent,
@@ -40,7 +48,14 @@ import {
   type BaselineChange,
   type ProposalFeedback,
 } from "./prompts.js";
-import { chatCompletionJson, type FetchLike, type ProviderUsage } from "./provider.js";
+import {
+  chatCompletionJson,
+  generationSettingsOf,
+  type FetchLike,
+  type GenerationSettings,
+  type ProviderDiagnostics,
+  type ProviderUsage,
+} from "./provider.js";
 
 export type RunState =
   | "INTERPRETING"
@@ -100,6 +115,15 @@ export type CandidateBudgets = {
   model: { proposalsUsed: number; maxProposals: number; requestsUsed: number; maxRequests: number };
 };
 
+// Concise sanitized per-attempt diagnostics: validated envelope metadata
+// retained even when output was empty/nonconforming, plus the error
+// classification when the attempt failed. Never carries message content.
+export type AttemptDiagnostics = {
+  responseId: string | null;
+  finishReason: string | null;
+  errorCode: string | null;
+};
+
 export type ProposalAttempt = {
   name: string;
   rationale: string;
@@ -112,6 +136,7 @@ export type ProposalAttempt = {
   durationMs: number;
   requestIndex: number;
   transportError: string | null;
+  diagnostics: AttemptDiagnostics | null;
 };
 
 export type RunRecord = {
@@ -127,6 +152,7 @@ export type RunRecord = {
   requirementsDraft: PlanningRequirements | null;
   interpretedUnresolved: string[];
   interpretError: string | null;
+  interpretDiagnostics: AttemptDiagnostics | null;
   requirements: PlanningRequirements | null;
   baselinePreview: CandidateResult | null;
   baseline: CandidateResult | null;
@@ -161,6 +187,7 @@ export type RunSummary = {
   requirementsDraft: PlanningRequirements | null;
   interpretedUnresolved: string[];
   interpretError: string | null;
+  interpretDiagnostics: AttemptDiagnostics | null;
   requirements: PlanningRequirements | null;
   baseline: CandidateResult | null;
   heuristic: HeuristicSummary | null;
@@ -177,6 +204,7 @@ export type RunSummary = {
   realMetaRequests: number;
   modelId: string;
   promptVersion: string;
+  generationSettings: GenerationSettings;
 };
 
 export type M3ReportEnvelope = {
@@ -193,6 +221,7 @@ export type M3ReportEnvelope = {
   realMetaRequests: number;
   modelId: string;
   promptVersion: string;
+  generationSettings: GenerationSettings;
   state: RunState;
   phase: RunPhase;
   outcome: string | null;
@@ -225,6 +254,15 @@ export const M3_LIMITATIONS = [
   "Travel reduction is not converted to labor, monetary, or throughput improvement.",
   "Demand heuristic runs before model proposals with its own candidate-evaluation budget; budgets differ across methods (no equal-compute claim).",
   "Rack meshes are SimReady GLB (CC-BY-4.0, see asset manifest); markers and route remain DEVELOPMENT PROXIES.",
+] as const;
+
+// Failure-audit envelope shape and replay live in @layoutlab/core (failure.ts):
+// one shared bounded contract for API, browser, and benchmark replay.
+export type M5FailureEnvelope = FailureEnvelope;
+
+export const M5_FAILURE_LIMITATIONS = [
+  ...M3_LIMITATIONS,
+  "Failure audit: no proposal was evaluated, so no measurement, comparison, or improvement claim exists for this run.",
 ] as const;
 
 function newRunId(): string {
@@ -373,17 +411,45 @@ function accumulateUsage(record: RunRecord, usage: ProviderUsage | null): void {
   }
   const t = record.usageTotals;
   // Sum only reported values; missing stays missing via usageIncomplete flag.
-  if (usage.promptTokens !== null) t.promptTokens = (t.promptTokens ?? 0) + usage.promptTokens;
-  else t.promptTokens = t.promptTokens ?? 0;
-  if (usage.completionTokens !== null) t.completionTokens = (t.completionTokens ?? 0) + usage.completionTokens;
-  else t.completionTokens = t.completionTokens ?? 0;
-  if (usage.totalTokens !== null) t.totalTokens = (t.totalTokens ?? 0) + usage.totalTokens;
-  else t.totalTokens = t.totalTokens ?? 0;
+  // Overflowed totals are nulled and flagged incomplete, never wrapped or
+  // presented as complete accounting.
+  for (const k of ["promptTokens", "completionTokens", "totalTokens"] as const) {
+    const v = usage[k];
+    if (v === null) continue;
+    const sum = (t[k] ?? 0) + v;
+    if (!Number.isSafeInteger(sum)) {
+      t[k] = null;
+      record.usageIncomplete = true;
+    } else {
+      t[k] = sum;
+    }
+  }
 }
 
 function realRequests(record: RunRecord, config: ApiConfig): number {
   // Only the official Meta endpoint counts; fixture and unsupported make none.
   return config.providerKind === "meta" ? record.modelRequestsUsed : 0;
+}
+
+type CodedError = Error & { code?: string; diagnostics?: ProviderDiagnostics };
+
+// Concise attempt diagnostics from a transport outcome: validated envelope
+// metadata when the provider returned any, plus the error classification
+// when the attempt failed. Missing metadata stays explicitly null.
+function diagOf(outcome: { responseId: string | null; finishReason: string | null } | null, errorCode: string | null): AttemptDiagnostics {
+  return {
+    responseId: outcome?.responseId ?? null,
+    finishReason: outcome?.finishReason ?? null,
+    errorCode,
+  };
+}
+
+function diagFromError(e: CodedError): { usage: ProviderUsage | null; diagnostics: AttemptDiagnostics } {
+  const d = e.diagnostics;
+  return {
+    usage: d?.usage ?? null,
+    diagnostics: diagOf(d ? { responseId: d.responseId, finishReason: d.finishReason } : null, e.code ?? "TRANSPORT_ERROR"),
+  };
 }
 
 function heuristicSummaryOf(heuristic: HeuristicResult | null): HeuristicSummary | null {
@@ -399,6 +465,23 @@ function heuristicSummaryOf(heuristic: HeuristicResult | null): HeuristicSummary
     reason: heuristic.reason,
     candidate: heuristic.candidate ? structuredClone(heuristic.candidate) : null,
   };
+}
+
+// Shared narrow canonical-input gate (brief sections 10/19: reject broken
+// references): unknown order, allowlist, or lock refs are irreparable by any
+// assignment search, so they refuse before run state, slot, or inference
+// spend. Ordinary incompatible/locked assignment baselines pass: search can
+// repair them.
+function assertCanonicalRefs(scenario: Scenario): void {
+  const check = validateCanonicalRefs(scenario);
+  if (!check.ok) {
+    const err = new Error(
+      `Scenario canonical references invalid (INPUT_INVALID: ${check.issues.map((i) => i.code).join(", ")}). ` +
+        "Fix unknown order, allowlist, or lock references before running search or inference.",
+    ) as Error & { code?: string };
+    err.code = "INPUT_INVALID";
+    throw err;
+  }
 }
 
 // Shared fixed-scene gate (brief section 13): invalid geometry must surface
@@ -480,6 +563,7 @@ export function toSummary(record: RunRecord, config: ApiConfig): RunSummary {
     requirementsDraft: record.requirementsDraft ? structuredClone(record.requirementsDraft) : null,
     interpretedUnresolved: [...record.interpretedUnresolved],
     interpretError: record.interpretError,
+    interpretDiagnostics: record.interpretDiagnostics ? { ...record.interpretDiagnostics } : null,
     requirements: record.requirements ? structuredClone(record.requirements) : null,
     baseline: record.baseline ? structuredClone(record.baseline) : record.baselinePreview ? structuredClone(record.baselinePreview) : null,
     heuristic: heuristicSummaryOf(record.heuristic),
@@ -496,6 +580,7 @@ export function toSummary(record: RunRecord, config: ApiConfig): RunSummary {
     realMetaRequests: realRequests(record, config),
     modelId: record.modelId,
     promptVersion: record.promptVersion,
+    generationSettings: generationSettingsOf(config),
   };
 }
 
@@ -603,8 +688,9 @@ export class RunStore {
   createRun(scenarioInput: unknown, requestText: string): RunRecord {
     const scenario = parseScenario(scenarioInput);
     const frozen = freezeScenario(scenario);
-    // Scene gate before any run state, slot, or inference spend.
+    // Scene + canonical gates before any run state, slot, or inference spend.
     assertSceneValid(frozen);
+    assertCanonicalRefs(frozen);
     this.evictIfNeeded();
     if (this.runs.size >= this.config.maxRuns) {
       const err = new Error("Run store is full; retry after older runs expire.") as Error & { code?: string };
@@ -630,6 +716,7 @@ export class RunStore {
       requirementsDraft: null,
       interpretedUnresolved: [],
       interpretError: null,
+      interpretDiagnostics: null,
       requirements: null,
       baselinePreview: null,
       baseline: null,
@@ -742,26 +829,38 @@ export class RunStore {
         }
       };
       if (typeof result === "object" && result !== null && "__error" in result) {
-        const e = (result as { __error: Error & { code?: string } }).__error;
+        const e = (result as { __error: CodedError }).__error;
         if (e.code === "PARSE_ERROR" || e.code === "RESPONSE_TOO_LARGE") {
-          accumulateUsage(record, null); // usage unknown for the discarded response
+          // Bad structured output keeps available envelope usage/diagnostics.
+          const failed = diagFromError(e);
+          accumulateUsage(record, failed.usage);
+          record.interpretDiagnostics = failed.diagnostics;
           badInterpretOutput(e.message);
         } else {
           record.state = "FAILED";
           record.lastError = sanitizeMessage(e.message, this.config);
+          record.interpretDiagnostics = diagFromError(e).diagnostics;
           record.completedAt = new Date().toISOString();
           return;
         }
       } else {
-        const ok = result as { parsed: unknown; usage: ProviderUsage | null; durationMs: number };
+        const ok = result as {
+          parsed: unknown;
+          usage: ProviderUsage | null;
+          durationMs: number;
+          responseId: string | null;
+          finishReason: string | null;
+        };
         record.durationsMs.push(ok.durationMs);
         accumulateUsage(record, ok.usage);
+        record.interpretDiagnostics = diagOf(ok, null);
         try {
           const draft = parseRequirements(ok.parsed);
           record.requirementsDraft = draft;
           record.interpretedUnresolved = [...draft.unresolvedQuestions];
           record.baselinePreview = evaluateBaseline(frozen, draft);
         } catch (e) {
+          record.interpretDiagnostics = diagOf(ok, "SCHEMA_INVALID");
           badInterpretOutput(e instanceof Error ? e.message : "invalid");
         }
       }
@@ -935,18 +1034,21 @@ export class RunStore {
             durationMs: Date.now() - started,
             requestIndex: record.modelRequestsUsed,
             transportError: record.lastError,
+            diagnostics: diagOf(null, record.state),
           });
           record.completedAt = record.completedAt ?? new Date().toISOString();
           this.finishReportFields(record);
           return record;
         }
         if (typeof result === "object" && result !== null && "__error" in result) {
-          const e = (result as { __error: Error & { code?: string } }).__error;
+          const e = (result as { __error: CodedError }).__error;
           // Bad structured output consumes budget and feeds back to the next
           // attempt; transport failure ends the run (no blind retries).
           const msg = sanitizeMessage(e.message, this.config);
           if (e.code === "PARSE_ERROR" || e.code === "RESPONSE_TOO_LARGE") {
-            accumulateUsage(record, null); // usage unknown for the discarded response
+            // Failed attempts keep available envelope usage/diagnostics too.
+            const failed = diagFromError(e);
+            accumulateUsage(record, failed.usage);
             record.attempts.push({
               name,
               rationale: "",
@@ -955,10 +1057,11 @@ export class RunStore {
               applyOk: false,
               applyErrors: [],
               candidate: null,
-              usage: null,
+              usage: failed.usage,
               durationMs: Date.now() - started,
               requestIndex: record.modelRequestsUsed,
               transportError: null,
+              diagnostics: failed.diagnostics,
             });
             continue;
           }
@@ -974,6 +1077,7 @@ export class RunStore {
             durationMs: Date.now() - started,
             requestIndex: record.modelRequestsUsed,
             transportError: msg.slice(0, 500),
+            diagnostics: diagFromError(e).diagnostics,
           });
           record.state = "FAILED";
           record.lastError = msg;
@@ -981,7 +1085,14 @@ export class RunStore {
           this.finishReportFields(record);
           return record;
         }
-        const ok = result as { parsed: unknown; usage: ProviderUsage | null; durationMs: number; jsonText: string };
+        const ok = result as {
+          parsed: unknown;
+          usage: ProviderUsage | null;
+          durationMs: number;
+          jsonText: string;
+          responseId: string | null;
+          finishReason: string | null;
+        };
         record.durationsMs.push(ok.durationMs);
         accumulateUsage(record, ok.usage);
         setPhase(record, "VALIDATING_PROPOSAL");
@@ -1009,6 +1120,7 @@ export class RunStore {
             durationMs: ok.durationMs,
             requestIndex: record.modelRequestsUsed,
             transportError: null,
+            diagnostics: diagOf(ok, "SCHEMA_INVALID"),
           });
           continue;
         }
@@ -1027,6 +1139,7 @@ export class RunStore {
             durationMs: ok.durationMs,
             requestIndex: record.modelRequestsUsed,
             transportError: null,
+            diagnostics: diagOf(ok, null),
           });
           continue;
         }
@@ -1044,6 +1157,7 @@ export class RunStore {
           durationMs: ok.durationMs,
           requestIndex: record.modelRequestsUsed,
           transportError: null,
+          diagnostics: diagOf(ok, null),
         });
       }
       // Loop ended by budget. Terminal cancel/timeout can never become
@@ -1104,7 +1218,7 @@ export class RunStore {
       envelopeVersion: "layoutlab.m3report/1",
       runId: record.id,
       exportedAt: new Date().toISOString(),
-      appVersion: "0.3.0",
+      appVersion: "0.4.0",
       apiVersion: API_VERSION,
       coreVersion: CORE_VERSION,
       reportVersion: REPORT_VERSION,
@@ -1114,6 +1228,7 @@ export class RunStore {
       realMetaRequests: realRequests(record, this.config),
       modelId: record.modelId,
       promptVersion: record.promptVersion,
+      generationSettings: generationSettingsOf(this.config),
       state: record.state,
       phase: record.phase,
       outcome: report.outcome,
@@ -1137,6 +1252,83 @@ export class RunStore {
       improvementPercents: structuredClone(report.improvementPercents),
       timingsMs: { createdAt: record.createdAt, completedAt: record.completedAt, durationsMs: [...record.durationsMs] },
       limitations: [...M3_LIMITATIONS],
+    };
+  }
+
+  buildFailureRecord(id: string): M5FailureEnvelope {
+    const record = this.runs.get(id);
+    if (!record) {
+      const err = new Error(`Unknown run ${id}.`) as Error & { code?: string };
+      err.code = "UNKNOWN_RUN";
+      throw err;
+    }
+    if (record.state !== "FAILED" && record.state !== "CANCELLED" && record.state !== "TIMED_OUT") {
+      const err = new Error(`Run is ${record.state}; no failure audit exists (use the evaluated report when available).`) as Error & {
+        code?: string;
+      };
+      err.code = "FAILURE_NOT_AVAILABLE";
+      throw err;
+    }
+    if (record.requirements && record.baseline) {
+      const err = new Error("Run has an evaluated report; export /report instead of a failure audit.") as Error & {
+        code?: string;
+      };
+      err.code = "REPORT_AVAILABLE";
+      throw err;
+    }
+    if (record.attempts.length !== 0 || record.proposalsUsed !== 0) {
+      // Defense in depth: attempts imply an evaluated baseline, which the
+      // branch above already routes to /report. Never emit both.
+      const err = new Error("Run has proposal attempts; export /report instead of a failure audit.") as Error & {
+        code?: string;
+      };
+      err.code = "REPORT_AVAILABLE";
+      throw err;
+    }
+    const providerKind = this.config.providerKind;
+    if (providerKind !== "meta" && providerKind !== "fixture") {
+      // Unreachable via HTTP (liveAvailable refuses unsupported configs
+      // before any run exists), but never mislabel the transport.
+      const err = new Error("Unsupported provider configuration; no failure audit available.") as Error & {
+        code?: string;
+      };
+      err.code = "FAILURE_NOT_AVAILABLE";
+      throw err;
+    }
+    return {
+      envelopeVersion: M5_FAILURE_VERSION,
+      runId: record.id,
+      exportedAt: new Date().toISOString(),
+      apiVersion: API_VERSION,
+      coreVersion: CORE_VERSION,
+      routePolicy: ROUTE_POLICY_ID,
+      provider: "meta",
+      providerKind,
+      realMetaRequests: realRequests(record, this.config),
+      modelId: record.modelId,
+      promptVersion: record.promptVersion,
+      generationSettings: generationSettingsOf(this.config),
+      state: record.state,
+      phase: record.phase,
+      outcome: null,
+      reportAvailable: false,
+      measurement: null,
+      evaluationBoundary: FAILURE_NO_EVALUATION,
+      modelRequestsUsed: record.modelRequestsUsed,
+      proposalsUsed: 0,
+      budgets: { maxProposals: this.config.maxProposals, maxRequests: this.config.maxRequests, timeoutMs: this.config.timeoutMs },
+      usageTotals: record.usageTotals ? { ...record.usageTotals } : null,
+      usageIncomplete: record.usageIncomplete,
+      scenario: structuredClone(record.scenario),
+      requestText: record.requestText,
+      requirements: record.requirements ? structuredClone(record.requirements) : null,
+      requirementsDraft: record.requirementsDraft ? structuredClone(record.requirementsDraft) : null,
+      interpretedUnresolved: [...record.interpretedUnresolved],
+      interpretError: record.interpretError,
+      interpretDiagnostics: record.interpretDiagnostics ? { ...record.interpretDiagnostics } : null,
+      attempts: [],
+      lastError: record.lastError,
+      limitations: [...M5_FAILURE_LIMITATIONS],
     };
   }
 }

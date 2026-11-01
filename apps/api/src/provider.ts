@@ -1,7 +1,7 @@
 // Small replaceable Meta Chat Completions provider over native fetch.
 // Automatic retries disabled: exactly one fetch per call; the caller counts
 // the attempt before sending and never retries beyond the run budget.
-import type { ApiConfig } from "./config.js";
+import { sanitizeMessage, type ApiConfig } from "./config.js";
 
 export type ChatMessage = { role: "developer" | "user"; content: string };
 
@@ -14,6 +14,35 @@ export type StructuredCall = {
 
 export type ProviderUsage = { promptTokens: number | null; completionTokens: number | null; totalTokens: number | null };
 
+// Generation settings are fixed by the server (never per-request options):
+// Muse Spark always reasons, so reasoning is kept low for small
+// token-bounded planning (verified: reasoning_effort "low" is supported on
+// Chat Completions, "none" returns HTTP 400 for Spark). Recorded verbatim in
+// run summaries and reports; prompt/config versions travel alongside.
+export const REASONING_EFFORT = "low" as const;
+
+export type GenerationSettings = {
+  reasoningEffort: typeof REASONING_EFFORT;
+  maxCompletionTokens: number;
+};
+
+export function generationSettingsOf(config: ApiConfig): GenerationSettings {
+  return { reasoningEffort: REASONING_EFFORT, maxCompletionTokens: config.maxCompletionTokens };
+}
+
+// Concise sanitized envelope diagnostics. Carried on success AND attached to
+// thrown errors when an envelope was parsed, so empty/nonconforming output
+// retains validated usage, finish reason, and response id. Never carries
+// message content or hidden reasoning.
+export type ProviderDiagnostics = {
+  responseId: string | null;
+  finishReason: string | null;
+  usage: ProviderUsage | null;
+  durationMs: number;
+  responseBytes: number;
+  model: string;
+};
+
 export type ProviderResult = {
   jsonText: string;
   parsed: unknown;
@@ -21,12 +50,64 @@ export type ProviderResult = {
   responseBytes: number;
   durationMs: number;
   model: string;
+  responseId: string | null;
+  finishReason: string | null;
 };
 
 export type FetchLike = typeof fetch;
 
 function numOrNull(v: unknown): number | null {
-  return typeof v === "number" && Number.isFinite(v) && v >= 0 ? v : null;
+  // Token counts must be safe nonnegative integers; fractional, negative, or
+  // overflowing values are invalid and stay explicitly missing (incomplete).
+  return typeof v === "number" && Number.isSafeInteger(v) && v >= 0 ? v : null;
+}
+
+function strOrNull(v: unknown, maxLen = 128): string | null {
+  return typeof v === "string" && v.length > 0 ? v.slice(0, maxLen) : null;
+}
+
+function usageOrNull(v: unknown): ProviderUsage | null {
+  if (!v || typeof v !== "object") return null;
+  const raw = v as Record<string, unknown>;
+  if (raw["prompt_tokens"] === undefined && raw["completion_tokens"] === undefined && raw["total_tokens"] === undefined) {
+    return null;
+  }
+  return {
+    promptTokens: numOrNull(raw["prompt_tokens"]),
+    completionTokens: numOrNull(raw["completion_tokens"]),
+    totalTokens: numOrNull(raw["total_tokens"]),
+  };
+}
+
+// Best-effort sanitized diagnostics from a parsed envelope. Every field is
+// validated; malformed shapes yield explicit nulls, never throws or guesses.
+function diagnosticsOf(
+  envelope: Record<string, unknown>,
+  durationMs: number,
+  responseBytes: number,
+  config: ApiConfig,
+): ProviderDiagnostics {
+  const choices = envelope["choices"];
+  const first = Array.isArray(choices) && choices.length > 0 ? choices[0] : undefined;
+  // Every diagnostic string is redacted: malformed upstream must not echo key
+  // material or Authorization fragments into browser/report/log surfaces.
+  const clean = (v: string | null): string | null =>
+    v === null ? null : sanitizeMessage(v, config).slice(0, 128);
+  return {
+    responseId: clean(strOrNull(envelope["id"])),
+    finishReason:
+      typeof first === "object" && first !== null
+        ? clean(strOrNull((first as Record<string, unknown>)["finish_reason"], 64))
+        : null,
+    usage: usageOrNull(envelope["usage"]),
+    durationMs,
+    responseBytes,
+    model: clean(strOrNull(envelope["model"])) ?? config.modelId,
+  };
+}
+
+function nullDiagnostics(durationMs: number, responseBytes: number, fallbackModel: string): ProviderDiagnostics {
+  return { responseId: null, finishReason: null, usage: null, durationMs, responseBytes, model: fallbackModel };
 }
 
 async function readBoundedText(res: Response, maxBytes: number): Promise<string> {
@@ -78,6 +159,7 @@ export async function chatCompletionJson(
       json_schema: { name: call.schemaName, schema: call.schema, strict: true },
     },
     max_completion_tokens: config.maxCompletionTokens,
+    reasoning_effort: REASONING_EFFORT,
     stream: false,
   };
   const serialized = JSON.stringify(body);
@@ -130,43 +212,73 @@ export async function chatCompletionJson(
     err.status = res.status;
     throw err;
   }
+  const responseBytes = Buffer.byteLength(text, "utf8");
   let envelope: Record<string, unknown>;
   try {
     envelope = JSON.parse(text) as Record<string, unknown>;
   } catch {
-    const err = new Error("Model response is not valid JSON.") as Error & { code?: string };
+    const err = new Error("Model response is not valid JSON.") as Error & {
+      code?: string;
+      diagnostics?: ProviderDiagnostics;
+    };
     err.code = "PARSE_ERROR";
+    err.diagnostics = nullDiagnostics(durationMs, responseBytes, config.modelId);
     throw err;
   }
-  const choices = envelope["choices"];
-  const content =
-    Array.isArray(choices) && choices.length > 0
-      ? (choices[0] as Record<string, unknown>)["message"]
-      : undefined;
-  const jsonText = (content as Record<string, unknown> | undefined)?.["content"];
-  if (typeof jsonText !== "string" || jsonText.length === 0) {
-    const err = new Error("Model response has no message content.") as Error & { code?: string };
+  if (!envelope || typeof envelope !== "object" || Array.isArray(envelope)) {
+    const err = new Error("Model response envelope is malformed.") as Error & {
+      code?: string;
+      diagnostics?: ProviderDiagnostics;
+    };
     err.code = "PARSE_ERROR";
+    err.diagnostics = nullDiagnostics(durationMs, responseBytes, config.modelId);
+    throw err;
+  }
+  const diag = diagnosticsOf(envelope, durationMs, responseBytes, config);
+  // Validate choice/message shape before dereferencing: choices:[null] or a
+  // non-object message must throw a typed PARSE_ERROR with diagnostics, not
+  // a TypeError that loses available usage/finish metadata.
+  const choices = envelope["choices"];
+  const firstChoice = Array.isArray(choices) && choices.length > 0 ? choices[0] : undefined;
+  const message =
+    typeof firstChoice === "object" && firstChoice !== null
+      ? ((firstChoice as Record<string, unknown>)["message"] as Record<string, unknown> | undefined)
+      : undefined;
+  const jsonText =
+    typeof message === "object" && message !== null ? message["content"] : undefined;
+  if (typeof jsonText !== "string" || jsonText.length === 0) {
+    // Empty/nonconforming output keeps validated envelope metadata: the M3
+    // smoke lost usage/finish diagnostics for two such responses, and their
+    // cause remains unknown. Never invent the missing content.
+    const err = new Error("Model response has no message content.") as Error & {
+      code?: string;
+      diagnostics?: ProviderDiagnostics;
+    };
+    err.code = "PARSE_ERROR";
+    err.diagnostics = diag;
     throw err;
   }
   let parsed: unknown;
   try {
     parsed = JSON.parse(jsonText);
   } catch {
-    const err = new Error("Model content is not valid structured JSON.") as Error & { code?: string };
+    const err = new Error("Model content is not valid structured JSON.") as Error & {
+      code?: string;
+      diagnostics?: ProviderDiagnostics;
+    };
     err.code = "PARSE_ERROR";
+    err.diagnostics = diag;
     // Keep raw text length for accounting; caller records the failure.
     throw Object.assign(err, { jsonText });
   }
-  const usageRaw = envelope["usage"] as Record<string, unknown> | undefined;
-  const usage: ProviderUsage | null =
-    usageRaw && typeof usageRaw === "object"
-      ? {
-          promptTokens: numOrNull(usageRaw["prompt_tokens"]),
-          completionTokens: numOrNull(usageRaw["completion_tokens"]),
-          totalTokens: numOrNull(usageRaw["total_tokens"]),
-        }
-      : null;
-  const model = typeof envelope["model"] === "string" ? (envelope["model"] as string) : config.modelId;
-  return { jsonText, parsed, usage, responseBytes: Buffer.byteLength(text, "utf8"), durationMs, model };
+  return {
+    jsonText,
+    parsed,
+    usage: diag.usage,
+    responseBytes,
+    durationMs,
+    model: diag.model,
+    responseId: diag.responseId,
+    finishReason: diag.finishReason,
+  };
 }

@@ -101,6 +101,55 @@ export type AssignmentValidation = {
   relocationCount: number;
 };
 
+// Canonical input references that NO assignment search can repair: ids the
+// scenario itself points at but never defines. Broken canonical input must be
+// rejected before any inference spend (INPUT_INVALID). Ordinary assignment
+// violations (unknown/missing/duplicate mapping rows, occupancy,
+// compatibility, locks, budget, unreachable orders) stay representable and
+// searchable as an invalid baseline.
+export function validateCanonicalRefs(scenario: Scenario): { ok: boolean; issues: ValidationError[] } {
+  const issues: ValidationError[] = [];
+  const products = new Set(scenario.products.map((p) => p.id));
+  const locations = new Set(scenario.locations.map((l) => l.id));
+  for (const order of scenario.orders) {
+    for (const line of order.lines) {
+      if (!products.has(line.productId)) {
+        issues.push({
+          code: "ORDER_UNKNOWN_PRODUCT",
+          message: `order ${order.id} references unknown product ${line.productId}`,
+        });
+      }
+    }
+  }
+  for (const product of scenario.products) {
+    for (const allowed of product.allowedLocationIds ?? []) {
+      if (!locations.has(allowed)) {
+        issues.push({
+          code: "ALLOWLIST_UNKNOWN_LOCATION",
+          message: `product ${product.id} allows unknown location ${allowed}`,
+        });
+      }
+    }
+    if (product.lockedLocationId !== undefined && !locations.has(product.lockedLocationId)) {
+      issues.push({
+        code: "LOCKED_UNKNOWN_LOCATION",
+        message: `product ${product.id} locked to unknown location ${product.lockedLocationId}`,
+      });
+    }
+  }
+  for (const location of scenario.locations) {
+    for (const allowed of location.allowedProductIds ?? []) {
+      if (!products.has(allowed)) {
+        issues.push({
+          code: "ALLOWLIST_UNKNOWN_PRODUCT",
+          message: `location ${location.id} allows unknown product ${allowed}`,
+        });
+      }
+    }
+  }
+  return { ok: issues.length === 0, issues };
+}
+
 // Structural assignment validation: completeness, references, occupancy,
 // compatibility, locks, and budget. Reachability is evaluated separately
 // during workload evaluation so unreachable orders stay reportable.

@@ -81,8 +81,16 @@ export {
   fitsFixedOrientation,
   relocationCount,
   validateAssignment,
+  validateCanonicalRefs,
 } from "./validate.js";
 export type { AssignmentValidation, ValidationError } from "./validate.js";
+export {
+  FAILURE_NO_EVALUATION,
+  M5_FAILURE_VERSION,
+  failureEnvelopeSchema,
+  replayFailureRecord,
+} from "./failure.js";
+export type { FailureEnvelope } from "./failure.js";
 export { EVALUATION_BUDGET_REASON, evaluateWorkload, safeAdd, safeMul } from "./routing.js";
 export type { LegResult, OrderResult, WorkloadLimits, WorkloadResult } from "./routing.js";
 export {

@@ -9,7 +9,7 @@ Scope authority: [Implementation Brief v2](IMPLEMENTATION_BRIEF_V2.md). Codex pl
 | M2 | Browser load, manual edit, evaluate, compare, apply, persistence, report export and replay; English UI, 2D and basic 3D, revision protection | Accepted: 83 core tests, 22 browser tests; independent 390/1440 flow and replay checks pass |
 | M3 | Server-side Meta interpretation and proposals with measured feedback; maximum 3 proposals and 4 requests including repairs; timeout, cancellation, concurrency and input limits; separate live evidence | Local and live smoke accepted: one authorized run, 4 real requests, 2 failed attempts + 1 valid worse proposal; baseline retained, replay matched |
 | M4 | Bounded demand heuristic sharing evaluator; actual SimReady asset loaded, inspected and attributed; proxies clearly labeled until replaced | Accepted: 96 core + 41 API + 46 browser tests, independent heuristic/source/GLB/browser checks; final wording follow-up verified |
-| M5 | Six frozen scenarios, three actual model runs each when authorized; first versus feedback and heuristic comparison, all failures and budgets recorded; deterministic report replay | Pending |
+| M5 | Six frozen scenarios, three actual model runs each when authorized; first versus feedback and heuristic comparison, all failures and budgets recorded; deterministic report replay | Readiness locally accepted: 110 core + 67 API + 50 browser tests; six offline cases and 18 fixture trials verified; real 18-trial benchmark awaits new authorization |
 | M6 | Documentation and demo agree with evidence; GitHub repository layoutlab requested for later; deployment requires authorization and public verification | Pending |
 
 ## Review contract
@@ -81,3 +81,12 @@ Scope authority: [Implementation Brief v2](IMPLEMENTATION_BRIEF_V2.md). Codex pl
 - Input/feedback review completed: actual HTTP request now includes packing/approach/nav/allowlists, visit frequency separate from units, measured packing distances, and previous/best baseline-relative mapping changes. Invalid scene rejected before any transport call.
 - Final display corrections: status counts three generated proposals separately from one heuristic; heuristic relocation reasons use the heuristic label; 3D heading contains no framework name. Updated screenshots retained.
 - Next gate: M5 six frozen benchmark scenarios, failure diagnostics and a reviewed benchmark runner. No further paid inference is authorized; the one-run smoke allowance is consumed.
+
+## M5 readiness review
+
+- Result: six frozen synthetic fixtures with fixed contracts/hashes, including two at the brief's small-scene scale; offline/fixture/live-gated benchmark CLI; failed-output usage/finish diagnostics; one shared bounded failure-audit schema; pre-inference canonical-reference gate; lockfile metadata aligned.
+- Repo gates: 110 core + 67 API + 50 browser tests passed; typecheck/build passed. Fixture benchmark completed 18 trials / 72 localhost transport requests / zero real Meta requests. Offline and fixture replay matched. Readiness artifacts initially identify uncommitted source; coordinator regenerates them from a committed clean checkpoint before live use.
+- Independent BFS (no core geometry/navigation/routing helpers) matched all six baselines and heuristic assignment measurements, plus 81 valid assignments across 18 fixture reports. Known hand values 16000/62000/26000 and historical real-Meta report remain independently verified. Constraints, relocation counts, per-order routes and selected assignment were also checked.
+- Independent HTTP checks passed input rejection before transport, four-request cap/three proposals, actual request context/mappings, first-request cancellation, empty-content usage/finish retention, secret redaction and explicit no-measurement audit export.
+- Live runner review added authoritative preflight/per-trial server fingerprinting, atomic output claim, immediate pending/run-ID disk journal, HTTP timeouts, readonly reconciliation, ambiguity stop, frozen pairing/coverage checks, and conservative reservations. Target remains six scenarios x three trials, at most 72 actual Meta requests.
+- Boundary: actual 18-trial Meta benchmark NOT RUN, no new paid allowance yet. Prior single M3 smoke is separate and fully consumed. No public deployment authorization.

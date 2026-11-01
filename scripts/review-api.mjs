@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { createServer } from 'node:http';
 import { createApp } from '../apps/api/dist/server.js';
 import { loadConfig } from '../apps/api/dist/config.js';
-import { replayReport } from '@layoutlab/core';
+import { replayReport, replayFailureRecord } from '@layoutlab/core';
 
 // Independent coordinator oracle over real local HTTP; never contacts Meta.
 // Run after npm run build, from the repository root.
@@ -18,6 +18,7 @@ const proposals = [
 ];
 const captured = [];
 let slow = false;
+let emptyContent = false;
 let slowEntered;
 let slowRelease;
 let releaseSlow;
@@ -37,8 +38,11 @@ const fake = createServer((req, res) => {
       ? requirements
       : { scenarioRevision: scenario.revision, changes: proposals[index - 1], rationale: 'Local reviewer fixture.' };
     res.setHeader('content-type', 'application/json');
-    res.end(JSON.stringify({ model: 'review-fixture', choices: [{ message: { content: JSON.stringify(content) }, finish_reason: 'stop' }],
-      usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 } }));
+    res.end(JSON.stringify({ id: emptyContent ? 'Bearer review-fixture-key' : 'review-response',
+      model: 'review-fixture', choices: [{ message: { content: emptyContent ? null : JSON.stringify(content) },
+        finish_reason: emptyContent ? 'length' : 'stop' }], usage: emptyContent
+        ? { prompt_tokens: 100, completion_tokens: 200, total_tokens: 300 }
+        : { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 } }));
   });
 });
 await new Promise(r => fake.listen(0, '127.0.0.1', r));
@@ -135,6 +139,28 @@ try {
   assert.equal(after.attempts.length, 0);
   assert.equal(captured.length, 5);
   console.log('PASS actual local HTTP: first inference cancellable by promptly returned ID; no post-cancel proposal or extra request');
+
+  slow = false;
+  emptyContent = true;
+  const empty = await request('/api/runs', { scenario, requestText: 'Reviewer empty-output failure fixture.', mode: 'live', consent: true });
+  const noContent = await poll(empty.runId, ['AWAITING_APPROVAL', 'FAILED']);
+  assert.equal(noContent.state, 'AWAITING_APPROVAL');
+  assert.equal(noContent.interpretDiagnostics.finishReason, 'length');
+  assert.deepEqual(noContent.usageTotals, { promptTokens: 100, completionTokens: 200, totalTokens: 300 });
+  assert.equal(noContent.usageIncomplete, false);
+  assert.ok(!JSON.stringify(noContent).includes('review-fixture-key'));
+  await request(`/api/runs/${empty.runId}/cancel`, {});
+  const audit = await request(`/api/runs/${empty.runId}/failure-report`);
+  assert.equal(audit.reportAvailable, false);
+  assert.equal(audit.measurement, null);
+  assert.equal(audit.outcome, null);
+  assert.equal(audit.state, 'CANCELLED');
+  assert.equal(audit.proposalsUsed, 0);
+  assert.equal(audit.realMetaRequests, 0);
+  assert.ok(!JSON.stringify(audit).includes('review-fixture-key'));
+  assert.equal(replayFailureRecord(audit).evaluated, false);
+  assert.equal(captured.length, 6);
+  console.log('PASS actual local HTTP: empty-content usage/finish retained, secret redacted, cancelled pre-approval audit exports without measurement claim');
 } finally {
   releaseSlow?.();
   await Promise.all([new Promise(r => api.close(r)), new Promise(r => fake.close(r))]);

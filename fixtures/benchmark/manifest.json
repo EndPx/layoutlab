@@ -1,0 +1,48 @@
+{
+  "benchmarkVersion": "layoutlab.m5benchmark/1",
+  "frozenAt": "2026-11-01T19:21:09.210Z",
+  "sourceCommit": "84d4bca83091dac40b92f26f5ada8921052d2fbc",
+  "scenarios": [
+    {
+      "id": "bm-01-demand-skew",
+      "file": "bm-01-demand-skew.json",
+      "bytes": 2457,
+      "sha256": "0da42b9adbfdb352e6359148cf6f80b0e7943c530dc0f94f189343ab16437450"
+    },
+    {
+      "id": "bm-02-copick-cluster",
+      "file": "bm-02-copick-cluster.json",
+      "bytes": 5840,
+      "sha256": "d9309140e8252f3670d4590fd90e8ea2cacff23f98d3ab639fe5475ea0829f1a"
+    },
+    {
+      "id": "bm-03-tight-relocation",
+      "file": "bm-03-tight-relocation.json",
+      "bytes": 2029,
+      "sha256": "399ed4c23470989a30146a5693e1c7f3a7ddbd9f0be744ff7d9a988d9346f80e"
+    },
+    {
+      "id": "bm-04-constraints",
+      "file": "bm-04-constraints.json",
+      "bytes": 2498,
+      "sha256": "f98e70ab3fd6b5b973afe96d6857bdab71ac7d04b8790db0684f69c85db889f3"
+    },
+    {
+      "id": "bm-05-locked-frequent",
+      "file": "bm-05-locked-frequent.json",
+      "bytes": 5507,
+      "sha256": "d90c40ca241883c2a318305a034017f06231d09e41f69e1df1bd119c1fe897dc"
+    },
+    {
+      "id": "bm-06-unreachable-repair",
+      "file": "bm-06-unreachable-repair.json",
+      "bytes": 2135,
+      "sha256": "a880e98ae87b620c31e353bcdbe102f171a2b44f39821a9aeaaf8340be9cc164"
+    }
+  ],
+  "requirements": {
+    "file": "requirements.json",
+    "bytes": 2779,
+    "sha256": "7481d4514d3731c804d6d857c5a6fc1e730d499e78e7ce4a19f4bd66be811fd7"
+  }
+}

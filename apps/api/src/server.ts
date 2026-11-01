@@ -1,11 +1,11 @@
 // Express app factory for M3. Same-origin only (no CORS wildcard); the Vite
 // dev server proxies /api to this loopback API. All errors are sanitized.
-import { CORE_VERSION } from "@layoutlab/core";
+import { CORE_VERSION, ROUTE_POLICY_ID } from "@layoutlab/core";
 import express, { type Request, type Response } from "express";
 import { z } from "zod";
 import { API_VERSION, liveAvailable, loadConfig, sanitizeMessage, type ApiConfig } from "./config.js";
 import { PROMPT_VERSION } from "./prompts.js";
-import type { FetchLike } from "./provider.js";
+import { generationSettingsOf, type FetchLike } from "./provider.js";
 import { RunStore, toSummary } from "./runs.js";
 
 const createRunBody = z.strictObject({
@@ -112,6 +112,16 @@ export function createApp(opts: {
       concurrency: config.concurrency,
       provider: "meta",
       providerKind: config.providerKind,
+      // Exact non-secret server settings: the benchmark live fingerprint
+      // checks these against the frozen protocol before every trial, because
+      // local .env alone cannot prove what the running server enforces.
+      generationSettings: generationSettingsOf(config),
+      contextCaps: {
+        maxContextChars: config.maxContextChars,
+        maxResponseBytes: config.maxResponseBytes,
+      },
+      routePolicy: ROUTE_POLICY_ID,
+      heuristicMaxEvaluations: config.heuristicMaxEvaluations,
     });
   });
 
@@ -190,6 +200,16 @@ export function createApp(opts: {
     }
   });
 
+  app.get("/api/runs/:id/failure-report", (_req: Request, res: Response, next: (e: unknown) => void) => {
+    try {
+      const id = _req.params["id"] as string;
+      const envelope = store.buildFailureRecord(id);
+      res.json(envelope);
+    } catch (e) {
+      next(e);
+    }
+  });
+
   // Body-limit and route errors land here; always sanitized, never echo keys.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app.use((err: unknown, _req: Request, res: Response, _next: (e: unknown) => void) => {
@@ -213,7 +233,8 @@ export function createApp(opts: {
           ? 400
           : code === "RUN_EXPIRED"
             ? 408
-            : code === "RUN_CLOSED" || code === "RUN_NOT_COMPLETED"
+            : code === "RUN_CLOSED" || code === "RUN_NOT_COMPLETED" || code === "REPORT_AVAILABLE" ||
+                code === "FAILURE_NOT_AVAILABLE"
               ? 409
               : code === "CONCURRENCY_LIMIT" || code === "RATE_LIMIT" || code === "RUN_STORE_FULL"
                 ? 429

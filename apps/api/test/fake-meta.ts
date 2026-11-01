@@ -41,6 +41,7 @@ function chatCompletionBody(model: string, content: string, usage: Record<string
 export type ScriptEntry =
   | { kind: "ok"; contentJson: unknown; usage?: { p: number; c: number; t: number } | null; delayMs?: number }
   | { kind: "raw"; content: string; usage?: { p: number; c: number; t: number } | null; delayMs?: number }
+  | { kind: "envelope"; envelopeJson: unknown; delayMs?: number }
   | { kind: "error"; status: number; body: string; delayMs?: number };
 
 export function scriptHandler(entries: ScriptEntry[], model: string): FakeHandler {
@@ -65,6 +66,13 @@ export function scriptHandler(entries: ScriptEntry[], model: string): FakeHandle
     if (entry.kind === "error") {
       res.writeHead(entry.status, { "Content-Type": "text/plain" });
       res.end(entry.body);
+      return;
+    }
+    // Raw envelope: caller crafts the exact provider shape (null content,
+    // malformed choices, real-shaped usage) for diagnostics tests.
+    if (entry.kind === "envelope") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(entry.envelopeJson));
       return;
     }
     const content = entry.kind === "ok" ? JSON.stringify(entry.contentJson) : entry.content;

@@ -17,6 +17,12 @@ export type ApiStatus = {
   providerKind: "meta" | "fixture" | "unsupported";
 };
 
+export type AttemptDiagnostics = {
+  responseId: string | null;
+  finishReason: string | null;
+  errorCode: string | null;
+};
+
 export type LiveAttempt = {
   name: string;
   rationale: string;
@@ -29,6 +35,7 @@ export type LiveAttempt = {
   durationMs: number;
   requestIndex: number;
   transportError: string | null;
+  diagnostics: AttemptDiagnostics | null;
 };
 
 export type LiveHeuristic = {
@@ -151,4 +158,8 @@ export function getLiveRun(runId: string, signal?: AbortSignal): Promise<RunSumm
 
 export function getLiveReport(runId: string, signal?: AbortSignal): Promise<unknown> {
   return request(`/api/runs/${encodeURIComponent(runId)}/report`, { signal });
+}
+
+export function getLiveFailureReport(runId: string, signal?: AbortSignal): Promise<unknown> {
+  return request(`/api/runs/${encodeURIComponent(runId)}/failure-report`, { signal });
 }

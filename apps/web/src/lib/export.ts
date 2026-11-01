@@ -5,8 +5,10 @@ import {
   ROUTE_POLICY_ID,
   createReport,
   methodLabelFor,
+  replayFailureRecord,
   replayReport,
   type Assignment,
+  type FailureEnvelope,
   type PlanningRequirements,
   type Scenario,
 } from "@layoutlab/core";
@@ -14,6 +16,7 @@ import { webAssetRefs, type WebAssetRef } from "./rackAsset";
 
 export const M2_ENVELOPE_VERSION = "layoutlab.m2export/1";
 export const M3_ENVELOPE_VERSION = "layoutlab.m3report/1";
+export const M5_FAILURE_VERSION = "layoutlab.m5failure/1";
 export const APP_VERSION = "0.4.0";
 export const MAX_PROPOSALS_PER_RUN = 3;
 export const MAX_MODEL_REQUESTS_PER_RUN = 4;
@@ -456,13 +459,34 @@ export function replayM3Envelope(json: unknown): {
   };
 }
 
+export type FailureReplay = {
+  valid: true;
+  evaluated: false;
+  provider: "meta";
+  runId: string;
+  state: FailureEnvelope["state"];
+  notice: string;
+};
+
+// Failure-audit import via the one shared core contract: validates the
+// record and explicitly reports that no deterministic measurement existed.
+// Never claims "matches saved measurements" — nothing was measured to match.
+export function replayFailureEnvelope(json: unknown): FailureReplay {
+  return replayFailureRecord(json);
+}
+
 export function replayAnyEnvelope(json: unknown): {
   matchesSaved: boolean;
   mismatches: string[];
   provider: string;
   runId: string;
+  failure?: FailureReplay;
 } {
   const v = (json as Record<string, unknown> | null)?.["envelopeVersion"];
   if (v === M3_ENVELOPE_VERSION) return replayM3Envelope(json);
+  if (v === M5_FAILURE_VERSION) {
+    const failure = replayFailureEnvelope(json);
+    return { matchesSaved: false, mismatches: [], provider: failure.provider, runId: failure.runId, failure };
+  }
   return replayEnvelope(json);
 }
