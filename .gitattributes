@@ -1,0 +1,2 @@
+# Preserve upstream asset bytes so source BOM hashes survive Windows checkout.
+assets/** -text
