@@ -1,0 +1,151 @@
+{
+  "schemaVersion": "m0-evidence-1",
+  "generatedAt": "2026-11-01T15:17:32Z",
+  "note": "Sanitized M0 evidence. No secrets: credential variables recorded as presence-only.",
+  "environment": {
+    "os": "Windows 10.0.26200 (win32 x64)",
+    "node": "v24.18.0",
+    "npm": "11.8.0",
+    "pnpm": "10.21.0",
+    "npx": "11.8.0",
+    "git": "2.42.0.windows.2",
+    "python": "Python 3.12.10",
+    "curl": "curl 8.21.0 (Windows)",
+    "tscGlobal": "not installed",
+    "usdCoreScratch": "26.11 (TEMP venv, bounds inspection only, removed after use)"
+  },
+  "envPresence": {
+    "META_API_BASE_URL": "ABSENT",
+    "META_MODEL_ID": "ABSENT",
+    "MODEL_API_KEY": "ABSENT",
+    "META_API_KEY": "ABSENT",
+    "HUGGINGFACE_HUB_TOKEN": "ABSENT",
+    "HF_TOKEN": "ABSENT"
+  },
+  "sources": [
+    { "url": "https://dev.meta.ai/events/global-hackathon", "status": 200 },
+    { "url": "https://dev.meta.ai/docs/overview", "status": 200 },
+    { "url": "https://dev.meta.ai/docs/quickstart", "status": 200 },
+    { "url": "https://dev.meta.ai/docs/protocols", "status": 200 },
+    { "url": "https://dev.meta.ai/docs/models", "status": 200 },
+    { "url": "https://dev.meta.ai/docs/pricing-rate-limits", "status": 200 },
+    { "url": "https://huggingface.co/spaces/nvidia/simready-central", "status": 200 },
+    { "url": "https://docs.omniverse.nvidia.com/simready/latest/simready-central.html", "status": 200 },
+    { "url": "https://huggingface.co/datasets/nvidia/simready-assets", "status": 200 },
+    { "url": "https://github.com/NVIDIA/simready-foundation", "status": 200 },
+    { "url": "https://huggingface.co/docs/huggingface_hub/guides/download", "status": 200 },
+    { "url": "https://openusd.org/release/api/group___usd_geom_linear_units__group.html", "status": 200 },
+    { "url": "https://creativecommons.org/licenses/by/4.0/", "status": 200 },
+    { "url": "https://registry.npmjs.org/typescript/latest", "status": 200 }
+  ],
+  "sourcesCoverageNote": "Only the 14 URLs above were fetched (Meta docs + SimReady + license/units + npm registry). Brief section 8 frontend/backend doc pages (React, Vite, Express, Zod, Vitest, Playwright, pnpm, Tailwind, R3F, three.js) were NOT individually fetched; stack versions came from the npm registry instead. No claim is made about unfetched pages.",
+  "meta": {
+    "baseUrl": "https://api.meta.ai/v1",
+    "keyEnvVar": "MODEL_API_KEY",
+    "recommendedModel": "muse-spark-1.3",
+    "otherModels": ["muse-spark-1.2", "muse-spark-1.1", "muse-spark-1.3-contributor", "muse-spark-1.2-contributor"],
+    "protocols": ["Responses", "Chat Completions (OpenAI-compatible)", "Messages (Anthropic-compatible)"],
+    "pricingObserved": "pay-as-you-go; Spark 1.3 Standard $1.25/$4.25 per 1M input/output tokens; no free tier found on pricing page",
+    "liveProbe": {
+      "request": "GET https://api.meta.ai/v1/models (no credentials, catalog check only, no inference)",
+      "httpStatus": 401,
+      "body": "{\"error\":{\"code\":\"invalid_api_key\",\"message\":\"Unauthorized\",\"param\":null,\"type\":\"authentication_error\"}}"
+    },
+    "liveSmoke": "BLOCKED",
+    "liveSmokeBlockers": [
+      "MODEL_API_KEY absent in this environment (user to populate local .env later per coordinator)",
+      "No free-access confirmation: all usage is pay-as-you-go, so a smoke call needs funded-key plus spend authorization"
+    ]
+  },
+  "assetExperiment": {
+    "dataset": "nvidia/simready-assets",
+    "pinnedRevision": "4763fbfaa4f8e97658e68b57d01b4c86659e08b5",
+    "package": "rack_large_empty_a01",
+    "packageNote": "Discovered equivalent of card-linked rack_large_empty_a02 (a02 existence + identical layout verified; a02 stays the M4 default)",
+    "license": "CC-BY-4.0",
+    "licenseSources": ["dataset tag license:cc-by-4.0", "com.nvidia.simready.packaging.json", ".metadata/LICENSE.txt"],
+    "packageId": "simready.hf.nvidia.simready-assets.rack_large_empty_a01.2026.10.09_153940094972",
+    "bomFiles": 78,
+    "bomTotalBytes": 59167145,
+    "rootUsd": "simready_usd/sm_rack_large_empty_a01_01.usd",
+    "rootFormat": "binary USDC crate (PXR-USDC magic), 25823 bytes, SHA-256 matches BOM",
+    "geometriesUsd": "simready_usd/payloads/geometries.usd, 3297376 bytes, SHA-256 matches BOM (TEMP only, untracked)",
+    "metersPerUnit": 1.0,
+    "upAxis": "Z",
+    "defaultPrim": "/RootNode",
+    "transforms": "identity (no xformOps on /RootNode or mesh prim); transformed bounds equal authored bounds",
+    "worldBoundsM": { "min": [-1.999988, -1.03329, 0.0], "max": [1.999989, 1.033291, 3.010001], "size": [3.999977, 2.066581, 3.010001] },
+    "boundsRaw": {
+      "tool": "usd-core 26.11 in scratch TEMP venv (removed after use); script: scripts/m0-usd-bounds.py",
+      "metersPerUnit": 1.0,
+      "upAxis": "Z",
+      "defaultPrim": "/RootNode",
+      "worldMin_m": [-1.999988, -1.03329, 0.0],
+      "worldMax_m": [1.999989, 1.033291, 3.010001],
+      "sizeXYZ_m": [3.999977, 2.066581, 3.010001],
+      "primCount": 12,
+      "xformOps": { "/RootNode": [], "/RootNode/Geometry/sm_rack_a01_obj_00": [] },
+      "warnings": "3 non-fatal payload warnings for unstaged physics-variant layers (MuJoCo/disabled.usda, Newton/disabled.usda, PhysX/enabled.usda); geometry bounds unaffected"
+    },
+    "footprintNote": "approx 4.00 x 2.07 m footprint, 3.01 m tall, base at z=0; mass 1170.4934, centerOfMass z 1.4321336",
+    "dependencies": [
+      "payloads/base.usda sublayers Physics/physics.usda, references instances.usda",
+      "instances.usda references geometries.usd and materials.usda",
+      "materials.usda references UDIM PNG textures (Albedo/ORM/Normal) and source_assets/OmniPBR.mdl",
+      "physics variant payloads: MuJoCo/Newton/PhysX enabled/disabled.usda"
+    ],
+    "validationObserved": "Package 1.0.0 conformance passed (FET_030/032); embedded Robotics-Prop 3.1.0 feature checks show passed=0 for NP.008, AA.001, RB.MB.001, GSP.001, VM.MDL.001; runtime PhysX drop/stability tests passed",
+    "conversionFeasibility": "Favorable: meters, identity transform, ground-based origin. Blockers for M4: no USD->glTF/GLB conversion attempted; MDL materials (VM.MDL.001 unpassed) need MDL->UsdPreviewSurface/glTF mapping; Z-up to Y-up rotation plus mm footprint mapping still to do. No integration claimed.",
+    "downloadedFiles": [
+      ".metadata/LICENSE.txt",
+      ".metadata/com.nvidia.simready.conformance.Package@1.0.0.json",
+      ".metadata/com.nvidia.simready.packaging.bom.json",
+      ".metadata/com.nvidia.simready.root_usds.json",
+      "com.nvidia.simready.packaging.json",
+      "simready_usd/sm_rack_large_empty_a01_01.usd",
+      "simready_usd/payloads/base.usda",
+      "simready_usd/payloads/instances.usda",
+      "simready_usd/payloads/materials.usda",
+      "simready_usd/payloads/Physics/physics.usda"
+    ],
+    "alternateCandidates": ["rack_large_empty_a02", "rack_bulk_storage_a03", "rack_h3m_s01", "rack_h3m_s02", "rack_f04", "rack_f10", "rack_l16", "rack_long_empty_a01", "storageSystem_rack_heavyDuty_d01", "storageSystem_rack_heavyDuty_e01", "storageSystem_rack_heavyDuty_f01", "storage_shelf_basic_a01", "storage_shelf_basic_b01", "storage_shelf_basic_c01"],
+    "catalogNote": "Full top-level listing: 2679 packages over 27 tree-API pages (complete)"
+  },
+  "proposedStackLatest": {
+    "observedAt": "2026-11-01",
+    "typescript": "7.0.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "vite": "8.3.5",
+    "three": "0.187.0",
+    "@react-three/fiber": "9.8.2 (optional)",
+    "express": "5.3.0",
+    "zod": "4.6.7",
+    "vitest": "5.0.5",
+    "playwright": "1.64.1",
+    "openai": "7.47.0 (Meta-compatible provider SDK)",
+    "tailwindcss": "4.3.3 (optional)",
+    "@types/node": "26.6.6",
+    "enginesNote": "Node 24 satisfies every engines field; nothing installed; M1 must pin exact versions (new major lines: TS 7, Vite 8, Express 5, Zod 4)"
+  },
+  "scripts": [
+    "scripts/m0-env.mjs",
+    "scripts/m0-meta.mjs",
+    "scripts/m0-simready.mjs",
+    "scripts/m0-simready-find.mjs",
+    "scripts/m0-asset-fetch.mjs",
+    "scripts/m0-usd-bounds.py"
+  ],
+  "filesChanged": [
+    "docs/M0_ENVIRONMENT.md",
+    "evidence/sanitized/m0.json",
+    ".env.example",
+    "scripts/m0-env.mjs",
+    "scripts/m0-meta.mjs",
+    "scripts/m0-simready.mjs",
+    "scripts/m0-simready-find.mjs",
+    "scripts/m0-asset-fetch.mjs",
+    "scripts/m0-usd-bounds.py",
+    "assets/m0-experiment/rack_large_empty_a01/ (10 pinned files + fetch-manifest.json)"
+  ]
+}

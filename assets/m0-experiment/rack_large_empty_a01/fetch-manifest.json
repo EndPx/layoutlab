@@ -1,0 +1,48 @@
+{
+  "dataset": "nvidia/simready-assets",
+  "revision": "4763fbfaa4f8e97658e68b57d01b4c86659e08b5",
+  "package": "rack_large_empty_a01",
+  "fetchedAt": "2026-11-01T15:10:33.513Z",
+  "files": [
+    {
+      "path": ".metadata/LICENSE.txt",
+      "bytes": 18657
+    },
+    {
+      "path": ".metadata/com.nvidia.simready.conformance.Package@1.0.0.json",
+      "bytes": 763
+    },
+    {
+      "path": ".metadata/com.nvidia.simready.packaging.bom.json",
+      "bytes": 19423
+    },
+    {
+      "path": ".metadata/com.nvidia.simready.root_usds.json",
+      "bytes": 100
+    },
+    {
+      "path": "com.nvidia.simready.packaging.json",
+      "bytes": 565
+    },
+    {
+      "path": "simready_usd/sm_rack_large_empty_a01_01.usd",
+      "bytes": 25823
+    },
+    {
+      "path": "simready_usd/payloads/base.usda",
+      "bytes": 11338
+    },
+    {
+      "path": "simready_usd/payloads/instances.usda",
+      "bytes": 10470
+    },
+    {
+      "path": "simready_usd/payloads/materials.usda",
+      "bytes": 19591
+    },
+    {
+      "path": "simready_usd/payloads/Physics/physics.usda",
+      "bytes": 9360
+    }
+  ]
+}

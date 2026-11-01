@@ -1,0 +1,568 @@
+{
+  "format_version": "1.0",
+  "items": [
+    {
+      "relative_path": "simready_usd/sm_rack_large_empty_a01_01.usd",
+      "size": 25823,
+      "hash": {
+        "sha256": "55b2b06e2578f9f6fe96b8abb6a88776c05dedc747be7a710df3a898188f8e14"
+      }
+    },
+    {
+      "relative_path": "simready_usd/.thumbs/sm_rack_large_empty_a01_01_thumbnail.png",
+      "size": 596142,
+      "hash": {
+        "sha256": "bac06a4f10f4f0aec2eba3efa9da45871a209c943b293235eabb24e655f7ba4b"
+      }
+    },
+    {
+      "relative_path": "simready_usd/.thumbs/sm_rack_large_empty_a01_01_thumbnail_dark.png",
+      "size": 484305,
+      "hash": {
+        "sha256": "cd3cd9499dee03ae983de94a95a3d815cac8177794ddbc3142f617ac4826a908"
+      }
+    },
+    {
+      "relative_path": "simready_usd/.thumbs/256x256/sm_rack_large_empty_a01_01.usd.png",
+      "size": 1029863,
+      "hash": {
+        "sha256": "79887f36c5bbfade9ded979c65b1e2e70740ace4abf3bbe8a74e3c4d04963104"
+      }
+    },
+    {
+      "relative_path": "simready_usd/.thumbs/256x256/sm_rack_large_empty_a01_01.usd_dark.png",
+      "size": 559873,
+      "hash": {
+        "sha256": "5319e06f74b53430d8b928086053790c654419fbc46db699c3d298e0f0c3fdb3"
+      }
+    },
+    {
+      "relative_path": "simready_usd/.thumbs/256x256/sm_rack_large_empty_a01_01.usd_light.png",
+      "size": 831324,
+      "hash": {
+        "sha256": "e336f862b0c47a0459ed7e27acef693be2d69667b4fbadc78cb3ca938ba6a865"
+      }
+    },
+    {
+      "relative_path": "simready_usd/.thumbs/256x256/sm_rack_large_empty_a01_01.usd_transparent.png",
+      "size": 627896,
+      "hash": {
+        "sha256": "503e82de8b136fc61981d16e8458af3f3fdf4537c2960f6e2b086e668dace3e1"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/T_Rack_A1_Albedo.1001.png",
+      "size": 3161069,
+      "hash": {
+        "sha256": "1f3b1ee631115cd2ffe389442c1b6f5e0041becbc865b38f01cea5a2c9e6ec44",
+        "sha256-first1m": "4a6ff3381b1fb121f5a67aedacfed89c82ca8d36c4c615a31256dcb9911a79af"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/T_Rack_A1_Albedo.1002.png",
+      "size": 1581868,
+      "hash": {
+        "sha256": "0b3c783cb03ab77943730160b78b7fac621e4fa552631bbd126794e59d765252",
+        "sha256-first1m": "eb595c311ef76d47ffa3854c108ea19df563950fdad1ffd30cdca18600fc4c40"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/T_Rack_A1_Albedo.1003.png",
+      "size": 2195053,
+      "hash": {
+        "sha256": "e0c01a4ba682ee2bf4cda07e11baa5152fe53b98294ef3e08328d574b4a5f50e",
+        "sha256-first1m": "ef1e317bae5d2efa87370300bd19a133b7951dd72bb0b2383225f04b755c0b62"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/T_Rack_A1_Normal.1001.png",
+      "size": 2928843,
+      "hash": {
+        "sha256": "9e3bd93830222341e2c8c212ef1b782b1f1650391018a843396e7714d8cc2e95",
+        "sha256-first1m": "168bb9cfb36628259a6018d786e9409cd1b10bbbec432b378d05ab884296629d"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/T_Rack_A1_Normal.1002.png",
+      "size": 3513699,
+      "hash": {
+        "sha256": "9ecaf8e47a51aea09a77ab45d1440e20095306fa3624db46d68c15473da2d6c9",
+        "sha256-first1m": "48c8cc6f9e7fbd8f5f4e3c56c3c6f37ab153d1d2ad7fb9198d3e74be00565c23"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/T_Rack_A1_Normal.1003.png",
+      "size": 63451,
+      "hash": {
+        "sha256": "8d3c25f625366abb09686c5478092b0231e19c0974c539ab8b355ff803f98c7e"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/T_Rack_A1_ORM.1001.png",
+      "size": 4202012,
+      "hash": {
+        "sha256": "9aeaec1344f78d91f2c9b8a8ddf013391fe35a9b750cd3dbc44e4ba244ad430e",
+        "sha256-first1m": "fd25717e99f33cf327bbef3738512976707519badb6cda730f50e6680da833e3"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/T_Rack_A1_ORM.1002.png",
+      "size": 2951843,
+      "hash": {
+        "sha256": "aae6964b5267c79efd87aaf1ef097ec9adf414f0bdcb6d556b05e0122f21e4d4",
+        "sha256-first1m": "82c1391dc30af60b9b3c266b91d795624b5c603359ee40bbd89265b0454a2ecf"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/T_Rack_A1_ORM.1003.png",
+      "size": 2482068,
+      "hash": {
+        "sha256": "9988e4cf51cdae795cb3a1015335eabff89aadef23b0e938258efc24e1a3bf20",
+        "sha256-first1m": "65e13cad7719b2314da5d75df5f50dd89a6bce6c931d0ba690fed9305ec4f9cc"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/256x256/T_Rack_A1_Albedo.1001.png.png",
+      "size": 76397,
+      "hash": {
+        "sha256": "8f4d427e80043601d1a2b312403722823ca973af8c63056c06263b5a3a4e5992"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/256x256/T_Rack_A1_Albedo.1002.png.png",
+      "size": 46166,
+      "hash": {
+        "sha256": "2cc453b4ad9cfe74f8dcdf18f349876721321cb149c8d9b5f5ec5ca46ab9d768"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/256x256/T_Rack_A1_Albedo.1003.png.png",
+      "size": 88262,
+      "hash": {
+        "sha256": "9daa8cb279fa44a95de829f0cf0c20f3cc45d96e0eac25828e8b063a0b9587fa"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/256x256/T_Rack_A1_Normal.1001.png.png",
+      "size": 61652,
+      "hash": {
+        "sha256": "74acc585cb64c7cb183f193c511a43a4e7f5fc2f22184c0f2457ea68582194af"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/256x256/T_Rack_A1_Normal.1002.png.png",
+      "size": 60761,
+      "hash": {
+        "sha256": "85d8d23511c063cd61fc1a36ed70bcf30736e8228082cc29acd38579375cd454"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/256x256/T_Rack_A1_Normal.1003.png.png",
+      "size": 4400,
+      "hash": {
+        "sha256": "a3d7fea1d0dbb68493a27610f2c583ca9cb7106173e99be0d2e9c90cb0ac98fe"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/256x256/T_Rack_A1_ORM.1001.png.png",
+      "size": 100114,
+      "hash": {
+        "sha256": "34e0ae3489a9db8a3276fb64f645b5da63e85e5d8917cf880910b76dea160c10"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/256x256/T_Rack_A1_ORM.1003.png.png",
+      "size": 65739,
+      "hash": {
+        "sha256": "f5d8fffad736bfaa8c42c8df5ad106057af507e6c00558187198e85368833f58"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/256x256/T_Rack_A1_ORM.1002.png.png",
+      "size": 72881,
+      "hash": {
+        "sha256": "ac66d0dd1956e3abb0d0ccb429ff73b6bb5043316cdeddf846635cbf423d84dd"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/512x512/T_Rack_A1_Albedo.1001.png.png",
+      "size": 271654,
+      "hash": {
+        "sha256": "f84a2abb9f838b9b87d9fb4005b87fb8c6d99d3ee0cef178289e6e315eb6993a"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/512x512/T_Rack_A1_Albedo.1002.png.png",
+      "size": 156431,
+      "hash": {
+        "sha256": "58a0134d1b3518071efd17a7604d990bcd2742ca28dd0aa0575210f50a1fb929"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/512x512/T_Rack_A1_Albedo.1003.png.png",
+      "size": 315913,
+      "hash": {
+        "sha256": "db6c2ad61d68d1ebb8d59e68fb584727156a7cf2dd7ca5c886b193400af853f9"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/512x512/T_Rack_A1_Normal.1001.png.png",
+      "size": 230702,
+      "hash": {
+        "sha256": "617e8fee483d79768b26bcaaaa8fc0e2560fb02a5ce978005fc9ab64709119a2"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/512x512/T_Rack_A1_Normal.1002.png.png",
+      "size": 245861,
+      "hash": {
+        "sha256": "12f06f560ad3efd6711a03ba5f94c897f1986c0585b4a07db0a1e20dce805abe"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/512x512/T_Rack_A1_Normal.1003.png.png",
+      "size": 12483,
+      "hash": {
+        "sha256": "172f3d1def4a88d3f58ce5974eee783d22858c4893e8a54f40300bc98cd2d9eb"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/512x512/T_Rack_A1_ORM.1001.png.png",
+      "size": 356153,
+      "hash": {
+        "sha256": "60b31da8ac8aff4256e4c62b182f11fa0398e0561fe549b2fe6cc5a2a8ef06cc"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/512x512/T_Rack_A1_ORM.1002.png.png",
+      "size": 272517,
+      "hash": {
+        "sha256": "06c8d6e8f214581412f8d518cce563db330241e86c38621e1e2e417f579f45e0"
+      }
+    },
+    {
+      "relative_path": "simready_usd/Textures/.thumbs/512x512/T_Rack_A1_ORM.1003.png.png",
+      "size": 238926,
+      "hash": {
+        "sha256": "600a8fc9337578a1041a2d202cb0d39319559c992451299750d07429ed6d7efb"
+      }
+    },
+    {
+      "relative_path": "simready_usd/payloads/base.usda",
+      "size": 11338,
+      "hash": {
+        "sha256": "46defc3b435d387c9d51219be41de969e43a9bd6f8b176f899c1597523ea3c19"
+      }
+    },
+    {
+      "relative_path": "simready_usd/payloads/geometries.usd",
+      "size": 3297376,
+      "hash": {
+        "sha256": "900dfcc15582dc9b73ed74118b2a7dcd6b761a6586efcd6c949402f94e7c0e6e",
+        "sha256-first1m": "c69110a5778ff55f6ae6ac2fff72f11950c4ab494fe5ee20b6fe76e02051f249"
+      }
+    },
+    {
+      "relative_path": "simready_usd/payloads/instances.usda",
+      "size": 10470,
+      "hash": {
+        "sha256": "e2d7745083be72fb7e2050c5f6a848f86e2ef123b1d40432e646fa3122c49343"
+      }
+    },
+    {
+      "relative_path": "simready_usd/payloads/instances_mujoco.usda",
+      "size": 10742,
+      "hash": {
+        "sha256": "9a985ccc3bcabb93f73f6bc391a13df29169a950c7d302119b25492a5bac6f1e"
+      }
+    },
+    {
+      "relative_path": "simready_usd/payloads/instances_newton.usda",
+      "size": 10593,
+      "hash": {
+        "sha256": "09044e355308250ae85fa9d2647a0541c820371b3b11fea9f73fc403d583e670"
+      }
+    },
+    {
+      "relative_path": "simready_usd/payloads/instances_physx.usda",
+      "size": 10610,
+      "hash": {
+        "sha256": "2b08340378b4a4ec569321f984d8db243ae05ca751fbc279bccbd0ec0f6bb8bf"
+      }
+    },
+    {
+      "relative_path": "simready_usd/payloads/materials.usda",
+      "size": 19591,
+      "hash": {
+        "sha256": "e739052fece8deb39bb4373df9c24d42a887855970b2418e393cbe829b6f67ca"
+      }
+    },
+    {
+      "relative_path": "simready_usd/payloads/MuJoCo/disabled.usda",
+      "size": 8506,
+      "hash": {
+        "sha256": "2a286341c809d2aeff8def56ed65433f017fac4126ab8522891b407292340469"
+      }
+    },
+    {
+      "relative_path": "simready_usd/payloads/MuJoCo/enabled.usda",
+      "size": 9211,
+      "hash": {
+        "sha256": "1adb72afaa82ef3a48805a69683934b800086621bf7da44f56fed10aaac0fa46"
+      }
+    },
+    {
+      "relative_path": "simready_usd/payloads/Newton/disabled.usda",
+      "size": 8506,
+      "hash": {
+        "sha256": "2a286341c809d2aeff8def56ed65433f017fac4126ab8522891b407292340469"
+      }
+    },
+    {
+      "relative_path": "simready_usd/payloads/Newton/enabled.usda",
+      "size": 9323,
+      "hash": {
+        "sha256": "d1c5acba5f121eaa1c8057e65f55e55e4a28e63230d0f01ab07e18710c274a64"
+      }
+    },
+    {
+      "relative_path": "simready_usd/payloads/PhysX/disabled.usda",
+      "size": 8506,
+      "hash": {
+        "sha256": "2a286341c809d2aeff8def56ed65433f017fac4126ab8522891b407292340469"
+      }
+    },
+    {
+      "relative_path": "simready_usd/payloads/PhysX/enabled.usda",
+      "size": 8783,
+      "hash": {
+        "sha256": "d98c3f5566393f61148acd0cbe45bc12f325d1562239dc39e965cb9e93044a93"
+      }
+    },
+    {
+      "relative_path": "simready_usd/payloads/Physics/physics.usda",
+      "size": 9360,
+      "hash": {
+        "sha256": "a6932bd0c3deb6808ce0896c7046229a2a6cf03953c9eb75cd0a9733b1dcd3b7"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/OmniPBR.mdl",
+      "size": 16010,
+      "hash": {
+        "sha256": "6e6b3acbccd236e21a6c29964a431d2a53e77251cc6b8b1bc975eb1c62da1781"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/OmniPBRBase.mdl",
+      "size": 19369,
+      "hash": {
+        "sha256": "a8fd9fe174e91892e94d06da90ba453a124024c2ce2c033be9d82c9e2f76a3b7"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/OmniPBR_ClearCoat.mdl",
+      "size": 29789,
+      "hash": {
+        "sha256": "d84c5ba482561c0eaea2e0c5b607358af549e36cd921773462f92dbc4f32cbc3"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/T_Rack_A1_Albedo.1001.png",
+      "size": 3161069,
+      "hash": {
+        "sha256": "1f3b1ee631115cd2ffe389442c1b6f5e0041becbc865b38f01cea5a2c9e6ec44",
+        "sha256-first1m": "4a6ff3381b1fb121f5a67aedacfed89c82ca8d36c4c615a31256dcb9911a79af"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/T_Rack_A1_Albedo.1002.png",
+      "size": 1581868,
+      "hash": {
+        "sha256": "0b3c783cb03ab77943730160b78b7fac621e4fa552631bbd126794e59d765252",
+        "sha256-first1m": "eb595c311ef76d47ffa3854c108ea19df563950fdad1ffd30cdca18600fc4c40"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/T_Rack_A1_Albedo.1003.png",
+      "size": 2195053,
+      "hash": {
+        "sha256": "e0c01a4ba682ee2bf4cda07e11baa5152fe53b98294ef3e08328d574b4a5f50e",
+        "sha256-first1m": "ef1e317bae5d2efa87370300bd19a133b7951dd72bb0b2383225f04b755c0b62"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/T_Rack_A1_Normal.1001.png",
+      "size": 2928843,
+      "hash": {
+        "sha256": "9e3bd93830222341e2c8c212ef1b782b1f1650391018a843396e7714d8cc2e95",
+        "sha256-first1m": "168bb9cfb36628259a6018d786e9409cd1b10bbbec432b378d05ab884296629d"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/T_Rack_A1_Normal.1002.png",
+      "size": 3513699,
+      "hash": {
+        "sha256": "9ecaf8e47a51aea09a77ab45d1440e20095306fa3624db46d68c15473da2d6c9",
+        "sha256-first1m": "48c8cc6f9e7fbd8f5f4e3c56c3c6f37ab153d1d2ad7fb9198d3e74be00565c23"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/T_Rack_A1_Normal.1003.png",
+      "size": 63451,
+      "hash": {
+        "sha256": "8d3c25f625366abb09686c5478092b0231e19c0974c539ab8b355ff803f98c7e"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/T_Rack_A1_ORM.1001.png",
+      "size": 4202012,
+      "hash": {
+        "sha256": "9aeaec1344f78d91f2c9b8a8ddf013391fe35a9b750cd3dbc44e4ba244ad430e",
+        "sha256-first1m": "fd25717e99f33cf327bbef3738512976707519badb6cda730f50e6680da833e3"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/T_Rack_A1_ORM.1002.png",
+      "size": 2951843,
+      "hash": {
+        "sha256": "aae6964b5267c79efd87aaf1ef097ec9adf414f0bdcb6d556b05e0122f21e4d4",
+        "sha256-first1m": "82c1391dc30af60b9b3c266b91d795624b5c603359ee40bbd89265b0454a2ecf"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/T_Rack_A1_ORM.1003.png",
+      "size": 2482068,
+      "hash": {
+        "sha256": "9988e4cf51cdae795cb3a1015335eabff89aadef23b0e938258efc24e1a3bf20",
+        "sha256-first1m": "65e13cad7719b2314da5d75df5f50dd89a6bce6c931d0ba690fed9305ec4f9cc"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/256x256/T_Rack_A1_Albedo.1001.png.png",
+      "size": 76397,
+      "hash": {
+        "sha256": "8f4d427e80043601d1a2b312403722823ca973af8c63056c06263b5a3a4e5992"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/256x256/T_Rack_A1_Albedo.1002.png.png",
+      "size": 46166,
+      "hash": {
+        "sha256": "2cc453b4ad9cfe74f8dcdf18f349876721321cb149c8d9b5f5ec5ca46ab9d768"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/256x256/T_Rack_A1_Albedo.1003.png.png",
+      "size": 88262,
+      "hash": {
+        "sha256": "9daa8cb279fa44a95de829f0cf0c20f3cc45d96e0eac25828e8b063a0b9587fa"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/256x256/T_Rack_A1_Normal.1001.png.png",
+      "size": 61652,
+      "hash": {
+        "sha256": "74acc585cb64c7cb183f193c511a43a4e7f5fc2f22184c0f2457ea68582194af"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/256x256/T_Rack_A1_Normal.1002.png.png",
+      "size": 60761,
+      "hash": {
+        "sha256": "85d8d23511c063cd61fc1a36ed70bcf30736e8228082cc29acd38579375cd454"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/256x256/T_Rack_A1_Normal.1003.png.png",
+      "size": 4400,
+      "hash": {
+        "sha256": "a3d7fea1d0dbb68493a27610f2c583ca9cb7106173e99be0d2e9c90cb0ac98fe"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/256x256/T_Rack_A1_ORM.1001.png.png",
+      "size": 100114,
+      "hash": {
+        "sha256": "34e0ae3489a9db8a3276fb64f645b5da63e85e5d8917cf880910b76dea160c10"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/256x256/T_Rack_A1_ORM.1002.png.png",
+      "size": 72881,
+      "hash": {
+        "sha256": "ac66d0dd1956e3abb0d0ccb429ff73b6bb5043316cdeddf846635cbf423d84dd"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/256x256/T_Rack_A1_ORM.1003.png.png",
+      "size": 65739,
+      "hash": {
+        "sha256": "f5d8fffad736bfaa8c42c8df5ad106057af507e6c00558187198e85368833f58"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/512x512/T_Rack_A1_Albedo.1001.png.png",
+      "size": 271654,
+      "hash": {
+        "sha256": "f84a2abb9f838b9b87d9fb4005b87fb8c6d99d3ee0cef178289e6e315eb6993a"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/512x512/T_Rack_A1_Albedo.1002.png.png",
+      "size": 156431,
+      "hash": {
+        "sha256": "58a0134d1b3518071efd17a7604d990bcd2742ca28dd0aa0575210f50a1fb929"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/512x512/T_Rack_A1_Albedo.1003.png.png",
+      "size": 315913,
+      "hash": {
+        "sha256": "db6c2ad61d68d1ebb8d59e68fb584727156a7cf2dd7ca5c886b193400af853f9"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/512x512/T_Rack_A1_Normal.1001.png.png",
+      "size": 230702,
+      "hash": {
+        "sha256": "617e8fee483d79768b26bcaaaa8fc0e2560fb02a5ce978005fc9ab64709119a2"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/512x512/T_Rack_A1_Normal.1002.png.png",
+      "size": 245861,
+      "hash": {
+        "sha256": "12f06f560ad3efd6711a03ba5f94c897f1986c0585b4a07db0a1e20dce805abe"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/512x512/T_Rack_A1_Normal.1003.png.png",
+      "size": 12483,
+      "hash": {
+        "sha256": "172f3d1def4a88d3f58ce5974eee783d22858c4893e8a54f40300bc98cd2d9eb"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/512x512/T_Rack_A1_ORM.1001.png.png",
+      "size": 356153,
+      "hash": {
+        "sha256": "60b31da8ac8aff4256e4c62b182f11fa0398e0561fe549b2fe6cc5a2a8ef06cc"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/512x512/T_Rack_A1_ORM.1002.png.png",
+      "size": 272517,
+      "hash": {
+        "sha256": "06c8d6e8f214581412f8d518cce563db330241e86c38621e1e2e417f579f45e0"
+      }
+    },
+    {
+      "relative_path": "simready_usd/source_assets/.thumbs/512x512/T_Rack_A1_ORM.1003.png.png",
+      "size": 238926,
+      "hash": {
+        "sha256": "600a8fc9337578a1041a2d202cb0d39319559c992451299750d07429ed6d7efb"
+      }
+    }
+  ]
+}
