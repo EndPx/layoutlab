@@ -1,0 +1,1 @@
+{"engines":{"node":">=20"},"name":"layoutlab","private":true,"scripts":{"test":"npm test --workspace @layoutlab/core","typecheck":"npm run typecheck --workspace @layoutlab/core"},"type":"module","workspaces":["packages/core"]}
