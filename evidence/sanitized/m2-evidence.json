@@ -1,0 +1,88 @@
+{
+  "generatedAt": "2026-11-01T16:21:48.364Z",
+  "node": "v24.18.0",
+  "npm": "11.8.0",
+  "appVersion": "0.2.0",
+  "coreVersion": "0.1.0",
+  "schemaVersion": "layoutlab.scenario/1",
+  "reportVersion": "layoutlab.report/1",
+  "routePolicy": "nearest-neighbor-a-star/1",
+  "provider": "stub",
+  "modelRequests": 0,
+  "sampleBaseline": {
+    "valid": true,
+    "weightedTravelMm": 36800,
+    "meanOrderDistanceMm": 5257.142857142857,
+    "relocationCount": 0
+  },
+  "stubOnSampleRev0": {
+    "proposals": [
+      {
+        "name": "stub-1",
+        "changes": [
+          {
+            "productId": "sku-b",
+            "locationId": "L6"
+          }
+        ],
+        "valid": true,
+        "weightedTravelMm": 35600,
+        "relocationCount": 1,
+        "errors": []
+      },
+      {
+        "name": "stub-2",
+        "changes": [
+          {
+            "productId": "sku-c",
+            "locationId": "L6"
+          }
+        ],
+        "valid": true,
+        "weightedTravelMm": 51200,
+        "relocationCount": 1,
+        "errors": []
+      },
+      {
+        "name": "stub-3",
+        "changes": [
+          {
+            "productId": "sku-d",
+            "locationId": "L6"
+          }
+        ],
+        "valid": true,
+        "weightedTravelMm": 36000,
+        "relocationCount": 1,
+        "errors": []
+      }
+    ],
+    "bestName": "stub-1",
+    "outcome": "IMPROVED_VALID_ASSIGNMENT",
+    "improvementPercents": {
+      "baseline": 0,
+      "stub-1": 3.260869565217391,
+      "stub-3": 2.1739130434782608,
+      "stub-2": -39.130434782608695
+    }
+  },
+  "replay": {
+    "matchesSaved": true,
+    "mismatches": []
+  },
+  "gates": {
+    "coreTests": "83 passed",
+    "coreTypecheck": "clean",
+    "coreBuild": "ok",
+    "webTypecheck": "clean",
+    "webBuild": "ok",
+    "e2eDesktop": "11 passed",
+    "e2eMobile": "11 passed",
+    "consoleErrors": 0
+  },
+  "limitations": [
+    "STUB provider: deterministic placeholder proposals, no Meta inference.",
+    "3D scene uses DEVELOPMENT PROXIES; no SimReady asset (M4).",
+    "No live Meta/assets/benchmark/deployment claims."
+  ]
+}

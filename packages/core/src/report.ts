@@ -307,10 +307,18 @@ export function replayReport(reportJson: unknown): {
   const same = (label: string, a: unknown, b: unknown): void => {
     if (JSON.stringify(a) !== JSON.stringify(b)) mismatches.push(label);
   };
+  // Percentage records are keyed maps, not sequences: canonical sorted-entry
+  // comparison so insertion order alone cannot mismatch identical values.
+  // All array/order/route comparisons stay order-sensitive on purpose.
+  const sameRecord = (label: string, a: Record<string, number | null>, b: Record<string, number | null>): void => {
+    const canonical = (r: Record<string, number | null>): string =>
+      JSON.stringify(Object.entries(r).sort(([ka], [kb]) => (ka < kb ? -1 : ka > kb ? 1 : 0)));
+    if (canonical(a) !== canonical(b)) mismatches.push(label);
+  };
   same("baseline", claimOf(fresh.baseline), saved.baseline);
   same("candidates", fresh.candidates.map(claimOf), saved.candidates);
   same("bestName", fresh.bestName, saved.bestName);
-  same("improvementPercents", fresh.improvementPercents, saved.improvementPercents);
+  sameRecord("improvementPercents", fresh.improvementPercents, saved.improvementPercents);
   same("outcome", fresh.outcome, saved.outcome);
   return { report: fresh, matchesSaved: mismatches.length === 0, mismatches };
 }

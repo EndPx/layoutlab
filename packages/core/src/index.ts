@@ -67,11 +67,13 @@ export {
   MAX_WORKLOAD_EXPANSIONS,
   BudgetExhausted,
   astarNodeDistanceMm,
+  astarNodePath,
   connectEndpoint,
   createNavBudget,
   gridNodeCount,
   nodePoint,
   shortestPathMm,
+  shortestPathPointsMm,
 } from "./nav.js";
 export type { EndpointConnection, GridNode, NavBudget } from "./nav.js";
 export {

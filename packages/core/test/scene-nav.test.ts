@@ -1,15 +1,20 @@
 import { describe, expect, test } from "vitest";
 import {
+  astarNodeDistanceMm,
+  astarNodePath,
   buildNavContext,
   cartRadiusMm,
   connectEndpoint,
+  createNavBudget,
   evaluateCandidate,
   evaluateWorkload,
   navigationRadiusMm,
+  nodePoint,
   pointNavigable,
   rackFootprint,
   segmentBlocked,
   shortestPathMm,
+  shortestPathPointsMm,
   validateScene,
 } from "../src/index.js";
 import { codes, loadFixture, requirements } from "./helpers.js";
@@ -214,5 +219,97 @@ describe("grid navigation", () => {
     expect(result.valid).toBe(false);
     expect(codes(result.errors)).toContain("BUDGET_EXHAUSTED");
     expect(codes(result.errors)).not.toContain("UNREACHABLE_ORDER");
+  });
+});
+
+describe("route polylines for browser display", () => {
+  test("node path length matches node distance", () => {
+    const s = oracle();
+    const nav = buildNavContext(s);
+    const ca = connectEndpoint(s.packingPointMm, s, nav)!;
+    const cb = connectEndpoint(s.locations[0]!.pickPointMm, s, nav)!;
+    const dist = astarNodeDistanceMm(ca.node, cb.node, s, nav, createNavBudget());
+    const path = astarNodePath(ca.node, cb.node, s, nav, createNavBudget());
+    expect(dist).toBe(1000);
+    expect(path).not.toBeNull();
+    expect(path!.length).toBe(dist! / 100 + 1);
+    expect(path![0]).toEqual(ca.node);
+    expect(path![path!.length - 1]).toEqual(cb.node);
+  });
+
+  test("on-grid polyline is axis-aligned and collision-free", () => {
+    const s = oracle();
+    const nav = buildNavContext(s);
+    const a = s.packingPointMm;
+    const b = s.locations[0]!.pickPointMm;
+    const scalar = shortestPathMm(a, b, s, nav);
+    const pts = shortestPathPointsMm(a, b, s, nav)!;
+    expect(scalar).toBe(1000);
+    expect(pts).not.toBeNull();
+    expect(pts[0]).toEqual(a);
+    expect(pts[pts.length - 1]).toEqual(b);
+    expect(pts.length).toBe(11); // 10 grid steps of 100 mm
+    const ca = connectEndpoint(a, s, nav)!;
+    const cb = connectEndpoint(b, s, nav)!;
+    const gridSteps = pts.length - 1; // all grid, connectors are 0 here
+    expect(ca.connectorMm + gridSteps * 100 + cb.connectorMm).toBe(scalar);
+    for (let k = 1; k < pts.length; k++) {
+      const p = pts[k - 1]!;
+      const q = pts[k]!;
+      const manhattan = Math.abs(q.x - p.x) + Math.abs(q.z - p.z);
+      expect(manhattan).toBe(100);
+      expect(segmentBlocked(p, q, nav.inflatedObstacles)).toBe(false);
+    }
+  });
+
+  test("off-grid polyline matches scalar with ceil connectors", () => {
+    const s = loadFixture("test", "offgrid-endpoints");
+    const nav = buildNavContext(s);
+    const a = s.packingPointMm;
+    const b = s.locations[0]!.pickPointMm;
+    const scalar = shortestPathMm(a, b, s, nav);
+    expect(scalar).toBe(1243);
+    const ca = connectEndpoint(a, s, nav)!;
+    const cb = connectEndpoint(b, s, nav)!;
+    expect(ca.connectorMm).toBe(0);
+    expect(cb.connectorMm).toBe(43); // ceil(sqrt(30^2+30^2))
+    const pts = shortestPathPointsMm(a, b, s, nav)!;
+    expect(pts[0]).toEqual(a);
+    expect(pts[pts.length - 1]).toEqual(b);
+    // 12 grid steps between node points + final diagonal connector.
+    const nodePath = astarNodePath(ca.node, cb.node, s, nav, createNavBudget())!;
+    expect(nodePath.length - 1).toBe(12);
+    expect(ca.connectorMm + (nodePath.length - 1) * 100 + cb.connectorMm).toBe(scalar);
+    for (let k = 1; k < pts.length; k++) {
+      expect(segmentBlocked(pts[k - 1]!, pts[k]!, nav.inflatedObstacles)).toBe(false);
+    }
+  });
+
+  test("sample baseline measurement unchanged by shared search", () => {
+    const s = loadFixture("sample", "warehouse-basic");
+    const result = evaluateCandidate(s, requirements(), s.assignments, "baseline");
+    expect(result.valid).toBe(true);
+    expect(result.weightedTravelMm).toBe(36800);
+  });
+
+  test("same-node polyline keeps both connectors", () => {
+    const s = oracle();
+    const nav = buildNavContext(s);
+    const a = { x: 1010, z: 1010 };
+    const b = { x: 1020, z: 1020 };
+    const pts = shortestPathPointsMm(a, b, s, nav)!;
+    expect(pts).toEqual([a, nodePoint({ i: 10, j: 10 }), b]);
+    expect(shortestPathMm(a, b, s, nav)).toBe(44);
+  });
+
+  test("polyline is null exactly when distance is null", () => {
+    const s = loadFixture("test", "narrow-corridor");
+    const nav = buildNavContext(s);
+    const east = s.locations.find((l) => l.id === "L-east")!.pickPointMm;
+    expect(shortestPathMm(s.packingPointMm, east, s, nav)).toBeNull();
+    expect(shortestPathPointsMm(s.packingPointMm, east, s, nav)).toBeNull();
+    const west = s.locations.find((l) => l.id === "L-west")!.pickPointMm;
+    expect(shortestPathMm(s.packingPointMm, west, s, nav)).not.toBeNull();
+    expect(shortestPathPointsMm(s.packingPointMm, west, s, nav)).not.toBeNull();
   });
 });

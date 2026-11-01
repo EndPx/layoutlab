@@ -6,7 +6,7 @@ Scope authority: [Implementation Brief v2](IMPLEMENTATION_BRIEF_V2.md). Codex pl
 | --- | --- | --- |
 | M0 | Environment and current official sources recorded; runtime Meta account/model access smoke evidence; revision-pinned rack asset feasibility experiment with units, bounds, license and conversion assessment | Environment and asset experiment reviewed; authenticated inference blocked |
 | M1 | Strict runtime schemas, atomic assignment validation, conservative geometry/navigation, deterministic routing and objective; independently calculated expected values and required negative cases | Accepted: 75 tests, typecheck, build, consumer smoke and independent assertions pass |
-| M2 | Browser load, manual edit, evaluate, compare, apply, persistence, report export and replay; English UI, 2D and basic 3D, revision protection | Pending |
+| M2 | Browser load, manual edit, evaluate, compare, apply, persistence, report export and replay; English UI, 2D and basic 3D, revision protection | Accepted: 83 core tests, 22 browser tests; independent 390/1440 flow and replay checks pass |
 | M3 | Server-side Meta interpretation and proposals with measured feedback; maximum 3 proposals and 4 requests including repairs; timeout, cancellation, concurrency and input limits; separate live evidence | Pending |
 | M4 | Bounded demand heuristic sharing evaluator; actual SimReady asset loaded, inspected and attributed; proxies clearly labeled until replaced | Pending |
 | M5 | Six frozen scenarios, three actual model runs each when authorized; first versus feedback and heuristic comparison, all failures and budgets recorded; deterministic report replay | Pending |
@@ -45,3 +45,12 @@ Scope authority: [Implementation Brief v2](IMPLEMENTATION_BRIEF_V2.md). Codex pl
 - Method limits: bounded conservative grid/connector route; no global-tour guarantee or real-world savings claim. Core APIs require parsed inputs and evaluate-before-apply; M2 must enforce scene identity/settings at apply time.
 - Next gate: M2 manual browser workflow and explicitly labeled controlled stub. Live inference, real browser asset integration, benchmark and deployment remain pending.
 - GitHub repository https://github.com/EndPx/layoutlab created private at user request; origin configured; no push.
+
+## M2 review
+
+- Result: native React/Vite/Three.js app; manual assignment flow, explicit stub mode, constraints approval, bounded proposals, true grid-route display, guarded apply, persistence, historical export and report replay. Development proxies remain labeled.
+- Checks: final 83 core tests and 22 Playwright tests pass; typecheck/build/smoke pass. Coordinator independently ran 390/1440 Chromium flows including invalid/valid edits, stub apply, historical export and Node replay with no page errors or page overflow.
+- Review corrected trust-boundary validation, stale constraints, async run races, report identity/provenance, lost export after apply, plan readability, mobile overflow and shared e2e temporary-file collisions.
+- Root replay comparison corrected to treat percentage record key order as immaterial while preserving route/array order and rejecting altered measurements; web workaround removed. Regression and independent Node checks pass.
+- Authenticated Meta catalog now verified HTTP 200; configured muse-spark-1.3-contributor is listed. Evidence: evidence/sanitized/m0-auth-catalog.json. Key contents never exposed; inference calls remain zero and paid inference is not authorized.
+- Next gate: M3 native API, bounded server-side Meta provider, interpretation approval and feedback loop. Fixture transport evidence must remain distinct from actual Meta inference.

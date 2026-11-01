@@ -123,17 +123,17 @@ function heapPop(heap: HeapNode[]): HeapNode | undefined {
   return top;
 }
 
-// Four-neighbor A* with Manhattan heuristic. Returns grid path length in mm,
-// or null when no path exists. Each node expands at most once (closed set);
-// the shared budget bounds total work across a whole workload evaluation.
-export function astarNodeDistanceMm(
+// Single shared four-neighbor A* search: one tie-break, one collision model,
+// one budget accounting for both measurement and display. Returns the grid
+// node path inclusive of start and goal, or null when no path exists.
+function astarSearch(
   start: GridNode,
   goal: GridNode,
   scenario: Scenario,
   nav: NavContext,
   budget: NavBudget,
-): number | null {
-  if (start.i === goal.i && start.j === goal.j) return 0;
+): GridNode[] | null {
+  if (start.i === goal.i && start.j === goal.j) return [{ i: start.i, j: start.j }];
   const count = gridNodeCount(nav);
   if (count > MAX_GRID_NODES) {
     throw new BudgetExhausted(`grid has ${count} nodes, cap is ${MAX_GRID_NODES}`);
@@ -142,6 +142,7 @@ export function astarNodeDistanceMm(
   const key = (i: number, j: number): number => j * stride + i;
   const gScore = new Array<number>(count).fill(Infinity);
   const closed = new Array<boolean>(count).fill(false);
+  const parent = new Array<number>(count).fill(-1);
   gScore[key(start.i, start.j)] = 0;
   const h0 = Math.abs(goal.i - start.i) + Math.abs(goal.j - start.j);
   const heap: HeapNode[] = [{ i: start.i, j: start.j, f: h0, h: h0, g: 0 }];
@@ -157,7 +158,14 @@ export function astarNodeDistanceMm(
     if (closed[ck]) continue;
     closed[ck] = true;
     if (current.i === goal.i && current.j === goal.j) {
-      return current.g * GRID_SIZE_MM;
+      const path: GridNode[] = [];
+      let k = ck;
+      while (k !== -1) {
+        path.push({ i: k % stride, j: Math.floor(k / stride) });
+        k = parent[k] as number;
+      }
+      path.reverse();
+      return path;
     }
     for (const [di, dj] of dirs) {
       const ni = current.i + (di as number);
@@ -172,12 +180,38 @@ export function astarNodeDistanceMm(
       const g = current.g + 1;
       if (g < (gScore[nk] as number)) {
         gScore[nk] = g;
+        parent[nk] = ck;
         const h = Math.abs(goal.i - ni) + Math.abs(goal.j - nj);
         heapPush(heap, { i: ni, j: nj, f: g + h, h, g });
       }
     }
   }
   return null;
+}
+
+// Grid path length in mm derived from the shared search path, so the
+// evaluator and the display polyline cannot drift.
+export function astarNodeDistanceMm(
+  start: GridNode,
+  goal: GridNode,
+  scenario: Scenario,
+  nav: NavContext,
+  budget: NavBudget,
+): number | null {
+  const path = astarSearch(start, goal, scenario, nav, budget);
+  return path === null ? null : (path.length - 1) * GRID_SIZE_MM;
+}
+
+// Grid node path from the same shared search (fresh copies per call).
+export function astarNodePath(
+  start: GridNode,
+  goal: GridNode,
+  scenario: Scenario,
+  nav: NavContext,
+  budget: NavBudget,
+): GridNode[] | null {
+  const path = astarSearch(start, goal, scenario, nav, budget);
+  return path === null ? null : path.map((n) => ({ i: n.i, j: n.j }));
 }
 
 // Measured path between two floor points in mm:
@@ -200,4 +234,36 @@ export function shortestPathMm(
   const grid = astarNodeDistanceMm(ca.node, cb.node, scenario, nav, budget);
   if (grid === null) return null;
   return ca.connectorMm + grid + cb.connectorMm;
+}
+
+// Collision-checked display polyline for the same measured path:
+// [a, ...grid nodes as floor points, b] with consecutive duplicates
+// removed. Connectors and grid edges are the evaluated segments, so the
+// polyline cannot cut through inflated racks. Returns null exactly when
+// shortestPathMm returns null. Measurement stays in shortestPathMm;
+// this is a view projection of the evaluated path.
+export function shortestPathPointsMm(
+  a: PointMm,
+  b: PointMm,
+  scenario: Scenario,
+  nav: NavContext,
+  budget: NavBudget = createNavBudget(),
+): PointMm[] | null {
+  if (a.x === b.x && a.z === b.z) {
+    return pointNavigable(a, scenario, nav) ? [{ x: a.x, z: a.z }] : null;
+  }
+  const ca = connectEndpoint(a, scenario, nav);
+  const cb = connectEndpoint(b, scenario, nav);
+  if (ca === null || cb === null) return null;
+  const nodes = astarNodePath(ca.node, cb.node, scenario, nav, budget);
+  if (nodes === null) return null;
+  const points: PointMm[] = [{ x: a.x, z: a.z }];
+  for (const n of nodes) {
+    const p = nodePoint(n);
+    const last = points[points.length - 1] as PointMm;
+    if (p.x !== last.x || p.z !== last.z) points.push(p);
+  }
+  const last = points[points.length - 1] as PointMm;
+  if (b.x !== last.x || b.z !== last.z) points.push({ x: b.x, z: b.z });
+  return points;
 }

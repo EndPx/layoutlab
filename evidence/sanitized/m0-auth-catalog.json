@@ -1,0 +1,14 @@
+{
+  "checkedAt": "2026-11-01T16:06:09.597Z",
+  "endpoint": "https://api.meta.ai/v1/models",
+  "authenticated": true,
+  "httpStatus": 200,
+  "configuredModel": "muse-spark-1.3-contributor",
+  "configuredModelListed": true,
+  "catalogModelCount": 9,
+  "inferenceRequests": 0,
+  "limitations": [
+    "Catalog access does not prove successful inference.",
+    "No paid inference authorized or performed."
+  ]
+}

@@ -1,0 +1,737 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  applyAssignment,
+  applyProposal,
+  buildNavContext,
+  createReport,
+  evaluateBaseline,
+  evaluateCandidate,
+  freezeScenario,
+  parseProposal,
+  parseRequirements,
+  parseScenario,
+  settingsFingerprint,
+  shortestPathPointsMm,
+  type Assignment,
+  type CandidateResult,
+  type PlanningRequirements,
+  type Scenario,
+} from "@layoutlab/core";
+import sampleJson from "../../../fixtures/sample/warehouse-basic.json";
+import { BottomPanel } from "./components/BottomPanel";
+import { CenterView } from "./components/CenterView";
+import { LeftPanel } from "./components/LeftPanel";
+import { RightPanel } from "./components/RightPanel";
+import { ThreeView } from "./components/ThreeView";
+import { buildExportEnvelope, newRunId, replayEnvelope } from "./lib/export";
+import {
+  clearPersisted,
+  loadPersisted,
+  savePersisted,
+  type PersistedStubCandidate,
+} from "./lib/persist";
+import { generateStubProposals } from "./lib/stub";
+
+const DEFAULT_REQUIREMENTS: PlanningRequirements = {
+  objective: "minimize_weighted_picking_travel",
+  maxRelocatedProducts: 4,
+  lockedProductIds: [],
+  assumptions: [],
+  unresolvedQuestions: [],
+};
+
+export type StubProposalState = {
+  name: string;
+  rationale: string;
+  parseOk: boolean;
+  parseError: string | null;
+  applyOk: boolean;
+  applyErrors: string[];
+  candidate: CandidateResult | null;
+};
+
+export type StubRunState = {
+  status: "idle" | "running" | "completed" | "cancelled";
+  runId: string | null;
+  baseline: Scenario | null;
+  baselineFingerprint: string | null;
+  requirements: PlanningRequirements | null;
+  proposals: StubProposalState[];
+  bestName: string | null;
+  outcome: string | null;
+  progress: string;
+};
+
+const IDLE_RUN: StubRunState = {
+  status: "idle",
+  runId: null,
+  baseline: null,
+  baselineFingerprint: null,
+  requirements: null,
+  proposals: [],
+  bestName: null,
+  outcome: null,
+  progress: "",
+};
+
+const delay = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
+
+export function App(): React.JSX.Element {
+  const [scenario, setScenario] = useState<Scenario | null>(null);
+  const [scenarioError, setScenarioError] = useState<string | null>(null);
+  const [requirements, setRequirements] = useState<PlanningRequirements>(DEFAULT_REQUIREMENTS);
+  const [approved, setApproved] = useState(false);
+  const [approvedSnapshot, setApprovedSnapshot] = useState<PlanningRequirements | null>(null);
+  const [requirementsError, setRequirementsError] = useState<string | null>(null);
+  const [baselineResult, setBaselineResult] = useState<CandidateResult | null>(null);
+  const [stubRun, setStubRun] = useState<StubRunState>(IDLE_RUN);
+  const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [showSelected, setShowSelected] = useState(true);
+  const [mode, setMode] = useState<"MANUAL" | "STUB" | "REPLAY">("MANUAL");
+  const [replayInfo, setReplayInfo] = useState<{
+    matches: boolean;
+    mismatches: string[];
+    provider: string;
+    runId: string;
+  } | null>(null);
+  const [replayError, setReplayError] = useState<string | null>(null);
+  const [applyMessage, setApplyMessage] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const cancelRef = useRef(false);
+  const runSeq = useRef(0);
+
+  // Restore persisted state once, then re-evaluate from core (never trust stored numbers).
+  useEffect(() => {
+    const loaded = loadPersisted();
+    if (!loaded.ok) {
+      if (loaded.error !== "empty") setNotice(loaded.error);
+      return;
+    }
+    const s = loaded.state;
+    setScenario(s.scenario);
+    setRequirements(s.requirements);
+    setApproved(s.approved);
+    setApprovedSnapshot(s.approvedRequirements);
+    setMode(s.mode);
+    setSelectedOrderId(s.selectedOrderId);
+    try {
+      const base = evaluateBaseline(s.scenario, s.requirements);
+      setBaselineResult(base);
+      if (s.scenario.orders.length > 0 && !s.selectedOrderId) {
+        setSelectedOrderId(s.scenario.orders[0]!.id);
+      }
+      // Restore candidates only on full run identity (id + revision +
+      // settings), never revision alone; otherwise discard.
+      const identityOk =
+        s.stubBaselineId === s.scenario.id &&
+        s.stubBaselineRevision === s.scenario.revision &&
+        s.stubBaselineFingerprint === settingsFingerprint(s.scenario);
+      if (s.mode === "STUB" && s.stubCandidates.length > 0 && identityOk) {
+        const proposals: StubProposalState[] = s.stubCandidates.map((c) => ({
+          name: c.name,
+          rationale: c.rationale,
+          parseOk: true,
+          parseError: null,
+          applyOk: true,
+          applyErrors: [],
+          candidate: evaluateCandidate(s.scenario, s.requirements, c.mapping, c.name),
+        }));
+        const entries = proposals
+          .filter((p) => p.candidate !== null)
+          .map((p) => ({ name: p.name, mapping: (p.candidate as CandidateResult).assignment }));
+        const report = createReport(s.scenario, s.requirements, entries);
+        setStubRun({
+          status: "completed",
+          // Validated non-null by loadPersisted whenever candidates exist.
+          runId: s.stubRunId as string,
+          baseline: structuredClone(s.scenario),
+          baselineFingerprint: settingsFingerprint(s.scenario),
+          requirements: structuredClone(s.requirements),
+          proposals,
+          bestName: report.bestName,
+          outcome: report.outcome,
+          progress: `Restored run ${s.stubRunId} from saved state; re-evaluated with core (restored provenance).`,
+        });
+        setSelectedCandidate(s.selectedCandidate ?? report.bestName ?? "baseline");
+      } else {
+        if (s.stubCandidates.length > 0) setNotice("Saved stub run was stale for the restored scene identity; cleared.");
+        setSelectedCandidate("baseline");
+      }
+    } catch (e) {
+      setNotice(e instanceof Error ? `Restore failed: ${e.message}` : "Restore failed.");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist on change (bounded, versioned).
+  useEffect(() => {
+    if (!scenario) return;
+    const stubCandidates: PersistedStubCandidate[] = stubRun.proposals
+      .filter((p) => p.candidate !== null)
+      .map((p) => ({
+        name: p.name,
+        mapping: (p.candidate as CandidateResult).assignment,
+        rationale: p.rationale,
+      }));
+    const completed = stubRun.status === "completed";
+    savePersisted({
+      version: 1,
+      scenario,
+      requirements,
+      approved,
+      approvedRequirements: approved ? approvedSnapshot : null,
+      mode,
+      selectedCandidate,
+      selectedOrderId,
+      stubCandidates: completed ? stubCandidates : [],
+      stubBaselineRevision: completed ? (stubRun.baseline?.revision ?? null) : null,
+      stubBaselineId: completed ? (stubRun.baseline?.id ?? null) : null,
+      stubBaselineFingerprint: completed ? (stubRun.baselineFingerprint ?? null) : null,
+      stubRunId: completed ? (stubRun.runId ?? null) : null,
+    });
+  }, [scenario, requirements, approved, approvedSnapshot, mode, selectedCandidate, selectedOrderId, stubRun]);
+
+  const evaluateCurrent = (scn: Scenario, req: PlanningRequirements): void => {
+    try {
+      const base = evaluateBaseline(scn, req);
+      setBaselineResult(base);
+      if (!selectedOrderId && scn.orders.length > 0) setSelectedOrderId(scn.orders[0]!.id);
+    } catch (e) {
+      setBaselineResult(null);
+      setScenarioError(e instanceof Error ? e.message : "Evaluation failed.");
+    }
+  };
+
+  const loadSample = (): void => {
+    // Invalidate any active async run before replacing the scene.
+    runSeq.current++;
+    cancelRef.current = true;
+    try {
+      const scn = parseScenario(structuredClone(sampleJson));
+      setScenario(scn);
+      setScenarioError(null);
+      setStubRun(IDLE_RUN);
+      setMode("MANUAL");
+      setReplayInfo(null);
+      setReplayError(null);
+      setApplyMessage(null);
+      setSelectedCandidate("baseline");
+      setSelectedOrderId(scn.orders[0]?.id ?? null);
+      evaluateCurrent(scn, requirements);
+    } catch (e) {
+      setScenarioError(e instanceof Error ? e.message : "Sample failed to parse.");
+    }
+  };
+
+  const loadFile = async (file: File): Promise<void> => {
+    runSeq.current++;
+    cancelRef.current = true;
+    if (file.size > 1_000_000) {
+      setScenarioError("File exceeds 1 MB; refusing to parse.");
+      return;
+    }
+    try {
+      const text = await file.text();
+      const scn = parseScenario(JSON.parse(text));
+      setScenario(scn);
+      setScenarioError(null);
+      setStubRun(IDLE_RUN);
+      setMode("MANUAL");
+      setReplayInfo(null);
+      setReplayError(null);
+      setApplyMessage(null);
+      setSelectedCandidate("baseline");
+      setSelectedOrderId(scn.orders[0]?.id ?? null);
+      evaluateCurrent(scn, requirements);
+    } catch (e) {
+      setScenarioError(e instanceof Error ? `Invalid scenario: ${e.message}` : "Invalid scenario file.");
+    }
+  };
+
+  const manualEdit = (productId: string, locationId: string): void => {
+    if (!scenario) return;
+    const next: Assignment[] = scenario.assignments.map((a) =>
+      a.productId === productId ? { productId, locationId } : { ...a },
+    );
+    const updated: Scenario = { ...structuredClone(scenario), assignments: next, revision: scenario.revision + 1 };
+    setScenario(updated);
+    setMode("MANUAL");
+    setApplyMessage(null);
+    evaluateCurrent(updated, requirements);
+  };
+
+  const updateRequirements = (next: PlanningRequirements): void => {
+    setRequirements(next);
+    setApproved(false);
+    setApprovedSnapshot(null);
+    setRequirementsError(null);
+    // Refresh validation against the new constraints; approval/apply stay
+    // invalidated until the user explicitly re-approves the parsed snapshot.
+    if (scenario) evaluateCurrent(scenario, next);
+  };
+
+  const approveRequirements = (): void => {
+    try {
+      const parsed = parseRequirements(structuredClone(requirements));
+      setRequirements(parsed);
+      setApprovedSnapshot(structuredClone(parsed));
+      setApproved(true);
+      setRequirementsError(null);
+      setApplyMessage(null);
+    } catch (e) {
+      setApproved(false);
+      setApprovedSnapshot(null);
+      setRequirementsError(e instanceof Error ? `Requirements invalid: ${e.message}` : "Requirements invalid.");
+    }
+  };
+
+  const generateStub = async (): Promise<void> => {
+    if (!scenario || stubRun.status === "running") return;
+    // Internal guard, not button-only: the approved snapshot must equal the
+    // current requirements, otherwise a stale approval could launch a run.
+    if (!approved || !approvedSnapshot || JSON.stringify(approvedSnapshot) !== JSON.stringify(requirements)) {
+      setNotice("Stub blocked: approve the current requirements first.");
+      return;
+    }
+    const seq = ++runSeq.current;
+    cancelRef.current = false;
+    const alive = (): boolean => seq === runSeq.current;
+    const frozen = freezeScenario(scenario);
+    const reqSnap = structuredClone(requirements);
+    const proposals = generateStubProposals(frozen, reqSnap, 3);
+    const runId = newRunId();
+    setStubRun({
+      status: "running",
+      runId,
+      baseline: frozen,
+      baselineFingerprint: settingsFingerprint(frozen),
+      requirements: reqSnap,
+      proposals: [],
+      bestName: null,
+      outcome: null,
+      progress: `Starting stub run ${runId} (0/${proposals.length})…`,
+    });
+    setApplyMessage(null);
+    const done: StubProposalState[] = [];
+    for (let i = 0; i < proposals.length; i++) {
+      if (!alive() || cancelRef.current) break;
+      setStubRun((r) => (seq === runSeq.current ? { ...r, progress: `Generating stub proposal ${i + 1}/${proposals.length}…` } : r));
+      await delay(400);
+      if (!alive() || cancelRef.current) break;
+      const raw = proposals[i]!;
+      const name = `stub-${i + 1}`;
+      let parseOk = true;
+      let parseError: string | null = null;
+      let parsed: ReturnType<typeof parseProposal> | null = null;
+      try {
+        parsed = parseProposal(structuredClone(raw));
+      } catch (e) {
+        parseOk = false;
+        parseError = e instanceof Error ? e.message : "parse failed";
+      }
+      if (!alive()) return; // stale loop returns silently, never commits
+      if (!parseOk || !parsed) {
+        done.push({ name, rationale: raw.rationale, parseOk, parseError, applyOk: false, applyErrors: [], candidate: null });
+        setStubRun((r) => (seq === runSeq.current ? { ...r, proposals: [...done] } : r));
+        continue;
+      }
+      const applied = applyProposal(frozen, parsed);
+      if (!alive()) return;
+      if (!applied.ok) {
+        done.push({
+          name,
+          rationale: raw.rationale,
+          parseOk: true,
+          parseError: null,
+          applyOk: false,
+          applyErrors: applied.errors.map((e) => `${e.code}: ${e.message}`),
+          candidate: null,
+        });
+        setStubRun((r) => (seq === runSeq.current ? { ...r, proposals: [...done] } : r));
+        continue;
+      }
+      const candidate = evaluateCandidate(frozen, reqSnap, applied.finalMapping, name);
+      if (!alive()) return;
+      done.push({ name, rationale: raw.rationale, parseOk: true, parseError: null, applyOk: true, applyErrors: [], candidate });
+      setStubRun((r) => (seq === runSeq.current ? { ...r, proposals: [...done] } : r));
+    }
+    if (!alive()) return; // superseded by reset/load/new run: commit nothing
+    if (cancelRef.current) {
+      setStubRun((r) => ({ ...r, status: "cancelled", progress: "Stub run cancelled — apply is disabled for this run." }));
+      return;
+    }
+    const entries = done
+      .filter((p) => p.candidate !== null)
+      .map((p) => ({ name: p.name, mapping: (p.candidate as CandidateResult).assignment }));
+    const report = createReport(frozen, reqSnap, entries);
+    setStubRun((r) => ({
+      ...r,
+      status: "completed",
+      proposals: done,
+      bestName: report.bestName,
+      outcome: report.outcome,
+      progress: `Completed: ${done.length} proposal(s), best ${report.bestName ?? "none"} (${report.outcome}).`,
+    }));
+    setMode("STUB");
+    setSelectedCandidate(report.bestName ?? "baseline");
+  };
+
+  const cancelStub = (): void => {
+    if (stubRun.status !== "running") return;
+    cancelRef.current = true;
+    // The running loop commits the cancelled state itself while still alive;
+    // show immediate feedback without invalidating its sequence.
+    setStubRun((r) => (r.status === "running" ? { ...r, progress: "Cancelling stub run…" } : r));
+  };
+
+  const applyCandidate = (name: string): void => {
+    setApplyMessage(null);
+    if (stubRun.status !== "completed" || !stubRun.baseline || !stubRun.requirements || !scenario) {
+      setApplyMessage("Apply rejected: no completed stub run (cancelled or unfinished runs cannot apply).");
+      return;
+    }
+    // Constraints guard: the current approved requirements must equal the run
+    // requirements, otherwise the candidate was validated against old locks/budget.
+    if (!approved || JSON.stringify(requirements) !== JSON.stringify(stubRun.requirements)) {
+      setApplyMessage("Apply rejected: requirements changed since the run; re-approve and re-run before applying.");
+      return;
+    }
+    const entry = stubRun.proposals.find((p) => p.name === name);
+    if (!entry?.candidate) {
+      setApplyMessage(`Apply rejected: candidate ${name} has no evaluated result.`);
+      return;
+    }
+    // Re-evaluate the stored mapping against the frozen run baseline before
+    // applying, so stale or tampered candidate data cannot slip through.
+    let fresh: CandidateResult;
+    try {
+      fresh = evaluateCandidate(stubRun.baseline, stubRun.requirements, entry.candidate.assignment, name);
+    } catch (e) {
+      setApplyMessage(e instanceof Error ? `Apply rejected: re-evaluation failed (${e.message}).` : "Apply rejected: re-evaluation failed.");
+      return;
+    }
+    if (!fresh.valid) {
+      setApplyMessage(`Apply rejected: candidate ${name} is invalid on re-evaluation (${fresh.errors[0]?.code ?? "see errors"}).`);
+      return;
+    }
+    // Identity + revision + settings, never revision alone.
+    if (scenario.id !== stubRun.baseline.id) {
+      setApplyMessage(`Apply rejected: scenario changed (${scenario.id} ≠ ${stubRun.baseline.id}).`);
+      return;
+    }
+    if (scenario.revision !== stubRun.baseline.revision) {
+      setApplyMessage(
+        `Apply rejected: stale revision (current ${scenario.revision}, run baseline ${stubRun.baseline.revision}). New edits invalidate apply.`,
+      );
+      return;
+    }
+    if (settingsFingerprint(scenario) !== stubRun.baselineFingerprint) {
+      setApplyMessage("Apply rejected: settings changed since the run (room/racks/orders/cart).");
+      return;
+    }
+    const applied = applyAssignment(stubRun.baseline, entry.candidate.assignment, stubRun.baseline.revision);
+    if (!applied.ok) {
+      setApplyMessage(`Apply rejected: ${applied.errors[0]?.message ?? "stale revision"}.`);
+      return;
+    }
+    setScenario(applied.scenario);
+    setMode("MANUAL");
+    setSelectedCandidate("baseline");
+    setApplyMessage(`Applied ${name}: revision ${applied.scenario.revision}. Previous run is now stale.`);
+    evaluateCurrent(applied.scenario, requirements);
+  };
+
+  const exportJson = (): void => {
+    if (!scenario) return;
+    // A completed stub run exports its run report (frozen baseline + all
+    // candidates), even after apply/manual edits moved the live scene on;
+    // otherwise export the current manual state with a fresh evaluation ID
+    // (never reuse a cancelled/stale stub run's ID for a manual export).
+    const useStub = stubRun.status === "completed" && stubRun.baseline && stubRun.requirements;
+    const scn = useStub ? (stubRun.baseline as Scenario) : scenario;
+    const req = useStub ? (stubRun.requirements as PlanningRequirements) : requirements;
+    const entries = useStub
+      ? stubRun.proposals.filter((p) => p.candidate !== null).map((p) => ({ name: p.name, mapping: (p.candidate as CandidateResult).assignment }))
+      : [];
+    const envelope = buildExportEnvelope({
+      scenario: scn,
+      requirements: req,
+      entries,
+      provider: useStub ? "stub" : "manual",
+      runId: useStub ? (stubRun.runId ?? newRunId()) : newRunId(),
+    });
+    const blob = new Blob([JSON.stringify(envelope, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `layoutlab-m2-${envelope.provider}-${envelope.runId.slice(0, 8)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const importReplay = async (file: File): Promise<void> => {
+    setReplayError(null);
+    setReplayInfo(null);
+    if (file.size > 1_000_000) {
+      setReplayError("File exceeds 1 MB; refusing to parse.");
+      return;
+    }
+    try {
+      const text = await file.text();
+      const result = replayEnvelope(JSON.parse(text));
+      setReplayInfo({
+        matches: result.matchesSaved,
+        mismatches: result.mismatches,
+        provider: result.provider,
+        runId: result.runId,
+      });
+      setMode("REPLAY");
+    } catch (e) {
+      setReplayError(e instanceof Error ? `Replay failed: ${e.message}` : "Replay failed.");
+    }
+  };
+
+  const resetAll = (): void => {
+    runSeq.current++;
+    cancelRef.current = true;
+    clearPersisted();
+    setScenario(null);
+    setScenarioError(null);
+    setRequirements(DEFAULT_REQUIREMENTS);
+    setApproved(false);
+    setApprovedSnapshot(null);
+    setRequirementsError(null);
+    setBaselineResult(null);
+    setStubRun(IDLE_RUN);
+    setSelectedCandidate(null);
+    setSelectedOrderId(null);
+    setShowSelected(true);
+    setMode("MANUAL");
+    setReplayInfo(null);
+    setReplayError(null);
+    setApplyMessage(null);
+    setNotice("Reset: cleared scenario, runs, replay, and saved state.");
+  };
+
+  const selectedStub = useMemo(
+    () => stubRun.proposals.find((p) => p.name === selectedCandidate) ?? null,
+    [stubRun.proposals, selectedCandidate],
+  );
+
+  const displayedAssignment: Assignment[] | null = useMemo(() => {
+    if (!scenario) return null;
+    if (showSelected && selectedStub?.candidate) return selectedStub.candidate.assignment;
+    return scenario.assignments;
+  }, [scenario, showSelected, selectedStub]);
+
+  const routePolylines = useMemo((): { points: { x: number; z: number }[] } | null => {
+    try {
+      if (!scenario || !displayedAssignment || !selectedOrderId) return null;
+      const order = scenario.orders.find((o) => o.id === selectedOrderId);
+      if (!order) return null;
+      const result = showSelected && selectedStub?.candidate ? selectedStub.candidate : baselineResult;
+      const orderResult = result?.workload?.orders.find((o) => o.orderId === selectedOrderId);
+      // Suppress incomplete/unreachable routes: never draw a partial tour as complete.
+      if (!orderResult || !orderResult.reachable || orderResult.distanceMm === null) return null;
+      const visit = orderResult.visitSequence;
+      const locOf = new Map(displayedAssignment.map((a) => [a.productId, a.locationId]));
+      const pickOf = new Map(scenario.locations.map((l) => [l.id, l.pickPointMm]));
+      const stops = [scenario.packingPointMm];
+      for (const pid of visit) {
+        const lid = locOf.get(pid);
+        const pt = lid ? pickOf.get(lid) : undefined;
+        if (!pt) return null;
+        stops.push(pt);
+      }
+      stops.push(scenario.packingPointMm);
+      const nav = buildNavContext(scenario);
+      const full: { x: number; z: number }[] = [];
+      for (let k = 1; k < stops.length; k++) {
+        const pts = shortestPathPointsMm(stops[k - 1]!, stops[k]!, scenario, nav);
+        if (!pts) return null;
+        for (const p of pts) {
+          const last = full[full.length - 1];
+          if (!last || last.x !== p.x || last.z !== p.z) full.push(p);
+        }
+      }
+      return { points: full };
+    } catch {
+      // Budget exhaustion or any nav failure suppresses the route (fallback
+      // schematic) instead of crashing the planner.
+      return null;
+    }
+  }, [scenario, displayedAssignment, selectedOrderId, selectedStub, baselineResult, showSelected]);
+
+  return (
+    <div className="app">
+      <header className="topbar">
+        <h1>LayoutLab — Storage planner</h1>
+        <span className="mono" data-testid="scenario-label">
+          {scenario ? `${scenario.id} · rev ${scenario.revision}` : "no scenario"}
+        </span>
+        <span className={`badge ${mode === "STUB" ? "stub" : mode === "REPLAY" ? "replay" : ""}`} data-testid="mode-badge">
+          {mode}
+        </span>
+        {baselineResult && (
+          <span className={`badge ${baselineResult.valid ? "valid" : "invalid"}`} data-testid="valid-badge">
+            {baselineResult.valid ? "VALID" : "INVALID"}
+          </span>
+        )}
+        <span className="spacer" />
+        <button type="button" onClick={loadSample} data-testid="btn-sample">Load sample</button>
+        <label style={{ display: "inline-block", width: "auto" }}>
+          Load JSON
+          <input
+            type="file"
+            accept="application/json"
+            data-testid="input-scenario"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void loadFile(f);
+              e.target.value = "";
+            }}
+          />
+        </label>
+        <button type="button" onClick={exportJson} disabled={!scenario} data-testid="btn-export">
+          {stubRun.status === "completed" ? "Export run report" : "Export current evaluation"}
+        </button>
+        <label style={{ display: "inline-block", width: "auto" }}>
+          Import/Replay
+          <input
+            type="file"
+            accept="application/json"
+            data-testid="input-replay"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void importReplay(f);
+              e.target.value = "";
+            }}
+          />
+        </label>
+        <button type="button" onClick={resetAll} data-testid="btn-reset">Reset</button>
+      </header>
+
+      <div className="main">
+        <div>
+          <LeftPanel
+            scenario={scenario}
+            requirements={requirements}
+            baselineResult={baselineResult}
+            scenarioError={scenarioError}
+            onEdit={manualEdit}
+            onEvaluate={() => scenario && evaluateCurrent(scenario, requirements)}
+          />
+          {notice && <p data-testid="notice">{notice}</p>}
+          {applyMessage && <p data-testid="apply-message">{applyMessage}</p>}
+          {replayError && <p className="error" role="alert" data-testid="replay-error">{replayError}</p>}
+          {replayInfo && (
+            <div className="panel" data-testid="replay-report">
+              <h3>Replay report (core, no inference)</h3>
+              <p>
+                Provider <span className="mono">{replayInfo.provider}</span> · run{" "}
+                <span className="mono">{replayInfo.runId}</span>
+              </p>
+              <p data-testid="replay-verdict" className={replayInfo.matches ? "okline" : "error"}>
+                {replayInfo.matches ? "✓ matches saved measurements" : `× MISMATCH: ${replayInfo.mismatches.join(", ")}`}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="panel">
+          <h2>Warehouse views</h2>
+          {!scenario && <p>Load the sample or a bounded JSON scenario to begin.</p>}
+          {scenario && (
+            <>
+              <label>
+                Order route
+                <select
+                  data-testid="select-order"
+                  value={selectedOrderId ?? ""}
+                  onChange={(e) => setSelectedOrderId(e.target.value || null)}
+                >
+                  {scenario.orders.map((o) => (
+                    <option key={o.id} value={o.id}>{o.id} (×{o.frequency})</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showSelected}
+                  onChange={(e) => setShowSelected(e.target.checked)}
+                  data-testid="toggle-candidate-view"
+                />{" "}
+                Show selected candidate (before/after)
+              </label>
+              <div className="legend" data-testid="demand-legend">
+                <span><span className="dot low" />○ Low</span>
+                <span><span className="dot mid" />◐ Mid</span>
+                <span><span className="dot high" />● High</span>
+                <span>Labels are text; color is redundant.</span>
+              </div>
+              <div className="views">
+                <div className="viewbox" data-testid="view-2d">
+                  <h3>2D plan (always available)</h3>
+                  <CenterView
+                    scenario={scenario}
+                    assignment={displayedAssignment ?? scenario.assignments}
+                    baselineAssignment={scenario.assignments}
+                    route={routePolylines}
+                    hasRoute={routePolylines !== null}
+                  />
+                </div>
+                <div className="viewbox" data-testid="view-3d">
+                  <span className="proxy-ribbon">DEVELOPMENT PROXIES</span>
+                  <h3>3D proxy (Three.js)</h3>
+                  <ThreeView
+                    scenario={scenario}
+                    assignment={displayedAssignment ?? scenario.assignments}
+                    route={routePolylines}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="rightcol">
+          <RightPanel
+            scenario={scenario}
+            requirements={requirements}
+            approved={approved}
+            requirementsError={requirementsError}
+            stubRun={stubRun}
+            onRequirements={updateRequirements}
+            onApprove={approveRequirements}
+            onGenerate={() => void generateStub()}
+            onCancel={cancelStub}
+          />
+        </div>
+      </div>
+
+      <div className="bottom">
+        {stubRun.status === "completed" && stubRun.baseline && scenario &&
+          (scenario.id !== stubRun.baseline.id ||
+            scenario.revision !== stubRun.baseline.revision ||
+            settingsFingerprint(scenario) !== stubRun.baselineFingerprint) && (
+            <p className="notice" data-testid="historical-notice">
+              Historical run report: the live scene (rev {scenario.revision}) differs from run baseline rev{" "}
+              {stubRun.baseline.revision}. Export reflects the frozen run, not the live scene.
+            </p>
+          )}
+        <BottomPanel
+          baselineResult={baselineResult}
+          stubRun={stubRun}
+          scenario={scenario}
+          selectedCandidate={selectedCandidate}
+          onSelect={setSelectedCandidate}
+          onApply={applyCandidate}
+        />
+      </div>
+    </div>
+  );
+}

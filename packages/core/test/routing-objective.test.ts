@@ -208,6 +208,88 @@ describe("snapshots, replay, and outcomes", () => {
     expect(replayed.mismatches).toEqual([]);
   });
 
+  test("replay ignores improvementPercents key order on mixed valid/invalid reports", () => {
+    const s = oracle();
+    s.locations.push({
+      id: "L3",
+      rackId: "R0",
+      label: "Near slot",
+      usableDimensionsMm: { width: 600, depth: 600, height: 800 },
+      storageClass: "ambient",
+      pickPointMm: { x: 1100, z: 1000 },
+    });
+    const swap = [
+      { productId: "sku-a", locationId: "L2" },
+      { productId: "sku-b", locationId: "L1" },
+    ];
+    const near = [
+      { productId: "sku-a", locationId: "L3" },
+      { productId: "sku-b", locationId: "L2" },
+    ];
+    const doubleBooked = [
+      { productId: "sku-a", locationId: "L1" },
+      { productId: "sku-b", locationId: "L1" },
+    ];
+    // Entry order is deliberately unsorted: invalid first, then the slower
+    // valid candidate, then the fastest.
+    const entries = [
+      { name: "invalid", mapping: doubleBooked },
+      { name: "swap", mapping: swap },
+      { name: "near", mapping: near },
+    ];
+    const report = createReport(s, req(), entries);
+    expect(report.candidates.map((c) => c.name)).toEqual(["near", "swap", "invalid"]);
+    const roundTripped = JSON.parse(JSON.stringify(report));
+    const replayed = replayReport(roundTripped);
+    expect(replayed.matchesSaved).toBe(true);
+    expect(replayed.mismatches).toEqual([]);
+
+    // Reordered percentage keys with identical values still match.
+    const reordered = JSON.parse(JSON.stringify(report));
+    const keys = Object.keys(reordered.improvementPercents).reverse();
+    reordered.improvementPercents = Object.fromEntries(
+      keys.map((k: string) => [k, reordered.improvementPercents[k]]),
+    );
+    const replayedReordered = replayReport(reordered);
+    expect(replayedReordered.matchesSaved).toBe(true);
+    expect(replayedReordered.mismatches).toEqual([]);
+  });
+
+  test("replay still rejects changed percentage values and tampered routes", () => {
+    const s = oracle();
+    s.locations.push({
+      id: "L3",
+      rackId: "R0",
+      label: "Near slot",
+      usableDimensionsMm: { width: 600, depth: 600, height: 800 },
+      storageClass: "ambient",
+      pickPointMm: { x: 1100, z: 1000 },
+    });
+    const report = createReport(s, req(), [
+      { name: "invalid", mapping: [{ productId: "sku-a", locationId: "L1" }, { productId: "sku-b", locationId: "L1" }] },
+      {
+        name: "swap",
+        mapping: [{ productId: "sku-a", locationId: "L2" }, { productId: "sku-b", locationId: "L1" }],
+      },
+      {
+        name: "near",
+        mapping: [{ productId: "sku-a", locationId: "L3" }, { productId: "sku-b", locationId: "L2" }],
+      },
+    ]);
+    const changed = JSON.parse(JSON.stringify(report));
+    changed.improvementPercents["near"] += 1;
+    const replayedChanged = replayReport(changed);
+    expect(replayedChanged.matchesSaved).toBe(false);
+    expect(replayedChanged.mismatches).toContain("improvementPercents");
+
+    const tampered = JSON.parse(JSON.stringify(report));
+    tampered.candidates[0].workload.orders[0].visitSequence =
+      [...tampered.candidates[0].workload.orders[0].visitSequence].reverse();
+    const replayedTampered = replayReport(tampered);
+    expect(replayedTampered.matchesSaved).toBe(false);
+    expect(replayedTampered.mismatches).toContain("candidates");
+  });
+
   test("replay rejects incompatible versions and route policy", () => {
     const saved = JSON.parse(JSON.stringify(createReport(oracle(), req(), [])));
     expect(() => replayReport({ ...saved, reportVersion: "layoutlab.report/99" })).toThrow();
