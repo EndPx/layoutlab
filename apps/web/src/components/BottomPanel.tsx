@@ -9,8 +9,10 @@ export function BottomPanel(props: {
   selectedCandidate: string | null;
   onSelect: (name: string) => void;
   onApply: (name: string) => void;
+  providerLabel?: string;
 }): React.JSX.Element {
   const { baselineResult, stubRun, scenario, selectedCandidate, onSelect, onApply } = props;
+  const providerLabel = props.providerLabel ?? "stub";
   const candidates: CandidateResult[] = stubRun.proposals
     .filter((p) => p.candidate !== null)
     .map((p) => p.candidate as CandidateResult);
@@ -22,7 +24,7 @@ export function BottomPanel(props: {
     scenario && shown && shown.name !== "baseline"
       ? buildRelocationRows(baselineMapping, shown.assignment, scenario, (pid) => {
         const entry = stubRun.proposals.find((p) => p.name === shown.name);
-        return entry ? `stub: ${entry.rationale.slice(0, 90)}` : `move ${pid}`;
+        return entry ? `${providerLabel}: ${entry.rationale.slice(0, 90)}` : `move ${pid}`;
       })
       : [];
 
@@ -81,7 +83,7 @@ export function BottomPanel(props: {
           </div>
           <h3>Relocation list {shown && shown.name !== "baseline" ? `for ${shown.name}` : ""}</h3>
           {!shown || shown.name === "baseline" ? (
-            <p>Select a stub candidate to inspect its explicit relocation table.</p>
+            <p>Select a {providerLabel} candidate to inspect its explicit relocation table.</p>
           ) : rows.length === 0 ? (
             <p>No relocations (candidate retains the baseline).</p>
           ) : (

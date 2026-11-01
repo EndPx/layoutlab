@@ -3,6 +3,9 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
+  // Serialized: the M3 live harness binds fixed loopback ports (API 3001)
+  // that desktop/mobile projects cannot share simultaneously.
+  workers: 1,
   retries: 0,
   reporter: [["list"], ["json", { outputFile: "./playwright-report.json" }]],
   use: { baseURL: "http://127.0.0.1:5173", trace: "retain-on-failure" },

@@ -23,7 +23,17 @@ import { CenterView } from "./components/CenterView";
 import { LeftPanel } from "./components/LeftPanel";
 import { RightPanel } from "./components/RightPanel";
 import { ThreeView } from "./components/ThreeView";
-import { buildExportEnvelope, newRunId, replayEnvelope } from "./lib/export";
+import {
+  approveLiveRun,
+  cancelLiveRun,
+  createLiveRun,
+  getLiveReport,
+  getLiveRun,
+  getStatus,
+  type ApiStatus,
+  type RunSummary,
+} from "./lib/api";
+import { buildExportEnvelope, newRunId, replayAnyEnvelope } from "./lib/export";
 import {
   clearPersisted,
   loadPersisted,
@@ -88,7 +98,24 @@ export function App(): React.JSX.Element {
   const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [showSelected, setShowSelected] = useState(true);
-  const [mode, setMode] = useState<"MANUAL" | "STUB" | "REPLAY">("MANUAL");
+  const [mode, setMode] = useState<"MANUAL" | "STUB" | "REPLAY" | "LIVE">("MANUAL");
+  // Live (Meta) run state. Server owns the run; the browser keeps only the
+  // summary plus the local baseline snapshot needed for apply guards. Live
+  // runs are session-scoped and never persisted (see save effect below).
+  const [providerMode, setProviderMode] = useState<"stub" | "live">("stub");
+  const [apiStatus, setApiStatus] = useState<ApiStatus | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [liveRequest, setLiveRequest] = useState(
+    "Reduce picking travel for the loaded orders. Keep locked products fixed and relocate no more than the approved budget.",
+  );
+  const [liveConsent, setLiveConsent] = useState(false);
+  const [liveRun, setLiveRun] = useState<RunSummary | null>(null);
+  const [liveBaseline, setLiveBaseline] = useState<Scenario | null>(null);
+  const [liveBaselineFingerprint, setLiveBaselineFingerprint] = useState<string | null>(null);
+  const [liveBusy, setLiveBusy] = useState<string | null>(null);
+  const [liveError, setLiveError] = useState<string | null>(null);
+  const liveAbortRef = useRef<AbortController | null>(null);
+  const liveSeq = useRef(0);
   const [replayInfo, setReplayInfo] = useState<{
     matches: boolean;
     mismatches: string[];
@@ -164,7 +191,28 @@ export function App(): React.JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Persist on change (bounded, versioned).
+  const refreshStatus = (): void => {
+    getStatus()
+      .then((s) => {
+        setApiStatus(s);
+        setApiError(null);
+      })
+      .catch((e: unknown) => {
+        setApiStatus(null);
+        setApiError(e instanceof Error ? e.message.slice(0, 120) : "unreachable");
+      });
+  };
+
+  // Live server status loads lazily when Live is selected (never on mount),
+  // so the stub flow makes zero /api calls and stays console-clean without
+  // the API running.
+  useEffect(() => {
+    if (providerMode === "live" && apiStatus === null && apiError === null) refreshStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [providerMode]);
+
+  // Persist on change (bounded, versioned). Live runs are session-scoped:
+  // a LIVE view persists as MANUAL so reload never shows a run without data.
   useEffect(() => {
     if (!scenario) return;
     const stubCandidates: PersistedStubCandidate[] = stubRun.proposals
@@ -181,7 +229,7 @@ export function App(): React.JSX.Element {
       requirements,
       approved,
       approvedRequirements: approved ? approvedSnapshot : null,
-      mode,
+      mode: mode === "LIVE" ? "MANUAL" : mode,
       selectedCandidate,
       selectedOrderId,
       stubCandidates: completed ? stubCandidates : [],
@@ -203,10 +251,25 @@ export function App(): React.JSX.Element {
     }
   };
 
+  const clearLive = (): void => {
+    // Sequence bump first: stale interpret/generate/cancel results commit nothing.
+    liveSeq.current++;
+    liveAbortRef.current?.abort();
+    liveAbortRef.current = null;
+    // Best-effort server cancel for the known run so reset/load orphan no inference.
+    if (liveRun) void cancelLiveRun(liveRun.runId).catch(() => {});
+    setLiveRun(null);
+    setLiveBaseline(null);
+    setLiveBaselineFingerprint(null);
+    setLiveBusy(null);
+    setLiveError(null);
+  };
+
   const loadSample = (): void => {
     // Invalidate any active async run before replacing the scene.
     runSeq.current++;
     cancelRef.current = true;
+    clearLive();
     try {
       const scn = parseScenario(structuredClone(sampleJson));
       setScenario(scn);
@@ -227,6 +290,7 @@ export function App(): React.JSX.Element {
   const loadFile = async (file: File): Promise<void> => {
     runSeq.current++;
     cancelRef.current = true;
+    clearLive();
     if (file.size > 1_000_000) {
       setScenarioError("File exceeds 1 MB; refusing to parse.");
       return;
@@ -385,19 +449,26 @@ export function App(): React.JSX.Element {
     setStubRun((r) => (r.status === "running" ? { ...r, progress: "Cancelling stub run…" } : r));
   };
 
-  const applyCandidate = (name: string): void => {
+  // Shared guarded apply for stub and live runs: re-evaluate the stored
+  // mapping against the frozen run baseline, then check identity + revision
+  // + settings. Cancelled runs never apply.
+  const applyFromRun = (
+    run: Pick<StubRunState, "status" | "baseline" | "baselineFingerprint" | "requirements" | "proposals">,
+    name: string,
+    providerLabel: string,
+  ): void => {
     setApplyMessage(null);
-    if (stubRun.status !== "completed" || !stubRun.baseline || !stubRun.requirements || !scenario) {
-      setApplyMessage("Apply rejected: no completed stub run (cancelled or unfinished runs cannot apply).");
+    if (run.status !== "completed" || !run.baseline || !run.requirements || !scenario) {
+      setApplyMessage(`Apply rejected: no completed ${providerLabel} run (cancelled or unfinished runs cannot apply).`);
       return;
     }
     // Constraints guard: the current approved requirements must equal the run
     // requirements, otherwise the candidate was validated against old locks/budget.
-    if (!approved || JSON.stringify(requirements) !== JSON.stringify(stubRun.requirements)) {
+    if (!approved || JSON.stringify(requirements) !== JSON.stringify(run.requirements)) {
       setApplyMessage("Apply rejected: requirements changed since the run; re-approve and re-run before applying.");
       return;
     }
-    const entry = stubRun.proposals.find((p) => p.name === name);
+    const entry = run.proposals.find((p) => p.name === name);
     if (!entry?.candidate) {
       setApplyMessage(`Apply rejected: candidate ${name} has no evaluated result.`);
       return;
@@ -406,7 +477,7 @@ export function App(): React.JSX.Element {
     // applying, so stale or tampered candidate data cannot slip through.
     let fresh: CandidateResult;
     try {
-      fresh = evaluateCandidate(stubRun.baseline, stubRun.requirements, entry.candidate.assignment, name);
+      fresh = evaluateCandidate(run.baseline, run.requirements, entry.candidate.assignment, name);
     } catch (e) {
       setApplyMessage(e instanceof Error ? `Apply rejected: re-evaluation failed (${e.message}).` : "Apply rejected: re-evaluation failed.");
       return;
@@ -416,21 +487,21 @@ export function App(): React.JSX.Element {
       return;
     }
     // Identity + revision + settings, never revision alone.
-    if (scenario.id !== stubRun.baseline.id) {
-      setApplyMessage(`Apply rejected: scenario changed (${scenario.id} ≠ ${stubRun.baseline.id}).`);
+    if (scenario.id !== run.baseline.id) {
+      setApplyMessage(`Apply rejected: scenario changed (${scenario.id} ≠ ${run.baseline.id}).`);
       return;
     }
-    if (scenario.revision !== stubRun.baseline.revision) {
+    if (scenario.revision !== run.baseline.revision) {
       setApplyMessage(
-        `Apply rejected: stale revision (current ${scenario.revision}, run baseline ${stubRun.baseline.revision}). New edits invalidate apply.`,
+        `Apply rejected: stale revision (current ${scenario.revision}, run baseline ${run.baseline.revision}). New edits invalidate apply.`,
       );
       return;
     }
-    if (settingsFingerprint(scenario) !== stubRun.baselineFingerprint) {
+    if (settingsFingerprint(scenario) !== run.baselineFingerprint) {
       setApplyMessage("Apply rejected: settings changed since the run (room/racks/orders/cart).");
       return;
     }
-    const applied = applyAssignment(stubRun.baseline, entry.candidate.assignment, stubRun.baseline.revision);
+    const applied = applyAssignment(run.baseline, entry.candidate.assignment, run.baseline.revision);
     if (!applied.ok) {
       setApplyMessage(`Apply rejected: ${applied.errors[0]?.message ?? "stale revision"}.`);
       return;
@@ -442,8 +513,226 @@ export function App(): React.JSX.Element {
     evaluateCurrent(applied.scenario, requirements);
   };
 
-  const exportJson = (): void => {
+  const applyCandidate = (name: string): void => {
+    applyFromRun(stubRun, name, "stub");
+  };
+
+  const applyLiveCandidate = (name: string): void => {
+    // Actual COMPLETED only: no apply from running, failed, timed-out, or
+    // cancelled runs (partial results stay inspectable, never applicable).
+    if (!liveRun || liveRun.state !== "COMPLETED" || !liveBaseline || !liveRun.requirements) {
+      setApplyMessage(
+        `Apply rejected: no completed live run (state ${liveRun?.state ?? "none"}; only COMPLETED runs can apply).`,
+      );
+      return;
+    }
+    applyFromRun(
+      {
+        status: "completed",
+        baseline: liveBaseline,
+        baselineFingerprint: liveBaselineFingerprint,
+        requirements: liveRun.requirements,
+        proposals: liveRun.attempts.map((a) => ({
+          name: a.name,
+          rationale: a.rationale,
+          parseOk: a.parseOk,
+          parseError: a.parseError,
+          applyOk: a.applyOk,
+          applyErrors: a.applyErrors,
+          candidate: a.candidate,
+        })),
+      },
+      name,
+      "live",
+    );
+  };
+
+  const pollLiveRun = async (
+    runId: string,
+    seq: number,
+    controller: AbortController,
+    deadlineMs: number,
+  ): Promise<RunSummary | null> => {
+    for (;;) {
+      if (seq !== liveSeq.current || controller.signal.aborted) return null;
+      let run: RunSummary;
+      try {
+        run = await getLiveRun(runId, controller.signal);
+      } catch {
+        return null; // aborted or superseded; caller checks the sequence
+      }
+      if (seq !== liveSeq.current) return null;
+      if (run.state !== "INTERPRETING") return run;
+      if (Date.now() > deadlineMs) throw new Error("Timed out waiting for the live server.");
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  };
+
+  const interpretLive = async (): Promise<void> => {
+    if (!scenario || liveBusy !== null) return;
+    if (!liveConsent) {
+      setLiveError("Consent is required before sending anything to Meta.");
+      return;
+    }
+    const seq = ++liveSeq.current;
+    liveAbortRef.current?.abort();
+    const controller = new AbortController();
+    liveAbortRef.current = controller;
+    // Freeze the exact sent baseline before any await.
+    const sent = scenario;
+    const frozen = freezeScenario(sent);
+    const fingerprint = settingsFingerprint(frozen);
+    setLiveBusy("Interpreting request with Meta (1 model request)…");
+    setLiveError(null);
+    setApplyMessage(null);
+    try {
+      const created = await createLiveRun(sent, liveRequest, controller.signal);
+      if (seq !== liveSeq.current) return; // superseded by reset/load/new run
+      setLiveRun(created);
+      setLiveBaseline(frozen);
+      setLiveBaselineFingerprint(fingerprint);
+      const deadlineMs = Date.parse(created.expiresAt) + 15000;
+      const run = await pollLiveRun(created.runId, seq, controller, deadlineMs);
+      if (!run || seq !== liveSeq.current) return;
+      setLiveRun(run);
+      // Draft populates the shared form but is never auto-approved: the user
+      // must review, edit, resolve open questions, and explicitly approve.
+      if (run.requirementsDraft) {
+        setRequirements(structuredClone(run.requirementsDraft));
+        setApproved(false);
+        setApprovedSnapshot(null);
+        evaluateCurrent(sent, run.requirementsDraft);
+      }
+      if (run.interpretError) setLiveError(`Interpretation needed manual constraints: ${run.interpretError}`);
+      if (run.state === "FAILED" || run.state === "TIMED_OUT" || run.state === "CANCELLED") {
+        setLiveError(run.lastError ?? `Interpretation ended: ${run.state}.`);
+      }
+    } catch (e) {
+      if (seq !== liveSeq.current) return;
+      if (controller.signal.aborted) {
+        setLiveError("Interpretation cancelled; the server run was cancelled by ID when known.");
+      } else {
+        setLiveError(e instanceof Error ? e.message.slice(0, 500) : "Interpretation failed.");
+      }
+    } finally {
+      if (seq === liveSeq.current) {
+        if (liveAbortRef.current === controller) liveAbortRef.current = null;
+        setLiveBusy(null);
+      }
+    }
+  };
+
+  const generateLive = async (): Promise<void> => {
+    if (!scenario || !liveRun || liveBusy !== null) return;
+    if (!approved || !approvedSnapshot || JSON.stringify(approvedSnapshot) !== JSON.stringify(requirements)) {
+      setLiveError("Live blocked: approve the current requirements first.");
+      return;
+    }
+    if (requirements.unresolvedQuestions.length > 0) {
+      setLiveError(`Live blocked: resolve ${requirements.unresolvedQuestions.length} open question(s) first.`);
+      return;
+    }
+    const seq = ++liveSeq.current;
+    liveAbortRef.current?.abort();
+    const controller = new AbortController();
+    liveAbortRef.current = controller;
+    const runId = liveRun.runId;
+    setLiveBusy("Generating live proposals (up to 3, bounded)…");
+    setLiveError(null);
+    setApplyMessage(null);
+    try {
+      const run = await approveLiveRun(runId, requirements, controller.signal);
+      if (seq !== liveSeq.current) return;
+      setLiveRun(run);
+      setMode("LIVE");
+      setSelectedCandidate(run.bestName ?? "baseline");
+    } catch (e) {
+      if (seq !== liveSeq.current) return;
+      if (controller.signal.aborted) {
+        setLiveError("Live generation cancelled.");
+      } else {
+        setLiveError(e instanceof Error ? e.message.slice(0, 500) : "Live generation failed.");
+      }
+      // Refresh the run so the timeline shows the true terminal state.
+      try {
+        const run = await getLiveRun(runId);
+        if (seq === liveSeq.current) setLiveRun(run);
+      } catch {
+        // Keep the last known summary if the refresh itself fails.
+      }
+    } finally {
+      if (seq === liveSeq.current) {
+        if (liveAbortRef.current === controller) liveAbortRef.current = null;
+        setLiveBusy(null);
+      }
+    }
+  };
+
+  const cancelLive = async (): Promise<void> => {
+    const seq = ++liveSeq.current;
+    liveAbortRef.current?.abort();
+    liveAbortRef.current = null;
+    if (!liveRun) return;
+    const runId = liveRun.runId;
+    setLiveBusy("Cancelling live run…");
+    try {
+      const run = await cancelLiveRun(runId);
+      if (seq !== liveSeq.current) return;
+      setLiveRun(run);
+    } catch (e) {
+      if (seq !== liveSeq.current) return;
+      // Refresh to show the true state even when cancel races completion.
+      try {
+        const run = await getLiveRun(runId);
+        if (seq === liveSeq.current) setLiveRun(run);
+      } catch {
+        setLiveError(e instanceof Error ? e.message.slice(0, 300) : "Cancel failed.");
+      }
+    } finally {
+      if (seq === liveSeq.current) setLiveBusy(null);
+    }
+  };
+
+  const resolveLiveQuestion = (index: number): void => {
+    setRequirements((prev) => ({
+      ...prev,
+      unresolvedQuestions: prev.unresolvedQuestions.filter((_, i) => i !== index),
+    }));
+    setApproved(false);
+    setApprovedSnapshot(null);
+  };
+
+  // A terminal live run (except cancelled) exports the verbatim server
+  // report with real provider/model/budget provenance; cancelled live runs
+  // have no report and stay cancelled.
+  const liveExportable =
+    liveRun !== null &&
+    liveRun.requirements !== null &&
+    (liveRun.state === "COMPLETED" || liveRun.state === "FAILED" || liveRun.state === "TIMED_OUT");
+
+  const downloadJson = (filename: string, data: unknown): void => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportJson = async (): Promise<void> => {
     if (!scenario) return;
+    if (liveExportable && liveRun) {
+      try {
+        const report = await getLiveReport(liveRun.runId);
+        downloadJson(`layoutlab-m3-live-${liveRun.runId.slice(0, 8)}.json`, report);
+      } catch (e) {
+        setNotice(e instanceof Error ? `Live export failed: ${e.message}` : "Live export failed.");
+      }
+      return;
+    }
     // A completed stub run exports its run report (frozen baseline + all
     // candidates), even after apply/manual edits moved the live scene on;
     // otherwise export the current manual state with a fresh evaluation ID
@@ -461,15 +750,7 @@ export function App(): React.JSX.Element {
       provider: useStub ? "stub" : "manual",
       runId: useStub ? (stubRun.runId ?? newRunId()) : newRunId(),
     });
-    const blob = new Blob([JSON.stringify(envelope, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `layoutlab-m2-${envelope.provider}-${envelope.runId.slice(0, 8)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    downloadJson(`layoutlab-m2-${envelope.provider}-${envelope.runId.slice(0, 8)}.json`, envelope);
   };
 
   const importReplay = async (file: File): Promise<void> => {
@@ -481,7 +762,7 @@ export function App(): React.JSX.Element {
     }
     try {
       const text = await file.text();
-      const result = replayEnvelope(JSON.parse(text));
+      const result = replayAnyEnvelope(JSON.parse(text));
       setReplayInfo({
         matches: result.matchesSaved,
         mismatches: result.mismatches,
@@ -497,6 +778,7 @@ export function App(): React.JSX.Element {
   const resetAll = (): void => {
     runSeq.current++;
     cancelRef.current = true;
+    clearLive();
     clearPersisted();
     setScenario(null);
     setScenarioError(null);
@@ -516,9 +798,43 @@ export function App(): React.JSX.Element {
     setNotice("Reset: cleared scenario, runs, replay, and saved state.");
   };
 
+  // Comparison reuses the stub run shape for live attempts (same candidate
+  // contracts, provider-labeled). Only COMPLETED enables apply; other
+  // terminal states stay inspectable with apply disabled.
+  const liveComparison: StubRunState = useMemo(() => {
+    if (!liveRun || liveRun.state === "CANCELLED" || liveRun.attempts.length === 0) return IDLE_RUN;
+    return {
+      status:
+        liveRun.state === "COMPLETED"
+          ? "completed"
+          : liveRun.state === "INTERPRETING" || liveRun.state === "AWAITING_APPROVAL" || liveRun.state === "RUNNING"
+            ? "running"
+            : "cancelled",
+      runId: liveRun.runId,
+      baseline: liveBaseline,
+      baselineFingerprint: liveBaselineFingerprint,
+      requirements: liveRun.requirements,
+      proposals: liveRun.attempts.map((a) => ({
+        name: a.name,
+        rationale: a.rationale,
+        parseOk: a.parseOk,
+        parseError: a.parseError,
+        applyOk: a.applyOk,
+        applyErrors: a.applyErrors,
+        candidate: a.candidate,
+      })),
+      bestName: liveRun.bestName,
+      outcome: liveRun.outcome,
+      progress: `Live ${liveRun.state}: ${liveRun.proposalsUsed} proposal(s), best ${liveRun.bestName ?? "none"}.`,
+    };
+  }, [liveRun, liveBaseline, liveBaselineFingerprint]);
+
+  const comparisonRun = mode === "LIVE" ? liveComparison : stubRun;
+  const comparisonProvider = mode === "LIVE" ? "live" : "stub";
+
   const selectedStub = useMemo(
-    () => stubRun.proposals.find((p) => p.name === selectedCandidate) ?? null,
-    [stubRun.proposals, selectedCandidate],
+    () => comparisonRun.proposals.find((p) => p.name === selectedCandidate) ?? null,
+    [comparisonRun.proposals, selectedCandidate],
   );
 
   const displayedAssignment: Assignment[] | null = useMemo(() => {
@@ -572,7 +888,10 @@ export function App(): React.JSX.Element {
         <span className="mono" data-testid="scenario-label">
           {scenario ? `${scenario.id} · rev ${scenario.revision}` : "no scenario"}
         </span>
-        <span className={`badge ${mode === "STUB" ? "stub" : mode === "REPLAY" ? "replay" : ""}`} data-testid="mode-badge">
+        <span
+          className={`badge ${mode === "STUB" ? "stub" : mode === "REPLAY" ? "replay" : mode === "LIVE" ? "live" : ""}`}
+          data-testid="mode-badge"
+        >
           {mode}
         </span>
         {baselineResult && (
@@ -595,8 +914,8 @@ export function App(): React.JSX.Element {
             }}
           />
         </label>
-        <button type="button" onClick={exportJson} disabled={!scenario} data-testid="btn-export">
-          {stubRun.status === "completed" ? "Export run report" : "Export current evaluation"}
+        <button type="button" onClick={() => void exportJson()} disabled={!scenario} data-testid="btn-export">
+          {liveExportable ? "Export live run report" : stubRun.status === "completed" ? "Export run report" : "Export current evaluation"}
         </button>
         <label style={{ display: "inline-block", width: "auto" }}>
           Import/Replay
@@ -709,27 +1028,46 @@ export function App(): React.JSX.Element {
             onApprove={approveRequirements}
             onGenerate={() => void generateStub()}
             onCancel={cancelStub}
+            live={{
+              providerMode,
+              apiStatus,
+              apiError,
+              requestText: liveRequest,
+              consent: liveConsent,
+              run: liveRun,
+              busy: liveBusy,
+              error: liveError,
+            }}
+            onProviderMode={setProviderMode}
+            onLiveRequest={setLiveRequest}
+            onLiveConsent={setLiveConsent}
+            onInterpret={() => void interpretLive()}
+            onGenerateLive={() => void generateLive()}
+            onCancelLive={() => void cancelLive()}
+            onRefreshStatus={refreshStatus}
+            onResolveQuestion={resolveLiveQuestion}
           />
         </div>
       </div>
 
       <div className="bottom">
-        {stubRun.status === "completed" && stubRun.baseline && scenario &&
-          (scenario.id !== stubRun.baseline.id ||
-            scenario.revision !== stubRun.baseline.revision ||
-            settingsFingerprint(scenario) !== stubRun.baselineFingerprint) && (
+        {comparisonRun.status === "completed" && comparisonRun.baseline && scenario &&
+          (scenario.id !== comparisonRun.baseline.id ||
+            scenario.revision !== comparisonRun.baseline.revision ||
+            settingsFingerprint(scenario) !== comparisonRun.baselineFingerprint) && (
             <p className="notice" data-testid="historical-notice">
               Historical run report: the live scene (rev {scenario.revision}) differs from run baseline rev{" "}
-              {stubRun.baseline.revision}. Export reflects the frozen run, not the live scene.
+              {comparisonRun.baseline.revision}. Export reflects the frozen run, not the live scene.
             </p>
           )}
         <BottomPanel
           baselineResult={baselineResult}
-          stubRun={stubRun}
+          stubRun={comparisonRun}
           scenario={scenario}
           selectedCandidate={selectedCandidate}
           onSelect={setSelectedCandidate}
-          onApply={applyCandidate}
+          onApply={mode === "LIVE" ? applyLiveCandidate : applyCandidate}
+          providerLabel={comparisonProvider}
         />
       </div>
     </div>

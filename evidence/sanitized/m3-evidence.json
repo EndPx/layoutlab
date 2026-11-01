@@ -1,0 +1,102 @@
+{
+  "generatedAt": "2026-11-01T17:36:04.486Z",
+  "node": "v24.18.0",
+  "npm": "11.8.0",
+  "providerKind": "fixture",
+  "realMetaRequests": 0,
+  "transportRequestCount": 4,
+  "liveMetaTested": false,
+  "liveMetaNote": "No live Meta inference was performed or authorized; all M3 runtime evidence uses the local fixture transport.",
+  "modelId": "fixture-muse-shape",
+  "promptVersion": "layoutlab.m3prompt/1",
+  "envelopeVersion": "layoutlab.m3report/1",
+  "appVersion": "0.3.0",
+  "apiVersion": "0.3.0",
+  "coreVersion": "0.1.0",
+  "reportVersion": "layoutlab.report/1",
+  "routePolicy": "nearest-neighbor-a-star/1",
+  "run": {
+    "runId": "2e1d8693-1a52-4684-a041-a130949a61be",
+    "state": "COMPLETED",
+    "phase": "FINALIZING",
+    "outcome": "IMPROVED_VALID_ASSIGNMENT",
+    "bestName": "proposal-1",
+    "modelRequestsUsed": 4,
+    "proposalsUsed": 3,
+    "budgets": {
+      "maxProposals": 3,
+      "maxRequests": 4,
+      "timeoutMs": 120000
+    },
+    "usageTotals": {
+      "promptTokens": 200,
+      "completionTokens": 40,
+      "totalTokens": 240
+    },
+    "baselineWeightedMm": 36800,
+    "candidates": [
+      {
+        "name": "proposal-1",
+        "valid": true,
+        "weightedTravelMm": 35600,
+        "relocationCount": 1
+      },
+      {
+        "name": "proposal-3",
+        "valid": true,
+        "weightedTravelMm": 36000,
+        "relocationCount": 1
+      }
+    ],
+    "attempts": [
+      {
+        "name": "proposal-1",
+        "parseOk": true,
+        "applyOk": true,
+        "valid": true
+      },
+      {
+        "name": "proposal-2",
+        "parseOk": true,
+        "applyOk": false,
+        "valid": null
+      },
+      {
+        "name": "proposal-3",
+        "parseOk": true,
+        "applyOk": true,
+        "valid": true
+      }
+    ],
+    "improvementPercents": {
+      "baseline": 0,
+      "proposal-1": 3.260869565217391,
+      "proposal-3": 2.1739130434782608
+    }
+  },
+  "replay": {
+    "matchesSaved": true,
+    "mismatches": []
+  },
+  "webBundle": {
+    "files": 1,
+    "bytes": 925620,
+    "secretScan": "pass (no key/endpoint/Bearer)"
+  },
+  "gates": {
+    "coreTests": "83 passed",
+    "apiTests": "32 passed",
+    "e2e": "36 passed, 0 skipped",
+    "typecheck": "clean (core + api + web)",
+    "build": "ok (core + api + web)"
+  },
+  "limitations": [
+    "Conservative 2D clearance model: not a safety certification or complete maneuverability assessment.",
+    "Nearest-neighbor routing is deterministic but not globally optimal.",
+    "Bounding-box fit does not prove real-world packability, rack load safety, or handling suitability.",
+    "Travel reduction is not converted to labor, monetary, or throughput improvement.",
+    "No demand heuristic yet (M4); comparison is baseline vs model proposals only.",
+    "3D scene uses DEVELOPMENT PROXIES; no SimReady asset loaded yet (M4).",
+    "M3 evidence is fixture-only; live Meta behavior is implemented but untested."
+  ]
+}

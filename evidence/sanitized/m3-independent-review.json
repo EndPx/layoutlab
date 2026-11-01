@@ -1,0 +1,35 @@
+{
+  "checkedAt": "2026-11-01T17:39:39.040Z",
+  "reviewer": "Codex coordinator",
+  "fixtureHttp": {
+    "requestCount": 4,
+    "proposalCount": 3,
+    "realMetaRequests": 0,
+    "atomicOccupancyRejected": true,
+    "knownBaselineMm": 16000,
+    "tiedSwapMm": 16000,
+    "tiedSwapRelocations": 2,
+    "bestName": "baseline",
+    "replayMatched": true
+  },
+  "cancellation": {
+    "promptRunId": true,
+    "firstRequestCancellable": true,
+    "terminalPreserved": true,
+    "noExtraProposal": true
+  },
+  "configuration": {
+    "explicitEmptyOverridePreserved": true,
+    "unsupportedEndpointRefused": true,
+    "localStatusHttp": 200,
+    "providerKind": "meta",
+    "configuredModel": "muse-spark-1.3-contributor",
+    "ready": true,
+    "maxProposals": 3,
+    "maxRequests": 4,
+    "timeoutMs": 120000
+  },
+  "webBundleSecretMatches": 0,
+  "liveInferenceRequests": 0,
+  "liveInferenceStatus": "Not authorized or performed; catalog and local status only"
+}

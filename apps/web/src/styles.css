@@ -37,6 +37,7 @@ body {
 }
 .badge.stub { background: #e6f4f4; }
 .badge.replay { border-color: var(--warn); color: var(--warn); background: #fdf3e0; }
+.badge.live { border-color: var(--demand-high); color: var(--demand-high); background: #e5ebff; }
 .badge.invalid { border-color: var(--invalid); color: var(--invalid); background: #fdeceb; }
 .badge.valid { border-color: var(--valid); color: var(--valid); background: #e9f7ee; }
 .badge.lock { border-color: var(--warn); color: var(--warn); font-size: 11px; }

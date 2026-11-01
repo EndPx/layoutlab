@@ -11,7 +11,8 @@ import {
 } from "@layoutlab/core";
 
 export const M2_ENVELOPE_VERSION = "layoutlab.m2export/1";
-export const APP_VERSION = "0.2.0";
+export const M3_ENVELOPE_VERSION = "layoutlab.m3report/1";
+export const APP_VERSION = "0.3.0";
 export const MAX_PROPOSALS_PER_RUN = 3;
 export const MAX_MODEL_REQUESTS_PER_RUN = 4;
 const MAX_ID_LEN = 128;
@@ -166,4 +167,113 @@ export function replayEnvelope(json: unknown): {
     provider,
     runId: e["runId"] as string,
   };
+}
+
+// M3 live envelope: the server report is downloaded verbatim (never rebuilt
+// client-side). Provenance metadata is validated here; measurements are
+// recomputed by core replay without inference.
+export function replayM3Envelope(json: unknown): {
+  matchesSaved: boolean;
+  mismatches: string[];
+  provider: "meta";
+  runId: string;
+  modelId: string;
+} {
+  if (typeof json !== "object" || json === null) throw new Error("Import is not a JSON object.");
+  const e = json as Record<string, unknown>;
+  if (e["envelopeVersion"] !== M3_ENVELOPE_VERSION) {
+    throw new Error(`Unsupported envelope version (expected ${M3_ENVELOPE_VERSION}).`);
+  }
+  if (e["provider"] !== "meta") throw new Error("M3 envelope provider must be 'meta'.");
+  if (typeof e["runId"] !== "string" || e["runId"].length < 1 || e["runId"].length > MAX_ID_LEN) {
+    throw new Error("Envelope runId must be a nonempty id.");
+  }
+  if (typeof e["exportedAt"] !== "string" || Number.isNaN(Date.parse(e["exportedAt"]))) {
+    throw new Error("Envelope exportedAt must be a real timestamp.");
+  }
+  if (typeof e["modelId"] !== "string" || e["modelId"].length < 1) {
+    throw new Error("M3 envelope must name its model id.");
+  }
+  if (typeof e["promptVersion"] !== "string" || e["promptVersion"].length < 1) {
+    throw new Error("M3 envelope must name its prompt version.");
+  }
+  const used = e["modelRequestsUsed"];
+  const props = e["proposalsUsed"];
+  if (typeof used !== "number" || !Number.isInteger(used) || used < 0 || used > MAX_MODEL_REQUESTS_PER_RUN) {
+    throw new Error(`M3 modelRequestsUsed must be 0..${MAX_MODEL_REQUESTS_PER_RUN}.`);
+  }
+  if (typeof props !== "number" || !Number.isInteger(props) || props < 0 || props > MAX_PROPOSALS_PER_RUN) {
+    throw new Error(`M3 proposalsUsed must be 0..${MAX_PROPOSALS_PER_RUN}.`);
+  }
+  if ((props as number) > (used as number)) {
+    throw new Error("M3 proposalsUsed cannot exceed modelRequestsUsed.");
+  }
+  const budgets = e["budgets"] as Record<string, unknown> | undefined;
+  const maxP = budgets?.["maxProposals"];
+  const maxR = budgets?.["maxRequests"];
+  const timeout = budgets?.["timeoutMs"];
+  if (
+    !budgets ||
+    typeof maxP !== "number" || !Number.isInteger(maxP) || maxP < 0 || maxP > MAX_PROPOSALS_PER_RUN ||
+    typeof maxR !== "number" || !Number.isInteger(maxR) || maxR < 0 || maxR > MAX_MODEL_REQUESTS_PER_RUN ||
+    typeof timeout !== "number" || !Number.isInteger(timeout) || timeout <= 0 || timeout > 120000
+  ) {
+    throw new Error("M3 budgets must be integers within brief caps (3 proposals, 4 requests, 120000 ms).");
+  }
+  if ((used as number) > (maxR as number) || (props as number) > (maxP as number)) {
+    throw new Error("M3 used counts cannot exceed budgets.");
+  }
+  // Explicit transport provenance: fixture runs made zero real Meta requests.
+  if (e["providerKind"] !== "meta" && e["providerKind"] !== "fixture") {
+    throw new Error("M3 envelope must declare providerKind 'meta' or 'fixture'.");
+  }
+  const real = e["realMetaRequests"];
+  if (typeof real !== "number" || !Number.isInteger(real) || real < 0 || real > (used as number)) {
+    throw new Error("M3 realMetaRequests must be an integer within used requests.");
+  }
+  if (e["providerKind"] === "fixture" && real !== 0) {
+    throw new Error("M3 fixture envelopes must report realMetaRequests 0.");
+  }
+  if (e["providerKind"] === "meta" && real !== used) {
+    throw new Error("M3 meta envelopes must account every request as a real Meta request.");
+  }
+  if (!Array.isArray(e["attempts"]) || (e["attempts"] as unknown[]).length !== props) {
+    throw new Error("M3 attempts must match proposalsUsed.");
+  }
+  if (!Array.isArray(e["candidates"]) || (e["candidates"] as unknown[]).length > props) {
+    throw new Error("M3 candidates cannot exceed proposalsUsed.");
+  }
+  if (!Array.isArray(e["limitations"]) || (e["limitations"] as unknown[]).length < 1) {
+    throw new Error("Envelope limitations must be nonempty.");
+  }
+  const replayed = replayReport({
+    reportVersion: e["reportVersion"],
+    coreVersion: e["coreVersion"],
+    routePolicy: e["routePolicy"],
+    scenario: e["scenario"],
+    requirements: e["requirements"],
+    baseline: e["baseline"],
+    candidates: e["candidates"],
+    bestName: e["bestName"],
+    improvementPercents: e["improvementPercents"],
+    outcome: e["outcome"],
+  });
+  return {
+    matchesSaved: replayed.matchesSaved,
+    mismatches: replayed.mismatches,
+    provider: "meta",
+    runId: e["runId"] as string,
+    modelId: e["modelId"] as string,
+  };
+}
+
+export function replayAnyEnvelope(json: unknown): {
+  matchesSaved: boolean;
+  mismatches: string[];
+  provider: string;
+  runId: string;
+} {
+  const v = (json as Record<string, unknown> | null)?.["envelopeVersion"];
+  if (v === M3_ENVELOPE_VERSION) return replayM3Envelope(json);
+  return replayEnvelope(json);
 }
