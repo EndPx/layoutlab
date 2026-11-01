@@ -1,0 +1,918 @@
+{
+  "envelopeVersion": "layoutlab.m3report/1",
+  "runId": "9ede2950-4326-4dd9-93ec-f6de2dc8bfc0",
+  "exportedAt": "2026-11-01T17:45:30.818Z",
+  "appVersion": "0.3.0",
+  "apiVersion": "0.3.0",
+  "coreVersion": "0.1.0",
+  "reportVersion": "layoutlab.report/1",
+  "routePolicy": "nearest-neighbor-a-star/1",
+  "provider": "meta",
+  "providerKind": "meta",
+  "realMetaRequests": 4,
+  "modelId": "muse-spark-1.3-contributor",
+  "promptVersion": "layoutlab.m3prompt/1",
+  "state": "COMPLETED",
+  "phase": "FINALIZING",
+  "outcome": "NO_IMPROVEMENT_FOUND",
+  "modelRequestsUsed": 4,
+  "proposalsUsed": 3,
+  "budgets": {
+    "maxProposals": 3,
+    "maxRequests": 4,
+    "timeoutMs": 120000
+  },
+  "usageTotals": {
+    "promptTokens": 2451,
+    "completionTokens": 2679,
+    "totalTokens": 5130
+  },
+  "usageIncomplete": true,
+  "scenario": {
+    "schemaVersion": "layoutlab.scenario/1",
+    "id": "warehouse-basic",
+    "revision": 0,
+    "room": {
+      "widthMm": 6000,
+      "depthMm": 6000
+    },
+    "racks": [
+      {
+        "id": "R1",
+        "positionMm": {
+          "x": 1300,
+          "z": 1500
+        },
+        "dimensionsMm": {
+          "width": 1600,
+          "depth": 800,
+          "height": 2000
+        },
+        "yawDeg": 0
+      },
+      {
+        "id": "R2",
+        "positionMm": {
+          "x": 4700,
+          "z": 1500
+        },
+        "dimensionsMm": {
+          "width": 1600,
+          "depth": 800,
+          "height": 2000
+        },
+        "yawDeg": 0
+      },
+      {
+        "id": "R3",
+        "positionMm": {
+          "x": 1300,
+          "z": 4500
+        },
+        "dimensionsMm": {
+          "width": 1600,
+          "depth": 800,
+          "height": 2000
+        },
+        "yawDeg": 0
+      },
+      {
+        "id": "R4",
+        "positionMm": {
+          "x": 4700,
+          "z": 4500
+        },
+        "dimensionsMm": {
+          "width": 1600,
+          "depth": 800,
+          "height": 2000
+        },
+        "yawDeg": 0
+      }
+    ],
+    "locations": [
+      {
+        "id": "L1",
+        "rackId": "R1",
+        "label": "R1 east slot",
+        "usableDimensionsMm": {
+          "width": 800,
+          "depth": 600,
+          "height": 1000
+        },
+        "storageClass": "ambient",
+        "pickPointMm": {
+          "x": 2900,
+          "z": 1500
+        }
+      },
+      {
+        "id": "L2",
+        "rackId": "R1",
+        "label": "R1 south slot",
+        "usableDimensionsMm": {
+          "width": 800,
+          "depth": 600,
+          "height": 1000
+        },
+        "storageClass": "ambient",
+        "pickPointMm": {
+          "x": 1300,
+          "z": 2700
+        }
+      },
+      {
+        "id": "L3",
+        "rackId": "R2",
+        "label": "R2 west slot",
+        "usableDimensionsMm": {
+          "width": 800,
+          "depth": 600,
+          "height": 1000
+        },
+        "storageClass": "ambient",
+        "pickPointMm": {
+          "x": 3100,
+          "z": 1500
+        }
+      },
+      {
+        "id": "L4",
+        "rackId": "R2",
+        "label": "R2 south slot",
+        "usableDimensionsMm": {
+          "width": 800,
+          "depth": 600,
+          "height": 1000
+        },
+        "storageClass": "ambient",
+        "pickPointMm": {
+          "x": 4700,
+          "z": 2700
+        }
+      },
+      {
+        "id": "L5",
+        "rackId": "R3",
+        "label": "R3 east slot",
+        "usableDimensionsMm": {
+          "width": 800,
+          "depth": 600,
+          "height": 1000
+        },
+        "storageClass": "ambient",
+        "pickPointMm": {
+          "x": 2900,
+          "z": 4500
+        }
+      },
+      {
+        "id": "L6",
+        "rackId": "R3",
+        "label": "R3 north slot",
+        "usableDimensionsMm": {
+          "width": 800,
+          "depth": 600,
+          "height": 1000
+        },
+        "storageClass": "ambient",
+        "pickPointMm": {
+          "x": 1300,
+          "z": 3300
+        }
+      },
+      {
+        "id": "L7",
+        "rackId": "R4",
+        "label": "R4 west slot",
+        "usableDimensionsMm": {
+          "width": 800,
+          "depth": 600,
+          "height": 1000
+        },
+        "storageClass": "ambient",
+        "pickPointMm": {
+          "x": 3100,
+          "z": 4500
+        }
+      },
+      {
+        "id": "L8",
+        "rackId": "R4",
+        "label": "R4 north cold slot",
+        "usableDimensionsMm": {
+          "width": 800,
+          "depth": 600,
+          "height": 1000
+        },
+        "storageClass": "cold",
+        "pickPointMm": {
+          "x": 4700,
+          "z": 3300
+        }
+      }
+    ],
+    "products": [
+      {
+        "id": "sku-a",
+        "label": "Product A",
+        "storedLoadDimensionsMm": {
+          "width": 500,
+          "depth": 400,
+          "height": 600
+        },
+        "requiredStorageClass": "ambient",
+        "lockedLocationId": "L1"
+      },
+      {
+        "id": "sku-b",
+        "label": "Product B",
+        "storedLoadDimensionsMm": {
+          "width": 500,
+          "depth": 400,
+          "height": 600
+        },
+        "requiredStorageClass": "ambient"
+      },
+      {
+        "id": "sku-c",
+        "label": "Product C",
+        "storedLoadDimensionsMm": {
+          "width": 500,
+          "depth": 400,
+          "height": 600
+        },
+        "requiredStorageClass": "ambient"
+      },
+      {
+        "id": "sku-d",
+        "label": "Product D",
+        "storedLoadDimensionsMm": {
+          "width": 500,
+          "depth": 400,
+          "height": 600
+        },
+        "requiredStorageClass": "ambient"
+      },
+      {
+        "id": "sku-e",
+        "label": "Product E",
+        "storedLoadDimensionsMm": {
+          "width": 500,
+          "depth": 400,
+          "height": 600
+        },
+        "requiredStorageClass": "ambient"
+      },
+      {
+        "id": "sku-f",
+        "label": "Product F (cold)",
+        "storedLoadDimensionsMm": {
+          "width": 500,
+          "depth": 400,
+          "height": 600
+        },
+        "requiredStorageClass": "cold"
+      }
+    ],
+    "assignments": [
+      {
+        "productId": "sku-a",
+        "locationId": "L1"
+      },
+      {
+        "productId": "sku-b",
+        "locationId": "L2"
+      },
+      {
+        "productId": "sku-c",
+        "locationId": "L3"
+      },
+      {
+        "productId": "sku-d",
+        "locationId": "L4"
+      },
+      {
+        "productId": "sku-e",
+        "locationId": "L5"
+      },
+      {
+        "productId": "sku-f",
+        "locationId": "L8"
+      }
+    ],
+    "orders": [
+      {
+        "id": "O1",
+        "frequency": 4,
+        "lines": [
+          {
+            "productId": "sku-a",
+            "quantity": 2
+          },
+          {
+            "productId": "sku-c",
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "id": "O2",
+        "frequency": 2,
+        "lines": [
+          {
+            "productId": "sku-b",
+            "quantity": 1
+          },
+          {
+            "productId": "sku-f",
+            "quantity": 3
+          }
+        ]
+      },
+      {
+        "id": "O3",
+        "frequency": 1,
+        "lines": [
+          {
+            "productId": "sku-d",
+            "quantity": 1
+          },
+          {
+            "productId": "sku-e",
+            "quantity": 1
+          }
+        ]
+      }
+    ],
+    "packingPointMm": {
+      "x": 3000,
+      "z": 3000
+    },
+    "cart": {
+      "widthMm": 600,
+      "lengthMm": 800,
+      "marginMm": 100
+    },
+    "minimumPassageWidthMm": 1400,
+    "gridSizeMm": 100,
+    "provenance": {
+      "category": "synthetic",
+      "description": "Small valid warehouse: 4 fixed racks, 8 locations, 6 products, 3 order templates.",
+      "sourceUrls": [],
+      "assumptions": [
+        "Fixed 1600 mm rack aisles with pick points at aisle centers.",
+        "Cold compatibility is a label check, not a temperature simulation."
+      ],
+      "inventedFields": [
+        "all dimensions, assignments, and orders"
+      ]
+    }
+  },
+  "requirements": {
+    "objective": "minimize_weighted_picking_travel",
+    "maxRelocatedProducts": 2,
+    "lockedProductIds": [
+      "sku-a"
+    ],
+    "assumptions": [],
+    "unresolvedQuestions": []
+  },
+  "interpretedUnresolved": [],
+  "baseline": {
+    "name": "baseline",
+    "assignment": [
+      {
+        "productId": "sku-a",
+        "locationId": "L1"
+      },
+      {
+        "productId": "sku-b",
+        "locationId": "L2"
+      },
+      {
+        "productId": "sku-c",
+        "locationId": "L3"
+      },
+      {
+        "productId": "sku-d",
+        "locationId": "L4"
+      },
+      {
+        "productId": "sku-e",
+        "locationId": "L5"
+      },
+      {
+        "productId": "sku-f",
+        "locationId": "L8"
+      }
+    ],
+    "assignmentKey": "[[\"sku-a\",\"L1\"],[\"sku-b\",\"L2\"],[\"sku-c\",\"L3\"],[\"sku-d\",\"L4\"],[\"sku-e\",\"L5\"],[\"sku-f\",\"L8\"]]",
+    "valid": true,
+    "errors": [],
+    "relocationCount": 0,
+    "workload": {
+      "orders": [
+        {
+          "orderId": "O1",
+          "frequency": 4,
+          "distinctProductIds": [
+            "sku-a",
+            "sku-c"
+          ],
+          "units": 3,
+          "visitSequence": [
+            "sku-a",
+            "sku-c"
+          ],
+          "legs": [
+            {
+              "fromId": "@packing",
+              "toId": "sku-a",
+              "distanceMm": 1600
+            },
+            {
+              "fromId": "sku-a",
+              "toId": "sku-c",
+              "distanceMm": 200
+            },
+            {
+              "fromId": "sku-c",
+              "toId": "@packing",
+              "distanceMm": 1600
+            }
+          ],
+          "distanceMm": 3400,
+          "reachable": true,
+          "reason": null
+        },
+        {
+          "orderId": "O2",
+          "frequency": 2,
+          "distinctProductIds": [
+            "sku-b",
+            "sku-f"
+          ],
+          "units": 4,
+          "visitSequence": [
+            "sku-b",
+            "sku-f"
+          ],
+          "legs": [
+            {
+              "fromId": "@packing",
+              "toId": "sku-b",
+              "distanceMm": 2000
+            },
+            {
+              "fromId": "sku-b",
+              "toId": "sku-f",
+              "distanceMm": 4000
+            },
+            {
+              "fromId": "sku-f",
+              "toId": "@packing",
+              "distanceMm": 2000
+            }
+          ],
+          "distanceMm": 8000,
+          "reachable": true,
+          "reason": null
+        },
+        {
+          "orderId": "O3",
+          "frequency": 1,
+          "distinctProductIds": [
+            "sku-d",
+            "sku-e"
+          ],
+          "units": 2,
+          "visitSequence": [
+            "sku-e",
+            "sku-d"
+          ],
+          "legs": [
+            {
+              "fromId": "@packing",
+              "toId": "sku-e",
+              "distanceMm": 1600
+            },
+            {
+              "fromId": "sku-e",
+              "toId": "sku-d",
+              "distanceMm": 3600
+            },
+            {
+              "fromId": "sku-d",
+              "toId": "@packing",
+              "distanceMm": 2000
+            }
+          ],
+          "distanceMm": 7200,
+          "reachable": true,
+          "reason": null
+        }
+      ],
+      "reachableOrders": 3,
+      "totalFrequency": 7,
+      "weightedTravelMm": 36800,
+      "meanOrderDistanceMm": 5257.142857142857,
+      "totalUnits": 22,
+      "arithmeticOverflow": false,
+      "budgetExhausted": false
+    },
+    "weightedTravelMm": 36800,
+    "settingsFingerprint": "{\"routePolicy\":\"nearest-neighbor-a-star/1\",\"room\":{\"widthMm\":6000,\"depthMm\":6000},\"racks\":[{\"id\":\"R1\",\"positionMm\":{\"x\":1300,\"z\":1500},\"dimensionsMm\":{\"width\":1600,\"depth\":800,\"height\":2000},\"yawDeg\":0},{\"id\":\"R2\",\"positionMm\":{\"x\":4700,\"z\":1500},\"dimensionsMm\":{\"width\":1600,\"depth\":800,\"height\":2000},\"yawDeg\":0},{\"id\":\"R3\",\"positionMm\":{\"x\":1300,\"z\":4500},\"dimensionsMm\":{\"width\":1600,\"depth\":800,\"height\":2000},\"yawDeg\":0},{\"id\":\"R4\",\"positionMm\":{\"x\":4700,\"z\":4500},\"dimensionsMm\":{\"width\":1600,\"depth\":800,\"height\":2000},\"yawDeg\":0}],\"locations\":[{\"id\":\"L1\",\"rackId\":\"R1\",\"label\":\"R1 east slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":2900,\"z\":1500}},{\"id\":\"L2\",\"rackId\":\"R1\",\"label\":\"R1 south slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":1300,\"z\":2700}},{\"id\":\"L3\",\"rackId\":\"R2\",\"label\":\"R2 west slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":3100,\"z\":1500}},{\"id\":\"L4\",\"rackId\":\"R2\",\"label\":\"R2 south slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":4700,\"z\":2700}},{\"id\":\"L5\",\"rackId\":\"R3\",\"label\":\"R3 east slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":2900,\"z\":4500}},{\"id\":\"L6\",\"rackId\":\"R3\",\"label\":\"R3 north slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":1300,\"z\":3300}},{\"id\":\"L7\",\"rackId\":\"R4\",\"label\":\"R4 west slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":3100,\"z\":4500}},{\"id\":\"L8\",\"rackId\":\"R4\",\"label\":\"R4 north cold slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"cold\",\"pickPointMm\":{\"x\":4700,\"z\":3300}}],\"products\":[{\"id\":\"sku-a\",\"label\":\"Product A\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\",\"lockedLocationId\":\"L1\"},{\"id\":\"sku-b\",\"label\":\"Product B\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\"},{\"id\":\"sku-c\",\"label\":\"Product C\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\"},{\"id\":\"sku-d\",\"label\":\"Product D\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\"},{\"id\":\"sku-e\",\"label\":\"Product E\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\"},{\"id\":\"sku-f\",\"label\":\"Product F (cold)\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"cold\"}],\"orders\":[{\"id\":\"O1\",\"frequency\":4,\"lines\":[{\"productId\":\"sku-a\",\"quantity\":2},{\"productId\":\"sku-c\",\"quantity\":1}]},{\"id\":\"O2\",\"frequency\":2,\"lines\":[{\"productId\":\"sku-b\",\"quantity\":1},{\"productId\":\"sku-f\",\"quantity\":3}]},{\"id\":\"O3\",\"frequency\":1,\"lines\":[{\"productId\":\"sku-d\",\"quantity\":1},{\"productId\":\"sku-e\",\"quantity\":1}]}],\"packingPointMm\":{\"x\":3000,\"z\":3000},\"cart\":{\"widthMm\":600,\"lengthMm\":800,\"marginMm\":100},\"minimumPassageWidthMm\":1400,\"gridSizeMm\":100}"
+  },
+  "candidates": [
+    {
+      "name": "proposal-3",
+      "assignment": [
+        {
+          "productId": "sku-a",
+          "locationId": "L1"
+        },
+        {
+          "productId": "sku-b",
+          "locationId": "L7"
+        },
+        {
+          "productId": "sku-c",
+          "locationId": "L2"
+        },
+        {
+          "productId": "sku-d",
+          "locationId": "L4"
+        },
+        {
+          "productId": "sku-e",
+          "locationId": "L5"
+        },
+        {
+          "productId": "sku-f",
+          "locationId": "L8"
+        }
+      ],
+      "assignmentKey": "[[\"sku-a\",\"L1\"],[\"sku-b\",\"L7\"],[\"sku-c\",\"L2\"],[\"sku-d\",\"L4\"],[\"sku-e\",\"L5\"],[\"sku-f\",\"L8\"]]",
+      "valid": true,
+      "errors": [],
+      "relocationCount": 2,
+      "workload": {
+        "orders": [
+          {
+            "orderId": "O1",
+            "frequency": 4,
+            "distinctProductIds": [
+              "sku-a",
+              "sku-c"
+            ],
+            "units": 3,
+            "visitSequence": [
+              "sku-a",
+              "sku-c"
+            ],
+            "legs": [
+              {
+                "fromId": "@packing",
+                "toId": "sku-a",
+                "distanceMm": 1600
+              },
+              {
+                "fromId": "sku-a",
+                "toId": "sku-c",
+                "distanceMm": 2800
+              },
+              {
+                "fromId": "sku-c",
+                "toId": "@packing",
+                "distanceMm": 2000
+              }
+            ],
+            "distanceMm": 6400,
+            "reachable": true,
+            "reason": null
+          },
+          {
+            "orderId": "O2",
+            "frequency": 2,
+            "distinctProductIds": [
+              "sku-b",
+              "sku-f"
+            ],
+            "units": 4,
+            "visitSequence": [
+              "sku-b",
+              "sku-f"
+            ],
+            "legs": [
+              {
+                "fromId": "@packing",
+                "toId": "sku-b",
+                "distanceMm": 1600
+              },
+              {
+                "fromId": "sku-b",
+                "toId": "sku-f",
+                "distanceMm": 2800
+              },
+              {
+                "fromId": "sku-f",
+                "toId": "@packing",
+                "distanceMm": 2000
+              }
+            ],
+            "distanceMm": 6400,
+            "reachable": true,
+            "reason": null
+          },
+          {
+            "orderId": "O3",
+            "frequency": 1,
+            "distinctProductIds": [
+              "sku-d",
+              "sku-e"
+            ],
+            "units": 2,
+            "visitSequence": [
+              "sku-e",
+              "sku-d"
+            ],
+            "legs": [
+              {
+                "fromId": "@packing",
+                "toId": "sku-e",
+                "distanceMm": 1600
+              },
+              {
+                "fromId": "sku-e",
+                "toId": "sku-d",
+                "distanceMm": 3600
+              },
+              {
+                "fromId": "sku-d",
+                "toId": "@packing",
+                "distanceMm": 2000
+              }
+            ],
+            "distanceMm": 7200,
+            "reachable": true,
+            "reason": null
+          }
+        ],
+        "reachableOrders": 3,
+        "totalFrequency": 7,
+        "weightedTravelMm": 45600,
+        "meanOrderDistanceMm": 6514.285714285715,
+        "totalUnits": 22,
+        "arithmeticOverflow": false,
+        "budgetExhausted": false
+      },
+      "weightedTravelMm": 45600,
+      "settingsFingerprint": "{\"routePolicy\":\"nearest-neighbor-a-star/1\",\"room\":{\"widthMm\":6000,\"depthMm\":6000},\"racks\":[{\"id\":\"R1\",\"positionMm\":{\"x\":1300,\"z\":1500},\"dimensionsMm\":{\"width\":1600,\"depth\":800,\"height\":2000},\"yawDeg\":0},{\"id\":\"R2\",\"positionMm\":{\"x\":4700,\"z\":1500},\"dimensionsMm\":{\"width\":1600,\"depth\":800,\"height\":2000},\"yawDeg\":0},{\"id\":\"R3\",\"positionMm\":{\"x\":1300,\"z\":4500},\"dimensionsMm\":{\"width\":1600,\"depth\":800,\"height\":2000},\"yawDeg\":0},{\"id\":\"R4\",\"positionMm\":{\"x\":4700,\"z\":4500},\"dimensionsMm\":{\"width\":1600,\"depth\":800,\"height\":2000},\"yawDeg\":0}],\"locations\":[{\"id\":\"L1\",\"rackId\":\"R1\",\"label\":\"R1 east slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":2900,\"z\":1500}},{\"id\":\"L2\",\"rackId\":\"R1\",\"label\":\"R1 south slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":1300,\"z\":2700}},{\"id\":\"L3\",\"rackId\":\"R2\",\"label\":\"R2 west slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":3100,\"z\":1500}},{\"id\":\"L4\",\"rackId\":\"R2\",\"label\":\"R2 south slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":4700,\"z\":2700}},{\"id\":\"L5\",\"rackId\":\"R3\",\"label\":\"R3 east slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":2900,\"z\":4500}},{\"id\":\"L6\",\"rackId\":\"R3\",\"label\":\"R3 north slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":1300,\"z\":3300}},{\"id\":\"L7\",\"rackId\":\"R4\",\"label\":\"R4 west slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":3100,\"z\":4500}},{\"id\":\"L8\",\"rackId\":\"R4\",\"label\":\"R4 north cold slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"cold\",\"pickPointMm\":{\"x\":4700,\"z\":3300}}],\"products\":[{\"id\":\"sku-a\",\"label\":\"Product A\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\",\"lockedLocationId\":\"L1\"},{\"id\":\"sku-b\",\"label\":\"Product B\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\"},{\"id\":\"sku-c\",\"label\":\"Product C\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\"},{\"id\":\"sku-d\",\"label\":\"Product D\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\"},{\"id\":\"sku-e\",\"label\":\"Product E\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\"},{\"id\":\"sku-f\",\"label\":\"Product F (cold)\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"cold\"}],\"orders\":[{\"id\":\"O1\",\"frequency\":4,\"lines\":[{\"productId\":\"sku-a\",\"quantity\":2},{\"productId\":\"sku-c\",\"quantity\":1}]},{\"id\":\"O2\",\"frequency\":2,\"lines\":[{\"productId\":\"sku-b\",\"quantity\":1},{\"productId\":\"sku-f\",\"quantity\":3}]},{\"id\":\"O3\",\"frequency\":1,\"lines\":[{\"productId\":\"sku-d\",\"quantity\":1},{\"productId\":\"sku-e\",\"quantity\":1}]}],\"packingPointMm\":{\"x\":3000,\"z\":3000},\"cart\":{\"widthMm\":600,\"lengthMm\":800,\"marginMm\":100},\"minimumPassageWidthMm\":1400,\"gridSizeMm\":100}"
+    }
+  ],
+  "attempts": [
+    {
+      "name": "proposal-1",
+      "rationale": "",
+      "parseOk": false,
+      "parseError": "Model response has no message content.",
+      "applyOk": false,
+      "applyErrors": [],
+      "candidate": null,
+      "usage": null,
+      "durationMs": 18416,
+      "requestIndex": 2,
+      "transportError": null
+    },
+    {
+      "name": "proposal-2",
+      "rationale": "",
+      "parseOk": false,
+      "parseError": "Model response has no message content.",
+      "applyOk": false,
+      "applyErrors": [],
+      "candidate": null,
+      "usage": null,
+      "durationMs": 20594,
+      "requestIndex": 3,
+      "transportError": null
+    },
+    {
+      "name": "proposal-3",
+      "rationale": "Co-locate O1 pair sku-a and sku-c on R1 and O2 pair sku-b and sku-f on R4 within 2 relocations, respecting lock and storage class.",
+      "parseOk": true,
+      "parseError": null,
+      "applyOk": true,
+      "applyErrors": [],
+      "candidate": {
+        "name": "proposal-3",
+        "assignment": [
+          {
+            "productId": "sku-a",
+            "locationId": "L1"
+          },
+          {
+            "productId": "sku-b",
+            "locationId": "L7"
+          },
+          {
+            "productId": "sku-c",
+            "locationId": "L2"
+          },
+          {
+            "productId": "sku-d",
+            "locationId": "L4"
+          },
+          {
+            "productId": "sku-e",
+            "locationId": "L5"
+          },
+          {
+            "productId": "sku-f",
+            "locationId": "L8"
+          }
+        ],
+        "assignmentKey": "[[\"sku-a\",\"L1\"],[\"sku-b\",\"L7\"],[\"sku-c\",\"L2\"],[\"sku-d\",\"L4\"],[\"sku-e\",\"L5\"],[\"sku-f\",\"L8\"]]",
+        "valid": true,
+        "errors": [],
+        "relocationCount": 2,
+        "workload": {
+          "orders": [
+            {
+              "orderId": "O1",
+              "frequency": 4,
+              "distinctProductIds": [
+                "sku-a",
+                "sku-c"
+              ],
+              "units": 3,
+              "visitSequence": [
+                "sku-a",
+                "sku-c"
+              ],
+              "legs": [
+                {
+                  "fromId": "@packing",
+                  "toId": "sku-a",
+                  "distanceMm": 1600
+                },
+                {
+                  "fromId": "sku-a",
+                  "toId": "sku-c",
+                  "distanceMm": 2800
+                },
+                {
+                  "fromId": "sku-c",
+                  "toId": "@packing",
+                  "distanceMm": 2000
+                }
+              ],
+              "distanceMm": 6400,
+              "reachable": true,
+              "reason": null
+            },
+            {
+              "orderId": "O2",
+              "frequency": 2,
+              "distinctProductIds": [
+                "sku-b",
+                "sku-f"
+              ],
+              "units": 4,
+              "visitSequence": [
+                "sku-b",
+                "sku-f"
+              ],
+              "legs": [
+                {
+                  "fromId": "@packing",
+                  "toId": "sku-b",
+                  "distanceMm": 1600
+                },
+                {
+                  "fromId": "sku-b",
+                  "toId": "sku-f",
+                  "distanceMm": 2800
+                },
+                {
+                  "fromId": "sku-f",
+                  "toId": "@packing",
+                  "distanceMm": 2000
+                }
+              ],
+              "distanceMm": 6400,
+              "reachable": true,
+              "reason": null
+            },
+            {
+              "orderId": "O3",
+              "frequency": 1,
+              "distinctProductIds": [
+                "sku-d",
+                "sku-e"
+              ],
+              "units": 2,
+              "visitSequence": [
+                "sku-e",
+                "sku-d"
+              ],
+              "legs": [
+                {
+                  "fromId": "@packing",
+                  "toId": "sku-e",
+                  "distanceMm": 1600
+                },
+                {
+                  "fromId": "sku-e",
+                  "toId": "sku-d",
+                  "distanceMm": 3600
+                },
+                {
+                  "fromId": "sku-d",
+                  "toId": "@packing",
+                  "distanceMm": 2000
+                }
+              ],
+              "distanceMm": 7200,
+              "reachable": true,
+              "reason": null
+            }
+          ],
+          "reachableOrders": 3,
+          "totalFrequency": 7,
+          "weightedTravelMm": 45600,
+          "meanOrderDistanceMm": 6514.285714285715,
+          "totalUnits": 22,
+          "arithmeticOverflow": false,
+          "budgetExhausted": false
+        },
+        "weightedTravelMm": 45600,
+        "settingsFingerprint": "{\"routePolicy\":\"nearest-neighbor-a-star/1\",\"room\":{\"widthMm\":6000,\"depthMm\":6000},\"racks\":[{\"id\":\"R1\",\"positionMm\":{\"x\":1300,\"z\":1500},\"dimensionsMm\":{\"width\":1600,\"depth\":800,\"height\":2000},\"yawDeg\":0},{\"id\":\"R2\",\"positionMm\":{\"x\":4700,\"z\":1500},\"dimensionsMm\":{\"width\":1600,\"depth\":800,\"height\":2000},\"yawDeg\":0},{\"id\":\"R3\",\"positionMm\":{\"x\":1300,\"z\":4500},\"dimensionsMm\":{\"width\":1600,\"depth\":800,\"height\":2000},\"yawDeg\":0},{\"id\":\"R4\",\"positionMm\":{\"x\":4700,\"z\":4500},\"dimensionsMm\":{\"width\":1600,\"depth\":800,\"height\":2000},\"yawDeg\":0}],\"locations\":[{\"id\":\"L1\",\"rackId\":\"R1\",\"label\":\"R1 east slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":2900,\"z\":1500}},{\"id\":\"L2\",\"rackId\":\"R1\",\"label\":\"R1 south slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":1300,\"z\":2700}},{\"id\":\"L3\",\"rackId\":\"R2\",\"label\":\"R2 west slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":3100,\"z\":1500}},{\"id\":\"L4\",\"rackId\":\"R2\",\"label\":\"R2 south slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":4700,\"z\":2700}},{\"id\":\"L5\",\"rackId\":\"R3\",\"label\":\"R3 east slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":2900,\"z\":4500}},{\"id\":\"L6\",\"rackId\":\"R3\",\"label\":\"R3 north slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":1300,\"z\":3300}},{\"id\":\"L7\",\"rackId\":\"R4\",\"label\":\"R4 west slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"ambient\",\"pickPointMm\":{\"x\":3100,\"z\":4500}},{\"id\":\"L8\",\"rackId\":\"R4\",\"label\":\"R4 north cold slot\",\"usableDimensionsMm\":{\"width\":800,\"depth\":600,\"height\":1000},\"storageClass\":\"cold\",\"pickPointMm\":{\"x\":4700,\"z\":3300}}],\"products\":[{\"id\":\"sku-a\",\"label\":\"Product A\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\",\"lockedLocationId\":\"L1\"},{\"id\":\"sku-b\",\"label\":\"Product B\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\"},{\"id\":\"sku-c\",\"label\":\"Product C\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\"},{\"id\":\"sku-d\",\"label\":\"Product D\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\"},{\"id\":\"sku-e\",\"label\":\"Product E\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"ambient\"},{\"id\":\"sku-f\",\"label\":\"Product F (cold)\",\"storedLoadDimensionsMm\":{\"width\":500,\"depth\":400,\"height\":600},\"requiredStorageClass\":\"cold\"}],\"orders\":[{\"id\":\"O1\",\"frequency\":4,\"lines\":[{\"productId\":\"sku-a\",\"quantity\":2},{\"productId\":\"sku-c\",\"quantity\":1}]},{\"id\":\"O2\",\"frequency\":2,\"lines\":[{\"productId\":\"sku-b\",\"quantity\":1},{\"productId\":\"sku-f\",\"quantity\":3}]},{\"id\":\"O3\",\"frequency\":1,\"lines\":[{\"productId\":\"sku-d\",\"quantity\":1},{\"productId\":\"sku-e\",\"quantity\":1}]}],\"packingPointMm\":{\"x\":3000,\"z\":3000},\"cart\":{\"widthMm\":600,\"lengthMm\":800,\"marginMm\":100},\"minimumPassageWidthMm\":1400,\"gridSizeMm\":100}"
+      },
+      "usage": {
+        "promptTokens": 1278,
+        "completionTokens": 1634,
+        "totalTokens": 2912
+      },
+      "durationMs": 16634,
+      "requestIndex": 4,
+      "transportError": null
+    }
+  ],
+  "feedback": [
+    {
+      "proposalName": "proposal-1",
+      "valid": false,
+      "errors": [
+        "PARSE: Model response has no message content."
+      ],
+      "relocationCount": null,
+      "weightedTravelMm": null,
+      "bestValidSoFar": null
+    },
+    {
+      "proposalName": "proposal-2",
+      "valid": false,
+      "errors": [
+        "PARSE: Model response has no message content."
+      ],
+      "relocationCount": null,
+      "weightedTravelMm": null,
+      "bestValidSoFar": null
+    },
+    {
+      "proposalName": "proposal-3",
+      "valid": true,
+      "errors": [],
+      "relocationCount": 2,
+      "weightedTravelMm": 45600,
+      "bestValidSoFar": {
+        "name": "proposal-3",
+        "weightedTravelMm": 45600,
+        "relocationCount": 2
+      }
+    }
+  ],
+  "bestName": "baseline",
+  "improvementPercents": {
+    "baseline": 0,
+    "proposal-3": -23.91304347826087
+  },
+  "timingsMs": {
+    "createdAt": "2026-11-01T17:44:23.972Z",
+    "completedAt": "2026-11-01T17:45:30.761Z",
+    "durationsMs": [
+      11091,
+      16634
+    ]
+  },
+  "limitations": [
+    "Conservative 2D clearance model: not a safety certification or complete maneuverability assessment.",
+    "Nearest-neighbor routing is deterministic but not globally optimal.",
+    "Bounding-box fit does not prove real-world packability, rack load safety, or handling suitability.",
+    "Travel reduction is not converted to labor, monetary, or throughput improvement.",
+    "No demand heuristic yet (M4); comparison is baseline vs model proposals only.",
+    "3D scene uses DEVELOPMENT PROXIES; no SimReady asset loaded yet (M4)."
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "checkedAt": "2026-11-01T17:44:23.852Z",
+  "sourceCommit": "b854f00b3fe244e326a4246914cd6e3c41520fd1",
+  "providerKind": "meta",
+  "modelId": "muse-spark-1.3-contributor",
+  "scenarioId": "warehouse-basic",
+  "category": "synthetic",
+  "authorization": {
+    "maxRuns": 1,
+    "maxRequests": 4,
+    "maxOutputTokensPerRequest": 2000,
+    "maxCostUsd": 0.1
+  },
+  "preflightCostBound": {
+    "conservativeInputTokensPerRequest": 162048,
+    "conservativeCostUsd": 0.06641920000000001,
+    "inputUsdPerMillion": 0.1,
+    "outputUsdPerMillion": 0.2,
+    "source": "https://dev.meta.ai/docs/pricing-rate-limits",
+    "invoiceRetrieved": false
+  },
+  "runId": "9ede2950-4326-4dd9-93ec-f6de2dc8bfc0",
+  "final": {
+    "state": "COMPLETED",
+    "outcome": "NO_IMPROVEMENT_FOUND",
+    "modelRequestsUsed": 4,
+    "proposalsUsed": 3,
+    "realMetaRequests": 4,
+    "usage": {
+      "promptTokens": 2451,
+      "completionTokens": 2679,
+      "totalTokens": 5130
+    },
+    "usageIncomplete": true,
+    "bestName": "baseline",
+    "lastError": null,
+    "attempts": [
+      {
+        "name": "proposal-1",
+        "valid": false,
+        "weightedTravelMm": null,
+        "relocationCount": null,
+        "parseError": "Model response has no message content.",
+        "applyErrors": [],
+        "transportError": null
+      },
+      {
+        "name": "proposal-2",
+        "valid": false,
+        "weightedTravelMm": null,
+        "relocationCount": null,
+        "parseError": "Model response has no message content.",
+        "applyErrors": [],
+        "transportError": null
+      },
+      {
+        "name": "proposal-3",
+        "valid": true,
+        "weightedTravelMm": 45600,
+        "relocationCount": 2,
+        "parseError": null,
+        "applyErrors": [],
+        "transportError": null
+      }
+    ]
+  },
+  "replay": {
+    "matchesSaved": true,
+    "mismatches": []
+  },
+  "reportFile": "evidence/sanitized/m3-live-smoke-report.json",
+  "error": null,
+  "interpretation": {
+    "draft": {
+      "objective": "minimize_weighted_picking_travel",
+      "maxRelocatedProducts": 2,
+      "lockedProductIds": [
+        "sku-a"
+      ],
+      "assumptions": [],
+      "unresolvedQuestions": []
+    },
+    "error": null,
+    "reviewerApprovedRequirements": {
+      "objective": "minimize_weighted_picking_travel",
+      "maxRelocatedProducts": 2,
+      "lockedProductIds": [
+        "sku-a"
+      ],
+      "assumptions": [],
+      "unresolvedQuestions": []
+    },
+    "reviewBasis": "Synthetic smoke contract: sku-a fixed, compatibility unchanged, relocation budget 2. Draft reviewed and normalized against this explicit contract."
+  }
+}

@@ -7,7 +7,7 @@ Scope authority: [Implementation Brief v2](IMPLEMENTATION_BRIEF_V2.md). Codex pl
 | M0 | Environment and current official sources recorded; runtime Meta account/model access smoke evidence; revision-pinned rack asset feasibility experiment with units, bounds, license and conversion assessment | Environment and asset experiment reviewed; authenticated inference blocked |
 | M1 | Strict runtime schemas, atomic assignment validation, conservative geometry/navigation, deterministic routing and objective; independently calculated expected values and required negative cases | Accepted: 75 tests, typecheck, build, consumer smoke and independent assertions pass |
 | M2 | Browser load, manual edit, evaluate, compare, apply, persistence, report export and replay; English UI, 2D and basic 3D, revision protection | Accepted: 83 core tests, 22 browser tests; independent 390/1440 flow and replay checks pass |
-| M3 | Server-side Meta interpretation and proposals with measured feedback; maximum 3 proposals and 4 requests including repairs; timeout, cancellation, concurrency and input limits; separate live evidence | Local implementation accepted: 83 core + 32 API + 36 browser tests; actual Meta inference gate pending authorization |
+| M3 | Server-side Meta interpretation and proposals with measured feedback; maximum 3 proposals and 4 requests including repairs; timeout, cancellation, concurrency and input limits; separate live evidence | Local and live smoke accepted: one authorized run, 4 real requests, 2 failed attempts + 1 valid worse proposal; baseline retained, replay matched |
 | M4 | Bounded demand heuristic sharing evaluator; actual SimReady asset loaded, inspected and attributed; proxies clearly labeled until replaced | Pending |
 | M5 | Six frozen scenarios, three actual model runs each when authorized; first versus feedback and heuristic comparison, all failures and budgets recorded; deterministic report replay | Pending |
 | M6 | Documentation and demo agree with evidence; GitHub repository layoutlab requested for later; deployment requires authorization and public verification | Pending |
@@ -64,3 +64,10 @@ Scope authority: [Implementation Brief v2](IMPLEMENTATION_BRIEF_V2.md). Codex pl
 - Reviewed fixes: streaming byte cap, first-request cancellation, terminal guards, fixture provenance, deterministic rate-map bounds, polling/cancel allowance, env loading/precedence, stale UI protection and actual mobile fixture coverage.
 - Live gate: key and authenticated catalog available; actual paid inference remains unauthorized/unperformed. Heuristic and genuine browser asset integration remain M4. Deployment remains unauthorized.
 - Push authorization: user explicitly authorized pushes after M2; coordinator owns reviewed milestone commits/pushes. M0-M2 remote main was verified at 1117396.
+
+## Authorized live smoke
+
+- User authorized one run, up to four real requests and 2,000 output tokens/request, total cap US$0.10. Run 9ede2950-4326-4dd9-93ec-f6de2dc8bfc0 used configured muse-spark-1.3-contributor and source b854f00.
+- Actual: interpretation plus three proposal attempts; first two had no parseable message content; third was valid but 45600 mm versus baseline 36800 mm. Outcome NO_IMPROVEMENT_FOUND, baseline retained. Node and browser report replay matched.
+- Usage is partial (usageIncomplete true); no exact charge or model-superiority claim. Conservative preflight cost bound US$0.0664192; invoice not retrieved. No second run or paid retry.
+- Evidence and limitations: docs/LIVE_SMOKE.md and sanitized m3-live-smoke artifacts. Future failure handling must retain available usage/finish diagnostics for empty-content responses; historical missing values cannot be invented.
