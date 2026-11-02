@@ -1,0 +1,72 @@
+{
+  "checkedAt": "2026-11-02T18:45:32.271Z",
+  "assertionsPassed": true,
+  "method": "Coordinator built-export probes with independently specified travel/order literals and prior malformed-input/failure counterexamples; no browser/model/inventory simulation involved.",
+  "results": [
+    {
+      "case": "travel",
+      "distanceMm": 1000,
+      "speed": 3000,
+      "expected": 334,
+      "actual": 334
+    },
+    {
+      "case": "travel",
+      "distanceMm": 1501,
+      "speed": 1000,
+      "expected": 1501,
+      "actual": 1501
+    },
+    {
+      "case": "travel",
+      "distanceMm": 1,
+      "speed": 3000,
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "case": "travel",
+      "distanceMm": 0,
+      "speed": 3000,
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "case": "own invalid bound snapshot round-trip",
+      "status": "invalid",
+      "failed": "e2",
+      "lastProcessed": "e1",
+      "restoreError": null
+    },
+    {
+      "case": "cyclic event data",
+      "cyclicAccepted": false,
+      "snapshotError": "event data must not contain cycles"
+    },
+    {
+      "case": "duplicate pending sequence restore",
+      "duplicateSequenceAccepted": false
+    },
+    {
+      "case": "two product planning homes in one dedicated location",
+      "sharedHomesAccepted": false
+    },
+    {
+      "case": "independent literal same-time causal ordering",
+      "expected": [
+        "completion",
+        "arrival",
+        "causal",
+        "tie-b",
+        "tie-a"
+      ],
+      "actual": [
+        "completion",
+        "arrival",
+        "causal",
+        "tie-b",
+        "tie-a"
+      ]
+    }
+  ]
+}

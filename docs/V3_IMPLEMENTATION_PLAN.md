@@ -6,6 +6,13 @@ completed milestones remain historical evidence for the storage planner;
 they do not prove operations simulation. This document is the v3-M0 contract
 and backlog, not an implementation or simulation result.
 
+Latest execution priority: [full-experience continuation](V3_FULL_EXPERIENCE_NEXT.md).
+W1 is a diagnostic foundation. Close the current M2a review, then build the
+coherent warehouse in the MAIN interface before connecting the first complete
+multi-order/two-agent/inventory/packing-queue/shared-aisle operational slice.
+Do not stop at asset validation or call the static main scene the finished
+operations simulator.
+
 ## Current state and changes in assumptions
 
 Reviewed R1 (`d039fa9`) is deployed at https://layoutlab.endpx.cloud behind
@@ -68,7 +75,9 @@ type SimulationTimeMs = number; // nonnegative safe integer
 type Quantity = number;         // nonnegative safe integer, defined item unit
 type OperationsRunMode = 'fixed-window' | 'finite-cohort';
 
-// Contract shape; exported runtime schemas/types do not exist yet.
+// Contract shape; v3-M2a exports runtime schemas/types plus the headless
+// kernel from @layoutlab/simulation (contracts + scheduling only; M2b+
+// behavior such as inventory, lifecycle, and traffic is not implemented).
 interface OperationsScenario {
   schemaVersion: 'layoutlab.operations/1';
   provenance: ScenarioProvenance;
@@ -264,9 +273,10 @@ checks expected values, diffs, evidence and staged secrets before commit/push.
 
 | Milestone | Bounded slices | Required acceptance evidence | Status |
 |---|---|---|---|
-| v3-M0 | Preserve supplied brief; inspect/reuse map; versioned engine boundary, semantics and backlog | All40 sections mapped to this plan/brief; no old readiness relabeled as simulator proof | Contract documented; runtime interfaces not implemented |
+| v3-M0 | Preserve supplied brief; inspect/reuse map; versioned engine boundary, semantics and backlog | All40 sections mapped to this plan/brief; no old readiness relabeled as simulator proof | Contract documented; runtime schemas/kernel separately accepted at M2a |
 | v3-M1 / W1 | Catalog Structures/Racks/Containers, then Equipment; actual dependency closure/conversion; representative static section with several stored containers, aisle, one worker/cart unit, pick and receiving/packing position | Revision/license/path/dimension/material manifests, correct fit/navigation mapping, actual top/isometric/inspection screenshots in a recorded browser (Orca or Edge), payload/performance measurements; old viewer remains fallback | Accepted for six selected assets + one isolated static fixture; full integration/engine remain open; see WAREHOUSE_SECTION_INVESTIGATION.md |
-| v3-M2a | Runtime schemas, pure scheduler/clock, snapshots/reset, explicit synthetic unit/capacity fixture | Literal equal-time ordering, duplicate/stale events, bounded zero-time chains, deterministic step/advance/reset; no browser dependency | Not implemented |
+| v3-M2a | Runtime schemas, pure scheduler/clock, snapshots/reset, explicit synthetic unit/capacity fixture | Literal equal-time ordering, duplicate/stale events, bounded zero-time chains, deterministic step/advance/reset; no browser dependency | Accepted:109 simulation tests, built smoke, independent travel/order and failure-shape/payload/home-assignment counterexamples; see V3_M2A_KERNEL_REVIEW.md |
+| Main environment integration | Coherent sourced warehouse in actual LayoutLab interface, canonical storage/resources/parking, readable category materials, cutaway/top/inspection, diagnostics disclosed separately | Main-app isometric and top screenshots, source/fit/nav checks; no ghost capacity or simulated success | Next after M2a review; static part of the next connected milestone only |
 | v3-M2b | Atomic inventory/reservations, order lifecycle, finite resources and queues | Independent conservation ledger, full-order all-or-none reservation, finite capacities, multiple orders, stock-wait retry, impossible-work termination | Not implemented |
 | v3-M3 | One engine-owned transport/picking/put-away unit, trips and service transitions | Cart/location capacities, real bucket transfers, known travel/time oracle, source/destination/terminal occupancy, event-derived completion; visual snapshot parity | Not implemented |
 | v3-M4 | Swept footprint checks, time-space admission, shared zones, fairness, bounded deadlock recovery | Opposing aisle/intersection/following/turn/pick-position tests, stationary occupancy, replan/cancel/finite-horizon protection, recoverable and impossible cycles, starvation checks | Not implemented |

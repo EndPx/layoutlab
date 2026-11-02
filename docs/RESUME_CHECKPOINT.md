@@ -4,16 +4,25 @@ Current scope authority is the user-supplied [Implementation Brief v3](IMPLEMENT
 which explicitly expands the target to a configured warehouse operations
 simulation. [V3_IMPLEMENTATION_PLAN.md](V3_IMPLEMENTATION_PLAN.md) records
 the inspected reuse map, changed assumptions, headless-engine contracts and
-v3-M0–M8 backlog. Engine contracts are currently a documented design, not
-implemented runtime interfaces. The existing planner/report/evidence stays
+v3-M0–M8 backlog. Runtime input schemas and the event/clock kernel are accepted
+at M2a; inventory/resource/movement domain behavior remains to be implemented.
+The existing planner/report/evidence stays
 intact; v2 gates below do not prove inventory/queue/traffic simulation.
 The representative original-catalog W1 warehouse section is accepted for six
 selected models and one static synthetic fixture after independent source,
 fit3D, swept-path and converter regressions plus a fresh external Edge proof.
 It is isolated and not deployed; documented material/triangulation limits
 remain. See WAREHOUSE_SECTION_INVESTIGATION.md and w1-independent-review.json.
-Next is v3-M2a runtime contracts and the headless event/clock kernel;
-whole-simulator coding has not been dispatched as one task. The
+v3-M2a runtime contracts and the headless event/clock kernel are now
+accepted in `packages/simulation` after109 tests, a built-bundle smoke and
+independent travel/order plus restore/payload/sequence/home-assignment
+counterexamples (see V3_M2A_KERNEL_REVIEW.md and
+evidence/sanitized/v3-m2a-independent-review.json); inventory, lifecycle, traffic, renderer, and
+Meta work remain future milestones, and whole-simulator coding has not
+been dispatched as one task. The
+next implementation priority is the coherent warehouse in the MAIN interface,
+then the complete engine-owned first operations slice, per
+V3_FULL_EXPERIENCE_NEXT.md. The
 latest user permits browser Orca for SimReady Central asset discovery and
 downloads, including needed dependencies after inspection, and now also for
 application testing, rendering and performance. External Microsoft Edge
