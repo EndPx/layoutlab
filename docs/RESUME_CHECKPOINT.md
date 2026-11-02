@@ -1,5 +1,17 @@
 # Current delivery checkpoint
 
+2026-11-03 priority: [EXPERIMENTER_DELIVERY_PLAN.md](EXPERIMENTER_DELIVERY_PLAN.md).
+Muse has delivered the main-app static environment; Codex independently
+checked 8 asset hashes/buffers and 336 container placements. Header-state
+isolation is corrected (10 focused browser checks); Codex reviewed the fix
+and the full root build passed. The STATIC environment is accepted, not the
+connected operations milestone. Latest supplied visual references are mapped
+in UI_REFERENCE_V3.md; apply them during bounded engine/UI integration.
+Inventory, resource
+queues and movement remain unimplemented; do not infer operations from the
+scene. Public deployment is still R1. Next: correct operational state, then
+one connected scenario and controlled experiments before Meta tools.
+
 Current scope authority is the user-supplied [Implementation Brief v3](IMPLEMENTATION_BRIEF_V3.md),
 which explicitly expands the target to a configured warehouse operations
 simulation. [V3_IMPLEMENTATION_PLAN.md](V3_IMPLEMENTATION_PLAN.md) records

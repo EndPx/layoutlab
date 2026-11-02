@@ -1,0 +1,331 @@
+{
+  "browser": "external Edge headless, channel msedge 156.0.4314.58",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 900,
+      "loadMs": 2029,
+      "glbBytes": {
+        "http://127.0.0.1:5173/assets/warehouse-section/environment_floor_a01.glb": {
+          "bytes": 630164,
+          "ms": 13,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/box_cardboard_a01.glb": {
+          "bytes": 40892,
+          "ms": 17,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/rack_large_empty_a02.glb": {
+          "bytes": 3826236,
+          "ms": 16,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/crate_blue_a01.glb": {
+          "bytes": 4374604,
+          "ms": 18,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/handTruck_convertible_steel_orange_a01.glb": {
+          "bytes": 7853028,
+          "ms": 16,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/structure_wall_straight_a01.glb": {
+          "bytes": 7417464,
+          "ms": 17,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-environment/table_packing_heavyduty_c01.glb": {
+          "bytes": 7099840,
+          "ms": 17,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-environment/structure_wall_entrance_a01.glb": {
+          "bytes": 32534440,
+          "ms": 18,
+          "status": 200
+        }
+      },
+      "views": {
+        "iso": {
+          "camPos": "23,20,21",
+          "preset": "overview",
+          "containers": "336",
+          "labelOverlap": "0",
+          "labelCount": "18",
+          "tris": "18959416",
+          "draws": "140",
+          "assets": "rack_large_empty_a02.glb:loaded;environment_floor_a01.glb:loaded;handTruck_convertible_steel_orange_a01.glb:loaded;structure_wall_straight_a01.glb:loaded;structure_wall_entrance_a01.glb:loaded;table_packing_heavyduty_c01.glb:loaded;box_cardboard_a01.glb:loaded;crate_blue_a01.glb:loaded",
+          "chipAudit": {
+            "chips": 18,
+            "overflowX": 0,
+            "overflowYPage": 0,
+            "outside": 0
+          }
+        },
+        "top": {
+          "camPos": "12,34,9.02",
+          "preset": "top",
+          "containers": "336",
+          "labelOverlap": "0",
+          "labelCount": "18",
+          "tris": "18976034",
+          "draws": "142",
+          "assets": "rack_large_empty_a02.glb:loaded;environment_floor_a01.glb:loaded;handTruck_convertible_steel_orange_a01.glb:loaded;structure_wall_straight_a01.glb:loaded;structure_wall_entrance_a01.glb:loaded;table_packing_heavyduty_c01.glb:loaded;box_cardboard_a01.glb:loaded;crate_blue_a01.glb:loaded",
+          "chipAudit": {
+            "chips": 18,
+            "overflowX": 0,
+            "overflowYPage": 0,
+            "outside": 0
+          }
+        },
+        "inspect-slot": {
+          "camPos": "7.95,6.63,10.95",
+          "preset": "inspect",
+          "containers": "336",
+          "labelOverlap": "1",
+          "labelCount": "8",
+          "tris": "17403944",
+          "draws": "36",
+          "assets": "rack_large_empty_a02.glb:loaded;environment_floor_a01.glb:loaded;handTruck_convertible_steel_orange_a01.glb:loaded;structure_wall_straight_a01.glb:loaded;structure_wall_entrance_a01.glb:loaded;table_packing_heavyduty_c01.glb:loaded;box_cardboard_a01.glb:loaded;crate_blue_a01.glb:loaded",
+          "chipAudit": {
+            "chips": 8,
+            "overflowX": 0,
+            "overflowYPage": 0,
+            "outside": 0
+          }
+        },
+        "inspect-station": {
+          "camPos": "26,6.8,11.45",
+          "preset": "inspect",
+          "containers": "336",
+          "labelOverlap": "1",
+          "labelCount": "7",
+          "tris": "18073923",
+          "draws": "79",
+          "assets": "rack_large_empty_a02.glb:loaded;environment_floor_a01.glb:loaded;handTruck_convertible_steel_orange_a01.glb:loaded;structure_wall_straight_a01.glb:loaded;structure_wall_entrance_a01.glb:loaded;table_packing_heavyduty_c01.glb:loaded;box_cardboard_a01.glb:loaded;crate_blue_a01.glb:loaded",
+          "chipAudit": {
+            "chips": 7,
+            "overflowX": 0,
+            "overflowYPage": 0,
+            "outside": 0
+          }
+        },
+        "inspect-agent": {
+          "camPos": "6.85,5.04,5.05",
+          "preset": "inspect",
+          "containers": "336",
+          "labelOverlap": "0",
+          "labelCount": "5",
+          "tris": "17129904",
+          "draws": "33",
+          "assets": "rack_large_empty_a02.glb:loaded;environment_floor_a01.glb:loaded;handTruck_convertible_steel_orange_a01.glb:loaded;structure_wall_straight_a01.glb:loaded;structure_wall_entrance_a01.glb:loaded;table_packing_heavyduty_c01.glb:loaded;box_cardboard_a01.glb:loaded;crate_blue_a01.glb:loaded",
+          "chipAudit": {
+            "chips": 5,
+            "overflowX": 0,
+            "overflowYPage": 0,
+            "outside": 0
+          }
+        }
+      },
+      "errors": []
+    },
+    {
+      "width": 768,
+      "height": 800,
+      "loadMs": 1849,
+      "glbBytes": {
+        "http://127.0.0.1:5173/assets/warehouse-section/environment_floor_a01.glb": {
+          "bytes": 630164,
+          "ms": 14,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/box_cardboard_a01.glb": {
+          "bytes": 40892,
+          "ms": 16,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/rack_large_empty_a02.glb": {
+          "bytes": 3826236,
+          "ms": 14,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/crate_blue_a01.glb": {
+          "bytes": 4374604,
+          "ms": 20,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/handTruck_convertible_steel_orange_a01.glb": {
+          "bytes": 7853028,
+          "ms": 14,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/structure_wall_straight_a01.glb": {
+          "bytes": 7417464,
+          "ms": 15,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-environment/table_packing_heavyduty_c01.glb": {
+          "bytes": 7099840,
+          "ms": 15,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-environment/structure_wall_entrance_a01.glb": {
+          "bytes": 32534440,
+          "ms": 15,
+          "status": 200
+        }
+      },
+      "views": {
+        "iso": {
+          "camPos": "23,20,21",
+          "preset": "overview",
+          "containers": "336",
+          "labelOverlap": "0",
+          "labelCount": "18",
+          "tris": "18959416",
+          "draws": "140",
+          "assets": "rack_large_empty_a02.glb:loaded;environment_floor_a01.glb:loaded;handTruck_convertible_steel_orange_a01.glb:loaded;structure_wall_straight_a01.glb:loaded;structure_wall_entrance_a01.glb:loaded;table_packing_heavyduty_c01.glb:loaded;box_cardboard_a01.glb:loaded;crate_blue_a01.glb:loaded",
+          "chipAudit": {
+            "chips": 18,
+            "overflowX": 0,
+            "overflowYPage": 248,
+            "outside": 0
+          }
+        },
+        "top": {
+          "camPos": "12,34,9.02",
+          "preset": "top",
+          "containers": "336",
+          "labelOverlap": "0",
+          "labelCount": "18",
+          "tris": "18976034",
+          "draws": "142",
+          "assets": "rack_large_empty_a02.glb:loaded;environment_floor_a01.glb:loaded;handTruck_convertible_steel_orange_a01.glb:loaded;structure_wall_straight_a01.glb:loaded;structure_wall_entrance_a01.glb:loaded;table_packing_heavyduty_c01.glb:loaded;box_cardboard_a01.glb:loaded;crate_blue_a01.glb:loaded",
+          "chipAudit": {
+            "chips": 18,
+            "overflowX": 0,
+            "overflowYPage": 248,
+            "outside": 0
+          }
+        },
+        "inspect-station": {
+          "camPos": "26,6.8,17.45",
+          "preset": "inspect",
+          "containers": "336",
+          "labelOverlap": "0",
+          "labelCount": "6",
+          "tris": "18201361",
+          "draws": "88",
+          "assets": "rack_large_empty_a02.glb:loaded;environment_floor_a01.glb:loaded;handTruck_convertible_steel_orange_a01.glb:loaded;structure_wall_straight_a01.glb:loaded;structure_wall_entrance_a01.glb:loaded;table_packing_heavyduty_c01.glb:loaded;box_cardboard_a01.glb:loaded;crate_blue_a01.glb:loaded",
+          "chipAudit": {
+            "chips": 6,
+            "overflowX": 0,
+            "overflowYPage": 279,
+            "outside": 0
+          }
+        }
+      },
+      "errors": []
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "loadMs": 1846,
+      "glbBytes": {
+        "http://127.0.0.1:5173/assets/warehouse-section/environment_floor_a01.glb": {
+          "bytes": 630164,
+          "ms": 13,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/box_cardboard_a01.glb": {
+          "bytes": 40892,
+          "ms": 9,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/rack_large_empty_a02.glb": {
+          "bytes": 3826236,
+          "ms": 12,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/crate_blue_a01.glb": {
+          "bytes": 4374604,
+          "ms": 11,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/structure_wall_straight_a01.glb": {
+          "bytes": 7417464,
+          "ms": 8,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-section/handTruck_convertible_steel_orange_a01.glb": {
+          "bytes": 7853028,
+          "ms": 10,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-environment/table_packing_heavyduty_c01.glb": {
+          "bytes": 7099840,
+          "ms": 9,
+          "status": 200
+        },
+        "http://127.0.0.1:5173/assets/warehouse-environment/structure_wall_entrance_a01.glb": {
+          "bytes": 32534440,
+          "ms": 9,
+          "status": 200
+        }
+      },
+      "views": {
+        "iso": {
+          "camPos": "23,20,21",
+          "preset": "overview",
+          "containers": "336",
+          "labelOverlap": "0",
+          "labelCount": "18",
+          "tris": "18955696",
+          "draws": "139",
+          "assets": "rack_large_empty_a02.glb:loaded;environment_floor_a01.glb:loaded;handTruck_convertible_steel_orange_a01.glb:loaded;structure_wall_straight_a01.glb:loaded;structure_wall_entrance_a01.glb:loaded;table_packing_heavyduty_c01.glb:loaded;box_cardboard_a01.glb:loaded;crate_blue_a01.glb:loaded",
+          "chipAudit": {
+            "chips": 18,
+            "overflowX": 0,
+            "overflowYPage": 353,
+            "outside": 0
+          }
+        },
+        "top": {
+          "camPos": "12,34,9.02",
+          "preset": "top",
+          "containers": "336",
+          "labelOverlap": "2",
+          "labelCount": "18",
+          "tris": "18976034",
+          "draws": "142",
+          "assets": "rack_large_empty_a02.glb:loaded;environment_floor_a01.glb:loaded;handTruck_convertible_steel_orange_a01.glb:loaded;structure_wall_straight_a01.glb:loaded;structure_wall_entrance_a01.glb:loaded;table_packing_heavyduty_c01.glb:loaded;box_cardboard_a01.glb:loaded;crate_blue_a01.glb:loaded",
+          "chipAudit": {
+            "chips": 18,
+            "overflowX": 0,
+            "overflowYPage": 353,
+            "outside": 0
+          }
+        },
+        "inspect-slot": {
+          "camPos": "21.95,7.76,16.95",
+          "preset": "inspect",
+          "containers": "336",
+          "labelOverlap": "0",
+          "labelCount": "8",
+          "tris": "18258936",
+          "draws": "88",
+          "assets": "rack_large_empty_a02.glb:loaded;environment_floor_a01.glb:loaded;handTruck_convertible_steel_orange_a01.glb:loaded;structure_wall_straight_a01.glb:loaded;structure_wall_entrance_a01.glb:loaded;table_packing_heavyduty_c01.glb:loaded;box_cardboard_a01.glb:loaded;crate_blue_a01.glb:loaded",
+          "chipAudit": {
+            "chips": 8,
+            "overflowX": 0,
+            "overflowYPage": 392,
+            "outside": 0
+          }
+        }
+      },
+      "errors": []
+    }
+  ]
+}

@@ -26,6 +26,7 @@ import sampleJson from "../../../fixtures/sample/warehouse-basic.json";
 import { BottomPanel } from "./components/BottomPanel";
 import { LeftPanel } from "./components/LeftPanel";
 import { MetricCards } from "./components/MetricCards";
+import { OperationsPanel } from "./components/OperationsPanel";
 import { RightPanel } from "./components/RightPanel";
 import { WarehousePanel, type ViewMode } from "./components/WarehousePanel";
 import {
@@ -40,6 +41,7 @@ import {
   type RunSummary,
 } from "./lib/api";
 import { buildExportEnvelope, newRunId, replayAnyEnvelope, type M4HeuristicMeta } from "./lib/export";
+import { loadOperationsScene } from "./lib/operations";
 import {
   clearPersisted,
   loadPersisted,
@@ -177,6 +179,15 @@ export function App(): React.JSX.Element {
   const [showCurrentRoute, setShowCurrentRoute] = useState(true);
   const [showCandidateRoute, setShowCandidateRoute] = useState(true);
   const [mode, setMode] = useState<"MANUAL" | "STUB" | "REPLAY" | "LIVE">("MANUAL");
+  // Main product modes. Planner state lives in this component, so switching
+  // between Storage Planning and Operations Simulation never destroys a
+  // scenario or model run. ?mode=operations selects the environment on load.
+  const [appMode, setAppMode] = useState<"planning" | "operations">(() =>
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("mode") === "operations"
+      ? "operations"
+      : "planning",
+  );
   // Live (Meta) run state. Server owns the run; the browser keeps only the
   // summary plus the local baseline snapshot needed for apply guards. Live
   // runs are session-scoped and never persisted (see save effect below).
@@ -1228,6 +1239,20 @@ export function App(): React.JSX.Element {
     return { stale: false, reason: null };
   }, [comparisonRun, scenario, requirements]);
 
+  // Operations header metadata comes from the same shared scene loader the
+  // viewport uses (cached), never a hardcoded id. A load failure leaves the
+  // header truthfully unavailable instead of publishing a fake canonical id.
+  const opsHeader = useMemo(
+    (): { ok: true; id: string; synthetic: boolean } | { ok: false } => {
+      try {
+        const loaded = loadOperationsScene();
+        return { ok: true, id: loaded.scenario.id, synthetic: loaded.scenario.provenance.category === "synthetic" };
+      } catch {
+        return { ok: false };
+      }
+    },
+    [],
+  );
   const sampleMode = scenario?.provenance.category === "synthetic";
   // Status truth: badges follow the ACTIVE run provenance, never stale
   // state. Live-used ONLY when the official Meta transport ran real
@@ -1295,11 +1320,35 @@ export function App(): React.JSX.Element {
           <strong>LayoutLab</strong>
         </span>
         <nav className="crumbs" aria-label="Breadcrumb">
-          Warehouse storage planner ›{" "}
+          {appMode === "operations" ? "Warehouse operations › " : "Warehouse storage planner › "}
           <span className="mono" data-testid="scenario-label">
-            {scenario ? `${scenario.id} · rev ${scenario.revision}` : "no scenario"}
+            {appMode === "operations"
+              ? (opsHeader.ok ? opsHeader.id : "operations unavailable")
+              : scenario ? `${scenario.id} · rev ${scenario.revision}` : "no scenario"}
           </span>
         </nav>
+        <div className="segmented" role="group" aria-label="Main mode">
+          <button
+            type="button"
+            aria-pressed={appMode === "planning"}
+            className={appMode === "planning" ? "on" : ""}
+            onClick={() => setAppMode("planning")}
+            data-testid="mode-planning"
+          >
+            Storage Planning
+          </button>
+          <button
+            type="button"
+            aria-pressed={appMode === "operations"}
+            className={appMode === "operations" ? "on" : ""}
+            onClick={() => setAppMode("operations")}
+            data-testid="mode-operations"
+          >
+            Operations Simulation
+          </button>
+        </div>
+        {appMode === "planning" ? (
+        <>
         {sampleMode && <span className="badge sample" data-testid="sample-badge">Sample mode</span>}
         <span
           className={`badge ${modeBadge === "STUB" ? "stub" : modeBadge === "REPLAY" ? "replay" : modeBadge === "LIVE" ? "live" : modeBadge === "FIXTURE" ? "fixture" : ""}`}
@@ -1318,7 +1367,17 @@ export function App(): React.JSX.Element {
         )}
         {liveUsed && <span className="badge live-used" data-testid="live-used-badge">LIVE-USED</span>}
         {fixtureActive && <span className="badge fixture" data-testid="fixture-badge">FIXTURE</span>}
+        </>
+        ) : opsHeader.ok ? (
+          <span className="badge sample" data-testid="ops-sample-badge">
+            {opsHeader.synthetic ? "SYNTHETIC SAMPLE · CONFIGURED" : "CONFIGURED SCENE"}
+          </span>
+        ) : (
+          <span className="badge invalid" data-testid="ops-load-badge">LOAD FAILED</span>
+        )}
         <span className="spacer" />
+        {appMode === "planning" && (
+        <>
         <details className="menu" data-testid="scenario-menu">
           <summary data-testid="scenario-menu-toggle">Scenario ▾</summary>
           <div className="menu-drop" onClickCapture={closeMenuOnPick}>
@@ -1355,9 +1414,12 @@ export function App(): React.JSX.Element {
         <button type="button" className="primary" onClick={() => void exportJson()} disabled={!scenario} data-testid="btn-export">
           {exportLabel}
         </button>
+        </>
+        )}
       </header>
 
       <div className="page">
+      {appMode === "operations" ? <OperationsPanel /> : (<>
       <section className="headline" aria-label="Planner headline">
         <div>
           <h1>A better place for every product.</h1>
@@ -1509,6 +1571,7 @@ export function App(): React.JSX.Element {
         <span>Source assets: NVIDIA SimReady (CC-BY-4.0) · Evaluation: LayoutLab core</span>
         <span className="mono">docs/METHODOLOGY.md</span>
       </footer>
+      </>)}
       </div>
     </div>
   );

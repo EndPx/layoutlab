@@ -60,6 +60,14 @@ export type {
 } from "./priorities.js";
 export { travelTimeMs } from "./travel.js";
 export {
+  containerGrid,
+  containersForStock,
+  deckIndexForAnchorY,
+  deckTopYMm,
+  rackAxisScale,
+} from "./environment.js";
+export type { AxisScale, DimsMm, GridPlacement } from "./environment.js";
+export {
   MAX_KERNEL_PRIORITY,
   MAX_PLAN_VERSION,
   createKernel,

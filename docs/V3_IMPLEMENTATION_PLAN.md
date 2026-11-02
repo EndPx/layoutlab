@@ -6,7 +6,11 @@ completed milestones remain historical evidence for the storage planner;
 they do not prove operations simulation. This document is the v3-M0 contract
 and backlog, not an implementation or simulation result.
 
-Latest execution priority: [full-experience continuation](V3_FULL_EXPERIENCE_NEXT.md).
+Latest execution priority: [AI Warehouse Experimenter](EXPERIMENTER_DELIVERY_PLAN.md),
+following the user's 2026-11-03 direction. The full v3 backlog stays visible;
+the critical path is one correct operations scenario, controlled experiments,
+bounded Meta tool use, inspectable evidence and release.
+Environment requirements: [full-experience continuation](V3_FULL_EXPERIENCE_NEXT.md).
 W1 is a diagnostic foundation. Close the current M2a review, then build the
 coherent warehouse in the MAIN interface before connecting the first complete
 multi-order/two-agent/inventory/packing-queue/shared-aisle operational slice.

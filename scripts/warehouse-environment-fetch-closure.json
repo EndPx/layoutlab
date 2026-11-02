@@ -1,0 +1,136 @@
+{
+  "dataset": "nvidia/simready-assets",
+  "revision": "653d91e182011f357cf1644013cc94ddf194d349",
+  "packages": [
+    {
+      "package": "table_packing_heavyduty_c01",
+      "rootUsd": "simready_usd/sm_table_packing_heavyduty_c01_01.usd",
+      "files": [
+        {
+          "path": "simready_usd/sm_table_packing_heavyduty_c01_01.usd",
+          "bytes": 25035,
+          "sha256": "0a64d25c51152e01f1e3501a601224161f1633d33c8ef592d04472b5afadddaf"
+        },
+        {
+          "path": "simready_usd/payloads/base.usda",
+          "bytes": 9130,
+          "sha256": "308a15e2f7391e747458df16cf1d862c5258200a35415d93aafff1f00a052e43"
+        },
+        {
+          "path": "simready_usd/payloads/instances.usda",
+          "bytes": 9244,
+          "sha256": "d7703a7894e6a36383cb323ae7dd7c109ab41e35d994a1d974dc6f3d3402f854"
+        },
+        {
+          "path": "simready_usd/payloads/geometries.usd",
+          "bytes": 5441636,
+          "sha256": "251fa5fee0518c3624c4c23e1d234b599bed99eaf5a4389e7ee1adf6df5cbb80",
+          "sha256First1m": "649913c38e569ae2a7e419c270d70d11e8f2293d345aa99273154c613f4cca92"
+        },
+        {
+          "path": "simready_usd/payloads/materials.usda",
+          "bytes": 27248,
+          "sha256": "1e24e303f6d6cb25bcc9a786e3b2514325ec8789ea9b2001c548d92141a04d43"
+        },
+        {
+          "path": "simready_usd/payloads/Physics/physics.usda",
+          "bytes": 7594,
+          "sha256": "22b282ada9dd85d2aafe3d609193cb775421a6350835f4f169cc4aab47178139"
+        }
+      ],
+      "license": "CC-BY-4.0",
+      "packageHashSha256": {
+        "sha256": "3e7fe54dcbe84f7719007d77f28792828552314890b73b6c94689891ec1989cb"
+      },
+      "fullPackageBytes": 88951549,
+      "bomFiles": 84
+    },
+    {
+      "package": "table_metal_stainless_a03",
+      "rootUsd": "simready_usd/sm_table_metal_stainless_a03_01.usd",
+      "files": [
+        {
+          "path": "simready_usd/sm_table_metal_stainless_a03_01.usd",
+          "bytes": 25056,
+          "sha256": "2b58aced1da3c86a9da79ecdc06bcc0ae49884d9e597a93f8c8afa3599759562"
+        },
+        {
+          "path": "simready_usd/payloads/base.usda",
+          "bytes": 10877,
+          "sha256": "807c7dd1c15d1a98b4212a63dfa478878c8d132cb1b88feaface59657ba33966"
+        },
+        {
+          "path": "simready_usd/payloads/instances.usda",
+          "bytes": 9710,
+          "sha256": "ffc2aaa16edddc0695596b7a6299a3e36f17d7aac01b6b4d7997519f7a7e6782"
+        },
+        {
+          "path": "simready_usd/payloads/geometries.usd",
+          "bytes": 758933,
+          "sha256": "eb58d3074dd4f1978e47f6d822f68a1e8b94327f59bbb6ea82decc61c4135315"
+        },
+        {
+          "path": "simready_usd/payloads/materials.usda",
+          "bytes": 18702,
+          "sha256": "f65f7d2abbf105dda3249578b3c3d3f4538b3e666e113806152d7a37a74aabd3"
+        },
+        {
+          "path": "simready_usd/payloads/Physics/physics.usda",
+          "bytes": 8588,
+          "sha256": "7bb709135ba3356b01830eea34663261e8021433355a8be08d3814f4c04652e5"
+        }
+      ],
+      "license": "CC-BY-4.0",
+      "packageHashSha256": {
+        "sha256": "9630bc38ce84a55daefde1e42d700e93ad4b0ece9c2ef764fa907c040e49a1fc"
+      },
+      "fullPackageBytes": 17971637,
+      "bomFiles": 60
+    },
+    {
+      "package": "structure_wall_entrance_a01",
+      "rootUsd": "simready_usd/sm_structure_wall_entrance_a01_01.usd",
+      "files": [
+        {
+          "path": "simready_usd/sm_structure_wall_entrance_a01_01.usd",
+          "bytes": 22617,
+          "sha256": "1d95ebbf8b0713baf441ed13bbd11f5284660488f0cebd4056d841cda4726646"
+        },
+        {
+          "path": "simready_usd/payloads/base.usda",
+          "bytes": 39132,
+          "sha256": "25430998d2805326f87d40c3f4b7290a06e8215f7f726e21f1c1a555917c6da3"
+        },
+        {
+          "path": "simready_usd/payloads/instances.usda",
+          "bytes": 8887674,
+          "sha256": "d46b7b8b6f32b0b62f771699ba1efd401d85f865d925161278b47f8c76c020d6",
+          "sha256First1m": "51a592ac50ad3bf4712e20ee2d1259beb46a25640c2b7572fdaaf930e07a1ad6"
+        },
+        {
+          "path": "simready_usd/payloads/geometries.usd",
+          "bytes": 20227121,
+          "sha256": "28430c925f0a24bb8f5d67972c6ff78d87673e56331ed15cb878f69df16e0f59",
+          "sha256First1m": "9a9b93cb8eb198286a244edf666eae8d51e948a5fb10257a2f597343a7922a74"
+        },
+        {
+          "path": "simready_usd/payloads/materials.usda",
+          "bytes": 119724,
+          "sha256": "e0cfd4c33bc0689bf2546a0c9ce232395aff9eee87fb2aca818029a370326bae"
+        },
+        {
+          "path": "simready_usd/payloads/Physics/physics.usda",
+          "bytes": 23525,
+          "sha256": "78f75f9a9e9822081df7fdc31fe77554a4be7de7c76478f957f787da52b0d49a"
+        }
+      ],
+      "license": "CC-BY-4.0",
+      "packageHashSha256": {
+        "sha256": "74895f26d35d896178f847ca454db52456b492b263381fa878231f482f20babd"
+      },
+      "fullPackageBytes": 2210598193,
+      "bomFiles": 346
+    }
+  ],
+  "expectedTotalBytes": 35671546
+}

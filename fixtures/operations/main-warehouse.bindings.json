@@ -1,0 +1,131 @@
+{
+  "bindingsVersion": "layoutlab.operations-bindings/1",
+  "fixture": "fixtures/operations/main-warehouse.json",
+  "fixtureId": "main-warehouse-1",
+  "publicPrefix": "The renderer serves GLBs from the web public dir: strip the leading 'apps/web/public' from each glb path to get the browser URL (e.g. 'apps/web/public/assets/x.glb' -> '/assets/x.glb'). Repo-relative paths are the reviewable source of truth.",
+  "notes": {
+    "authority": "All warehouse POSITIONS come from the fixture. This file binds fixture IDs to sourced GLB assets plus measured source bounds/scaling. It invents no positions; shell placements are explicit below and the fit proof verifies walls/entrances lie outside the planning boundary.",
+    "containers": "unitDimsMm are CEILING integers of the measured sourced-container geometry (W1 fit authority) and the fit proof re-checks them against actual GLB POSITION buffers.",
+    "aggregation": "unitsPerVisual is the declared item count per rendered container. Every stocked quantity must be an exact multiple (checked by the fit proof via containersForStock); fractional containers do not exist.",
+    "unusedDecks": "Rack deck index 2 (top, 2330 mm) carries no modeled slots in any rack; it renders bare and is explicitly not counted."
+  },
+  "containers": {
+    "warehouse-section/box_cardboard_a01": {
+      "glb": "apps/web/public/assets/warehouse-section/box_cardboard_a01.glb",
+      "manifest": "assets/manifests/warehouse-section-box_cardboard_a01.manifest.json",
+      "unitDimsMm": { "width": 700, "depth": 522, "height": 510 },
+      "sourceMeasuredMm": { "width": 699.435, "depth": 521.152, "height": 509.927 },
+      "material": "replacement cardboard tan [0.76, 0.60, 0.42]; source MDL/textures unsupported, UVs lost"
+    },
+    "warehouse-section/crate_blue_a01": {
+      "glb": "apps/web/public/assets/warehouse-section/crate_blue_a01.glb",
+      "manifest": "assets/manifests/warehouse-section-crate_blue_a01.manifest.json",
+      "unitDimsMm": { "width": 606, "depth": 406, "height": 254 },
+      "sourceMeasuredMm": { "width": 605.133, "depth": 405.133, "height": 253.219 },
+      "material": "replacement plastic blue [0.15, 0.35, 0.75]; source MDL/textures unsupported, UVs lost"
+    }
+  },
+  "products": {
+    "P01": { "containerAsset": "warehouse-section/box_cardboard_a01", "unitsPerVisual": 8 },
+    "P02": { "containerAsset": "warehouse-section/box_cardboard_a01", "unitsPerVisual": 6 },
+    "P03": { "containerAsset": "warehouse-section/box_cardboard_a01", "unitsPerVisual": 12 },
+    "P04": { "containerAsset": "warehouse-section/box_cardboard_a01", "unitsPerVisual": 8 },
+    "P05": { "containerAsset": "warehouse-section/box_cardboard_a01", "unitsPerVisual": 6 },
+    "P06": { "containerAsset": "warehouse-section/box_cardboard_a01", "unitsPerVisual": 12 },
+    "P07": { "containerAsset": "warehouse-section/crate_blue_a01", "unitsPerVisual": 4 },
+    "P08": { "containerAsset": "warehouse-section/crate_blue_a01", "unitsPerVisual": 6 },
+    "P09": { "containerAsset": "warehouse-section/crate_blue_a01", "unitsPerVisual": 8 },
+    "P10": { "containerAsset": "warehouse-section/crate_blue_a01", "unitsPerVisual": 4 },
+    "P11": { "containerAsset": "warehouse-section/crate_blue_a01", "unitsPerVisual": 6 },
+    "P12": { "containerAsset": "warehouse-section/crate_blue_a01", "unitsPerVisual": 8 }
+  },
+  "racks": {
+    "asset": "warehouse-section/rack_large_empty_a02",
+    "glb": "apps/web/public/assets/warehouse-section/rack_large_empty_a02.glb",
+    "manifest": "assets/manifests/warehouse-section-rack_large_empty_a02.manifest.json",
+    "sourceSizeM": { "x": 3.999978, "y": 2.066581, "z": 3.010001 },
+    "sourceDecksZM": [0.45, 1.58, 2.33],
+    "deckTopsMm": [450, 1580, 2330],
+    "deckRounding": "Rounded from 449.99985/1579.99948/2329.99923 mm (linear Y scale for 3010 mm racks); sub-mm, documented.",
+    "material": "replacement rack blue-gray [0.45, 0.55, 0.68] shared by frame and decks (recorded limit); source MDL/textures unsupported"
+  },
+  "mobileUnits": {
+    "asset": "warehouse-section/handTruck_convertible_steel_orange_a01",
+    "glb": "apps/web/public/assets/warehouse-section/handTruck_convertible_steel_orange_a01.glb",
+    "manifest": "assets/manifests/warehouse-section-handTruck_convertible_steel_orange_a01.manifest.json",
+    "material": "replacement equipment orange [0.85, 0.45, 0.10]; source MDL/textures unsupported",
+    "yawDeg": 0
+  },
+  "stations": {
+    "PACK-1": {
+      "asset": "warehouse-environment/table_packing_heavyduty_c01",
+      "glb": "apps/web/public/assets/warehouse-environment/table_packing_heavyduty_c01.glb",
+      "manifest": "assets/manifests/warehouse-environment-table_packing_heavyduty_c01.manifest.json",
+      "centerMm": { "x": 20500, "z": 5000 },
+      "yawDeg": 0,
+      "material": "replacement packing green [0.35, 0.52, 0.44]; source MDL/textures unsupported"
+    },
+    "PACK-2": {
+      "asset": "warehouse-environment/table_packing_heavyduty_c01",
+      "glb": "apps/web/public/assets/warehouse-environment/table_packing_heavyduty_c01.glb",
+      "manifest": "assets/manifests/warehouse-environment-table_packing_heavyduty_c01.manifest.json",
+      "centerMm": { "x": 20500, "z": 11000 },
+      "yawDeg": 0,
+      "material": "replacement packing green [0.35, 0.52, 0.44]; source MDL/textures unsupported"
+    }
+  },
+  "floor": {
+    "asset": "warehouse-section/environment_floor_a01",
+    "glb": "apps/web/public/assets/warehouse-section/environment_floor_a01.glb",
+    "manifest": "assets/manifests/warehouse-section-environment_floor_a01.manifest.json",
+    "tileMm": 6000,
+    "tilesX": 4,
+    "tilesZ": 3,
+    "topYMm": 0,
+    "material": "replacement concrete gray [0.55, 0.56, 0.58]; source MDL/textures unsupported"
+  },
+  "walls": {
+    "asset": "warehouse-section/structure_wall_straight_a01",
+    "glb": "apps/web/public/assets/warehouse-section/structure_wall_straight_a01.glb",
+    "manifest": "assets/manifests/warehouse-section-structure_wall_straight_a01.manifest.json",
+    "cutawayYM": 2.5,
+    "material": "replacement concrete pale [0.82, 0.80, 0.76]; source MDL/textures unsupported",
+    "placements": [
+      { "id": "WALL-N1", "positionM": [0, 0, -0.34], "yawDeg": -90 },
+      { "id": "WALL-N2", "positionM": [6, 0, -0.34], "yawDeg": -90 },
+      { "id": "WALL-N3", "positionM": [12, 0, -0.34], "yawDeg": -90 },
+      { "id": "WALL-N4", "positionM": [18, 0, -0.34], "yawDeg": -90 },
+      { "id": "WALL-W1", "positionM": [-0.34, 0, 6], "yawDeg": 0 },
+      { "id": "WALL-W2", "positionM": [-0.34, 0, 12], "yawDeg": 0 },
+      { "id": "WALL-W3", "positionM": [-0.34, 0, 18], "yawDeg": 0 }
+    ],
+    "placementRule": "GLB Y-up bounds x -0.40..0.34, z -6..0. yaw -90 maps length onto +X (north walls span x 0..24, z -0.74..0, outside). yaw 0 keeps length on -Z (west walls span x -0.74..0, z 0..18, outside). East side stays open for the cutaway view."
+  },
+  "entrances": {
+    "asset": "warehouse-environment/structure_wall_entrance_a01",
+    "glb": "apps/web/public/assets/warehouse-environment/structure_wall_entrance_a01.glb",
+    "manifest": "assets/manifests/warehouse-environment-structure_wall_entrance_a01.manifest.json",
+    "cutawayYM": 2.5,
+    "material": "replacement concrete [0.68, 0.67, 0.63]; source MDL/textures unsupported",
+    "placements": [
+      { "id": "ENT-RCV", "serves": "RCV-1", "centerXMm": 4000, "positionM": [10, 0, 18.34], "yawDeg": 90 },
+      { "id": "ENT-DSP", "serves": "DSP-1", "centerXMm": 20000, "positionM": [26, 0, 18.34], "yawDeg": 90 }
+    ],
+    "placementRule": "GLB Y-up bounds x -0.40..4.37, z -12..0. yaw +90 maps x' = z, z' = -x: wall body (x -0.40..0.34) lands at room z 18.00..18.74 (outside); doorway (source y 3..9) centers on centerXMm spanning +-3 m; barriers and door side bodies land inside as registered OB-*-B* and OB-*-D* obstacles (mirrored about the doorway center, asset is symmetric). Carpet floor finish is a non-obstructing floor visual (documented in fixture provenance). Overhead beams/mounts/glass above 3.6 m are non-obstructing.",
+    "boundaryBehavior": "Wall bodies are outside the planning boundary (display-only shell, clipped above 2.5 m). Door openings are visual; no engine movement exists in this static part, so no traversal is claimed. Service/queue points near the carpet are valid floor positions."
+  },
+  "obstacleVisuals": {
+    "OB-RCV-STAGE": { "kind": "staging-zone", "label": "Receiving staging (empty, keep-clear)" },
+    "OB-DSP-STAGE": { "kind": "staging-zone", "label": "Dispatch staging (empty, keep-clear)" },
+    "OB-PACK1": { "kind": "station-table", "stationId": "PACK-1" },
+    "OB-PACK2": { "kind": "station-table", "stationId": "PACK-2" },
+    "OB-RCV-B1": { "kind": "entrance-part", "entranceId": "ENT-RCV", "part": "barrier_01/02 (mirrored)" },
+    "OB-RCV-B2": { "kind": "entrance-part", "entranceId": "ENT-RCV", "part": "barrier_02/01 (mirrored)" },
+    "OB-RCV-D1": { "kind": "entrance-part", "entranceId": "ENT-RCV", "part": "body_entrance_02/03 (mirrored)" },
+    "OB-RCV-D2": { "kind": "entrance-part", "entranceId": "ENT-RCV", "part": "body_entrance_03/02 (mirrored)" },
+    "OB-DSP-B1": { "kind": "entrance-part", "entranceId": "ENT-DSP", "part": "barrier_01/02 (mirrored)" },
+    "OB-DSP-B2": { "kind": "entrance-part", "entranceId": "ENT-DSP", "part": "barrier_02/01 (mirrored)" },
+    "OB-DSP-D1": { "kind": "entrance-part", "entranceId": "ENT-DSP", "part": "body_entrance_02/03 (mirrored)" },
+    "OB-DSP-D2": { "kind": "entrance-part", "entranceId": "ENT-DSP", "part": "body_entrance_03/02 (mirrored)" }
+  }
+}

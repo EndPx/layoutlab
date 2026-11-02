@@ -370,7 +370,106 @@ usable boxes exceed their small rack envelopes (e.g. 800×600 usable
 in 400×400 racks) intentionally resolve to unavailable-placement
 diagnostics; only geometrically fittable slots render.
 
-## 9. Accepted debt and limits
+## 9. Main warehouse environment (Operations Simulation mode)
+
+Static-environment part of the v3 operations simulator, integrated into the
+real LayoutLab interface (not an experiment page). Storage Planning (§1–§8)
+remains fully functional as a mode; the operations scene is the second main
+product view. The engine-owned motion/inventory slice arrives separately, so
+this section contracts the STATIC scene only: configured/initial values are
+shown truthfully and the not-running state is labeled; no looping motion, no
+counting meters, no staged queues-as-activity.
+
+### 9.1 Mode integration
+
+- One app shell, two main modes: `Storage Planning` (existing planner) and
+  `Operations Simulation` (this scene), switched by a top segmented control
+  (`role="group"`, `aria-pressed`, testids `mode-planning` /
+  `mode-operations`). Switching modes never mutates planner state: all
+  planner hooks stay in `App`, so a scenario/model run survives a view
+  switch and back. A documented `?mode=operations` URL selects the
+  operations mode on load (tests may use it instead of assuming a default).
+- The operations layout reuses the console tokens (§1): same paper/surface/
+  ink/accent/status palette, same type scale, radius, and disclosure
+  patterns. Structure: mode bar → status band (fixture identity + honest
+  not-running state) → workspace (entity list | warehouse viewport |
+  inspector) → developer diagnostics (collapsed by default).
+- Main-view labels are operational (entity identity, area names, selected
+  information). Engineering data (dimensions, raw asset paths, fit logs,
+  renderer counts, load errors) lives ONLY in the collapsed Developer
+  diagnostics or the W1 page — never a huge diagnostics-as-product layout.
+
+- Header is mode-separated (review revision): planning shows the planner
+  scenario id/rev plus planner badges (Sample/Stub/Manual/Replay/Live/
+  validity/live-used/fixture) with the Scenario menu and Export; operations
+  shows the actual loaded operations scenario id from the shared
+  `loadOperationsScene()` metadata (never a hardcoded id) plus an explicit
+  `SYNTHETIC SAMPLE · CONFIGURED` badge (or `CONFIGURED SCENE` when the
+  loaded provenance is not synthetic), with no planner badges/menu/export
+  until an operations export exists. Planner state lives in `App`, so hiding
+  the planner header controls never mutates it. If the operations fixture
+  fails to load, the header shows `operations unavailable` + `LOAD FAILED`
+  with no fake id or ready claim; the status band keeps the explicit
+  `ENVIRONMENT READY · OPERATIONS CONNECTION PENDING` only on successful
+  load. No operations runs are claimed.
+
+### 9.2 Canonical data authority
+
+- Single source: `fixtures/operations/main-warehouse.json`
+  (`layoutlab.operations/1`, parsed by `@layoutlab/simulation`) for room,
+  racks, storage anchors, approaches, products, initial stock, mobile
+  parking, resources, queues, and obstacles. Visual binding
+  (`fixtures/operations/main-warehouse.bindings.json`) references fixture
+  IDs plus measured source bounds/scaling — never independent positions.
+- Shared pure helpers (`@layoutlab/simulation` environment module) compute
+  rack scaling, shelf-deck heights, and container grid placements from
+  canonical dims + measured source AABBs; renderer and proof scripts both
+  consume them, never separate hardcoded copies. Navigation reuses the core
+  pathfinder through a probe-only occupancy adapter (W1 pattern); no
+  second pathfinder.
+- Stock visuals derive from declared `initialStock`: zero stock renders an
+  empty slot, quantities map to containers through the explicit
+  per-product `unitsPerVisual` in the bindings (one box is never one item
+  by accident). Unused shelf surfaces render bare and are documented as
+  not-counted. Source load/GLB errors surface as truthful status lines;
+  nothing silently degrades to decorative cubes.
+
+### 9.3 Scene, camera, materials
+
+- Default overview is a readable isometric open-roof/cutaway of the whole
+  room: sourced floor tiles, six rack bays with modeled shelf slots and
+  stock, clear aisles, receiving entrance + staging, two recognizable
+  packing workstations, dispatch staging + exit, explicit waiting bays and
+  six parked carts. Camera presets: `Overview` (isometric), `Top`
+  (same configuration, orthographic-ish plan), `Inspect` (frames the
+  selected location/rack/agent/station), `Reset overview`. View-only
+  orbit/zoom/pan; single render per state change, no auto-motion, honoring
+  `prefers-reduced-motion`.
+- Replacement materials (source MDL/textures unsupported, UVs lost in the
+  merged W1 conversion — never claimed retained). Documented per-asset
+  fallback colors: concrete floor gray, wall/entrance concrete pale,
+  rack frame/decks shared blue-gray, cardboard tan, crate blue,
+  packing-station green, cart orange. Frame and decks share one rack
+  material (recorded limit, not a general material project). Lighting is
+  flat hemisphere + key/fill only as needed for slot/aisle readability;
+  no decorative effects.
+- Selection: location/rack/agent/station via list + native `<select>`
+  (keyboard-operable); highlight pairs color with text/shape, never
+  color alone. Instrumentation (`data-*` anchors/counts/camera/asset
+  status) mirrors §6 for review.
+
+### 9.4 Status truth for this static part
+
+- The status band reads `Environment ready · operations connection
+  pending` with the fixture id, counts (racks/slots/products/agents/
+  orders), and the engine version it will connect to. Start/run controls
+  for the engine are absent in this part (they arrive with the engine
+  slice); nothing here moves, counts, or stages activity.
+- Responsive: 1440/1586 three-column workspace; 768 stacked (viewport →
+  entities → inspector); 390 single column with internal scroll, no
+  page-level horizontal overflow, primary preset buttons ≥44px.
+
+## 10. Accepted debt and limits
 
 Plain CSS (no Tailwind/shadcn) to stay offline and minimal — matches the
 existing stack, so no framework migration. No virtualized tables (MVP
