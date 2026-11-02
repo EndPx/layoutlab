@@ -1,0 +1,119 @@
+{
+  "milestone": "v3-M2b",
+  "reviewer": "Codex",
+  "scope": "Headless inventory, reservations and finite resource state; not operational movement",
+  "method": "Separate built-export assertion driver with literal quantities/times; rejected command snapshots byte-equivalent",
+  "initialCounterexamples": [
+    {
+      "case": "cancel-retry overpicks",
+      "requested": 2,
+      "actualCarried": 3,
+      "invariants": []
+    },
+    {
+      "case": "operation tag missing from idempotency",
+      "cancelResult": {
+        "status": "reserved",
+        "orderId": "O",
+        "sources": [
+          {
+            "productId": "P01",
+            "locationId": "L01",
+            "quantity": 2
+          }
+        ]
+      },
+      "reservedStill": 2
+    },
+    {
+      "case": "unaccepted unrelated delivery claims D1 stock",
+      "accepted": true,
+      "owner": "delivery:D2"
+    },
+    {
+      "case": "starts before enqueue",
+      "result": {
+        "status": "started",
+        "jobId": "A",
+        "positionId": "S1",
+        "startTimeMs": 50,
+        "waitMs": -50
+      }
+    },
+    {
+      "case": "releases before finish",
+      "result": {
+        "status": "released",
+        "jobId": "A"
+      }
+    },
+    {
+      "case": "caller mutates configured duration after construction",
+      "result": {
+        "status": "released",
+        "jobId": "A",
+        "finishTimeMs": 0
+      }
+    },
+    {
+      "case": "zero queue cannot admit even idle station",
+      "result": {
+        "status": "waiting-outside",
+        "jobId": "A",
+        "reason": {
+          "code": "QUEUE_FULL",
+          "queueSlots": 0,
+          "queued": 0
+        }
+      }
+    }
+  ],
+  "finalChecks": [
+    {
+      "name": "partial pick cancellation reacquires only one of remaining demand2",
+      "pass": true
+    },
+    {
+      "name": "cross-operation same-ID rejected, same-op idempotent",
+      "pass": true
+    },
+    {
+      "name": "receiving attributed to delivery, sameSKU partial provenance conserved",
+      "pass": true
+    },
+    {
+      "name": "start-before-enqueue and duration overflow rejected unchanged",
+      "pass": true
+    },
+    {
+      "name": "held output release cannot precede finish",
+      "pass": true
+    },
+    {
+      "name": "constructor snapshots configuration and validates physical capacity",
+      "pass": true
+    },
+    {
+      "name": "zeroqueue twojobs direct admission completion with originalage",
+      "pass": true
+    },
+    {
+      "name": "terminal fulfillment cannot pack ship or pick twice",
+      "pass": true
+    },
+    {
+      "name": "no historical lane reuse overlap across different jobs",
+      "pass": true
+    }
+  ],
+  "sourceSHA256": {
+    "packages/simulation/src/inventory.ts": "359d7339662c43a24a47f14a699b7ddde29611a1d01b261b05884c2be93fe661",
+    "packages/simulation/src/resources.ts": "6dd751e0a2c4f5d835dfcc771e0952c707109b2d7a31841fa17854a8dbbb8c9c"
+  },
+  "verdict": "accepted after revisions",
+  "remaining": [
+    "Canonical PACK1/PACK2 capacity2/one-position mismatch must be reconciled before admission",
+    "Queue slot spacing must support declared mobile footprint in connected scene",
+    "No movement/physical queues/lifecycle/UI connection or operations report recomputation yet"
+  ]
+}

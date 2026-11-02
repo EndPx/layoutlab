@@ -7,10 +7,14 @@ isolation is corrected (10 focused browser checks); Codex reviewed the fix
 and the full root build passed. The STATIC environment is accepted, not the
 connected operations milestone. Latest supplied visual references are mapped
 in UI_REFERENCE_V3.md; apply them during bounded engine/UI integration.
-Inventory, resource
-queues and movement remain unimplemented; do not infer operations from the
-scene. Public deployment is still R1. Next: correct operational state, then
-one connected scenario and controlled experiments before Meta tools.
+M2b stock/reservation/finite-resource state is now accepted after148 simulation
+tests and9 independent built-export assertion groups, including fixes for
+cumulative order fulfillment, receiving attribution and historical lane reuse.
+See V3_M2B_INDEPENDENT_REVIEW.md. Transport, physical queues, lifecycle/UI
+connection and operations report replay remain unimplemented; do not infer
+operations from the scene or the headless primitives. Public deployment is
+still R1. Next: canonical geometry/capacity reconciliation and traffic-admitted
+transport, then one connected scenario and controlled experiments before Meta.
 
 Current scope authority is the user-supplied [Implementation Brief v3](IMPLEMENTATION_BRIEF_V3.md),
 which explicitly expands the target to a configured warehouse operations

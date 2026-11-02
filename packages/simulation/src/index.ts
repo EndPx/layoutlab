@@ -34,6 +34,7 @@ export {
   MAX_TEXT_LEN,
   MAX_TIME_MS,
   MAX_TOTAL_SCHEDULE_LINES,
+  operationsResourceSchema,
   operationsScenarioSchema,
   parseOperationsScenario,
 } from "./schema.js";
@@ -59,6 +60,26 @@ export type {
   EventPriorityValue,
 } from "./priorities.js";
 export { travelTimeMs } from "./travel.js";
+export { createInventoryStore } from "./inventory.js";
+export type {
+  BucketTotals,
+  InventorySnapshot,
+  InventoryStore,
+  PackingReadiness,
+  PutAwaySelection,
+  ReserveResult,
+  TransferRecord,
+} from "./inventory.js";
+export { createServiceStation } from "./resources.js";
+export type {
+  CompleteResult,
+  EnqueueResult,
+  ServiceJobState,
+  ServiceJobView,
+  ServiceSnapshot,
+  ServiceStation,
+  StartResult,
+} from "./resources.js";
 export {
   containerGrid,
   containersForStock,

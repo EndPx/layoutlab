@@ -156,6 +156,10 @@ const resourceSchema = z.strictObject({
   serviceDurationMs: z.number().int().min(1).max(MAX_SERVICE_DURATION_MS),
 });
 
+// Reused verbatim by the resource station constructor for input validation;
+// field semantics are identical to scenario parsing.
+export const operationsResourceSchema = resourceSchema;
+
 const scheduleLineSchema = z.strictObject({ productId: id, quantity });
 
 // Scheduled orders use arrival times, never legacy order.frequency.

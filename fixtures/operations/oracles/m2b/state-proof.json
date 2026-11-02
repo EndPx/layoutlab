@@ -1,0 +1,59 @@
+{
+  "provenance": {
+    "milestone": "v3-M2b",
+    "scenarioId": "m2b-proof",
+    "category": "synthetic",
+    "note": "Micro headless proof from the built @layoutlab/simulation bundle; not the full 6-rack operations scenario.",
+    "producedBy": "packages/simulation/proof-m2b.mjs"
+  },
+  "inventory": {
+    "wholeOrderRollback": "O-1 (2A+1B) waited with 0 reserved while B short; receiving did not unblock; put-away to L-B1 unblocked",
+    "availableAfterReserve": {
+      "A": {
+        "stored": 2,
+        "reserved": 2,
+        "available": 0
+      },
+      "B": {
+        "stored": 1,
+        "reserved": 1,
+        "available": 0
+      }
+    },
+    "finalBuckets": {
+      "A": {
+        "dispatched": 2
+      },
+      "B": {
+        "dispatched": 1
+      }
+    },
+    "conservation": "initial+accepted == dispatched (2A, 1B); all other buckets 0",
+    "invariants": []
+  },
+  "resources": {
+    "unblocked": {
+      "A": {
+        "start": 0,
+        "finish": 1000
+      },
+      "B": {
+        "start": 1000,
+        "finish": 2000,
+        "wait": 1000
+      }
+    },
+    "outputHeld": {
+      "A": {
+        "start": 0,
+        "finish": 1000
+      },
+      "releaseAt": 1500,
+      "B": {
+        "start": 1500,
+        "finish": 2500,
+        "wait": 1500
+      }
+    }
+  }
+}
