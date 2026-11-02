@@ -1,0 +1,113 @@
+{
+  "note": "Source-vs-derived summary (W1 review revision r2). No raw source datasets stored here; staged USD lives in scratch .coordination/warehouse-section/stage (18,160,420 bytes, closure-verified) and reproduces byte-identically from scripts/warehouse-section-fetch-closure.json.",
+  "assets": [
+    {
+      "package": "environment_floor_a01",
+      "category": "Industrial/Warehouse/Structures",
+      "dataset": "nvidia/simready-assets",
+      "revision": "653d91e182011f357cf1644013cc94ddf194d349",
+      "rootUsd": "simready_usd/sm_environment_floor_a01_01.usd",
+      "stagedBytes": 681432,
+      "fullPackageBytes": 354098136,
+      "license": "CC-BY-4.0",
+      "licenseCopy": "assets/licenses/warehouse-section-environment_floor_a01-LICENSE.txt",
+      "derivative": {
+        "path": "apps/web/public/assets/warehouse-section/environment_floor_a01.glb",
+        "bytes": 630164,
+        "sha256": "dae364070ff3443d55b9fd03e29545c3bbde0ceca54cbeccf825e174684090ca",
+        "triangles": 8738
+      },
+      "placement": "position (3.0, -0.100008, 3.0)m, scale 1.0: true 6.0x6.0m slab, top surface at y=0, spans room bounds exactly."
+    },
+    {
+      "package": "structure_wall_straight_a01",
+      "category": "Industrial/Warehouse/Structures",
+      "dataset": "nvidia/simready-assets",
+      "revision": "653d91e182011f357cf1644013cc94ddf194d349",
+      "rootUsd": "simready_usd/sm_structure_wall_straight_a01_01.usd",
+      "stagedBytes": 5148648,
+      "fullPackageBytes": 882439369,
+      "license": "CC-BY-4.0",
+      "licenseCopy": "assets/licenses/warehouse-section-structure_wall_straight_a01-LICENSE.txt",
+      "derivative": {
+        "path": "apps/web/public/assets/warehouse-section/structure_wall_straight_a01.glb",
+        "bytes": 7417464,
+        "sha256": "edde447daf9872a316daf6793a431e8ae24217c0c26ae4d5fc51a9713b6bad13",
+        "triangles": 103006
+      },
+      "placement": "position (-0.34, 0, 6.0)m, scale 1.0 unscaled: true 0.74x6.0x11.1m; world x -0.740..-0.000 adjacent to west room edge (maxX aligned to 0 from measured bounds); display-only cutaway above 2.5m (source scale preserved); outside evaluator geometry."
+    },
+    {
+      "package": "rack_large_empty_a02",
+      "category": "Industrial/Warehouse/Racks",
+      "dataset": "nvidia/simready-assets",
+      "revision": "653d91e182011f357cf1644013cc94ddf194d349",
+      "rootUsd": "simready_usd/sm_rack_large_empty_a02_01.usd",
+      "stagedBytes": 2451533,
+      "fullPackageBytes": 57269874,
+      "license": "CC-BY-4.0",
+      "licenseCopy": "assets/licenses/warehouse-section-rack_large_empty_a02-LICENSE.txt",
+      "derivative": {
+        "path": "apps/web/public/assets/warehouse-section/rack_large_empty_a02.glb",
+        "bytes": 3826236,
+        "sha256": "dff23ba864e54cca72b74f092596c64acb8ba5a06197bc9d8867962f671bb2d4",
+        "triangles": 53128
+      },
+      "placement": "R1 (1300,1500)mm yaw0: scale (1600/3999.978, 2000/3010.001, 800/2066.581) = (0.400002, 0.664452, 0.387113) mesh-local before yaw; 3 measured shelf decks source z 0.45/1.58/2.33m -> scaled y 0.299/1.050/1.548m."
+    },
+    {
+      "package": "box_cardboard_a01",
+      "category": "Industrial/Warehouse/Containers",
+      "dataset": "nvidia/simready-assets",
+      "revision": "653d91e182011f357cf1644013cc94ddf194d349",
+      "rootUsd": "simready_usd/sm_box_cardboard_a01_01.usd",
+      "stagedBytes": 97484,
+      "fullPackageBytes": 21502613,
+      "license": "CC-BY-4.0",
+      "licenseCopy": "assets/licenses/warehouse-section-box_cardboard_a01-LICENSE.txt",
+      "derivative": {
+        "path": "apps/web/public/assets/warehouse-section/box_cardboard_a01.glb",
+        "bytes": 40892,
+        "sha256": "b080b7d7414be80ba751a97791b466d1eaf1a83db4fe68d9a7be18f83a6a5643",
+        "triangles": 554
+      },
+      "placement": "sku-a x1 visual on L1 deck 0: position (0.9, 0.299003, 1.5)m, uniform scale 1.0 (declared 700x522x510mm = ceil of measured 699.435x521.152x509.927mm); actual AABB full3Dfit inside slot (X 550.3..1249.7 Y 299.0..808.9 Z 1239.4..1760.6mm); top clears deck 1049.8mm by 240.9mm."
+    },
+    {
+      "package": "crate_blue_a01",
+      "category": "Industrial/Warehouse/Containers",
+      "dataset": "nvidia/simready-assets",
+      "revision": "653d91e182011f357cf1644013cc94ddf194d349",
+      "rootUsd": "simready_usd/sm_crate_blue_a01_01.usd",
+      "stagedBytes": 3523098,
+      "fullPackageBytes": 13062548,
+      "license": "CC-BY-4.0",
+      "licenseCopy": "assets/licenses/warehouse-section-crate_blue_a01-LICENSE.txt",
+      "derivative": {
+        "path": "apps/web/public/assets/warehouse-section/crate_blue_a01.glb",
+        "bytes": 4374604,
+        "sha256": "dc2a0cc3c6488a45d818b437df879d131ff5ace6211c7325684d8eab21464d60",
+        "triangles": 60744
+      },
+      "placement": "sku-b x2 visuals stacked on L2 deck 0: positions (1.7, 0.299003/0.552222, 1.5)m, uniform scale 1.0 (declared 606x406x254mm each = ceil of measured 605.133x405.133x253.219mm; stack offset 253.219mm source-normalized); actual AABBs full3Dfit inside slot; aggregate top 805.5mm clears deck 1049.8mm by 244.3mm."
+    },
+    {
+      "package": "handTruck_convertible_steel_orange_a01",
+      "category": "Industrial/Warehouse/Equipment",
+      "dataset": "nvidia/simready-assets",
+      "revision": "653d91e182011f357cf1644013cc94ddf194d349",
+      "rootUsd": "simready_usd/sm_handTruck_convertible_steel_orange_a01_01.usd",
+      "stagedBytes": 6258225,
+      "fullPackageBytes": 46999442,
+      "license": "CC-BY-4.0",
+      "licenseCopy": "assets/licenses/warehouse-section-handTruck_convertible_steel_orange_a01-LICENSE.txt",
+      "derivative": {
+        "path": "apps/web/public/assets/warehouse-section/handTruck_convertible_steel_orange_a01.glb",
+        "bytes": 7853028,
+        "sha256": "fda5e79150f8ef35ac7426d64206254b5887f0a07b55fb9d02a77ae44a4ab65e",
+        "triangles": 108976
+      },
+      "placement": "CART-HT1 parked (4200,2300)mm in explicit bay x 3900..4500 z 2100..2700, scale 1.0 (actual footprint X 3949.5..4450.5 Z 2173.1..2653.7mm, 1.348m tall); actual footprint inside bay; swept PACK->L1 path avoids inflated R1 + inflated cart (probe proof)."
+    }
+  ]
+}

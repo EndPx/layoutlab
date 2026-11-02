@@ -1,0 +1,141 @@
+{
+  "checkedAt": "2026-11-02T17:52:39.119Z",
+  "scope": "Selected six sourced assets and one static synthetic representative section only; no operational/multi-agent simulation or physics certification",
+  "method": "Coordinator checks actual POSITION bytes, staged source hashes, literal geometry/quantities and independent slab segment intersections; independently generated CW/CCW/star counterexamples; fresh external Edge proof run after final asset changes.",
+  "assets": [
+    {
+      "package": "environment_floor_a01",
+      "sourceRevision": "653d91e182011f357cf1644013cc94ddf194d349",
+      "license": "CC-BY-4.0",
+      "bytes": 630164,
+      "sha256": "dae364070ff3443d55b9fd03e29545c3bbde0ceca54cbeccf825e174684090ca",
+      "triangles": 8738
+    },
+    {
+      "package": "structure_wall_straight_a01",
+      "sourceRevision": "653d91e182011f357cf1644013cc94ddf194d349",
+      "license": "CC-BY-4.0",
+      "bytes": 7417464,
+      "sha256": "edde447daf9872a316daf6793a431e8ae24217c0c26ae4d5fc51a9713b6bad13",
+      "triangles": 103006
+    },
+    {
+      "package": "rack_large_empty_a02",
+      "sourceRevision": "653d91e182011f357cf1644013cc94ddf194d349",
+      "license": "CC-BY-4.0",
+      "bytes": 3826236,
+      "sha256": "dff23ba864e54cca72b74f092596c64acb8ba5a06197bc9d8867962f671bb2d4",
+      "triangles": 53128
+    },
+    {
+      "package": "box_cardboard_a01",
+      "sourceRevision": "653d91e182011f357cf1644013cc94ddf194d349",
+      "license": "CC-BY-4.0",
+      "bytes": 40892,
+      "sha256": "b080b7d7414be80ba751a97791b466d1eaf1a83db4fe68d9a7be18f83a6a5643",
+      "triangles": 554
+    },
+    {
+      "package": "crate_blue_a01",
+      "sourceRevision": "653d91e182011f357cf1644013cc94ddf194d349",
+      "license": "CC-BY-4.0",
+      "bytes": 4374604,
+      "sha256": "dc2a0cc3c6488a45d818b437df879d131ff5ace6211c7325684d8eab21464d60",
+      "triangles": 60744
+    },
+    {
+      "package": "handTruck_convertible_steel_orange_a01",
+      "sourceRevision": "653d91e182011f357cf1644013cc94ddf194d349",
+      "license": "CC-BY-4.0",
+      "bytes": 7853028,
+      "sha256": "fda5e79150f8ef35ac7426d64206254b5887f0a07b55fb9d02a77ae44a4ab65e",
+      "triangles": 108976
+    }
+  ],
+  "sourceFiles": 36,
+  "sourceBytes": 18160420,
+  "containerAabbs": [
+    {
+      "location": "L1",
+      "asset": "box_cardboard_a01",
+      "minMm": [
+        550.2824425697327,
+        299.00300000000004,
+        1239.4252121448517
+      ],
+      "maxMm": [
+        1249.7175574302673,
+        808.9300939826966,
+        1760.576993227005
+      ]
+    },
+    {
+      "location": "L2",
+      "asset": "crate_blue_a01",
+      "minMm": [
+        1397.4333822727203,
+        299.08520756717496,
+        1297.4333614110947
+      ],
+      "maxMm": [
+        2002.5666177272797,
+        552.3046800880433,
+        1702.5666385889053
+      ]
+    },
+    {
+      "location": "L2",
+      "asset": "crate_blue_a01",
+      "minMm": [
+        1397.4333822727203,
+        552.3042075671749,
+        1297.4333614110947
+      ],
+      "maxMm": [
+        2002.5666177272797,
+        805.5236800880432,
+        1702.5666385889053
+      ]
+    }
+  ],
+  "navigation": {
+    "pathMm": 1600,
+    "points": 17,
+    "navigationRadiusMm": 700,
+    "independentSweptSegmentsChecked": 16,
+    "parkedBoundsMm": {
+      "minX": 3949.545842409134,
+      "maxX": 4450.4880130290985,
+      "minZ": 2173.1278628110886,
+      "maxZ": 2653.710114955902
+    }
+  },
+  "windingCounterexamples": [
+    {
+      "case": "ccw-concave",
+      "sourceSignedArea": 1,
+      "converterExitCode": 0,
+      "convertedSignedArea": 1,
+      "windingPreserved": true
+    },
+    {
+      "case": "cw-concave",
+      "sourceSignedArea": -1,
+      "converterExitCode": 0,
+      "convertedSignedArea": -1,
+      "windingPreserved": true
+    },
+    {
+      "case": "self-crossing-star",
+      "sourceSignedArea": 1.4694631307311827,
+      "converterExitCode": 1,
+      "errorTail": "unsupported degenerate/self-intersecting face in /RootNode/Mesh face 0: self-intersecting polygon (edges 0-1 and 2-3 cross); convex fan refused\n"
+    }
+  ],
+  "limits": [
+    "Fallback materials; MDL/textures/UV/per-material splits and physics not preserved.",
+    "Converter is bounded to rigid transforms and verified selected assets/test cases.",
+    "Selected hand-truck lock-detail quads include disclosed non-planar projected triangulation approximations; no universal polygon-validity or collision guarantee.",
+    "24.14MB local preview payload is measured; no remote/mobile performance or idle-FPS claim."
+  ]
+}

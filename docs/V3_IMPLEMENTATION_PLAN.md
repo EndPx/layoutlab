@@ -265,18 +265,18 @@ checks expected values, diffs, evidence and staged secrets before commit/push.
 | Milestone | Bounded slices | Required acceptance evidence | Status |
 |---|---|---|---|
 | v3-M0 | Preserve supplied brief; inspect/reuse map; versioned engine boundary, semantics and backlog | All40 sections mapped to this plan/brief; no old readiness relabeled as simulator proof | Contract documented; runtime interfaces not implemented |
-| v3-M1 / current W1 | Catalog Structures/Racks/Containers, then Equipment; actual dependency closure/conversion; representative static section with several stored containers, aisle, one worker/cart unit, pick and receiving/packing position | Revision/license/path/dimension/material manifests, correct fit/navigation mapping, actual Edge top/isometric/inspection screenshots, payload/performance measurements; old viewer remains fallback | One Muse task assigned; implementation gates open |
+| v3-M1 / W1 | Catalog Structures/Racks/Containers, then Equipment; actual dependency closure/conversion; representative static section with several stored containers, aisle, one worker/cart unit, pick and receiving/packing position | Revision/license/path/dimension/material manifests, correct fit/navigation mapping, actual top/isometric/inspection screenshots in a recorded browser (Orca or Edge), payload/performance measurements; old viewer remains fallback | Accepted for six selected assets + one isolated static fixture; full integration/engine remain open; see WAREHOUSE_SECTION_INVESTIGATION.md |
 | v3-M2a | Runtime schemas, pure scheduler/clock, snapshots/reset, explicit synthetic unit/capacity fixture | Literal equal-time ordering, duplicate/stale events, bounded zero-time chains, deterministic step/advance/reset; no browser dependency | Not implemented |
 | v3-M2b | Atomic inventory/reservations, order lifecycle, finite resources and queues | Independent conservation ledger, full-order all-or-none reservation, finite capacities, multiple orders, stock-wait retry, impossible-work termination | Not implemented |
 | v3-M3 | One engine-owned transport/picking/put-away unit, trips and service transitions | Cart/location capacities, real bucket transfers, known travel/time oracle, source/destination/terminal occupancy, event-derived completion; visual snapshot parity | Not implemented |
 | v3-M4 | Swept footprint checks, time-space admission, shared zones, fairness, bounded deadlock recovery | Opposing aisle/intersection/following/turn/pick-position tests, stationary occupancy, replan/cancel/finite-horizon protection, recoverable and impossible cycles, starvation checks | Not implemented |
 | v3-M5 | Complete inbound/receiving/put-away/picking/packing/dispatch slice, full synthetic cohort | Six racks/24slots/12products/4pickers/2put-away/2packing/1receiving/1dispatch;30–50orders and deliveries, real traffic/packing/stock waits, conserved stock, complete or explicitly blocked cohort | Not implemented |
-| v3-M6 | Storage Planning vs Operations modes, clocks/controls/cameras/inspectors/overlays | Entity explanations from engine,1x/4x/16x/headless equality, reset parity, no cosmetic queues, external Edge desktop/mobile evidence | Not implemented |
+| v3-M6 | Storage Planning vs Operations modes, clocks/controls/cameras/inspectors/overlays | Entity explanations from engine,1x/4x/16x/headless equality, reset parity, no cosmetic queues, recorded browser desktop/mobile evidence | Not implemented |
 | v3-M7 | Controlled candidate runs, separate static/operational objectives, bounded Meta operations patches | Same-input comparisons including worse/incomplete outcomes; invalid patches rejected; offline result recomputation; real inference separately authorized/labeled | Not implemented |
-| v3-M8 | Adversarial benchmarks, evidence, public guard/release and demo | Full section36/37 test matrix, all10 demo beats, report recomputation, limits/docs aligned, reviewed release public DNS/TLS/auth/guard and external Edge verification | R1 public preview only; simulator release not implemented |
+| v3-M8 | Adversarial benchmarks, evidence, public guard/release and demo | Full section36/37 test matrix, all10 demo beats, report recomputation, limits/docs aligned, reviewed release public DNS/TLS/auth/guard and actual recorded browser verification | R1 public preview only; simulator release not implemented |
 
 No gate is waived because another milestone has a successful animation.
-Test evidence distinguishes headless, external Edge, actual source assets,
+Test evidence distinguishes headless, browser Orca, external Edge, actual source assets,
 fixture/stub, live Meta and deployed release. If an integration fails, retain
 the exact failed step and current working fallback rather than claiming the
 representative section or full simulator complete.
@@ -295,8 +295,10 @@ representative section or full simulator complete.
 
 Asset source pins and download planning remain in the W1 investigation,
 including original SimReady Central discovery. The user's newest instruction
-allows browser Orca specifically for asset discovery/downloads; app testing
-and render/performance proof remain external Edge. Download the actual
+also allows browser Orca for application testing, rendering and performance,
+in addition to asset discovery/downloads. External Edge remains allowed.
+Record the actual browser/engine/version, viewport and measurement method;
+do not relabel historical Edge evidence as Orca or vice versa. Download the actual
 dependencies needed after inspection; the earlier64MB scratch investigation
 limit is no longer a reason to omit necessary source assets.
 

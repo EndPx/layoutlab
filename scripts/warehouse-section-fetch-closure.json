@@ -1,0 +1,337 @@
+{
+  "dataset": "nvidia/simready-assets",
+  "revision": "653d91e182011f357cf1644013cc94ddf194d349",
+  "revisionNote": "Per-package source revision registered in install_categories.json (NOT dataset HEAD).",
+  "packages": [
+    {
+      "package": "environment_floor_a01",
+      "rootUsd": "simready_usd/sm_environment_floor_a01_01.usd",
+      "license": "CC-BY-4.0",
+      "fullPackageBytes": 354098136,
+      "packageHashSha256": "41ed276eb454f46f7e21201b3f734dc1507d50e4f4196828ba3cf7bcc3c28db5",
+      "metadata": {
+        "com.nvidia.simready.packaging.json": {
+          "bytes": 566,
+          "sha256": "ff727dfc6a29918adbefe8a753408e0c85b0bafa2d851b6542065d6463fa498b"
+        },
+        ".metadata_com.nvidia.simready.packaging.bom.json": {
+          "bytes": 19657,
+          "sha256": "0ab58d6512850dbb4c589ef0369b089a5e2daeb69aa22b9581d10ba3a03f7c52"
+        },
+        ".metadata_LICENSE.txt": {
+          "bytes": 18657,
+          "sha256": "9ba9550ad48438d0836ddab3da480b3b69ffa0aac7b7878b5a0039e7ab429411"
+        }
+      },
+      "stagedBytes": 681432,
+      "files": [
+        {
+          "path": "simready_usd/sm_environment_floor_a01_01.usd",
+          "bytes": 22919,
+          "sha256": "615fd6975c2ba7ee1f64b84624a256c7e0a3bd2d2695a085c7062e7021b4532e"
+        },
+        {
+          "path": "simready_usd/payloads/base.usda",
+          "bytes": 10066,
+          "sha256": "9c2b6a45b200b33cf9b66ec400a806afbfd93326228562985c453c8718c6d197"
+        },
+        {
+          "path": "simready_usd/payloads/instances.usda",
+          "bytes": 9905,
+          "sha256": "aa952ee079b84e3f7cb6aef6ad60c06b99cf6dac4a04b868319e2030aac0c0b9"
+        },
+        {
+          "path": "simready_usd/payloads/geometries.usd",
+          "bytes": 605998,
+          "sha256": "d7de3e4e9ba16c16ca7e7cb94283ed2a1368bdd83530b9ec4f043d13501e838f"
+        },
+        {
+          "path": "simready_usd/payloads/materials.usda",
+          "bytes": 24253,
+          "sha256": "05663fc38a22f7af001bf3db68bf5cdd3b0f46cc620aca5ba28912a317464f76"
+        },
+        {
+          "path": "simready_usd/payloads/Physics/physics.usda",
+          "bytes": 8291,
+          "sha256": "75721fe8610fd88dae988bfd8f0f2e190d1a5cdeaf6f90e345c304fb43758c0d"
+        }
+      ]
+    },
+    {
+      "package": "structure_wall_straight_a01",
+      "rootUsd": "simready_usd/sm_structure_wall_straight_a01_01.usd",
+      "license": "CC-BY-4.0",
+      "fullPackageBytes": 882439369,
+      "packageHashSha256": "1d28ad31efbe43c7c1e91aeef1f7f6d87ae95c4287fc36da5ab57fc82811277d",
+      "metadata": {
+        "com.nvidia.simready.packaging.json": {
+          "bytes": 572,
+          "sha256": "cac09612eee53d97ec5ee390d2277d6b0d5680dce8290cc04b467ad2f76626e9"
+        },
+        ".metadata_com.nvidia.simready.packaging.bom.json": {
+          "bytes": 39437,
+          "sha256": "cd6cd411e2f3d0149692605e6d411964980d51cabecfe57a41f8ff94022eef75"
+        },
+        ".metadata_LICENSE.txt": {
+          "bytes": 18657,
+          "sha256": "9ba9550ad48438d0836ddab3da480b3b69ffa0aac7b7878b5a0039e7ab429411"
+        }
+      },
+      "stagedBytes": 5148648,
+      "files": [
+        {
+          "path": "simready_usd/sm_structure_wall_straight_a01_01.usd",
+          "bytes": 22956,
+          "sha256": "4087cc6e2cfd93e802c4b2ee73eb330ab27f1068d11484a8616cf8b460202461"
+        },
+        {
+          "path": "simready_usd/payloads/base.usda",
+          "bytes": 10321,
+          "sha256": "49eb8ea17146a133ae41d68b3ca5cb7d14d044b74efcd6baeb8401a8d5e7b1d0"
+        },
+        {
+          "path": "simready_usd/payloads/instances.usda",
+          "bytes": 287694,
+          "sha256": "cc683980d51d1253a8d876190f033d636f0c7208526644aae06ac83ef6df2012"
+        },
+        {
+          "path": "simready_usd/payloads/geometries.usd",
+          "bytes": 4764906,
+          "sha256": "ea9baf096e286c774529362a966c52e1b75558b36d7d2b3d8d069e3a34bdaa6d",
+          "sha256First1m": "6b00970631aabb606714a27c4019b32a1bca13f09df9c57d46e3a8ce206752e9"
+        },
+        {
+          "path": "simready_usd/payloads/materials.usda",
+          "bytes": 52790,
+          "sha256": "9065d7b266997ba1e2539c35121388faeda2d82aa0a3442022f83d1551556045"
+        },
+        {
+          "path": "simready_usd/payloads/Physics/physics.usda",
+          "bytes": 9981,
+          "sha256": "0df7bcfe39d1adce68a6bbc75aab49f058997f9f394d1c5bad8607577a45106c"
+        }
+      ]
+    },
+    {
+      "package": "rack_large_empty_a02",
+      "rootUsd": "simready_usd/sm_rack_large_empty_a02_01.usd",
+      "license": "CC-BY-4.0",
+      "fullPackageBytes": 57269874,
+      "packageHashSha256": "9be0ab880e28fd23026109a78756964d9e808a619977b7e07d98bdf5560281c4",
+      "metadata": {
+        "com.nvidia.simready.packaging.json": {
+          "bytes": 565,
+          "sha256": "ae78f7aa0834a9932d82297d2993bac3f77834c6f767b440a34aefb3a6189dc0"
+        },
+        ".metadata_com.nvidia.simready.packaging.bom.json": {
+          "bytes": 18942,
+          "sha256": "a8ec72dab6a249948681d4cec060f792bd75c5c8e75a79fadff75bf2c37121e1"
+        },
+        ".metadata_LICENSE.txt": {
+          "bytes": 18657,
+          "sha256": "9ba9550ad48438d0836ddab3da480b3b69ffa0aac7b7878b5a0039e7ab429411"
+        }
+      },
+      "stagedBytes": 2451533,
+      "files": [
+        {
+          "path": "simready_usd/sm_rack_large_empty_a02_01.usd",
+          "bytes": 23258,
+          "sha256": "5b4ceb3df2728a37fca0d9cbde9da8ae8f69880d5dd61784e693f4a447082a2b"
+        },
+        {
+          "path": "simready_usd/payloads/base.usda",
+          "bytes": 7301,
+          "sha256": "ebb8f0c596456db983134b13b58c5d2760037349f9290e544bf9609518f59cca"
+        },
+        {
+          "path": "simready_usd/payloads/instances.usda",
+          "bytes": 6449,
+          "sha256": "c2cba3f91081fe40d182b37d75dd5b154a4602330f57253eab16f2d2839d7e68"
+        },
+        {
+          "path": "simready_usd/payloads/geometries.usd",
+          "bytes": 2393234,
+          "sha256": "bd1387461d6179252e231d399d06b138a7eff887ac6b58cae5db40b960b9de0c",
+          "sha256First1m": "34469defadbc7594e51cbd04f0f24339a0b28e647e1b99a35020b4df846d64ad"
+        },
+        {
+          "path": "simready_usd/payloads/materials.usda",
+          "bytes": 15945,
+          "sha256": "b0f7e4d108200c5704b210d281cf813e51097e07fd19e289bed6fe5d73dfad64"
+        },
+        {
+          "path": "simready_usd/payloads/Physics/physics.usda",
+          "bytes": 5346,
+          "sha256": "d387d85dc2fc3e50f62f16c780a199153fedfa0408c8d55106eb4210a97f27b9"
+        }
+      ]
+    },
+    {
+      "package": "box_cardboard_a01",
+      "rootUsd": "simready_usd/sm_box_cardboard_a01_01.usd",
+      "license": "CC-BY-4.0",
+      "fullPackageBytes": 21502613,
+      "packageHashSha256": "1be82f9441333f7515e6260546ca97568860b407ea80e6ace4c44cf2e5e0aa11",
+      "metadata": {
+        "com.nvidia.simready.packaging.json": {
+          "bytes": 562,
+          "sha256": "04564849ff24749775961a514a895909af6bc32113d185d359a20000d8c341d4"
+        },
+        ".metadata_com.nvidia.simready.packaging.bom.json": {
+          "bytes": 7116,
+          "sha256": "2e84f1414884ec776cb8fa67021688b87c1ab79a3b0083ce5eba3abb3679fecc"
+        },
+        ".metadata_LICENSE.txt": {
+          "bytes": 18657,
+          "sha256": "9ba9550ad48438d0836ddab3da480b3b69ffa0aac7b7878b5a0039e7ab429411"
+        }
+      },
+      "stagedBytes": 97484,
+      "files": [
+        {
+          "path": "simready_usd/sm_box_cardboard_a01_01.usd",
+          "bytes": 24722,
+          "sha256": "6ae98d4279d30d2cbe863df1b8066138e023fd88be0ffb17c73d01e4c2be07f0"
+        },
+        {
+          "path": "simready_usd/payloads/base.usda",
+          "bytes": 8744,
+          "sha256": "ce81e6c54a2095b00418ba2bc9ed38ab416598de241c61789a4bfb513c9e0a3b"
+        },
+        {
+          "path": "simready_usd/payloads/instances.usda",
+          "bytes": 7133,
+          "sha256": "af0388e8da612a61871c12b56b546a9805f69cf3c425101c80663ee594245389"
+        },
+        {
+          "path": "simready_usd/payloads/geometries.usd",
+          "bytes": 38587,
+          "sha256": "6b6abbac1fc4bc56c15fa70497b69bf12dec9e51e960072a44d502db17767a87"
+        },
+        {
+          "path": "simready_usd/payloads/materials.usda",
+          "bytes": 11696,
+          "sha256": "34037fd74988195559495c4c470719da8fefd027c0cefbbf20bdd7d7ae296992"
+        },
+        {
+          "path": "simready_usd/payloads/Physics/physics.usda",
+          "bytes": 6602,
+          "sha256": "1347b8787d442807223561abe360ba4b2e4fe79340178070791e347e3b09c558"
+        }
+      ]
+    },
+    {
+      "package": "crate_blue_a01",
+      "rootUsd": "simready_usd/sm_crate_blue_a01_01.usd",
+      "license": "CC-BY-4.0",
+      "fullPackageBytes": 13062548,
+      "packageHashSha256": "5c77a90adcc2266c63e1d98a9d4c58b7265db9a804f9955891660c29ddbefc28",
+      "metadata": {
+        "com.nvidia.simready.packaging.json": {
+          "bytes": 559,
+          "sha256": "9cb1f33be52cfa033bc4c493095025765e2a8ed1f22d406e90880815656840e0"
+        },
+        ".metadata_com.nvidia.simready.packaging.bom.json": {
+          "bytes": 6729,
+          "sha256": "054317a059706ecbcb3c2a99f14b38878c9270f3f8af9928198c0b5ce8835e90"
+        },
+        ".metadata_LICENSE.txt": {
+          "bytes": 18657,
+          "sha256": "9ba9550ad48438d0836ddab3da480b3b69ffa0aac7b7878b5a0039e7ab429411"
+        }
+      },
+      "stagedBytes": 3523098,
+      "files": [
+        {
+          "path": "simready_usd/sm_crate_blue_a01_01.usd",
+          "bytes": 23781,
+          "sha256": "a6c4d7072a27d9ff31d3cd584b5b30987ef4d92a4ae00ebe19fc2152d3faaaf6"
+        },
+        {
+          "path": "simready_usd/payloads/base.usda",
+          "bytes": 10281,
+          "sha256": "0c6cd1e58eefacde2a2744bcd2b7d0b92b36ed855dbb8b700103a95c835e497c"
+        },
+        {
+          "path": "simready_usd/payloads/instances.usda",
+          "bytes": 6918,
+          "sha256": "557abe9bf9c9f869b0eedc4623e4b40a6a0569a935dc83e01e140320a06a61fa"
+        },
+        {
+          "path": "simready_usd/payloads/geometries.usd",
+          "bytes": 3464319,
+          "sha256": "1df2fb56b47ca4a9284d89397d1d25cf77a4bbdb5b32b5e63a0ee42ee2248a3b",
+          "sha256First1m": "0f15f17b5ab3e0894ca46beab4953631357b6adc135f42111f0af684b454484f"
+        },
+        {
+          "path": "simready_usd/payloads/materials.usda",
+          "bytes": 11344,
+          "sha256": "ea8fdfc676f83360a823df873d90642953518dde159e3c884c4254d4a0f102a2"
+        },
+        {
+          "path": "simready_usd/payloads/Physics/physics.usda",
+          "bytes": 6455,
+          "sha256": "caf0f6412c18f09a34189e365df395df588508473b23001175b4c608f5de055f"
+        }
+      ]
+    },
+    {
+      "package": "handTruck_convertible_steel_orange_a01",
+      "rootUsd": "simready_usd/sm_handTruck_convertible_steel_orange_a01_01.usd",
+      "license": "CC-BY-4.0",
+      "fullPackageBytes": 46999442,
+      "packageHashSha256": "77b53d03ef178e73fe20017928e15c54a3b77e5dc0952074e9abcf402bd32612",
+      "metadata": {
+        "com.nvidia.simready.packaging.json": {
+          "bytes": 583,
+          "sha256": "4ebf27e1e92c47ceb9bced88150910521dbfa0e71c6a52ac1b6d230857d90bf3"
+        },
+        ".metadata_com.nvidia.simready.packaging.bom.json": {
+          "bytes": 28785,
+          "sha256": "fd02ed8e55d485e68999721df720cd78e1e171825be5aed893a1f6045b22ee85"
+        },
+        ".metadata_LICENSE.txt": {
+          "bytes": 18657,
+          "sha256": "9ba9550ad48438d0836ddab3da480b3b69ffa0aac7b7878b5a0039e7ab429411"
+        }
+      },
+      "stagedBytes": 6258225,
+      "files": [
+        {
+          "path": "simready_usd/sm_handTruck_convertible_steel_orange_a01_01.usd",
+          "bytes": 27730,
+          "sha256": "280b4f6231f0497216659b6d977469f7ff9ee9827494f5efe45e51fca7feb6fb"
+        },
+        {
+          "path": "simready_usd/payloads/base.usda",
+          "bytes": 31758,
+          "sha256": "6f4fbd492c1893c1dd7260ef7ac7b4fce266ad7fd7701a0b40f47580602fa6b9"
+        },
+        {
+          "path": "simready_usd/payloads/instances.usda",
+          "bytes": 22902,
+          "sha256": "63df61fa08bba1678208c67c48e4041590241a30d418a603e179e2717bead2d8"
+        },
+        {
+          "path": "simready_usd/payloads/geometries.usd",
+          "bytes": 6120564,
+          "sha256": "25f1c51bd38364648bab0a87cbe24e52c2120562cdd1f7249ac0edcaf06de62f",
+          "sha256First1m": "a3a75ad3c3effd3b34f8c2cbcc86611a43ebe792c8cc5f124e34e0db3afb7810"
+        },
+        {
+          "path": "simready_usd/payloads/materials.usda",
+          "bytes": 38876,
+          "sha256": "60e87917fa8cedf9272c9511efcca7aa5f64d9bfb87088691a96042e5d3d4be7"
+        },
+        {
+          "path": "simready_usd/payloads/Physics/physics.usda",
+          "bytes": 16395,
+          "sha256": "894ed43674300989999932e9ad9104f54ee2594117f7faecb827ccdc8a227d94"
+        }
+      ]
+    }
+  ],
+  "expectedTotalBytes": 18160420,
+  "bootstrapNote": "Built from pinned-source BOMs: per-file bytes+sha verified against coordinator BOM entries, packaging.json license CC-BY-4.0 + declared BOM sha verified per package. The .metadata_* portal artifacts are NOT in the pinned dataset (dataset resolve 404, verified 2026-11-03) so a clean clone re-verifies per-file size+sha against THIS tracked closure instead of re-fetching BOMs; metadata hashes below are build-time provenance, not re-fetch targets."
+}

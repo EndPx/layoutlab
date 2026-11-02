@@ -1,0 +1,49 @@
+{
+  "browser": "Microsoft Edge external",
+  "channel": "msedge",
+  "headless": false,
+  "version": "156.0.4314.58",
+  "edgeUserAgentVerified": true,
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
+  "url": "http://127.0.0.1:5183/",
+  "assertedGates": [
+    "edge-ua",
+    "anchors",
+    "fit-l1-full3Dfit",
+    "fit-l2-full3Dfit",
+    "cutaway-2.5m",
+    "inspect-l1-coords",
+    "glb-requests-6",
+    "top-chips-visible",
+    "top-chips-nonoverlapping",
+    "inspect-l2-coords",
+    "zero-console-errors"
+  ],
+  "assertionNote": "Gates assert data attributes + measured chip rects; 'full3Dfit' matches above confirm the verdict word is also rendered, but the verdict itself is asserted structurally.",
+  "anchors": "L1:900,1500;L2:1700,1500",
+  "fitL1": "full3Dfit",
+  "fitL2": "full3Dfit",
+  "cutawayM": "2.5",
+  "topChips": {
+    "l1": {
+      "x": 283.0442199707031,
+      "y": 278.503662109375,
+      "w": 80.859375,
+      "h": 19
+    },
+    "l2": {
+      "x": 329.4693298339844,
+      "y": 436.3421630859375,
+      "w": 77.21875,
+      "h": 19
+    }
+  },
+  "glbBytes": "24142388",
+  "triangles": "396382",
+  "drawcalls": "24",
+  "statsText": "load 652ms · GLB requests 6 · GLB bytes 24142388 (23.02MB)\nenvironment_floor_a01.glb=615KB structure_wall_straight_a01.glb=7244KB rack_large_empty_a02.glb=3737KB box_cardboard_a01.glb=40KB crate_blue_a01.glb=4272KB handTruck_convertible_steel_orange_a01.glb=7669KB\ntriangles 396382 · draw calls 24 · geometries 23 · textures 1\nviews: iso/top/inspect via toolbar; orbit with mouse; selection L1/L2.",
+  "inspectL1": "L1 slot center (900, 1500)mm · rack R1 · usable 800×600×1000mm · full3Dfit\n\nPick approach: (2900, 1500)mm (storage and approach references are distinct)\n\nsku-a ×1: box_cardboard_a01 700×522×510mm deck 0 (base y=0.299m)\n\nbox_cardboard_a01: footprint 700×522 vs 800×600 → inside; top 809.0 vs slot 1299.0 → inside; deck clear 1049.8 → clear; full3Dfit ✓",
+  "inspectL2": "L2 slot center (1700, 1500)mm · rack R1 · usable 800×600×1000mm · full3Dfit\n\nPick approach: (1300, 2700)mm (storage and approach references are distinct)\n\nsku-b ×2: crate_blue_a01 606×406×254mm deck 0 (base y=0.299m); crate_blue_a01 606×406×254mm deck 0 (base y=0.552m)\n\ncrate_blue_a01: footprint 606×406 vs 800×600 → inside; top 553.0 vs slot 1299.0 → inside; deck clear 1049.8 → clear; full3Dfit ✓\n\ncrate_blue_a01: footprint 606×406 vs 800×600 → inside; top 806.2 vs slot 1299.0 → inside; deck clear 1049.8 → clear; full3Dfit ✓",
+  "pageConsoleErrors": [],
+  "packingNote": "PACK (3000,3000) label rendered in scene; boundary 6x6m loop rendered; cart bay outline rendered"
+}

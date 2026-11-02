@@ -7,11 +7,18 @@ the inspected reuse map, changed assumptions, headless-engine contracts and
 v3-M0–M8 backlog. Engine contracts are currently a documented design, not
 implemented runtime interfaces. The existing planner/report/evidence stays
 intact; v2 gates below do not prove inventory/queue/traffic simulation.
-One Muse worker is preparing the representative original-catalog warehouse
-section; whole-simulator coding has not been dispatched as one task. The
+The representative original-catalog W1 warehouse section is accepted for six
+selected models and one static synthetic fixture after independent source,
+fit3D, swept-path and converter regressions plus a fresh external Edge proof.
+It is isolated and not deployed; documented material/triangulation limits
+remain. See WAREHOUSE_SECTION_INVESTIGATION.md and w1-independent-review.json.
+Next is v3-M2a runtime contracts and the headless event/clock kernel;
+whole-simulator coding has not been dispatched as one task. The
 latest user permits browser Orca for SimReady Central asset discovery and
-downloads, including needed dependencies after inspection; application
-verification remains external Microsoft Edge. Do not silently reduce v3 to
+downloads, including needed dependencies after inspection, and now also for
+application testing, rendering and performance. External Microsoft Edge
+remains allowed; identify the actual browser and method in each new proof.
+Do not silently reduce v3 to
 decorative playback or reuse the exhausted benchmark allowance for new calls.
 
 The user resumed delivery on 2026-11-02. The paused M6A interface work is now accepted after coordinator review and a fresh full browser run: 76 passed, zero failed or skipped. Core 110 and API 68 tests, typecheck and build passed during the implementation gate.

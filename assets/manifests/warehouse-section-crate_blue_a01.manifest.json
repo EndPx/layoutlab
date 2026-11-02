@@ -1,0 +1,154 @@
+{
+  "manifestVersion": "layoutlab.asset-manifest/1",
+  "package": "crate_blue_a01",
+  "dataset": "nvidia/simready-assets",
+  "datasetUrl": "https://huggingface.co/datasets/nvidia/simready-assets",
+  "catalogCategory": "Industrial/Warehouse/Containers",
+  "catalogSource": "https://nvidia-simready-central.hf.space/install_categories.json (Space pin 15a2ab916b355627dee6a841c1ae622230cf1ba5)",
+  "sourceRevision": "653d91e182011f357cf1644013cc94ddf194d349",
+  "sourceRevisionNote": "Per-package revision registered in install_categories.json; distinct from dataset HEAD 4763fbfaa4f8e97658e68b57d01b4c86659e08b5 (existing rack_large_empty_a01). Not conflated.",
+  "sourceFileUrlPattern": "https://huggingface.co/datasets/nvidia/simready-assets/resolve/653d91e182011f357cf1644013cc94ddf194d349/crate_blue_a01/<path>",
+  "rootUsd": "simready_usd/sm_crate_blue_a01_01.usd",
+  "stagedSourceFiles": [
+    {
+      "path": "simready_usd/sm_crate_blue_a01_01.usd",
+      "bytes": 23781,
+      "sha256": "a6c4d7072a27d9ff31d3cd584b5b30987ef4d92a4ae00ebe19fc2152d3faaaf6",
+      "bomVerified": true
+    },
+    {
+      "path": "simready_usd/payloads/base.usda",
+      "bytes": 10281,
+      "sha256": "0c6cd1e58eefacde2a2744bcd2b7d0b92b36ed855dbb8b700103a95c835e497c",
+      "bomVerified": true
+    },
+    {
+      "path": "simready_usd/payloads/instances.usda",
+      "bytes": 6918,
+      "sha256": "557abe9bf9c9f869b0eedc4623e4b40a6a0569a935dc83e01e140320a06a61fa",
+      "bomVerified": true
+    },
+    {
+      "path": "simready_usd/payloads/geometries.usd",
+      "bytes": 3464319,
+      "sha256": "1df2fb56b47ca4a9284d89397d1d25cf77a4bbdb5b32b5e63a0ee42ee2248a3b",
+      "sha256First1m": "0f15f17b5ab3e0894ca46beab4953631357b6adc135f42111f0af684b454484f",
+      "bomVerified": true
+    },
+    {
+      "path": "simready_usd/payloads/materials.usda",
+      "bytes": 11344,
+      "sha256": "ea8fdfc676f83360a823df873d90642953518dde159e3c884c4254d4a0f102a2",
+      "bomVerified": true
+    },
+    {
+      "path": "simready_usd/payloads/Physics/physics.usda",
+      "bytes": 6455,
+      "sha256": "caf0f6412c18f09a34189e365df395df588508473b23001175b4c608f5de055f",
+      "bomVerified": true
+    }
+  ],
+  "stagedBytes": 3523098,
+  "fullPackageBytes": 13062548,
+  "packageHashSha256": "5c77a90adcc2266c63e1d98a9d4c58b7265db9a804f9955891660c29ddbefc28",
+  "license": "CC-BY-4.0",
+  "licenseCopy": "assets/licenses/warehouse-section-crate_blue_a01-LICENSE.txt",
+  "attribution": "crate_blue_a01 geometry derived from NVIDIA SimReady Assets package crate_blue_a01 (https://huggingface.co/datasets/nvidia/simready-assets), revision 653d91e182011f357cf1644013cc94ddf194d349, used under CC-BY-4.0. Geometry converted to GLB with axis remap and a simplified fallback color material; see discardedFeatures. (c) NVIDIA Corporation; changes by LayoutLab documented in this manifest.",
+  "observedSource": {
+    "metersPerUnit": 1,
+    "upAxis": "Z",
+    "defaultPrim": "/RootNode",
+    "worldBoundsMin_m": [
+      -0.302567,
+      -0.202567,
+      0.000082
+    ],
+    "worldBoundsMax_m": [
+      0.302567,
+      0.202567,
+      0.253302
+    ],
+    "sizeXYZ_m": [
+      0.605133,
+      0.405133,
+      0.253219
+    ],
+    "meshCount": 1,
+    "totalPoints": 31324,
+    "totalFaces": 33856,
+    "meshes": [
+      {
+        "path": "/__Prototype_1/sm_crate_a01_mesh_00",
+        "instance": "/RootNode/Geometry/sm_crate_a01_obj_00",
+        "points": 31324,
+        "faces": 33856,
+        "normals": "faceVarying",
+        "hasUVs": true,
+        "doubleSided": true,
+        "subdivision": "none",
+        "localToWorld": [
+          [
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0.000082,
+            1
+          ]
+        ]
+      }
+    ],
+    "materialsDeclared": [
+      "opaque__plastic__blue_a"
+    ],
+    "materialNote": "Each material pairs UsdPreviewSurface with mdl:OmniPBR (OmniPBR.mdl, UDIM/file PNG textures). Textures and MDL were never downloaded; original MDL not preserved."
+  },
+  "toolVersions": {
+    "python": "3.12.10",
+    "usd-core": "26.11",
+    "node": "v24.18.0",
+    "tooling": "scratch TEMP venv + stdlib-only scripts (no numpy, no Docker, no Blender)"
+  },
+  "conversionCommands": [
+    "node scripts/warehouse-section-fetch.mjs (W1_PKGS=crate_blue_a01)",
+    "<temp-venv>/Scripts/python scripts/m4-usd-inspect.py <stage>/simready_usd/sm_crate_blue_a01_01.usd",
+    "<temp-venv>/Scripts/python scripts/warehouse-section-usd-to-glb.py <stage>/simready_usd/sm_crate_blue_a01_01.usd apps/web/public/assets/warehouse-section/crate_blue_a01.glb 0.15,0.35,0.75 crate_blue_a01",
+    "node scripts/warehouse-section-verify.mjs"
+  ],
+  "derivative": {
+    "path": "apps/web/public/assets/warehouse-section/crate_blue_a01.glb",
+    "bytes": 4374604,
+    "sha256": "dc2a0cc3c6488a45d818b437df879d131ff5ace6211c7325684d8eab21464d60",
+    "format": "glTF 2.0 binary (GLB), 1 mesh(es), TRIANGLES primitives, non-indexed soup",
+    "triangles": 60744,
+    "soupVertices": 182232,
+    "material": "layoutlab-fallback-crate_blue_a01: baseColor [0.15, 0.35, 0.75, 1.0], metallic 0.0, roughness 0.9, doubleSided true",
+    "axisMap": "(x, y, z)Z-up -> (x, z, -y)Y-up (proper rotation, det +1; winding preserved)",
+    "scaleBaked": "none: GLB keeps source meters; placement scaling applied in the browser per placement rule",
+    "calibratedWithin1mm": true
+  },
+  "placement": "sku-b x2 visuals stacked on L2 deck 0: positions (1.7, 0.299003/0.552222, 1.5)m, uniform scale 1.0 (declared 606x406x254mm each = ceil of measured 605.133x405.133x253.219mm; stack offset 253.219mm source-normalized); actual AABBs full3Dfit inside slot; aggregate top 805.5mm clears deck 1049.8mm by 244.3mm.",
+  "discardedFeatures": [
+    "SimReady physics payloads and MuJoCo/Newton/PhysX variants (GLB conversion does NOT preserve SimReady physics metadata)",
+    "MDL materials (OmniPBR.mdl) and PNG/UDIM textures (never downloaded; original MDL not preserved)",
+    "UVs (present in source, unused by the untextured fallback material)",
+    "Per-material splits merged into one fallback color material",
+    "Validation and runtime-testing metadata (kept only as provenance records)"
+  ]
+}
