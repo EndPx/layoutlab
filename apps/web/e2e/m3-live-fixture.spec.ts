@@ -6,6 +6,7 @@ import { replayReport } from "@layoutlab/core";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { startLiveFixture, type LiveFixture } from "./helpers/live-fixture";
+import { clickOpen, openDetails } from "./helpers/ui";
 
 test.describe("M3 live fixture flow", () => {
   let fixture: LiveFixture | null = null;
@@ -23,14 +24,17 @@ test.describe("M3 live fixture flow", () => {
   test("live and stub are distinguishable; consent gates inference", async ({ page }) => {
     const before = fixture?.transportRequests() ?? 0;
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
+    await clickOpen(page, "btn-sample");
+    await openDetails(page, "developer-settings");
     await expect(page.getByTestId("provider-stub")).toBeChecked();
 
-    await page.getByTestId("provider-live").click();
+    await clickOpen(page, "provider-live");
     await expect(page.getByTestId("live-privacy")).toContainText("sent to Meta Model API");
     await expect(page.getByTestId("live-status")).toContainText("fixture-muse-shape");
     await expect(page.getByTestId("live-status")).toContainText("127.0.0.1");
     await expect(page.getByTestId("live-status")).toContainText("fixture");
+    await expect(page.getByTestId("live-status")).toContainText("0 real Meta");
+    await expect(page.getByTestId("live-status")).toContainText("Not live inference");
     // No contributor disclosure for the non-contributor fixture model.
     expect(await page.getByTestId("live-contributor").count()).toBe(0);
     // Consent gates inference: no transport request without the checkbox.
@@ -49,9 +53,9 @@ test.describe("M3 live fixture flow", () => {
     const before = fixture?.transportRequests() ?? 0;
 
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
-    await page.getByTestId("provider-live").click();
-    await expect(page.getByTestId("live-status")).toContainText("Live ready", { timeout: 15_000 });
+    await clickOpen(page, "btn-sample");
+    await clickOpen(page, "provider-live");
+    await expect(page.getByTestId("live-status")).toContainText("Fixture ready", { timeout: 15_000 });
     await page.getByTestId("live-consent").click();
 
     await page.getByTestId("btn-interpret").click();
@@ -70,7 +74,8 @@ test.describe("M3 live fixture flow", () => {
     await expect(page.getByTestId("approval-state")).toContainText("approved");
     await page.getByTestId("btn-generate-live").click();
     await expect(page.getByTestId("live-outcome")).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByTestId("mode-badge")).toContainText("LIVE");
+    // Fixture transport is labeled FIXTURE, never raw LIVE (status truth).
+    await expect(page.getByTestId("mode-badge")).toContainText("FIXTURE");
     await expect(page.getByTestId("live-run-status")).toContainText("requests 4/4");
     await expect(page.getByTestId("live-run-status")).toContainText("proposals 3/3");
     expect((fixture?.transportRequests() ?? 0) - before).toBe(4);
@@ -80,10 +85,11 @@ test.describe("M3 live fixture flow", () => {
     await expect(page.getByTestId("timeline-proposal-2")).toContainText("PROPOSAL_UNKNOWN_PRODUCT");
     await expect(page.getByTestId("timeline-proposal-3")).toContainText("valid");
 
-    // Compare + apply the best valid live candidate (proposal-1, 35600).
+    // Compare + apply the best valid live candidate (proposal-1, 35.6 m).
     await page.getByTestId("select-proposal-1").click();
+    await openDetails(page, "run-details");
     await expect(page.getByTestId("relocation-table")).toBeVisible();
-    await expect(page.getByTestId("compare-proposal-1")).toContainText("35600");
+    await expect(page.getByTestId("compare-proposal-1")).toContainText("35.6 m");
     await page.getByTestId("apply-proposal-1").click();
     await expect(page.getByTestId("apply-message")).toContainText("Applied proposal-1");
 
@@ -96,7 +102,7 @@ test.describe("M3 live fixture flow", () => {
     const dir = path.join(process.cwd(), "..", "..", "evidence", "sanitized");
     fs.mkdirSync(dir, { recursive: true });
     const tag = testInfo.project.name === "mobile" ? "mobile-390" : "desktop-1440";
-    await page.screenshot({ path: path.join(dir, `m3-${tag}-live.png`), fullPage: true });
+    await page.screenshot({ path: path.join(dir, `m6a-live-${tag}.png`), fullPage: true });
 
     // Export downloads the verbatim server report; independently replay it.
     const download = page.waitForEvent("download", { timeout: 30_000 });
@@ -141,9 +147,9 @@ test.describe("M3 live fixture flow", () => {
     await fixture?.stop();
     fixture = await startLiveFixture("fixture-muse-shape", "questions");
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
-    await page.getByTestId("provider-live").click();
-    await expect(page.getByTestId("live-status")).toContainText("Live ready", { timeout: 15_000 });
+    await clickOpen(page, "btn-sample");
+    await clickOpen(page, "provider-live");
+    await expect(page.getByTestId("live-status")).toContainText("Fixture ready", { timeout: 15_000 });
     await page.getByTestId("live-consent").click();
     await page.getByTestId("btn-interpret").click();
     await expect(page.getByTestId("live-questions")).toBeVisible({ timeout: 30_000 });
@@ -166,9 +172,9 @@ test.describe("M3 live fixture flow", () => {
     await fixture?.stop();
     fixture = await startLiveFixture("fixture-muse-shape", "fail-second");
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
-    await page.getByTestId("provider-live").click();
-    await expect(page.getByTestId("live-status")).toContainText("Live ready", { timeout: 15_000 });
+    await clickOpen(page, "btn-sample");
+    await clickOpen(page, "provider-live");
+    await expect(page.getByTestId("live-status")).toContainText("Fixture ready", { timeout: 15_000 });
     await page.getByTestId("live-consent").click();
     await page.getByTestId("btn-interpret").click();
     await expect(page.getByTestId("live-interpreted")).toBeVisible({ timeout: 30_000 });
@@ -177,7 +183,7 @@ test.describe("M3 live fixture flow", () => {
     await expect(page.getByTestId("live-outcome")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("live-run-status")).toContainText("FAILED");
     // The valid first proposal is visible but not applicable.
-    await expect(page.getByTestId("compare-proposal-1")).toContainText("35600");
+    await expect(page.getByTestId("compare-proposal-1")).toContainText("35.6 m");
     await expect(page.getByTestId("apply-proposal-1")).toBeDisabled();
   });
 
@@ -190,20 +196,20 @@ test.describe("M3 live fixture flow", () => {
     await fixture?.stop();
     fixture = await startLiveFixture("fixture-muse-shape", "slow-interpret");
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
-    await page.getByTestId("provider-live").click();
-    await expect(page.getByTestId("live-status")).toContainText("Live ready", { timeout: 15_000 });
+    await clickOpen(page, "btn-sample");
+    await clickOpen(page, "provider-live");
+    await expect(page.getByTestId("live-status")).toContainText("Fixture ready", { timeout: 15_000 });
     await page.getByTestId("live-consent").click();
     await page.getByTestId("btn-interpret").click();
     await expect(page.getByTestId("live-busy")).toBeVisible();
     // Reset mid-interpretation: the stale result must commit nothing.
-    await page.getByTestId("btn-reset").click();
+    await clickOpen(page, "btn-reset");
     await expect(page.getByTestId("scenario-label")).toContainText("no scenario");
     await page.waitForTimeout(3500);
     await expect(page.getByTestId("scenario-label")).toContainText("no scenario");
     expect(await page.getByTestId("live-run-status").count()).toBe(0);
     // Fresh load works afterwards.
-    await page.getByTestId("btn-sample").click();
+    await clickOpen(page, "btn-sample");
     await expect(page.getByTestId("valid-badge")).toBeVisible();
     expect(errors, `console/page errors: ${errors.join("; ")}`).toEqual([]);
   });
@@ -251,8 +257,8 @@ test.describe("M3 live fixture flow", () => {
     await fixture?.stop();
     fixture = await startLiveFixture("muse-spark-1.3-contributor");
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
-    await page.getByTestId("provider-live").click();
+    await clickOpen(page, "btn-sample");
+    await clickOpen(page, "provider-live");
     await expect(page.getByTestId("live-status")).toContainText("muse-spark-1.3-contributor", { timeout: 15_000 });
     await expect(page.getByTestId("live-contributor")).toContainText("training-data use");
   });

@@ -787,7 +787,9 @@ export function buildOfflineBenchmark(rootDir: string): BenchmarkReport {
   });
   const report = totalsOf(results, "offline", 0);
   report.freeze.manifest = manifest;
-  report.freeze.sourceCommit = manifest.sourceCommit;
+  // M6A: execution commit, not the fixture-authoring base. The manifest keeps
+  // its own frozen sourceCommit; the report records what actually ran.
+  report.freeze.sourceCommit = benchmarkSourceCommit(rootDir);
   report.freeze.sourceDirty = benchmarkSourceDirty(rootDir);
   return report;
 }

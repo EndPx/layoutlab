@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
 import type { PlanningRequirements, Scenario } from "@layoutlab/core";
 import type { StubRunState } from "../App";
 import type { ApiStatus, RunSummary } from "../lib/api";
+import { formatMeters } from "../lib/format";
 
 export type LivePanelState = {
   providerMode: "stub" | "live";
@@ -24,53 +26,123 @@ function RequirementsForm(props: {
 }): React.JSX.Element {
   const { scenario, requirements, approved, requirementsError, onRequirements, onApprove } = props;
   const disabled = props.disabled === true;
+  const lockedLabels = scenario
+    ? scenario.products
+        .filter((p) => p.lockedLocationId !== undefined || requirements.lockedProductIds.includes(p.id))
+        .map((p) => p.lockedLocationId !== undefined
+          ? `${p.label} fixed at ${p.lockedLocationId}`
+          : `${p.label} locked`)
+    : [];
+  const hasCold = scenario?.products.some((p) => p.requiredStorageClass === "cold") === true;
+  const setBudget = (n: number): void => {
+    onRequirements({ ...requirements, maxRelocatedProducts: Math.max(0, Math.min(64, Math.floor(n) || 0)) });
+  };
   return (
     <>
-      <h3>Structured requirements (editable)</h3>
-      <label>
-        Max relocated products
-        <input
-          type="number"
-          min={0}
-          max={64}
-          value={requirements.maxRelocatedProducts}
-          data-testid="req-budget"
-          disabled={disabled}
-          onChange={(e) =>
-            onRequirements({ ...requirements, maxRelocatedProducts: Math.max(0, Number(e.target.value) || 0) })
-          }
-        />
-      </label>
-      <fieldset>
-        <legend>Locked products</legend>
-        {!scenario && <span>No scenario.</span>}
-        {scenario?.products.map((p) => (
-          <label key={p.id} style={{ display: "inline-block", width: "auto", marginRight: 12 }}>
-            <input
-              type="checkbox"
-              checked={requirements.lockedProductIds.includes(p.id)}
-              data-testid={`lock-${p.id}`}
-              disabled={disabled}
-              onChange={(e) => {
-                const has = e.target.checked;
-                onRequirements({
-                  ...requirements,
-                  lockedProductIds: has
-                    ? [...requirements.lockedProductIds, p.id]
-                    : requirements.lockedProductIds.filter((id) => id !== p.id),
-                });
-              }}
-            />{" "}
-            <span className="mono">{p.id}</span>
-          </label>
+      <h3>Planning constraints</h3>
+      <div className="stepper-row">
+        <label htmlFor="req-budget">Maximum relocations</label>
+        <div className="stepper" role="group" aria-label="Maximum relocations stepper">
+          <button
+            type="button"
+            onClick={() => setBudget(requirements.maxRelocatedProducts - 1)}
+            disabled={disabled}
+            data-testid="req-budget-dec"
+            aria-label="Decrease maximum relocations"
+          >
+            −
+          </button>
+          <input
+            id="req-budget"
+            type="number"
+            min={0}
+            max={64}
+            value={requirements.maxRelocatedProducts}
+            data-testid="req-budget"
+            disabled={disabled}
+            onChange={(e) => onRequirements({ ...requirements, maxRelocatedProducts: Math.max(0, Number(e.target.value) || 0) })}
+          />
+          <button
+            type="button"
+            onClick={() => setBudget(requirements.maxRelocatedProducts + 1)}
+            disabled={disabled}
+            data-testid="req-budget-inc"
+            aria-label="Increase maximum relocations"
+          >
+            +
+          </button>
+        </div>
+      </div>
+      <div className="tags" data-testid="constraint-tags" aria-label="Active constraints">
+        {lockedLabels.map((t) => (
+          <span key={t} className="tag">▪ {t}</span>
         ))}
-      </fieldset>
-      <p data-testid="approval-state">{approved ? "✓ Requirements approved." : "× Requirements not approved — generation is gated."}</p>
+        {hasCold && <span className="tag">✳ Cold storage preserved</span>}
+        <span className="tag">▦ Location fit required</span>
+      </div>
+      <details className="compact" data-testid="locked-products">
+        <summary>
+          Locked products ({requirements.lockedProductIds.length} selected)
+          {!scenario && " — no scenario"}
+        </summary>
+        <fieldset>
+          <legend>Locked products</legend>
+          {!scenario && <span>No scenario.</span>}
+          {scenario?.products.map((p) => (
+            <label key={p.id} style={{ display: "inline-block", width: "auto", marginRight: 12 }}>
+              <input
+                type="checkbox"
+                checked={requirements.lockedProductIds.includes(p.id)}
+                data-testid={`lock-${p.id}`}
+                disabled={disabled}
+                onChange={(e) => {
+                  const has = e.target.checked;
+                  onRequirements({
+                    ...requirements,
+                    lockedProductIds: has
+                      ? [...requirements.lockedProductIds, p.id]
+                      : requirements.lockedProductIds.filter((id) => id !== p.id),
+                  });
+                }}
+              />{" "}
+              <span className="mono">{p.id}</span>
+            </label>
+          ))}
+        </fieldset>
+      </details>
+      <p className={approved ? "approved-banner" : "notice"} data-testid="approval-state">
+        {approved ? "✓ Requirements approved." : "× Requirements not approved — generation is gated."}
+      </p>
       {requirementsError && <p className="error" role="alert" data-testid="requirements-error">{requirementsError}</p>}
-      <button type="button" onClick={onApprove} disabled={!scenario || disabled} data-testid="btn-approve">
-        Approve requirements
-      </button>{" "}
+      {!approved && (
+        <button type="button" className="secondary" onClick={onApprove} disabled={!scenario || disabled} data-testid="btn-approve">
+          Approve requirements
+        </button>
+      )}
     </>
+  );
+}
+
+// One compact history row: number + name + verdict + travel in the summary,
+// full parse/apply diagnostics + rationale expandable. All raw attempts stay
+// inspectable; the collapsed text remains in the DOM for assertions.
+function HistoryItem(props: {
+  index: number;
+  name: string;
+  testId: string;
+  verdict: string;
+  diagnostics: ReactNode;
+}): React.JSX.Element {
+  return (
+    <li>
+      <details data-testid={props.testId}>
+        <summary>
+          <span className="attempt-no" aria-hidden="true">{props.index + 1}</span>{" "}
+          <strong className="mono">{props.name}</strong> — {props.verdict}
+        </summary>
+        <div className="history-detail">{props.diagnostics}</div>
+      </details>
+    </li>
   );
 }
 
@@ -111,32 +183,12 @@ export function RightPanel(props: {
     live.run !== null &&
     (live.run.state === "COMPLETED" || live.run.state === "FAILED" ||
       live.run.state === "CANCELLED" || live.run.state === "TIMED_OUT");
+  const stubHeuristic = stubRun.proposals.find((p) => p.name === "heuristic") ?? null;
+  const stubGenerated = stubRun.proposals.filter((p) => p.name !== "heuristic");
   return (
     <div className="panel" data-testid="right-panel">
-      <h2>Planning request</h2>
-      <fieldset>
-        <legend>Provider (clearly labeled)</legend>
-        <label style={{ display: "inline-block", width: "auto", marginRight: 12 }}>
-          <input
-            type="radio"
-            name="provider"
-            checked={live.providerMode === "stub"}
-            data-testid="provider-stub"
-            onChange={() => onProviderMode("stub")}
-          />{" "}
-          Stub (deterministic, no inference)
-        </label>
-        <label style={{ display: "inline-block", width: "auto" }}>
-          <input
-            type="radio"
-            name="provider"
-            checked={live.providerMode === "live"}
-            data-testid="provider-live"
-            onChange={() => onProviderMode("live")}
-          />{" "}
-          Live (Meta model via server)
-        </label>
-      </fieldset>
+      <h2>Plan an improvement</h2>
+      <p className="hint">Describe the goal. Review the constraints.</p>
 
       {live.providerMode === "live" ? (
         <>
@@ -150,24 +202,8 @@ export function RightPanel(props: {
               training-data use. Do not send real customer data.
             </p>
           )}
-          <p data-testid="live-status">
-            {live.apiStatus === null && live.apiError === null && "Checking live server status…"}
-            {live.apiError !== null && <>× Live server unreachable ({live.apiError}). Stub still works. </>}
-            {live.apiStatus !== null && (
-              liveReady ? (
-                <>✓ Live ready: <span className="mono">{live.apiStatus.modelId}</span> via{" "}
-                  <span className="mono">{live.apiStatus.baseUrl}</span> ·{" "}
-                  <span className="mono">{live.apiStatus.providerKind}</span> · budgets{" "}
-                  {live.apiStatus.budgets.maxProposals}p/{live.apiStatus.budgets.maxRequests}r/
-                  {live.apiStatus.budgets.timeoutMs}ms.</>
-              ) : (
-                <>× Live unavailable: {live.apiStatus.reason ?? "setup required"}. Stub still works.</>
-              )
-            )}{" "}
-            <button type="button" onClick={onRefreshStatus} data-testid="btn-refresh-status">Refresh</button>
-          </p>
           <label>
-            Request (sent to Meta only after consent)
+            Goal (sent to Meta only after consent)
             <textarea
               rows={3}
               value={live.requestText}
@@ -184,7 +220,16 @@ export function RightPanel(props: {
             />{" "}
             I consent to sending this scenario and request to Meta Model API.
           </label>
-          <p>
+          <RequirementsForm
+            scenario={scenario}
+            requirements={requirements}
+            approved={approved}
+            requirementsError={requirementsError}
+            onRequirements={onRequirements}
+            onApprove={onApprove}
+            disabled={liveRunning}
+          />
+          <p className="actions">
             <button
               type="button"
               onClick={onInterpret}
@@ -210,7 +255,7 @@ export function RightPanel(props: {
               }
               data-testid="btn-generate-live"
             >
-              Generate live (max 3)
+              ▶ Generate &amp; test alternatives
             </button>{" "}
             <button type="button" onClick={onCancelLive} disabled={!liveRunning && live.run?.state !== "AWAITING_APPROVAL"} data-testid="btn-cancel-live">
               Cancel live run
@@ -218,19 +263,6 @@ export function RightPanel(props: {
           </p>
           {live.busy !== null && <p className="statusline" aria-live="polite" data-testid="live-busy">{live.busy}</p>}
           {live.error !== null && <p className="error" role="alert" data-testid="live-error">{live.error}</p>}
-          {live.run !== null && (
-            <p data-testid="live-run-status">
-              Run <span className="mono">{live.run.runId.slice(0, 8)}</span> · {live.run.state} ·{" "}
-              phase <span className="mono">{live.run.phase}</span> ·{" "}
-              requests {live.run.modelRequestsUsed}/{live.run.budgets.maxRequests} · proposals{" "}
-              {live.run.proposalsUsed}/{live.run.budgets.maxProposals} · heuristic{" "}
-              {live.run.candidateBudgets.heuristic.evaluationsUsed}/{live.run.candidateBudgets.heuristic.evaluationsBudget}{" "}
-              evals ·{" "}
-              <span className="mono">{live.run.providerKind}</span> (real Meta {live.run.realMetaRequests})
-              {live.run.interpretError !== null && <> · <span className="error">interpret: {live.run.interpretError}</span></>}
-              {live.run.lastError !== null && <> · <span className="error">{live.run.lastError}</span></>}
-            </p>
-          )}
           {interpreting && (
             <p data-testid="live-interpreting">
               Interpreting with Meta… this first request is cancellable by run ID.
@@ -244,7 +276,7 @@ export function RightPanel(props: {
             </p>
           )}
           {openQuestions.length > 0 && (
-            <div className="panel" data-testid="live-questions">
+            <div className="panel inset" data-testid="live-questions">
               <h3>Open questions (must resolve before proposals)</h3>
               <ul>
                 {openQuestions.map((q, i) => (
@@ -258,43 +290,45 @@ export function RightPanel(props: {
               </ul>
             </div>
           )}
-          <RequirementsForm
-            scenario={scenario}
-            requirements={requirements}
-            approved={approved}
-            requirementsError={requirementsError}
-            onRequirements={onRequirements}
-            onApprove={onApprove}
-            disabled={liveRunning}
-          />
-          <h3>Live proposal timeline</h3>
-          {(live.run === null || live.run.attempts.length === 0) && <p>No live proposals yet.</p>}
+          <h3>Proposal history</h3>
+          {(live.run === null || live.run.attempts.length === 0) && !live.run?.heuristic?.candidate && <p>No live proposals yet.</p>}
           {live.run?.heuristic?.candidate && (
-            <p data-testid="timeline-heuristic">
-              <strong className="mono">heuristic</strong> —{" "}
-              {live.run.heuristic.candidate.valid
-                ? `valid ✓ ${live.run.heuristic.candidate.weightedTravelMm} mm`
-                : `invalid × ${live.run.heuristic.candidate.errors[0]?.code ?? "error"}`}{" "}
-              · {live.run.heuristic.evaluationsUsed}/{live.run.heuristic.evaluationsBudget} evals, no model used
-            </p>
+            <details className="heuristic" data-testid="timeline-heuristic">
+              <summary>
+                <strong className="mono">heuristic</strong> (separate method) —{" "}
+                {live.run.heuristic.candidate.valid
+                  ? `valid ✓ ${formatMeters(live.run.heuristic.candidate.weightedTravelMm)}`
+                  : `invalid × ${live.run.heuristic.candidate.errors[0]?.code ?? "error"}`}
+              </summary>
+              <div className="history-detail"><p>Not a proposal · Heuristic {live.run.heuristic.method}: {live.run.heuristic.reason} · {live.run.heuristic.evaluationsUsed}/{live.run.heuristic.evaluationsBudget} evals, no model used.</p></div>
+            </details>
           )}
           <ol className="timeline" data-testid="live-timeline">
-            {(live.run?.attempts ?? []).map((a) => (
-              <li key={a.name} data-testid={`timeline-${a.name}`}>
-                <strong className="mono">{a.name}</strong> — {a.parseOk ? "parsed ✓" : `parse × ${a.parseError}`} ·{" "}
-                {a.applyOk ? "mapping materialized ✓" : a.parseOk ? `mapping × ${a.applyErrors.join("; ")}` : "not materialized"} ·{" "}
-                {a.candidate
+            {(live.run?.attempts ?? []).map((a, i) => (
+              <HistoryItem
+                key={a.name}
+                index={i}
+                name={a.name}
+                testId={`timeline-${a.name}`}
+                verdict={a.candidate
                   ? a.candidate.valid
-                    ? `valid ✓ ${a.candidate.weightedTravelMm} mm`
-                    : `invalid × ${a.candidate.errors[0]?.code ?? "error"}`
+                    ? `valid ✓ ${formatMeters(a.candidate.weightedTravelMm)}`
+                    : `invalid × ${a.candidate.errors[0]?.code ?? "error"}${a.candidate.errors[0]?.message ? `: ${a.candidate.errors[0].message}` : ""}`
                   : (a.transportError ?? "not evaluated")}
-                <br />
-                <span>{a.rationale}</span>
-              </li>
+                diagnostics={(
+                  <>
+                    <p>
+                      {a.parseOk ? "parsed ✓" : `parse × ${a.parseError}`} ·{" "}
+                      {a.applyOk ? "mapping materialized ✓" : a.parseOk ? `mapping × ${a.applyErrors.join("; ")}` : "not materialized"}
+                    </p>
+                    <p>{a.rationale}</p>
+                  </>
+                )}
+              />
             ))}
           </ol>
           {liveTerminal && (
-            <p data-testid="live-outcome">
+            <p aria-live="polite" data-testid="live-outcome">
               Outcome <strong className="mono">{live.run?.outcome ?? "none"}</strong> · best{" "}
               <strong className="mono">{live.run?.bestName ?? "none"}</strong> · state{" "}
               <strong className="mono">{live.run?.state}</strong> · model requests {live.run?.modelRequestsUsed}
@@ -308,20 +342,7 @@ export function RightPanel(props: {
       ) : (
         <>
           <p className="notice" data-testid="meta-notice">
-            <strong>Stub mode:</strong> no Meta inference. Deterministic placeholder proposals; actual model
-            requests = 0.
-          </p>
-          <label>
-            Request (display only; stub does not read it)
-            <textarea
-              rows={3}
-              defaultValue="Reduce picking travel for the loaded orders. Keep locked products fixed and relocate no more than the approved budget."
-              readOnly
-              data-testid="planning-request"
-            />
-          </label>
-          <p data-testid="stub-limitation">
-            Limitation: the stub does not interpret natural language. It uses only these structured fields.
+            <strong>Stub mode:</strong> no inference, deterministic placeholders.
           </p>
           <RequirementsForm
             scenario={scenario}
@@ -331,41 +352,65 @@ export function RightPanel(props: {
             onRequirements={onRequirements}
             onApprove={onApprove}
           />
-          <button
-            type="button"
-            className="primary"
-            onClick={onGenerate}
-            disabled={!scenario || !approved || running}
-            title={!approved ? "Approve requirements first" : "Generate up to 3 stub proposals"}
-            data-testid="btn-generate"
-          >
-            Generate stub (max 3)
-          </button>{" "}
-          <button type="button" onClick={onCancel} disabled={!running} data-testid="btn-cancel">
-            Cancel run
-          </button>
-          <p className="statusline" aria-live="polite" data-testid="stub-status">
-            {stubRun.status === "idle" ? "Stub idle." : `${stubRun.status}: ${stubRun.progress}`}
+          <p className="actions">
+            <button
+              type="button"
+              className="primary"
+              onClick={onGenerate}
+              disabled={!scenario || !approved || running}
+              title={!approved ? "Approve requirements first" : "Generate up to 3 stub proposals"}
+              data-testid="btn-generate"
+            >
+              ▶ Generate &amp; test alternatives
+            </button>{" "}
+            <button type="button" onClick={onCancel} disabled={!running} data-testid="btn-cancel">
+              Cancel run
+            </button>
           </p>
-          <h3>Proposal timeline</h3>
+          {stubRun.status !== "completed" && (
+            <p className="statusline" aria-live="polite" data-testid="stub-status">
+              {stubRun.status === "idle" ? "Stub idle." : stubRun.progress}
+            </p>
+          )}
+          <h3>Proposal history</h3>
           {stubRun.proposals.length === 0 && <p>No proposals yet.</p>}
+          {stubHeuristic?.candidate && (
+            <details className="heuristic" data-testid="timeline-heuristic">
+              <summary>
+                <strong className="mono">heuristic</strong> (separate method) —{" "}
+                {stubHeuristic.candidate.valid
+                  ? `valid ✓ ${formatMeters(stubHeuristic.candidate.weightedTravelMm)}`
+                  : `invalid × ${stubHeuristic.candidate.errors[0]?.code ?? "error"}`}
+              </summary>
+              <div className="history-detail"><p>Not a proposal · {stubHeuristic.rationale}</p></div>
+            </details>
+          )}
           <ol className="timeline" data-testid="stub-timeline">
-            {stubRun.proposals.map((p) => (
-              <li key={p.name} data-testid={`timeline-${p.name}`}>
-                <strong className="mono">{p.name}</strong> — {p.parseOk ? "parsed ✓" : `parse × ${p.parseError}`} ·{" "}
-                {p.applyOk ? "mapping materialized ✓" : `mapping × ${p.applyErrors.join("; ")}`} ·{" "}
-                {p.candidate
+            {stubGenerated.map((p, i) => (
+              <HistoryItem
+                key={p.name}
+                index={i}
+                name={p.name}
+                testId={`timeline-${p.name}`}
+                verdict={p.candidate
                   ? p.candidate.valid
-                    ? `valid ✓ ${p.candidate.weightedTravelMm} mm`
-                    : `invalid × ${p.candidate.errors[0]?.code ?? "error"}`
+                    ? `valid ✓ ${formatMeters(p.candidate.weightedTravelMm)}`
+                    : `invalid × ${p.candidate.errors[0]?.code ?? "error"}${p.candidate.errors[0]?.message ? `: ${p.candidate.errors[0].message}` : ""}`
                   : "not evaluated"}
-                <br />
-                <span>{p.rationale}</span>
-              </li>
+                diagnostics={(
+                  <>
+                    <p>
+                      {p.parseOk ? "parsed ✓" : `parse × ${p.parseError}`} ·{" "}
+                      {p.applyOk ? "mapping materialized ✓" : `mapping × ${p.applyErrors.join("; ")}`}
+                    </p>
+                    <p>{p.rationale}</p>
+                  </>
+                )}
+              />
             ))}
           </ol>
           {stubRun.status === "completed" && (
-            <p data-testid="stub-outcome">
+            <p aria-live="polite" data-testid="stub-outcome">
               Outcome <strong className="mono">{stubRun.outcome}</strong> · best{" "}
               <strong className="mono">{stubRun.bestName ?? "none"}</strong> · model requests 0
               {stubRun.heuristicMeta && (
@@ -375,6 +420,93 @@ export function RightPanel(props: {
           )}
         </>
       )}
+
+      <details className="dev" data-testid="developer-settings">
+        <summary>Developer settings</summary>
+        <fieldset className="provider">
+          <legend>Provider (clearly labeled)</legend>
+          <label style={{ display: "inline-block", width: "auto", marginRight: 12 }}>
+            <input
+              type="radio"
+              name="provider"
+              checked={live.providerMode === "stub"}
+              data-testid="provider-stub"
+              onChange={() => onProviderMode("stub")}
+            />{" "}
+            Stub (deterministic, no inference)
+          </label>
+          <label style={{ display: "inline-block", width: "auto" }}>
+            <input
+              type="radio"
+              name="provider"
+              checked={live.providerMode === "live"}
+              data-testid="provider-live"
+              onChange={() => onProviderMode("live")}
+            />{" "}
+            Live (Meta model via server)
+          </label>
+        </fieldset>
+        {live.providerMode === "live" ? (
+          <>
+            <p data-testid="live-status">
+              {live.apiStatus === null && live.apiError === null && "Checking live server status…"}
+              {live.apiError !== null && <>× Live server unreachable ({live.apiError}). Stub still works. </>}
+              {live.apiStatus !== null && (
+                liveReady ? (
+                  live.apiStatus.providerKind === "fixture" ? (
+                    <>✓ Fixture ready — local loopback configured (0 real Meta): <span className="mono">{live.apiStatus.modelId}</span> via{" "}
+                      <span className="mono">{live.apiStatus.baseUrl}</span> ·{" "}
+                      <span className="mono">{live.apiStatus.providerKind}</span> · budgets{" "}
+                      {live.apiStatus.budgets.maxProposals}p/{live.apiStatus.budgets.maxRequests}r/
+                      {live.apiStatus.budgets.timeoutMs}ms. Not live inference.</>
+                  ) : live.run !== null && live.run.realMetaRequests > 0 ? (
+                    <>✓ Meta ready — USED by this run: <span className="mono">{live.apiStatus.modelId}</span> via{" "}
+                      <span className="mono">{live.apiStatus.baseUrl}</span> ·{" "}
+                      <span className="mono">{live.apiStatus.providerKind}</span> · budgets{" "}
+                      {live.apiStatus.budgets.maxProposals}p/{live.apiStatus.budgets.maxRequests}r/
+                      {live.apiStatus.budgets.timeoutMs}ms · {live.run.realMetaRequests} real Meta requests this run.</>
+                  ) : (
+                    <>✓ Meta ready — configured, not used: <span className="mono">{live.apiStatus.modelId}</span> via{" "}
+                      <span className="mono">{live.apiStatus.baseUrl}</span> ·{" "}
+                      <span className="mono">{live.apiStatus.providerKind}</span> · budgets{" "}
+                      {live.apiStatus.budgets.maxProposals}p/{live.apiStatus.budgets.maxRequests}r/
+                      {live.apiStatus.budgets.timeoutMs}ms. No completed Meta requests yet.</>
+                  )
+                ) : (
+                  <>× Live unavailable: {live.apiStatus.reason ?? "setup required"}. Stub still works.</>
+                )
+              )}{" "}
+              <button type="button" onClick={onRefreshStatus} data-testid="btn-refresh-status">Refresh</button>
+            </p>
+            {live.run !== null && (
+              <p data-testid="live-run-status">
+                Run <span className="mono">{live.run.runId.slice(0, 8)}</span> · {live.run.state} ·{" "}
+                phase <span className="mono">{live.run.phase}</span> ·{" "}
+                requests {live.run.modelRequestsUsed}/{live.run.budgets.maxRequests} · proposals{" "}
+                {live.run.proposalsUsed}/{live.run.budgets.maxProposals} · heuristic{" "}
+                {live.run.candidateBudgets.heuristic.evaluationsUsed}/{live.run.candidateBudgets.heuristic.evaluationsBudget}{" "}
+                evals ·{" "}
+                <span className="mono">{live.run.providerKind}</span> (real Meta {live.run.realMetaRequests})
+                {live.run.interpretError !== null && <> · <span className="error">interpret: {live.run.interpretError}</span></>}
+                {live.run.lastError !== null && <> · <span className="error">{live.run.lastError}</span></>}
+              </p>
+            )}
+          </>
+        ) : (
+          <>
+            <p>Setup: no server required · budgets 3 proposals / 0 model requests · heuristic demand-greedy-swaps/1.</p>
+            <label>
+              Goal (display only; stub does not read it)
+              <textarea
+                rows={2}
+                defaultValue="Reduce picking travel for the loaded orders. Keep locked products fixed and relocate no more than the approved budget."
+                readOnly
+                data-testid="planning-request"
+              />
+            </label>
+          </>
+        )}
+      </details>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { expect, test } from "@playwright/test";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { startLiveFixture, type LiveFixture } from "./helpers/live-fixture";
+import { clickOpen } from "./helpers/ui";
 
 test.describe("M5 failure audit flow", () => {
   let fixture: LiveFixture | null = null;
@@ -26,9 +27,9 @@ test.describe("M5 failure audit flow", () => {
       if (m.type() === "error") errors.push(`console: ${m.text()}`);
     });
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
-    await page.getByTestId("provider-live").click();
-    await expect(page.getByTestId("live-status")).toContainText("Live ready", { timeout: 15_000 });
+    await clickOpen(page, "btn-sample");
+    await clickOpen(page, "provider-live");
+    await expect(page.getByTestId("live-status")).toContainText("Fixture ready", { timeout: 15_000 });
     await page.getByTestId("live-consent").click();
     await page.getByTestId("btn-interpret").click();
     await expect(page.getByTestId("live-busy")).toBeVisible();

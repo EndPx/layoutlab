@@ -1,15 +1,32 @@
+import { useRef, useState } from "react";
 import { rackFootprint, type Assignment, type Scenario } from "@layoutlab/core";
+
+export type RoutePolyline = { points: { x: number; z: number }[] };
+
+type Camera = { scale: number; cx: number; cz: number };
+
+function samePoints(a: RoutePolyline, b: RoutePolyline): boolean {
+  if (a.points.length !== b.points.length) return false;
+  return a.points.every((p, i) => p.x === b.points[i]!.x && p.z === b.points[i]!.z);
+}
 
 export function CenterView(props: {
   scenario: Scenario;
   assignment: Assignment[];
   baselineAssignment: Assignment[];
-  route: { points: { x: number; z: number }[] } | null;
-  hasRoute: boolean;
+  currentRoute: RoutePolyline | null;
+  candidateRoute: RoutePolyline | null;
+  showCurrent: boolean;
+  showCandidate: boolean;
+  currentNote: string | null;
 }): React.JSX.Element {
-  const { scenario, assignment, baselineAssignment, route, hasRoute } = props;
+  const { scenario, assignment, baselineAssignment, currentRoute, candidateRoute, showCurrent, showCandidate, currentNote } = props;
   const W = scenario.room.widthMm;
   const D = scenario.room.depthMm;
+  const [cam, setCam] = useState<Camera>({ scale: 1, cx: W / 2, cz: D / 2 });
+  const dragRef = useRef<{ x: number; y: number; cx: number; cz: number } | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
   const locOf = new Map(assignment.map((a) => [a.productId, a.locationId]));
   const baseOf = new Map(baselineAssignment.map((a) => [a.productId, a.locationId]));
   const movedTo = new Set<string>();
@@ -23,21 +40,79 @@ export function CenterView(props: {
   }
   const prodAt = new Map<string, string>();
   for (const [pid, lid] of locOf) prodAt.set(lid, pid);
-  const pts = route ? route.points.map((p) => `${p.x},${p.z}`).join(" ") : "";
+
+  const drawnCurrent = showCurrent ? currentRoute : null;
+  const drawnCandidate = showCandidate ? candidateRoute : null;
+  const coincide = drawnCurrent !== null && drawnCandidate !== null && samePoints(drawnCurrent, drawnCandidate);
+  const anyRoute = drawnCurrent !== null || drawnCandidate !== null;
+
+  const vw = W / cam.scale;
+  const vh = D / cam.scale;
+  const vx = cam.cx - vw / 2;
+  const vy = cam.cz - vh / 2;
+  const zoomBy = (f: number): void =>
+    setCam((c) => ({ ...c, scale: Math.min(8, Math.max(0.5, c.scale * f)) }));
+  const resetCam = (): void => setCam({ scale: 1, cx: W / 2, cz: D / 2 });
+  const panBy = (dxMm: number, dzMm: number): void =>
+    setCam((c) => ({ ...c, cx: c.cx + dxMm, cz: c.cz + dzMm }));
+  const pxToMm = (): number => {
+    const el = svgRef.current;
+    if (!el) return vw / 600;
+    const r = el.getBoundingClientRect();
+    return r.width > 0 ? vw / r.width : vw / 600;
+  };
+
+  const pts = (r: RoutePolyline): string => r.points.map((p) => `${p.x},${p.z}`).join(" ");
 
   return (
     <div>
-      {!hasRoute && (
+      <div className="camrow" role="group" aria-label="2D camera controls">
+        <button type="button" onClick={() => zoomBy(1.25)} data-testid="view-2d-zoom-in" aria-label="Zoom 2D in">+</button>
+        <button type="button" onClick={() => zoomBy(1 / 1.25)} data-testid="view-2d-zoom-out" aria-label="Zoom 2D out">−</button>
+        <button type="button" onClick={resetCam} data-testid="view-2d-reset" aria-label="Reset 2D view">⟳</button>
+        <span className="hint">Drag or arrow keys pan; view only, racks never move.</span>
+      </div>
+      {!anyRoute && (
         <p className="notice" data-testid="route-fallback">
           Visit-order schematic — not collision-checked (route unavailable for this selection).
         </p>
       )}
+      {coincide && (
+        <p className="notice" data-testid="route-coincide">
+          Current and candidate routes coincide for this order.
+        </p>
+      )}
       <svg
-        viewBox={`0 0 ${W} ${D}`}
+        ref={svgRef}
+        viewBox={`${vx} ${vy} ${vw} ${vh}`}
         width="100%"
         role="img"
+        tabIndex={0}
         aria-label={`2D warehouse plan, room ${W} by ${D} millimeters`}
         data-testid="svg-2d"
+        data-zoom={cam.scale.toFixed(2)}
+        style={{ cursor: "grab" }}
+        onPointerDown={(e) => {
+          (e.target as Element).releasePointerCapture?.(e.pointerId);
+          dragRef.current = { x: e.clientX, y: e.clientY, cx: cam.cx, cz: cam.cz };
+        }}
+        onPointerMove={(e) => {
+          const d = dragRef.current;
+          if (!d || e.buttons === 0) return;
+          const k = pxToMm();
+          setCam((c) => ({ ...c, cx: d.cx - (e.clientX - d.x) * k, cz: d.cz - (e.clientY - d.y) * k }));
+        }}
+        onPointerUp={() => { dragRef.current = null; }}
+        onKeyDown={(e) => {
+          const step = vw / 8;
+          if (e.key === "ArrowLeft") { panBy(-step, 0); e.preventDefault(); }
+          else if (e.key === "ArrowRight") { panBy(step, 0); e.preventDefault(); }
+          else if (e.key === "ArrowUp") { panBy(0, -step); e.preventDefault(); }
+          else if (e.key === "ArrowDown") { panBy(0, step); e.preventDefault(); }
+          else if (e.key === "+" || e.key === "=") { zoomBy(1.25); e.preventDefault(); }
+          else if (e.key === "-") { zoomBy(1 / 1.25); e.preventDefault(); }
+          else if (e.key === "0") { resetCam(); e.preventDefault(); }
+        }}
       >
         <rect x={0} y={0} width={W} height={D} fill="#fbfcfe" stroke="#1a2333" strokeWidth={40} />
         {scenario.racks.map((r) => {
@@ -59,11 +134,22 @@ export function CenterView(props: {
             </g>
           );
         })}
-        {route && (
+        {drawnCurrent && (
           <polyline
-            points={pts}
+            points={pts(drawnCurrent)}
             fill="none"
-            stroke="#0e6e6e"
+            stroke="#d9730d"
+            strokeWidth={90}
+            strokeLinejoin="round"
+            strokeDasharray="360 240"
+            data-testid="route-polyline-current"
+          />
+        )}
+        {drawnCandidate && (
+          <polyline
+            points={pts(drawnCandidate)}
+            fill="none"
+            stroke="#0b6b6e"
             strokeWidth={90}
             strokeLinejoin="round"
             data-testid="route-polyline"
@@ -74,9 +160,9 @@ export function CenterView(props: {
           y={scenario.packingPointMm.z - 160}
           width={320}
           height={320}
-          fill="#0e6e6e"
+          fill="#0b6b6e"
         />
-        <text x={scenario.packingPointMm.x} y={scenario.packingPointMm.z - 220} textAnchor="middle" fontSize={280} fill="#0e6e6e">
+        <text x={scenario.packingPointMm.x} y={scenario.packingPointMm.z - 220} textAnchor="middle" fontSize={280} fill="#0b6b6e">
           PACK
         </text>
         {scenario.locations.map((l, idx) => {
@@ -127,7 +213,8 @@ export function CenterView(props: {
         })}
       </svg>
       <p className="mono" data-testid="route-meta">
-        {route ? `True collision-checked route polyline, ${route.points.length} points.` : "No route polyline for this order/selection."}
+        {drawnCurrent ? `Current route${currentNote ? ` (${currentNote})` : ""}: true collision-checked polyline, ${drawnCurrent.points.length} points. ` : "No current route for this order/selection. "}
+        {drawnCandidate ? `Candidate route: true collision-checked polyline, ${drawnCandidate.points.length} points.` : "No candidate route for this order/selection."}
       </p>
     </div>
   );

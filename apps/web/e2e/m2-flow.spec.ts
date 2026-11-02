@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { replayReport } from "@layoutlab/core";
 import * as fs from "node:fs";
+import { clickOpen, openDetails } from "./helpers/ui";
 
 test.describe("M2 manual + stub flow", () => {
   test("load, evaluate, manual edit, stub, apply, export, replay", async ({ page }, testInfo) => {
@@ -13,14 +14,24 @@ test.describe("M2 manual + stub flow", () => {
     await page.goto("/");
     await expect(page.getByTestId("scenario-label")).toContainText("no scenario");
 
-    await page.getByTestId("btn-sample").click();
+    await clickOpen(page, "btn-sample");
     await expect(page.getByTestId("scenario-label")).toContainText("warehouse-basic");
     await expect(page.getByTestId("scenario-label")).toContainText("rev 0");
     await expect(page.getByTestId("valid-badge")).toContainText("VALID");
-    // Sample baseline is honestly computed by core (M1 observed 36800).
-    await expect(page.getByTestId("baseline-metrics")).toContainText("36800");
+    // Sample baseline is honestly computed by core (M1 observed 36800 mm).
+    await expect(page.getByTestId("baseline-metrics")).toContainText("36.8 m");
+    // Functional 2D/3D switch: exactly one view visible at a time.
+    await expect(page.getByTestId("view-3d")).toBeVisible();
+    await expect(page.getByTestId("three-canvas")).toBeVisible();
+    await expect(page.getByTestId("view-2d")).toBeHidden();
+    await page.getByTestId("view-tab-2d").click();
     await expect(page.getByTestId("view-2d")).toBeVisible();
-    await expect(page.getByTestId("route-polyline")).toBeVisible();
+    await expect(page.getByTestId("svg-2d")).toBeVisible();
+    await expect(page.getByTestId("route-polyline-current")).toBeVisible();
+    // No candidate exists yet: no fake candidate route is drawn.
+    expect(await page.getByTestId("route-polyline").count()).toBe(0);
+    await expect(page.getByTestId("view-3d")).toBeHidden();
+    await page.getByTestId("view-tab-3d").click();
     await expect(page.getByTestId("view-3d")).toBeVisible();
     await expect(page.getByTestId("btn-export")).toContainText("Export current evaluation");
 
@@ -58,6 +69,7 @@ test.describe("M2 manual + stub flow", () => {
       const row = page.getByTestId(`compare-${name}`);
       if ((await row.count()) === 0) continue;
       await page.getByTestId(`select-${name}`).click();
+      await openDetails(page, "run-details");
       await expect(page.getByTestId("relocation-table")).toBeVisible();
       const applyBtn = page.getByTestId(`apply-${name}`);
       if (await applyBtn.isEnabled()) {
@@ -117,12 +129,14 @@ test.describe("M2 manual + stub flow", () => {
 
   test("stale apply is rejected after a new scene edit", async ({ page }) => {
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
+    await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
     await expect(page.getByTestId("stub-outcome")).toBeVisible({ timeout: 15_000 });
 
-    // New scene edit invalidates the frozen run baseline.
+    // New scene edit invalidates the frozen run baseline (edits live in the
+    // Current frame; the candidate frame is read-only).
+    await page.getByTestId("frame-current").click();
     await page.getByTestId("assign-sku-c").selectOption("L7");
     const row = page.getByTestId("compare-stub-1");
     await expect(row).toBeVisible();
@@ -138,7 +152,7 @@ test.describe("M2 manual + stub flow", () => {
 
   test("cancellation prevents apply from an unfinished run", async ({ page }) => {
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
+    await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
     await expect(page.getByTestId("btn-cancel")).toBeEnabled();
@@ -153,7 +167,7 @@ test.describe("M2 manual + stub flow", () => {
 
   test("persistence reload restores revision and approval", async ({ page }) => {
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
+    await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("assign-sku-b").selectOption("L6");
     await expect(page.getByTestId("scenario-label")).toContainText("rev 1");
@@ -165,7 +179,7 @@ test.describe("M2 manual + stub flow", () => {
 
   test("constraint change after a run blocks apply until re-run", async ({ page }) => {
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
+    await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
     await expect(page.getByTestId("stub-outcome")).toBeVisible({ timeout: 15_000 });
@@ -188,29 +202,29 @@ test.describe("M2 manual + stub flow", () => {
 
   test("stale async run cannot overwrite reset or reload", async ({ page }) => {
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
+    await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
     await expect(page.getByTestId("btn-cancel")).toBeEnabled();
     // Reset mid-run: the stale loop must commit nothing afterwards.
-    await page.getByTestId("btn-reset").click();
+    await clickOpen(page, "btn-reset");
     await expect(page.getByTestId("scenario-label")).toContainText("no scenario");
     await expect(page.getByTestId("stub-status")).toContainText("idle");
     await page.waitForTimeout(1500);
     await expect(page.getByTestId("scenario-label")).toContainText("no scenario");
     await expect(page.getByTestId("stub-status")).toContainText("idle");
     // Planner stays usable after the race.
-    await page.getByTestId("btn-sample").click();
+    await clickOpen(page, "btn-sample");
     await expect(page.getByTestId("valid-badge")).toBeVisible();
   });
 
   test("stale async run cannot overwrite a fresh sample load", async ({ page }) => {
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
+    await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
     await expect(page.getByTestId("btn-cancel")).toBeEnabled();
-    await page.getByTestId("btn-sample").click();
+    await clickOpen(page, "btn-sample");
     await expect(page.getByTestId("scenario-label")).toContainText("rev 0");
     await expect(page.getByTestId("stub-status")).toContainText("idle");
     await page.waitForTimeout(1500);

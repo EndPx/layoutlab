@@ -6,6 +6,7 @@ import { replayReport } from "@layoutlab/core";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { startLiveFixture, type LiveFixture } from "./helpers/live-fixture";
+import { clickOpen, openDetails } from "./helpers/ui";
 
 const GLB_SHA256 = "571cc601bbbf8759977e05c5104a1d9381a682d2537942a238c68ebf8f8ae9ea";
 
@@ -17,19 +18,19 @@ test.describe("M4 heuristic comparison + attribution + scene gate", () => {
       if (m.type() === "error") errors.push(`console: ${m.text()}`);
     });
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
+    await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
     await expect(page.getByTestId("stub-outcome")).toBeVisible({ timeout: 15_000 });
 
     // Heuristic ran first with its own explicit budget (15/32 on the sample).
     await expect(page.getByTestId("stub-outcome")).toContainText("heuristic 15/32 evals");
-    await expect(page.getByTestId("timeline-heuristic")).toContainText("29800");
+    await expect(page.getByTestId("timeline-heuristic")).toContainText("29.8 m");
 
     // Comparison rows carry exact method labels.
     const heuristicRow = page.getByTestId("compare-heuristic");
     await expect(heuristicRow).toContainText("heuristic");
-    await expect(heuristicRow).toContainText("29800");
+    await expect(heuristicRow).toContainText("29.8 m");
     await expect(page.getByTestId("compare-stub-1")).toContainText("stub");
 
     // Budgets are actual per-method counts with no equal-compute claim.
@@ -38,15 +39,16 @@ test.describe("M4 heuristic comparison + attribution + scene gate", () => {
     await expect(budgets).toContainText("stub 3/3 proposals");
     await expect(budgets).toContainText("not an equal-compute comparison");
 
-    // Attribution: current vs heuristic vs stub best, overall selected separate.
+    // Attribution: run baseline vs heuristic vs stub best, overall selected separate.
     const summary = page.getByTestId("method-summary");
-    await expect(summary).toContainText("Current: 36800 mm");
-    await expect(summary).toContainText("Heuristic: 29800 mm");
+    await expect(summary).toContainText("Run baseline: 36.8 m");
+    await expect(summary).toContainText("Heuristic: 29.8 m");
     await expect(summary).toContainText("Stub best:");
     await expect(summary).toContainText("Overall selected: heuristic (heuristic)");
 
     // Honest win: the heuristic applies like any valid completed candidate.
     await page.getByTestId("select-heuristic").click();
+    await openDetails(page, "run-details");
     await expect(page.getByTestId("relocation-table")).toBeVisible();
     await page.getByTestId("apply-heuristic").click();
     await expect(page.getByTestId("apply-message")).toContainText("Applied heuristic");
@@ -145,9 +147,9 @@ test.describe("M4 live heuristic + Meta attribution (fixture transport)", () => 
       if (m.type() === "error") errors.push(`console: ${m.text()}`);
     });
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
-    await page.getByTestId("provider-live").click();
-    await expect(page.getByTestId("live-status")).toContainText("Live ready", { timeout: 15_000 });
+    await clickOpen(page, "btn-sample");
+    await clickOpen(page, "provider-live");
+    await expect(page.getByTestId("live-status")).toContainText("Fixture ready", { timeout: 15_000 });
     await page.getByTestId("live-consent").click();
     await page.getByTestId("btn-interpret").click();
     await expect(page.getByTestId("live-interpreted")).toBeVisible({ timeout: 30_000 });
@@ -157,7 +159,7 @@ test.describe("M4 live heuristic + Meta attribution (fixture transport)", () => 
 
     // Server heuristic surfaced with its own budget; model budgets unchanged.
     await expect(page.getByTestId("live-run-status")).toContainText("heuristic 15/32 evals");
-    await expect(page.getByTestId("timeline-heuristic")).toContainText("29800");
+    await expect(page.getByTestId("timeline-heuristic")).toContainText("29.8 m");
     await expect(page.getByTestId("compare-heuristic")).toContainText("heuristic");
     await expect(page.getByTestId("compare-proposal-1")).toContainText("meta-first");
     await expect(page.getByTestId("compare-proposal-3")).toContainText("meta-feedback");
@@ -165,10 +167,10 @@ test.describe("M4 live heuristic + Meta attribution (fixture transport)", () => 
     // Attribution: actual attempt 1, best valid Meta among actual attempts
     // with winning iteration, overall selected kept separate.
     const summary = page.getByTestId("method-summary");
-    await expect(summary).toContainText("Current: 36800 mm");
-    await expect(summary).toContainText("Heuristic: 29800 mm");
-    await expect(summary).toContainText("Meta first: 35600 mm (proposal-1)");
-    await expect(summary).toContainText("Meta feedback-selected: 35600 mm (best valid Meta proposal, proposal-1)");
+    await expect(summary).toContainText("Run baseline: 36.8 m");
+    await expect(summary).toContainText("Heuristic: 29.8 m");
+    await expect(summary).toContainText("Meta first: 35.6 m (proposal-1)");
+    await expect(summary).toContainText("Meta feedback-selected: 35.6 m (best valid Meta proposal, proposal-1)");
     await expect(summary).toContainText("Overall selected: heuristic (heuristic)");
     await expect(page.getByTestId("candidate-budgets")).toContainText("not an equal-compute comparison");
 
@@ -224,11 +226,7 @@ test.describe("M4 SimReady GLB racks in the browser", () => {
       if (m.type() === "error") errors.push(`console: ${m.text()}`);
     });
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
-
-    // 2D plan is unaffected by the 3D asset integration.
-    await expect(page.getByTestId("svg-2d")).toBeVisible();
-    await expect(page.getByTestId("route-polyline")).toBeVisible();
+    await clickOpen(page, "btn-sample");
 
     // Actual GLB loaded: 4 rack instances with calibrated bounding box.
     const canvas = page.getByTestId("three-canvas");
@@ -247,6 +245,12 @@ test.describe("M4 SimReady GLB racks in the browser", () => {
     expect(Math.abs((maxY as number) - 2.0)).toBeLessThan(0.01);
     expect(Math.abs((maxZ as number) - 1.9)).toBeLessThan(0.01);
 
+    // 2D plan is unaffected by the 3D asset integration (via the switch).
+    await page.getByTestId("view-tab-2d").click();
+    await expect(page.getByTestId("svg-2d")).toBeVisible();
+    await expect(page.getByTestId("route-polyline-current")).toBeVisible();
+    await page.getByTestId("view-tab-3d").click();
+
     // Full comparison UI must not overflow the page at the viewport.
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
@@ -258,8 +262,8 @@ test.describe("M4 SimReady GLB racks in the browser", () => {
     const dir = path.join(process.cwd(), "..", "..", "evidence", "sanitized");
     fs.mkdirSync(dir, { recursive: true });
     const tag = testInfo.project.name === "mobile" ? "mobile-390" : "desktop-1440";
-    await page.screenshot({ path: path.join(dir, `m4-${tag}.png`), fullPage: true });
-    await page.getByTestId("view-3d").screenshot({ path: path.join(dir, `m4-${tag}-3d.png`) });
+    await page.screenshot({ path: path.join(dir, `m6a-run-${tag}.png`), fullPage: true });
+    await page.getByTestId("view-3d").screenshot({ path: path.join(dir, `m6a-run-${tag}-3d.png`) });
 
     expect(errors, `console/page errors: ${errors.join("; ")}`).toEqual([]);
   });

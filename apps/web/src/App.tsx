@@ -8,6 +8,7 @@ import {
   evaluateBaseline,
   evaluateCandidate,
   freezeScenario,
+  improvementPercent,
   methodLabelFor,
   parseProposal,
   parseRequirements,
@@ -23,10 +24,10 @@ import {
 } from "@layoutlab/core";
 import sampleJson from "../../../fixtures/sample/warehouse-basic.json";
 import { BottomPanel } from "./components/BottomPanel";
-import { CenterView } from "./components/CenterView";
 import { LeftPanel } from "./components/LeftPanel";
+import { MetricCards } from "./components/MetricCards";
 import { RightPanel } from "./components/RightPanel";
-import { ThreeView } from "./components/ThreeView";
+import { WarehousePanel, type ViewMode } from "./components/WarehousePanel";
 import {
   approveLiveRun,
   cancelLiveRun,
@@ -93,6 +94,51 @@ const IDLE_RUN: StubRunState = {
 
 const delay = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 
+// Pure route builder shared by the current and candidate overlays: real core
+// shortestPathPointsMm polylines for one assignment + evaluated result, or
+// null when the order is unreachable/incomplete. Never a partial tour.
+function buildRouteFor(
+  scn: Scenario,
+  assignment: Assignment[],
+  result: CandidateResult | null,
+  orderId: string | null,
+): { points: { x: number; z: number }[] } | null {
+  try {
+    if (!orderId) return null;
+    const order = scn.orders.find((o) => o.id === orderId);
+    if (!order) return null;
+    const orderResult = result?.workload?.orders.find((o) => o.orderId === orderId);
+    // Suppress incomplete/unreachable routes: never draw a partial tour as complete.
+    if (!orderResult || !orderResult.reachable || orderResult.distanceMm === null) return null;
+    const visit = orderResult.visitSequence;
+    const locOf = new Map(assignment.map((a) => [a.productId, a.locationId]));
+    const pickOf = new Map(scn.locations.map((l) => [l.id, l.pickPointMm]));
+    const stops = [scn.packingPointMm];
+    for (const pid of visit) {
+      const lid = locOf.get(pid);
+      const pt = lid ? pickOf.get(lid) : undefined;
+      if (!pt) return null;
+      stops.push(pt);
+    }
+    stops.push(scn.packingPointMm);
+    const nav = buildNavContext(scn);
+    const full: { x: number; z: number }[] = [];
+    for (let k = 1; k < stops.length; k++) {
+      const pts = shortestPathPointsMm(stops[k - 1]!, stops[k]!, scn, nav);
+      if (!pts) return null;
+      for (const p of pts) {
+        const last = full[full.length - 1];
+        if (!last || last.x !== p.x || last.z !== p.z) full.push(p);
+      }
+    }
+    return { points: full };
+  } catch {
+    // Budget exhaustion or any nav failure suppresses the route (fallback
+    // schematic) instead of crashing the planner.
+    return null;
+  }
+}
+
 export function App(): React.JSX.Element {
   const [scenario, setScenario] = useState<Scenario | null>(null);
   const [scenarioError, setScenarioError] = useState<string | null>(null);
@@ -105,6 +151,9 @@ export function App(): React.JSX.Element {
   const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [showSelected, setShowSelected] = useState(true);
+  const [viewMode, setViewMode] = useState<ViewMode>("3d");
+  const [showCurrentRoute, setShowCurrentRoute] = useState(true);
+  const [showCandidateRoute, setShowCandidateRoute] = useState(true);
   const [mode, setMode] = useState<"MANUAL" | "STUB" | "REPLAY" | "LIVE">("MANUAL");
   // Live (Meta) run state. Server owns the run; the browser keeps only the
   // summary plus the local baseline snapshot needed for apply guards. Live
@@ -1004,123 +1053,233 @@ export function App(): React.JSX.Element {
     [comparisonRun.proposals, selectedCandidate],
   );
 
+  const hasCandidate = selectedStub?.candidate != null;
+  const effectiveShowSelected = showSelected && hasCandidate;
+
   const displayedAssignment: Assignment[] | null = useMemo(() => {
     if (!scenario) return null;
-    if (showSelected && selectedStub?.candidate) return selectedStub.candidate.assignment;
+    if (effectiveShowSelected && selectedStub?.candidate) return selectedStub.candidate.assignment;
     return scenario.assignments;
-  }, [scenario, showSelected, selectedStub]);
+  }, [scenario, effectiveShowSelected, selectedStub]);
 
-  const routePolylines = useMemo((): { points: { x: number; z: number }[] } | null => {
+  // Dual overlays from the same real builder: current frame vs selected
+  // candidate frame for the selected actual order. Coincidence is reported,
+  // never faked apart.
+  const currentRoute = useMemo(
+    () => (scenario ? buildRouteFor(scenario, scenario.assignments, baselineResult, selectedOrderId) : null),
+    [scenario, baselineResult, selectedOrderId],
+  );
+  const candidateRoute = useMemo(
+    () =>
+      scenario && selectedStub?.candidate
+        ? buildRouteFor(scenario, selectedStub.candidate.assignment, selectedStub.candidate, selectedOrderId)
+        : null,
+    [scenario, selectedStub, selectedOrderId],
+  );
+
+  // Frozen run baseline evaluation: candidates are ALWAYS compared against
+  // the run they were generated from, never the mutable edited scene.
+  const runBaselineEval: CandidateResult | null = useMemo(() => {
+    if (!comparisonRun.baseline || !comparisonRun.requirements) return null;
     try {
-      if (!scenario || !displayedAssignment || !selectedOrderId) return null;
-      const order = scenario.orders.find((o) => o.id === selectedOrderId);
-      if (!order) return null;
-      const result = showSelected && selectedStub?.candidate ? selectedStub.candidate : baselineResult;
-      const orderResult = result?.workload?.orders.find((o) => o.orderId === selectedOrderId);
-      // Suppress incomplete/unreachable routes: never draw a partial tour as complete.
-      if (!orderResult || !orderResult.reachable || orderResult.distanceMm === null) return null;
-      const visit = orderResult.visitSequence;
-      const locOf = new Map(displayedAssignment.map((a) => [a.productId, a.locationId]));
-      const pickOf = new Map(scenario.locations.map((l) => [l.id, l.pickPointMm]));
-      const stops = [scenario.packingPointMm];
-      for (const pid of visit) {
-        const lid = locOf.get(pid);
-        const pt = lid ? pickOf.get(lid) : undefined;
-        if (!pt) return null;
-        stops.push(pt);
-      }
-      stops.push(scenario.packingPointMm);
-      const nav = buildNavContext(scenario);
-      const full: { x: number; z: number }[] = [];
-      for (let k = 1; k < stops.length; k++) {
-        const pts = shortestPathPointsMm(stops[k - 1]!, stops[k]!, scenario, nav);
-        if (!pts) return null;
-        for (const p of pts) {
-          const last = full[full.length - 1];
-          if (!last || last.x !== p.x || last.z !== p.z) full.push(p);
-        }
-      }
-      return { points: full };
+      return evaluateBaseline(comparisonRun.baseline, comparisonRun.requirements);
     } catch {
-      // Budget exhaustion or any nav failure suppresses the route (fallback
-      // schematic) instead of crashing the planner.
       return null;
     }
-  }, [scenario, displayedAssignment, selectedOrderId, selectedStub, baselineResult, showSelected]);
+  }, [comparisonRun]);
+
+  // One coherent presentation frame for cards/warehouse/selection: the
+  // selected candidate when its view is active, else the current baseline.
+  // Candidate percentages use the frozen run baseline; the Current frame
+  // uses the current edited scenario.
+  const presented: CandidateResult | null = effectiveShowSelected && selectedStub?.candidate
+    ? selectedStub.candidate
+    : baselineResult;
+  const presentedName: string | null = effectiveShowSelected && selectedStub?.candidate
+    ? selectedCandidate
+    : "baseline";
+  const presentedImprovement: number | null =
+    runBaselineEval && presented && presentedName !== "baseline"
+      ? improvementPercent(runBaselineEval, presented)
+      : null;
+  // The relocation limit follows the frame: frozen run requirements for a
+  // run candidate, current requirements otherwise.
+  const relocationLimit =
+    presentedName !== "baseline" && comparisonRun.requirements
+      ? comparisonRun.requirements.maxRelocatedProducts
+      : requirements.maxRelocatedProducts;
+
+  // Stale mirrors the apply guards exactly (identity + revision + settings +
+  // constraints): a stale run marks its candidates and disables apply.
+  const staleInfo: { stale: boolean; reason: string | null } = useMemo(() => {
+    if (comparisonRun.status !== "completed" || !comparisonRun.baseline || !comparisonRun.requirements || !scenario) {
+      return { stale: false, reason: null };
+    }
+    if (scenario.id !== comparisonRun.baseline.id) {
+      return { stale: true, reason: `Scenario changed (${scenario.id} vs run ${comparisonRun.baseline.id}); re-run before applying.` };
+    }
+    if (scenario.revision !== comparisonRun.baseline.revision) {
+      return {
+        stale: true,
+        reason: `Stale revision (current ${scenario.revision}, run baseline ${comparisonRun.baseline.revision}); re-run before applying.`,
+      };
+    }
+    if (settingsFingerprint(scenario) !== comparisonRun.baselineFingerprint) {
+      return { stale: true, reason: "Settings changed since the run (room/racks/orders/cart); re-run before applying." };
+    }
+    if (JSON.stringify(requirements) !== JSON.stringify(comparisonRun.requirements)) {
+      return { stale: true, reason: "Requirements changed since the run; re-approve and re-run before applying." };
+    }
+    return { stale: false, reason: null };
+  }, [comparisonRun, scenario, requirements]);
+
+  const sampleMode = scenario?.provenance.category === "synthetic";
+  // Status truth: badges follow the ACTIVE run provenance, never stale
+  // state. Live-used ONLY when the official Meta transport ran real
+  // requests on the active live run — never from a present key, a
+  // selected radio, fixture/replay state, or an older live run that a
+  // stub run or replay has since superseded.
+  const liveUsed =
+    mode === "LIVE" && liveRun !== null && liveRun.providerKind === "meta" && liveRun.realMetaRequests > 0;
+  const fixtureActive =
+    mode === "LIVE" && liveRun !== null && liveRun.providerKind === "fixture" && liveRun.modelRequestsUsed > 0;
+  // Primary badge: STUB/MANUAL/REPLAY pass through; a live comparison
+  // shows LIVE only for real Meta inference, else FIXTURE when fixture
+  // requests ran. LIVE mode with zero requests of any kind is
+  // unreachable (a successful generation implies requests) and falls
+  // back to MANUAL: nothing actually ran.
+  const modeBadge = mode === "LIVE" ? (liveUsed ? "LIVE" : fixtureActive ? "FIXTURE" : "MANUAL") : mode;
+
+  // Whether the live scene moved on from the run baseline (revision/identity/
+  // settings). The orange route always follows the live scene; the label and
+  // note say so explicitly when the two differ.
+  const sceneDiffersFromRun = Boolean(
+    scenario && comparisonRun.baseline &&
+    (scenario.id !== comparisonRun.baseline.id ||
+      scenario.revision !== comparisonRun.baseline.revision ||
+      settingsFingerprint(scenario) !== comparisonRun.baselineFingerprint),
+  );
+  const routeCurrentNote = sceneDiffersFromRun && scenario && comparisonRun.baseline
+    ? `live scene rev ${scenario.revision}; run baseline rev ${comparisonRun.baseline.revision}`
+    : null;
+  // FROM/TO origin shares the frame: run baseline under a candidate view,
+  // live scene under the Current view.
+  const originAssignment: Assignment[] = effectiveShowSelected && comparisonRun.baseline
+    ? comparisonRun.baseline.assignments
+    : (scenario?.assignments ?? []);
+
+  const exportLabel = liveExportable
+    ? "Export live run report"
+    : liveFailureExportable
+      ? "Export failure audit (no measurements)"
+      : stubRun.status === "completed"
+        ? "Export run report"
+        : "Export current evaluation";
+  const selectedStatus = !scenario
+    ? "No scenario"
+    : selectedCandidate === "baseline" || !selectedStub
+      ? "Current assignment"
+      : selectedStub.candidate?.valid
+        ? `✓ ${selectedCandidate} selected`
+        : `× ${selectedCandidate} invalid`;
+
+  // The Scenario menu is a native disclosure; picking any item closes it.
+  const closeMenuOnPick = (e: React.SyntheticEvent): void => {
+    const target = e.target as HTMLElement | null;
+    if (target?.closest("button,label")) {
+      const menu = (e.currentTarget as HTMLElement).closest("details");
+      if (menu) menu.open = false;
+    }
+  };
 
   return (
     <div className="app">
       <header className="topbar">
-        <h1>LayoutLab — Storage planner</h1>
-        <span className="mono" data-testid="scenario-label">
-          {scenario ? `${scenario.id} · rev ${scenario.revision}` : "no scenario"}
+        <span className="brand" aria-label="LayoutLab">
+          <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><rect x="0" y="0" width="7" height="7" fill="#0b6b6e" /><rect x="9" y="0" width="7" height="7" fill="#0b6b6e" opacity="0.65" /><rect x="0" y="9" width="7" height="7" fill="#0b6b6e" opacity="0.65" /><rect x="9" y="9" width="7" height="7" fill="#0b6b6e" opacity="0.35" /></svg>
+          <strong>LayoutLab</strong>
         </span>
+        <nav className="crumbs" aria-label="Breadcrumb">
+          Warehouse storage planner ›{" "}
+          <span className="mono" data-testid="scenario-label">
+            {scenario ? `${scenario.id} · rev ${scenario.revision}` : "no scenario"}
+          </span>
+        </nav>
+        {sampleMode && <span className="badge sample" data-testid="sample-badge">Sample mode</span>}
         <span
-          className={`badge ${mode === "STUB" ? "stub" : mode === "REPLAY" ? "replay" : mode === "LIVE" ? "live" : ""}`}
+          className={`badge ${modeBadge === "STUB" ? "stub" : modeBadge === "REPLAY" ? "replay" : modeBadge === "LIVE" ? "live" : modeBadge === "FIXTURE" ? "fixture" : ""}`}
           data-testid="mode-badge"
         >
-          {mode}
+          {modeBadge}
         </span>
-        {baselineResult && (
-          <span className={`badge ${baselineResult.valid ? "valid" : "invalid"}`} data-testid="valid-badge">
-            {baselineResult.valid ? "VALID" : "INVALID"}
+        {presented && (
+          <span
+            className={`badge ${presented.valid ? "valid" : "invalid"}`}
+            data-testid="valid-badge"
+            title={presentedName === "baseline" ? "Current assignment validity" : `Candidate ${presentedName} validity`}
+          >
+            {presented.valid ? "VALID" : "INVALID"}
           </span>
         )}
+        {liveUsed && <span className="badge live-used" data-testid="live-used-badge">LIVE-USED</span>}
+        {fixtureActive && <span className="badge fixture" data-testid="fixture-badge">FIXTURE</span>}
         <span className="spacer" />
-        <button type="button" onClick={loadSample} data-testid="btn-sample">Load sample</button>
-        <label style={{ display: "inline-block", width: "auto" }}>
-          Load JSON
-          <input
-            type="file"
-            accept="application/json"
-            data-testid="input-scenario"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) void loadFile(f);
-              e.target.value = "";
-            }}
-          />
-        </label>
-        <button type="button" onClick={() => void exportJson()} disabled={!scenario} data-testid="btn-export">
-          {liveExportable
-            ? "Export live run report"
-            : liveFailureExportable
-              ? "Export failure audit (no measurements)"
-              : stubRun.status === "completed"
-                ? "Export run report"
-                : "Export current evaluation"}
+        <details className="menu" data-testid="scenario-menu">
+          <summary data-testid="scenario-menu-toggle">Scenario ▾</summary>
+          <div className="menu-drop" onClickCapture={closeMenuOnPick}>
+            <button type="button" onClick={loadSample} data-testid="btn-sample">Load sample</button>
+            <label className="filebtn">
+              Load JSON
+              <input
+                type="file"
+                accept="application/json"
+                data-testid="input-scenario"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void loadFile(f);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+            <label className="filebtn">
+              Import/Replay
+              <input
+                type="file"
+                accept="application/json"
+                data-testid="input-replay"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void importReplay(f);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+            <button type="button" onClick={resetAll} data-testid="btn-reset">Reset</button>
+          </div>
+        </details>
+        <button type="button" className="primary" onClick={() => void exportJson()} disabled={!scenario} data-testid="btn-export">
+          {exportLabel}
         </button>
-        <label style={{ display: "inline-block", width: "auto" }}>
-          Import/Replay
-          <input
-            type="file"
-            accept="application/json"
-            data-testid="input-replay"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) void importReplay(f);
-              e.target.value = "";
-            }}
-          />
-        </label>
-        <button type="button" onClick={resetAll} data-testid="btn-reset">Reset</button>
       </header>
 
-      <div className="main">
+      <div className="page">
+      <section className="headline" aria-label="Planner headline">
         <div>
-          <LeftPanel
-            scenario={scenario}
-            requirements={requirements}
-            baselineResult={baselineResult}
-            scenarioError={scenarioError}
-            onEdit={manualEdit}
-            onEvaluate={() => scenario && evaluateCurrent(scenario, requirements)}
-          />
+          <h1>A better place for every product.</h1>
+          <p>Compare storage assignments before making a physical change.</p>
+        </div>
+        <p className={`statuspill ${!scenario || selectedCandidate === "baseline" || !selectedStub ? "neutral" : selectedStub.candidate?.valid ? "ok" : "bad"}`} data-testid="selected-status">
+          {selectedStatus}
+        </p>
+      </section>
+
+      {(notice || applyMessage || replayError || replayInfo) && (
+        <section className="notices" aria-label="Run notices">
           {notice && <p data-testid="notice">{notice}</p>}
           {applyMessage && <p data-testid="apply-message">{applyMessage}</p>}
           {replayError && <p className="error" role="alert" data-testid="replay-error">{replayError}</p>}
           {replayInfo && (
-            <div className="panel" data-testid="replay-report">
+            <div className="panel inset" data-testid="replay-report">
               <h3>Replay report (core, no inference)</h3>
               <p>
                 Provider <span className="mono">{replayInfo.provider}</span> · run{" "}
@@ -1132,66 +1291,60 @@ export function App(): React.JSX.Element {
               </p>
             </div>
           )}
+        </section>
+      )}
+
+      <MetricCards
+        scenario={scenario}
+        presented={presented}
+        presentedName={presentedName}
+        relocationLimit={relocationLimit}
+        limitApproved={presentedName !== "baseline" ? true : approved}
+        improvement={presentedImprovement}
+        runBaselineMm={runBaselineEval?.weightedTravelMm ?? null}
+        stale={staleInfo.stale}
+      />
+
+      <div className="main">
+        <div className="col-left">
+          <LeftPanel
+            scenario={scenario}
+            requirements={requirements}
+            scenarioError={scenarioError}
+            onEdit={manualEdit}
+            onEvaluate={() => scenario && evaluateCurrent(scenario, requirements)}
+            selectedName={selectedCandidate}
+            candidate={effectiveShowSelected ? (selectedStub?.candidate ?? null) : null}
+            runBaseline={comparisonRun.baseline?.assignments ?? null}
+            frameCandidate={effectiveShowSelected}
+          />
         </div>
 
-        <div className="panel">
-          <h2>Warehouse views</h2>
-          {!scenario && <p>Load the sample or a bounded JSON scenario to begin.</p>}
-          {scenario && (
-            <>
-              <label>
-                Order route
-                <select
-                  data-testid="select-order"
-                  value={selectedOrderId ?? ""}
-                  onChange={(e) => setSelectedOrderId(e.target.value || null)}
-                >
-                  {scenario.orders.map((o) => (
-                    <option key={o.id} value={o.id}>{o.id} (×{o.frequency})</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={showSelected}
-                  onChange={(e) => setShowSelected(e.target.checked)}
-                  data-testid="toggle-candidate-view"
-                />{" "}
-                Show selected candidate (before/after)
-              </label>
-              <div className="legend" data-testid="demand-legend">
-                <span><span className="dot low" />○ Low</span>
-                <span><span className="dot mid" />◐ Mid</span>
-                <span><span className="dot high" />● High</span>
-                <span>Labels are text; color is redundant.</span>
-              </div>
-              <div className="views">
-                <div className="viewbox" data-testid="view-2d">
-                  <h3>2D plan (always available)</h3>
-                  <CenterView
-                    scenario={scenario}
-                    assignment={displayedAssignment ?? scenario.assignments}
-                    baselineAssignment={scenario.assignments}
-                    route={routePolylines}
-                    hasRoute={routePolylines !== null}
-                  />
-                </div>
-                <div className="viewbox" data-testid="view-3d">
-                  <span className="proxy-ribbon">SIMREADY RACKS · PROXY MARKERS</span>
-                  <h3>3D warehouse</h3>
-                  <ThreeView
-                    scenario={scenario}
-                    assignment={displayedAssignment ?? scenario.assignments}
-                    route={routePolylines}
-                  />
-                </div>
-              </div>
-            </>
-          )}
+        <div className="col-center">
+          <WarehousePanel
+            scenario={scenario}
+            displayedAssignment={displayedAssignment}
+            selectedStubName={selectedCandidate}
+            hasCandidate={hasCandidate}
+            showSelected={effectiveShowSelected}
+            onShowSelected={setShowSelected}
+            selectedOrderId={selectedOrderId}
+            onSelectOrder={setSelectedOrderId}
+            viewMode={viewMode}
+            onViewMode={setViewMode}
+            currentRoute={currentRoute}
+            candidateRoute={candidateRoute}
+            showCurrentRoute={showCurrentRoute}
+            onShowCurrentRoute={setShowCurrentRoute}
+            showCandidateRoute={showCandidateRoute}
+            onShowCandidateRoute={setShowCandidateRoute}
+            originAssignment={originAssignment}
+            currentEdited={sceneDiffersFromRun}
+            currentNote={routeCurrentNote}
+          />
         </div>
 
-        <div className="rightcol">
+        <div className="col-right">
           <RightPanel
             scenario={scenario}
             requirements={requirements}
@@ -1244,7 +1397,17 @@ export function App(): React.JSX.Element {
           providerLabel={comparisonProvider}
           methodLabels={comparisonLabels}
           budgets={comparisonBudgets}
+          stale={staleInfo.stale}
+          staleReason={staleInfo.reason}
+          frozen={comparisonRun.status === "completed" && comparisonRun.baseline !== null && comparisonRun.requirements !== null}
+          frozenBaseline={runBaselineEval}
         />
+      </div>
+
+      <footer className="pagefoot" data-testid="page-footer">
+        <span>Source assets: NVIDIA SimReady (CC-BY-4.0) · Evaluation: LayoutLab core</span>
+        <span className="mono">docs/METHODOLOGY.md</span>
+      </footer>
       </div>
     </div>
   );

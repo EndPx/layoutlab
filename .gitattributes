@@ -2,3 +2,6 @@
 assets/** -text
 # Preserve the converted GLB derivative byte-for-byte as well.
 *.glb -text
+# M6A: frozen benchmark fixtures are hashed raw byte-for-byte.
+# Windows autocrlf must never rewrite these bytes on checkout.
+fixtures/benchmark/*.json -text

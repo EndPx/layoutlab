@@ -1,0 +1,473 @@
+{
+  "checkedAt": "2026-11-02T08:29:13.973Z",
+  "command": "npm run test:e2e",
+  "coordinatorExecuted": true,
+  "inference": "Local fixture transport only; zero real Meta requests.",
+  "stats": {
+    "startTime": "2026-11-02T08:22:52.795Z",
+    "duration": 261846.473,
+    "expected": 76,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "tests": [
+    {
+      "title": "malformed scenario and replay imports show useful errors",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 1285
+    },
+    {
+      "title": "tampered envelope metadata is rejected before replay",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 2525
+    },
+    {
+      "title": "malicious storage cannot crash the planner",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 3266
+    },
+    {
+      "title": "2D/3D views render without console errors (screenshot)",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 2605
+    },
+    {
+      "title": "malformed scenario and replay imports show useful errors",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 1187
+    },
+    {
+      "title": "tampered envelope metadata is rejected before replay",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 1992
+    },
+    {
+      "title": "malicious storage cannot crash the planner",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 3440
+    },
+    {
+      "title": "2D/3D views render without console errors (screenshot)",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 3009
+    },
+    {
+      "title": "load, evaluate, manual edit, stub, apply, export, replay",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 6758
+    },
+    {
+      "title": "stale apply is rejected after a new scene edit",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 4267
+    },
+    {
+      "title": "cancellation prevents apply from an unfinished run",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 2150
+    },
+    {
+      "title": "persistence reload restores revision and approval",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 3068
+    },
+    {
+      "title": "constraint change after a run blocks apply until re-run",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 4648
+    },
+    {
+      "title": "stale async run cannot overwrite reset or reload",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 3992
+    },
+    {
+      "title": "stale async run cannot overwrite a fresh sample load",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 3890
+    },
+    {
+      "title": "load, evaluate, manual edit, stub, apply, export, replay",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 7144
+    },
+    {
+      "title": "stale apply is rejected after a new scene edit",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 4492
+    },
+    {
+      "title": "cancellation prevents apply from an unfinished run",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 2199
+    },
+    {
+      "title": "persistence reload restores revision and approval",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 3266
+    },
+    {
+      "title": "constraint change after a run blocks apply until re-run",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 4821
+    },
+    {
+      "title": "stale async run cannot overwrite reset or reload",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 4319
+    },
+    {
+      "title": "stale async run cannot overwrite a fresh sample load",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 3944
+    },
+    {
+      "title": "live and stub are distinguishable; consent gates inference",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 1933
+    },
+    {
+      "title": "interpret, approve, propose, apply, export, replay over fixture transport",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 5001
+    },
+    {
+      "title": "open interpreted questions block proposals until resolved",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 3269
+    },
+    {
+      "title": "failed runs stay inspectable but cannot apply",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 3006
+    },
+    {
+      "title": "reset during slow interpretation leaves no stale live state",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 6005
+    },
+    {
+      "title": "tampered M3 metadata is rejected before replay",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 1140
+    },
+    {
+      "title": "contributor model id discloses training-data use",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 1692
+    },
+    {
+      "title": "live and stub are distinguishable; consent gates inference",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 1946
+    },
+    {
+      "title": "interpret, approve, propose, apply, export, replay over fixture transport",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 5864
+    },
+    {
+      "title": "open interpreted questions block proposals until resolved",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 3324
+    },
+    {
+      "title": "failed runs stay inspectable but cannot apply",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 3087
+    },
+    {
+      "title": "reset during slow interpretation leaves no stale live state",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 6276
+    },
+    {
+      "title": "tampered M3 metadata is rejected before replay",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 1029
+    },
+    {
+      "title": "contributor model id discloses training-data use",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 1747
+    },
+    {
+      "title": "stub run shows current, heuristic, stub best with budgets and honest win",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 4417
+    },
+    {
+      "title": "invalid scene geometry blocks generation before any search",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 1581
+    },
+    {
+      "title": "historical M3 live-smoke report still replays",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 954
+    },
+    {
+      "title": "stub run shows current, heuristic, stub best with budgets and honest win",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 4677
+    },
+    {
+      "title": "invalid scene geometry blocks generation before any search",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 1528
+    },
+    {
+      "title": "historical M3 live-smoke report still replays",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 1003
+    },
+    {
+      "title": "live comparison shows heuristic, Meta first, feedback-selected, overall",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 3914
+    },
+    {
+      "title": "live comparison shows heuristic, Meta first, feedback-selected, overall",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 3486
+    },
+    {
+      "title": "racks load actual GLB with canonical scale, 2D unaffected (screenshot)",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 4207
+    },
+    {
+      "title": "racks load actual GLB with canonical scale, 2D unaffected (screenshot)",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 5022
+    },
+    {
+      "title": "cancelled live run exports a failure audit and replays the no-measurement boundary",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 2257
+    },
+    {
+      "title": "tampered failure audits are rejected before replay",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 1009
+    },
+    {
+      "title": "cancelled live run exports a failure audit and replays the no-measurement boundary",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 2264
+    },
+    {
+      "title": "tampered failure audits are rejected before replay",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 1171
+    },
+    {
+      "title": "empty state shows N/A with load directions",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 974
+    },
+    {
+      "title": "sample load shows actual baseline truth",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 1522
+    },
+    {
+      "title": "manual edits update every value (no constants)",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 2793
+    },
+    {
+      "title": "run frame compares against the frozen run baseline, stale is explicit",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 4854
+    },
+    {
+      "title": "stepper is data-bound and invalidates approval",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 2839
+    },
+    {
+      "title": "product filter is local-only and preserves rows",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 1630
+    },
+    {
+      "title": "candidate frame is read-only; toggles never mutate state",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 4236
+    },
+    {
+      "title": "2D zoom/reset and keyboard switch work without moving racks",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 2913
+    },
+    {
+      "title": "route coincidence is reported, never invented",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 3704
+    },
+    {
+      "title": "apply-selected applies the valid completed candidate",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 3974
+    },
+    {
+      "title": "fixture run is labeled FIXTURE, never LIVE, with no bleed into later runs",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 5323
+    },
+    {
+      "title": "desktop reference density at 1586x1007 with readable 3D labels",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 4239
+    },
+    {
+      "title": "fixture transport never reports live-used",
+      "project": "desktop",
+      "status": "expected",
+      "durationMs": 2966
+    },
+    {
+      "title": "empty state shows N/A with load directions",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 881
+    },
+    {
+      "title": "sample load shows actual baseline truth",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 1792
+    },
+    {
+      "title": "manual edits update every value (no constants)",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 2964
+    },
+    {
+      "title": "run frame compares against the frozen run baseline, stale is explicit",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 5227
+    },
+    {
+      "title": "stepper is data-bound and invalidates approval",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 3217
+    },
+    {
+      "title": "product filter is local-only and preserves rows",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 1522
+    },
+    {
+      "title": "candidate frame is read-only; toggles never mutate state",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 4618
+    },
+    {
+      "title": "2D zoom/reset and keyboard switch work without moving racks",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 2944
+    },
+    {
+      "title": "route coincidence is reported, never invented",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 3862
+    },
+    {
+      "title": "apply-selected applies the valid completed candidate",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 4191
+    },
+    {
+      "title": "fixture run is labeled FIXTURE, never LIVE, with no bleed into later runs",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 5667
+    },
+    {
+      "title": "desktop reference density at 1586x1007 with readable 3D labels",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 4651
+    },
+    {
+      "title": "fixture transport never reports live-used",
+      "project": "mobile",
+      "status": "expected",
+      "durationMs": 3118
+    }
+  ],
+  "provenanceNote": "The worker ran --list after its run, overwriting its JSON report. This record comes from a fresh coordinator-executed full test run, not the list command."
+}

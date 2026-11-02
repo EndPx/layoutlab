@@ -1,4 +1,5 @@
 import { expect, test, type TestInfo } from "@playwright/test";
+import { clickOpen } from "./helpers/ui";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
@@ -31,7 +32,7 @@ test.describe("M2 trust boundaries", () => {
 
   test("tampered envelope metadata is rejected before replay", async ({ page }, testInfo) => {
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
+    await clickOpen(page, "btn-sample");
     const download = page.waitForEvent("download", { timeout: 30_000 });
     await page.getByTestId("btn-export").click();
     const file = await download;
@@ -75,7 +76,7 @@ test.describe("M2 trust boundaries", () => {
     });
     await page.reload();
     await expect(page.getByTestId("notice")).toContainText(/valid JSON|fresh/i);
-    await page.getByTestId("btn-sample").click();
+    await clickOpen(page, "btn-sample");
     await expect(page.getByTestId("valid-badge")).toBeVisible();
 
     // Crafted stub candidate with non-string members must fail validation, not crash core.
@@ -94,8 +95,8 @@ test.describe("M2 trust boundaries", () => {
     });
     await page.reload();
     // Either a clean notice or a fresh load; the planner must stay usable.
-    await expect(page.getByTestId("btn-sample")).toBeVisible();
-    await page.getByTestId("btn-sample").click();
+    await expect(page.getByTestId("scenario-menu-toggle")).toBeVisible();
+    await clickOpen(page, "btn-sample");
     await expect(page.getByTestId("valid-badge")).toBeVisible();
   });
 
@@ -106,11 +107,13 @@ test.describe("M2 trust boundaries", () => {
       if (m.type() === "error") errors.push(`console: ${m.text()}`);
     });
     await page.goto("/");
-    await page.getByTestId("btn-sample").click();
-    await expect(page.getByTestId("svg-2d")).toBeVisible();
-    await expect(page.getByTestId("route-polyline")).toBeVisible();
+    await clickOpen(page, "btn-sample");
     await expect(page.getByTestId("view-3d")).toBeVisible();
     await expect(page.getByTestId("three-canvas")).toBeVisible();
+    await page.getByTestId("view-tab-2d").click();
+    await expect(page.getByTestId("view-2d")).toBeVisible();
+    await expect(page.getByTestId("svg-2d")).toBeVisible();
+    await expect(page.getByTestId("route-polyline-current")).toBeVisible();
 
     // No page-level horizontal overflow at the configured viewport (mobile
     // emulation can expand innerWidth to content, so the oracle is the
@@ -143,9 +146,10 @@ test.describe("M2 trust boundaries", () => {
     const dir = path.join(process.cwd(), "..", "..", "evidence", "sanitized");
     fs.mkdirSync(dir, { recursive: true });
     const tag = testInfo.project.name === "mobile" ? "mobile-390" : "desktop-1440";
-    await page.screenshot({ path: path.join(dir, `m2-${tag}.png`), fullPage: true });
-    await page.getByTestId("view-2d").screenshot({ path: path.join(dir, `m2-${tag}-2d.png`) });
-    await page.getByTestId("view-3d").screenshot({ path: path.join(dir, `m2-${tag}-3d.png`) });
+    await page.screenshot({ path: path.join(dir, `m6a-shell-${tag}.png`), fullPage: true });
+    await page.getByTestId("view-2d").screenshot({ path: path.join(dir, `m6a-shell-${tag}-2d.png`) });
+    await page.getByTestId("view-tab-3d").click();
+    await page.getByTestId("view-3d").screenshot({ path: path.join(dir, `m6a-shell-${tag}-3d.png`) });
 
     expect(errors, `console/page errors: ${errors.join("; ")}`).toEqual([]);
   });

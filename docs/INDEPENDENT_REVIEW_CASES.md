@@ -32,3 +32,13 @@ Check safe integers and workload bounds; duplicate IDs and references; unknown f
 Packing (1000,1000), near location (2000,1000), far location (4000,1000), no intervening obstacle. Product A starts far; B starts near. An A-only order has frequency 10, and a B-only order frequency 1. Baseline travel is 10*6000 + 1*2000 = 62000 mm. With equal compatibility and relocation budget two, swapping gives 10*2000 + 1*6000 = 26000 mm and two relocations. No empty location is present: budget one cannot admit the swap. Locking A or making the near location incompatible must prevent that move. Valid rack geometry can be placed away from these routes so all fixture references remain intact.
 
 Demand rank counts a distinct product once per order times frequency. Order quantity changes reported units, not this visit-frequency rank or the number of route visits.
+
+## M6A actual browser state and routes
+
+The synthetic warehouse-basic sample contains three templates with frequencies 4, 2 and 1. Independent BFS gives baseline order distances 3400, 8000 and 7200 mm, so weighted travel is 4*3400 + 2*8000 + 7200 = 36800 mm. Swapping B from L2 to L4 and D from L4 to L2 gives distances 3400, 4600 and 7000 mm: 29800 mm, two relocations and 19.0217 percent modeled improvement. O1 routes coincide; O2 routes differ. Neither route may be offset or fabricated to create a visible improvement.
+
+Manual B-to-L6 changes current travel to 35600 mm; manual C-to-L7 changes it to 48800 mm. A previously generated candidate still compares against its frozen 36800-mm run baseline and original relocation budget, with stale apply disabled. Current view remains independently editable; Candidate view shows read-only destinations.
+
+The browser reviewer checks actual SVG coordinates and full polyline lengths against the independent BFS, canonical marker coordinates, delivered GLB hash, and exported report selection/constraints. Actual DOM rectangles, rather than a renderer-reported counter alone, check all 13 sample labels and all 17 labels in the 12-location benchmark at 1586/1440/768/390 pixels. Fractional DOM sizes require padding; integer offsetWidth can conceal approximately one-pixel collisions.
+
+Final execution evidence is in `evidence/sanitized/m6-browser-gates.json` and `m6-independent-review.json`. Replay the saved five-valid-assignment stub report with `node scripts/independent-bfs.mjs evidence/sanitized/m6-stub-report.json`. This is synthetic local/stub/fixture evidence, not a live Meta benchmark or public deployment.

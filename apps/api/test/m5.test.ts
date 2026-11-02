@@ -2,6 +2,7 @@
 // runner. Fixture transport only (providerKind "fixture", realMetaRequests
 // 0); live preflight is tested as pure refusal logic — no paid inference.
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -831,6 +832,15 @@ describe("M5 benchmark fixtures and offline mode", () => {
     const replayed = replayBenchmarkReport(report, rootDir());
     expect(replayed.mismatches).toEqual([]);
     expect(replayed.matchesSaved).toBe(true);
+  });
+
+  it("offline report records the execution commit, not the fixture-authoring base", () => {
+    const report = buildOfflineBenchmark(rootDir());
+    // Independent oracle: current HEAD read directly, not via the helper
+    // under test. The embedded manifest keeps the fixture-authoring base.
+    const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: rootDir(), encoding: "utf8" }).trim();
+    expect(report.freeze.sourceCommit).toBe(head);
+    expect(report.freeze.manifest.sourceCommit).toBe(loadBenchmark(rootDir()).manifest.sourceCommit);
   });
 });
 
