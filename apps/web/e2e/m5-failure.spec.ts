@@ -20,7 +20,7 @@ test.describe("M5 failure audit flow", () => {
     fixture = null;
   });
 
-  test("cancelled live run exports a failure audit and replays the no-measurement boundary", async ({ page }, testInfo) => {
+  test("cancelled live run exports a failure audit and replays the no-approved-report boundary", async ({ page }, testInfo) => {
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(`pageerror: ${e.message}`));
     page.on("console", (m) => {
@@ -56,9 +56,9 @@ test.describe("M5 failure audit flow", () => {
     expect(JSON.stringify(envelope)).not.toContain("IMPROVED");
     expect(JSON.stringify(envelope)).not.toContain("fixture-only-key");
 
-    // Import replays the audit and states the no-measurement boundary.
+    // Import replays the audit and states the no-approved-report boundary.
     await page.getByTestId("input-replay").setInputFiles(tmp);
-    await expect(page.getByTestId("replay-verdict")).toContainText("No deterministic measurement existed");
+    await expect(page.getByTestId("replay-verdict")).toContainText("No approved evaluation report exists");
     fs.unlinkSync(tmp);
     expect(errors, `console/page errors: ${errors.join("; ")}`).toEqual([]);
   });

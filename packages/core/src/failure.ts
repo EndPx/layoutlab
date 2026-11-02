@@ -1,16 +1,20 @@
 // Shared M5 failure-audit contract (Node-free: runs in API, browser, and
 // benchmark replay from this one source). A failure audit is the honest
 // export for terminal FAILED/CANCELLED/TIMED_OUT runs that never reached an
-// evaluated report: audit facts only, with an explicit no-evaluation
-// boundary. It validates structurally but NEVER claims a measurement match.
+// approved evaluation report: audit facts only, with an explicit no-approved-
+// evaluation boundary. It validates structurally but NEVER claims an approved
+// measurement match. (An unapproved baseline preview can exist for the run;
+// approving nothing means no approved report exists.)
 import { z } from "zod";
 import { MAX_ID_LEN, MAX_TEXT_LEN, requirementsSchema, scenarioSchema } from "./schema.js";
 
 export const M5_FAILURE_VERSION = "layoutlab.m5failure/1";
 
-// Explicit no-evaluation boundary shared by the failure envelope and its replay.
+// Explicit no-approved-evaluation boundary shared by the failure envelope and
+// its replay. Worded as "no approved report" (not "no measurement existed")
+// because an unapproved baseline preview can exist for the run.
 export const FAILURE_NO_EVALUATION =
-  "No deterministic measurement existed for this run: it ended before any approved requirements were evaluated, so there is no baseline, no candidate, no best name, and no improvement to replay.";
+  "No approved evaluation report exists for this run: it ended before any approved requirements were evaluated, so there is no approved baseline, no candidate, no best name, and no improvement to replay.";
 
 // Brief section 21 run caps: the failure record can never exceed them.
 const MAX_RUN_PROPOSALS = 3;
@@ -84,8 +88,8 @@ export const failureEnvelopeSchema = z
 export type FailureEnvelope = z.infer<typeof failureEnvelopeSchema>;
 
 // Failure-audit replay: validates the record (throws on malformed or
-// success-claiming input) and explicitly reports that no deterministic
-// measurement existed. There is no matchesSaved: nothing was measured.
+// success-claiming input) and explicitly reports that no approved evaluation
+// report exists. There is no matchesSaved: nothing approved was measured.
 export function replayFailureRecord(json: unknown): {
   valid: true;
   evaluated: false;

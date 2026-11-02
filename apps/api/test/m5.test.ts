@@ -301,11 +301,11 @@ describe("M5 failure-audit export", () => {
     expect(e["realMetaRequests"]).toBe(0);
     expect(e["interpretDiagnostics"]).toEqual({ responseId: null, finishReason: null, errorCode: "TRANSPORT_ERROR" });
     expect(JSON.stringify(e)).not.toContain(FAKE_KEY);
-    // Audit replay validates but states no measurement existed.
+    // Audit replay validates but states no approved report exists.
     const replayed = replayFailureRecord(e);
     expect(replayed.valid).toBe(true);
     expect(replayed.evaluated).toBe(false);
-    expect(replayed.notice).toContain("No deterministic measurement existed");
+    expect(replayed.notice).toContain("No approved evaluation report exists");
   });
 
   it("exports an honest audit for cancellation before approval", async () => {

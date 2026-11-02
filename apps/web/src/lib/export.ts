@@ -469,8 +469,8 @@ export type FailureReplay = {
 };
 
 // Failure-audit import via the one shared core contract: validates the
-// record and explicitly reports that no deterministic measurement existed.
-// Never claims "matches saved measurements" — nothing was measured to match.
+// record and explicitly reports that no approved evaluation report exists.
+// Never claims "matches saved measurements" — nothing approved to match.
 export function replayFailureEnvelope(json: unknown): FailureReplay {
   return replayFailureRecord(json);
 }

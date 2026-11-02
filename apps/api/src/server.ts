@@ -1,7 +1,11 @@
-// Express app factory for M3. Same-origin only (no CORS wildcard); the Vite
-// dev server proxies /api to this loopback API. All errors are sanitized.
+// Express app factory for M3 (+M6B same-origin production). Same-origin only
+// (no CORS wildcard); the Vite dev server proxies /api to this loopback API
+// in development, while `npm start` serves the built web from this same app.
+// All errors are sanitized.
 import { CORE_VERSION, ROUTE_POLICY_ID } from "@layoutlab/core";
 import express, { type Request, type Response } from "express";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { z } from "zod";
 import { API_VERSION, liveAvailable, loadConfig, sanitizeMessage, type ApiConfig } from "./config.js";
 import { PROMPT_VERSION } from "./prompts.js";
@@ -60,11 +64,28 @@ class BoundedLimiter {
   }
 }
 
+// Setup guidance when the API runs without a built web (dev before build, or
+// `npm start` before `npm run build`): explicit 503, never a blank success.
+export const WEB_BUILD_GUIDANCE =
+  "LayoutLab web build not found.\n" +
+  "The API is running, but the planner UI was not built.\n" +
+  "Run `npm run build` from the repository root, then restart with `npm start`.\n" +
+  "API status: GET /api/status\n";
+
+// A web build counts only when its entry point exists; an empty or partial
+// directory is the same guidance case as a missing one.
+export function hasWebBuild(webDir: string | undefined): webDir is string {
+  return typeof webDir === "string" && webDir !== "" && existsSync(join(webDir, "index.html"));
+}
+
 export function createApp(opts: {
   config?: ApiConfig;
   fetchImpl?: FetchLike;
   trustProxy?: boolean;
-} = {}): { app: express.Express; store: RunStore; config: ApiConfig } {
+  // Built web root (apps/web/dist). Absent or unbuilt: the API still serves
+  // every /api route and answers GET / with setup guidance (dev parity).
+  webDir?: string;
+} = {}): { app: express.Express; store: RunStore; config: ApiConfig; webBuilt: boolean } {
   const config = opts.config ?? loadConfig();
   const fetchImpl = opts.fetchImpl ?? fetch;
   const store = new RunStore(config);
@@ -210,6 +231,46 @@ export function createApp(opts: {
     }
   });
 
+  // Unknown /api routes are JSON 404s. This sits before static serving so no
+  // planner shell or fallback can swallow an API miss.
+  app.use("/api", (_req: Request, res: Response) => {
+    res.status(404).json({ code: "UNKNOWN_API_ROUTE", message: "Unknown API route." });
+  });
+
+  // Same-origin built web: only this directory is ever served, so the repo
+  // root, source, and .env are unreachable through static routes.
+  const webDir = opts.webDir;
+  if (typeof webDir === "string" && hasWebBuild(webDir)) {
+    app.use(
+      express.static(webDir, {
+        index: "index.html",
+        dotfiles: "deny",
+        extensions: false,
+        // Explicit GLB media type for the pinned rack asset.
+        setHeaders: (res, filePath) => {
+          if (filePath.endsWith(".glb")) res.setHeader("Content-Type", "model/gltf-binary");
+        },
+      }),
+    );
+    // No shell fallback: the planner has no client router or deep links, so
+    // every miss (extensionless or not) is a 404 below. express.static
+    // already serves / from index.html.
+  } else {
+    // API-only mode: GETs outside /api explain the missing build (503).
+    app.use((req: Request, res: Response, next: (e?: unknown) => void) => {
+      if (req.method !== "GET") {
+        next();
+        return;
+      }
+      res.status(503).type("text/plain").send(WEB_BUILD_GUIDANCE);
+    });
+  }
+
+  // Non-API misses: every path outside /api and the static files is a 404.
+  app.use((_req: Request, res: Response) => {
+    res.status(404).json({ code: "NOT_FOUND", message: "Not found." });
+  });
+
   // Body-limit and route errors land here; always sanitized, never echo keys.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app.use((err: unknown, _req: Request, res: Response, _next: (e: unknown) => void) => {
@@ -247,5 +308,5 @@ export function createApp(opts: {
     res.status(status).json({ code, message: message.slice(0, 1000) });
   });
 
-  return { app, store, config };
+  return { app, store, config, webBuilt: hasWebBuild(webDir) };
 }

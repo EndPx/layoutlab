@@ -10,7 +10,7 @@ Scope authority: [Implementation Brief v2](IMPLEMENTATION_BRIEF_V2.md). Codex pl
 | M3 | Server-side Meta interpretation and proposals with measured feedback; maximum 3 proposals and 4 requests including repairs; timeout, cancellation, concurrency and input limits; separate live evidence | Local and live smoke accepted: one authorized run, 4 real requests, 2 failed attempts + 1 valid worse proposal; baseline retained, replay matched |
 | M4 | Bounded demand heuristic sharing evaluator; actual SimReady asset loaded, inspected and attributed; proxies clearly labeled until replaced | Accepted: 96 core + 41 API + 46 browser tests, independent heuristic/source/GLB/browser checks; final wording follow-up verified |
 | M5 | Six frozen scenarios, three actual model runs each when authorized; first versus feedback and heuristic comparison, all failures and budgets recorded; deterministic report replay | Readiness locally accepted: 110 core + 67 API + 50 browser tests; six offline cases and 18 fixture trials verified; real 18-trial benchmark awaits new authorization |
-| M6 | Documentation and demo agree with evidence; GitHub repository layoutlab; deployment requires authorization and public verification | Reference UI accepted locally; native production/docs/checkout gate next; public deployment pending |
+| M6 | Documentation and demo agree with evidence; GitHub repository layoutlab; deployment requires authorization and public verification | Reference UI and native code/production smoke accepted; fresh checkout gate next; public deployment pending |
 
 ## Remaining delivery gates
 
@@ -111,3 +111,13 @@ Reviewed source through M5 readiness is pushed to the private repository https:/
 - Evidence: `evidence/sanitized/m6-independent-review.json`, `m6-stub-report.json`, final `m6a-*` captures. `node scripts/independent-bfs.mjs evidence/sanitized/m6-stub-report.json` reproduces five valid assignment checks without core routing helpers.
 - Blockers: no remaining M6A local blocker. Actual 18-trial Meta benchmark and public deployment remain separately gated.
 - Next gate: M6B single native production start, consistent docs/demo, fresh committed Windows checkout. No new paid inference or deployment occurred in M6A.
+
+## M6B native code and production-smoke review
+
+- Result: root `npm start` serves the built planner and `/api` from the same loopback Node server. Static serving is limited to web dist; unknown API/resource paths are real 404s; missing web build gives explicit 503 guidance while API routes remain available. Node engines now reflect the installed test tooling; README, runtime instructions and demo use the actual UI/state sequence.
+- Gates: typecheck/build clean; core 110, API 75 (seven new native-serving tests), browser 76 passed with zero failures/skips. The final browser JSON is an actual execution and was not overwritten by `--list`.
+- Independent production checks at 1440/390: built HTML, original GLB bytes/MIME/hash, API JSON 404, missing resources and source/dotfile denial, manual edit, stub generation, apply/export/replay, ten BFS-verified valid assignments, no page errors/overflow or inference POSTs. Runtime API oracles still pass after serving changes, including budgets, first-request cancellation, redaction and failure-audit replay.
+- Findings corrected: unnecessary shell fallback removed; demo reloads the pristine sample before its expected baseline; actual button labels and pre-approval-only failure-audit boundary corrected. Core failure wording now says no approved report exists, preserving previews, schema/version and evaluator behavior.
+- Credential handling review: a discarded worker probe briefly renamed `.env` and restored it. The coordinator verified its presence and moved further keyless verification to an isolated checkout; no key values were printed. A Node child-process probe preserves an empty environment entry; the observed shell-launch behavior is not claimed as a general Windows/Node limitation.
+- Evidence: `evidence/sanitized/m6b-code-gates.json`, `m6b-production-review.json`, and [M6_LOCAL_READINESS.md](M6_LOCAL_READINESS.md).
+- Next gate: commit this reviewed code, then verify a fresh Windows checkout with `autocrlf=true`, `npm ci`, build and actual native startup without `.env`. This remains a local readiness gate; no public deployment or additional real Meta inference has occurred.

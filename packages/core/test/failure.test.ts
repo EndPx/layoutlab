@@ -33,7 +33,7 @@ function validAudit(): Record<string, unknown> {
     outcome: null,
     reportAvailable: false,
     measurement: null,
-    evaluationBoundary: "no measurement existed",
+    evaluationBoundary: "no approved report exists",
     modelRequestsUsed: 1,
     proposalsUsed: 0,
     budgets: { maxProposals: 3, maxRequests: 4, timeoutMs: 120000 },
@@ -53,7 +53,7 @@ function validAudit(): Record<string, unknown> {
 }
 
 describe("M5 failure-audit contract", () => {
-  it("accepts a valid audit and states no measurement existed", () => {
+  it("accepts a valid audit and states no approved report exists", () => {
     const replayed = replayFailureRecord(validAudit());
     expect(replayed).toEqual({
       valid: true,
@@ -61,7 +61,7 @@ describe("M5 failure-audit contract", () => {
       provider: "meta",
       runId: "run-audit-1",
       state: "TIMED_OUT",
-      notice: expect.stringContaining("No deterministic measurement existed"),
+      notice: expect.stringContaining("No approved evaluation report exists"),
     });
     expect(replayed).not.toHaveProperty("matchesSaved");
   });

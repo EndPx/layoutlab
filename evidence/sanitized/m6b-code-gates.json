@@ -1,0 +1,26 @@
+{
+  "checkedAt": "2026-11-02T09:02:06.490Z",
+  "sourceCommitBeforeCodeCommit": "ded3fbfab196359ac1d80d950920ecc8d01af1e2",
+  "reviewedWorkingTreeChanges": true,
+  "browserCommand": "npm run test:e2e",
+  "browser": {
+    "startTime": "2026-11-02T08:52:51.287Z",
+    "duration": 276397.956,
+    "expected": 76,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "unitGate": {
+    "corePassed": 110,
+    "apiPassed": 75,
+    "source": "Muse execution, reviewed against source and implementation report."
+  },
+  "independentApiOracle": {
+    "command": "node scripts/review-api.mjs",
+    "passed": true,
+    "realMetaRequests": 0
+  },
+  "typecheckAndBuild": "Passed worker execution; no source changes after verification.",
+  "freshCheckout": "Pending at this code checkpoint; recorded separately after committed checkout verification."
+}

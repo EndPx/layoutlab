@@ -1,0 +1,30 @@
+{
+  "checkedAt": "2026-11-02T08:53:55.042Z",
+  "base": "http://127.0.0.1:4327",
+  "status": {
+    "liveAvailable": true,
+    "providerKind": "meta"
+  },
+  "glbSha256": "571cc601bbbf8759977e05c5104a1d9381a682d2537942a238c68ebf8f8ae9ea",
+  "observations": [
+    {
+      "width": 1440,
+      "checked": 5,
+      "scrollWidth": 1440,
+      "errors": [],
+      "inferenceRequests": []
+    },
+    {
+      "width": 390,
+      "checked": 5,
+      "scrollWidth": 390,
+      "errors": [],
+      "inferenceRequests": []
+    }
+  ],
+  "coordinatorExecuted": true,
+  "localOnly": true,
+  "realMetaRequests": 0,
+  "keylessProof": false,
+  "configurationNote": "A non-secret whitespace process override was present. This run proves serving/browser behavior, not keyless setup. The separate fresh checkout verifies setup_required without an env file."
+}
