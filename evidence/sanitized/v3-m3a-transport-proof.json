@@ -1,0 +1,97 @@
+{
+  "blockers": "none for M3a; next is the connected inventory/order/packing slice",
+  "commands": {
+    "build": "npm run build --workspace @layoutlab/simulation -> pass",
+    "fit": "node scripts/warehouse-environment-fit.mjs -> ENV-FIT PASS 336 visuals + 4 negatives (ce33a9c5a773, 22374B)",
+    "nav": "node scripts/warehouse-environment-nav.mjs -> ENV-NAV PASS 228 paths (42308 segs, 42536 points) + 3 negatives (ce33a9c5a773)",
+    "proof": "node packages/simulation/proof-m3a.mjs -> pass, wrote fixtures/operations/oracles/m3a/transport-proof.json",
+    "simTests": "npm test --workspace @layoutlab/simulation -> 20 files, 190 tests pass (148 pre-existing + 42 new)",
+    "typecheck": "npm run typecheck -> pass (core, simulation, api, web)"
+  },
+  "contracts": {
+    "interval": "movement CLOSED [start,end] + terminal [end,+inf); zones HALF-OPEN [start,end); single-instant overlap checked",
+    "radius": "per-unit ceil(hypot(width,length)/2)+margin; contact dist <= rA+rB+1e-6 (inclusive touching)",
+    "reservation": "conservative whole-transit: path [start,end] + zones [start,end) + destination (outside zones) atomically; concurrent nonconflicting; no global lock"
+  },
+  "geometry": {
+    "historical": {
+      "bytes": 21856,
+      "navCenterlinePoints": 41978,
+      "navSweptSegments": 41750,
+      "sha256": "31e8b3429183abf8636b47c5b00f2c0b81dd0d8a4e0fac42c3faf9e303320b4e"
+    },
+    "new": {
+      "bytes": 22374,
+      "minPairwiseMm": 1500,
+      "navCenterlinePoints": 42536,
+      "navSweptSegments": 42308,
+      "positions": 20,
+      "radiusMm": 600,
+      "sha256": "ce33a9c5a77300f998c05c5452ed1c04eb9a6bd38d5e0c0eace5fb64d6edadef"
+    },
+    "packingCapacity": {
+      "PACK-1": 1,
+      "PACK-2": 1
+    },
+    "queues": {
+      "PACK1-Q1": [
+        22500,
+        6900
+      ],
+      "PACK1-Q2": [
+        22500,
+        8400
+      ],
+      "PACK1-Q3": [
+        22500,
+        9900
+      ],
+      "PACK2-Q1": [
+        22500,
+        11400
+      ],
+      "PACK2-Q2": [
+        22500,
+        12900
+      ],
+      "PACK2-Q3": [
+        22500,
+        14400
+      ]
+    }
+  },
+  "implemented": [
+    "optional trafficZones schema + validation",
+    "nav adapter over unmodified core A* (per-unit radii, full obstacles, own-excluded)",
+    "swept admission (analytic minima, tails, terminals, half-open zones)",
+    "kernel-owned controller (atomic grants, FIFO waits, versions, cancel, diagnostic, snapshots)",
+    "main PACK 2->1 + x22500 queues + provenance + rerun proofs + old-pitch negative",
+    "42 tests + built headless proof + oracles/m3a/transport-proof.json"
+  ],
+  "limitations": [
+    "whole-transit conservative (throughput cost disclosed)",
+    "axis-aligned zone-corner inflation conservative",
+    "no forklift dynamics/deadlock-freedom/safety-cert",
+    "destinations outside zones; no replan-while-moving; midroute cancel rejected",
+    "main carries no zones (substrate only)"
+  ],
+  "milestone": "v3-M3a",
+  "notImplemented": [
+    "connected operations (inventory/order/packing handshakes, trips, service transitions)",
+    "lifecycle/shipment metrics, replay/report, UI, comparisons, Meta patches, benchmarks, release"
+  ],
+  "oracles": {
+    "A": "2000mm@1000 = [0,2000]; (2000,2000)@1000; (3000,2000) persists; chunked==one-shot",
+    "B": "disjoint [0,2000]x2 concurrent; head-on/crossing/mids-collide wait; 600/333 + touching + off-grid + stopped/occupied; perpendicular 4000..8300 after",
+    "C": "Z-AISLE first [0,4000], second waits (age/blocker) then [4000,8000]; terminals persist; occupied re-wait",
+    "D": "PACK 1-lane constructs; 20 positions min1500; 44 navigable + 228 routes; old 600 pitch overlaps",
+    "E": "invalid/replan/cancel atomic; unsafe rejected; deadlock stuck (no teleport); inventory byte-identical",
+    "F": "148 old green; sim build + root 4 typecheck; built proof with positions/waits/routes/seed/versions; no API/browser"
+  },
+  "scope": "Bounded headless canonical-navigation + traffic-admitted transport substrate only (Muse sole coder; Codex reviews)",
+  "toolchain": {
+    "date": "2026-11-03",
+    "node": "v24.18.0",
+    "npm": "11.8.0"
+  }
+}

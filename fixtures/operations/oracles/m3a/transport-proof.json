@@ -1,0 +1,165 @@
+{
+  "provenance": {
+    "milestone": "v3-M3a",
+    "category": "synthetic",
+    "note": "Micro headless proof from the built @layoutlab/simulation bundle; canonical-navigation + traffic-admitted transport substrate only, not connected operations.",
+    "producedBy": "packages/simulation/proof-m3a.mjs",
+    "seed": "m3a-proof-001",
+    "versions": {
+      "simulation": "0.1.0",
+      "operationsSchema": "layoutlab.operations/1",
+      "operationsEngine": "layoutlab.operations-engine/1"
+    }
+  },
+  "oracleA": {
+    "route": {
+      "from": {
+        "x": 1000,
+        "z": 2000
+      },
+      "to": {
+        "x": 3000,
+        "z": 2000
+      },
+      "distanceMm": 2000,
+      "speedMmPerSecond": 1000
+    },
+    "interval": {
+      "startMs": 0,
+      "endMs": 2000
+    },
+    "poses": {
+      "at0": {
+        "x": 1000,
+        "z": 2000
+      },
+      "at1000": {
+        "x": 2000,
+        "z": 2000
+      },
+      "at2000": {
+        "x": 3000,
+        "z": 2000
+      },
+      "at5000": {
+        "x": 3000,
+        "z": 2000
+      }
+    },
+    "chunkedEqualsOneShot": true
+  },
+  "oracleB": {
+    "disjoint": {
+      "u1": {
+        "from": {
+          "x": 1000,
+          "z": 1000
+        },
+        "to": {
+          "x": 3000,
+          "z": 1000
+        },
+        "interval": [
+          0,
+          2000
+        ]
+      },
+      "u2": {
+        "from": {
+          "x": 1000,
+          "z": 3000
+        },
+        "to": {
+          "x": 3000,
+          "z": 3000
+        },
+        "interval": [
+          0,
+          2000
+        ]
+      },
+      "concurrent": true
+    },
+    "crossingEndpointsFreeMidsCollide": "U1 (1000,2000)->(5000,2000) granted; U2 (3000,700)->(3000,5000) waits (TRAJECTORY_CONFLICT)",
+    "occupiedGoalWaits": "U2 (1000,2000)->(3000,2000) waits while U1 sits at (3000,2000)"
+  },
+  "oracleC": {
+    "zone": {
+      "id": "Z-AISLE",
+      "kind": "narrow-aisle",
+      "rectMm": {
+        "minX": 2000,
+        "minZ": 1500,
+        "maxX": 4000,
+        "maxZ": 2500
+      }
+    },
+    "first": {
+      "unit": "U1",
+      "from": {
+        "x": 1000,
+        "z": 1400
+      },
+      "to": {
+        "x": 5000,
+        "z": 1400
+      },
+      "interval": [
+        0,
+        4000
+      ]
+    },
+    "second": {
+      "unit": "U2",
+      "from": {
+        "x": 1000,
+        "z": 2700
+      },
+      "to": {
+        "x": 5000,
+        "z": 2700
+      },
+      "wait": {
+        "requestTimeMs": 0,
+        "blockerZone": "Z-AISLE",
+        "holder": "U1"
+      },
+      "interval": [
+        4000,
+        8000
+      ]
+    },
+    "terminalPersists": {
+      "U1": {
+        "x": 5000,
+        "z": 1400
+      },
+      "U2": {
+        "x": 5000,
+        "z": 2700
+      }
+    }
+  },
+  "oracleD": {
+    "mainFixture": {
+      "sha256": "ce33a9c5a77300f998c05c5452ed1c04eb9a6bd38d5e0c0eace5fb64d6edadef",
+      "bytes": 22374,
+      "historicalSha256": "31e8b3429183abf8636b47c5b00f2c0b81dd0d8a4e0fac42c3faf9e303320b4e"
+    },
+    "packingLanes": {
+      "PACK-1": 1,
+      "PACK-2": 1
+    },
+    "queueClearance": {
+      "positions": 20,
+      "minPairwiseMm": 1500,
+      "radiusMm": 600
+    },
+    "old600mmPitchOverlaps": true
+  },
+  "oracleE": {
+    "unsafeMidrouteCancel": "rejected UNSAFE_MIDROUTE, motion continues to (3000,2000)",
+    "headOnDeadlock": "stuck DEADLOCK_CYCLE, poses retained, 2 pending",
+    "inventoryUnchanged": true
+  }
+}

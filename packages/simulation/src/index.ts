@@ -34,6 +34,7 @@ export {
   MAX_TEXT_LEN,
   MAX_TIME_MS,
   MAX_TOTAL_SCHEDULE_LINES,
+  MAX_TRAFFIC_ZONES,
   operationsResourceSchema,
   operationsScenarioSchema,
   parseOperationsScenario,
@@ -53,6 +54,7 @@ export type {
   OperationsScheduledOrder,
   OperationsStock,
   OperationsStorageLocation,
+  OperationsTrafficZone,
 } from "./schema.js";
 export { EVENT_PRIORITY } from "./priorities.js";
 export type {
@@ -105,3 +107,50 @@ export type {
   OnKernelEvent,
   StepResult,
 } from "./kernel.js";
+export {
+  createTransportNav,
+  footprintRadiusMm,
+  footprintRect,
+} from "./navigation.js";
+export type {
+  RouteFailure,
+  RouteFailureReason,
+  RouteResult,
+  RouteSuccess,
+  TransportNav,
+  UnitProfile,
+  XzMm,
+} from "./navigation.js";
+export {
+  TRAFFIC_CONTACT_EPS_MM,
+  discsConflict,
+  minSeparationMovingMoving,
+  minSeparationMovingStationary,
+  minSeparationMovingStationaryInWindow,
+  pathRequiresZone,
+  pointInZoneInclusive,
+  poseOnSegment,
+  stationaryVsStationaryConflict,
+  trajectoriesConflict,
+  trajectoryVsStationaryConflict,
+  trajectoryVsStationaryInWindowConflict,
+  zoneHoldsOverlap,
+} from "./traffic.js";
+export type {
+  ConflictDetail,
+  TimedSegment,
+  Trajectory,
+  Xz,
+} from "./traffic.js";
+export { createTransportController } from "./transport.js";
+export type {
+  CancelResult,
+  GrantedPlan,
+  MoveDestination,
+  MoveResult,
+  TransportController,
+  TransportDiagnostic,
+  TransportSnapshot,
+  UnitSnapshot,
+  WaitBlocker,
+} from "./transport.js";

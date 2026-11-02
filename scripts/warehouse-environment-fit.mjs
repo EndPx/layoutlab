@@ -22,6 +22,7 @@
 // Negatives prove an oversize grid, ghost stock, an off-deck anchor, and a
 // shifted station are all rejected. Exit 0 only if all pass.
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import {
   containerGrid,
@@ -301,8 +302,10 @@ console.log("ok negative off-deck: anchor y=1000 resolves to deck -1 (fixture er
 }
 
 mkdirSync(".coordination/warehouse-environment", { recursive: true });
+const fixtureBytes = readFileSync(FIXTURE, "utf8");
 writeFileSync(".coordination/warehouse-environment/fit-proof.json", JSON.stringify({
-  fixture: FIXTURE, bindings: BINDINGS, epsMm: EPS_MM, contactToleranceMm: CONTACT_MM,
+  fixture: FIXTURE, fixtureSha256: createHash("sha256").update(fixtureBytes).digest("hex"), fixtureBytes: fixtureBytes.length,
+  bindings: BINDINGS, epsMm: EPS_MM, contactToleranceMm: CONTACT_MM,
   counts: { racks: 6, locations: 24, products: 12, stockEntries: 23, mobileUnits: 6, resources: 4, orders: 28, deliveries: 12, obstacles: 12 },
   containerVisuals: visualTotal, emptySlots: ["L24"], decksMm: decks,
   negatives: ["oversize-grid", "ghost-stock", "off-deck-anchor", "shifted-station"],

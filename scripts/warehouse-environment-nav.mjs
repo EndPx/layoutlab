@@ -19,6 +19,7 @@
 // obstacle covering an approach, and a ghost point inside a rack are all
 // rejected. Static reachability only, not multi-agent safety validation.
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { parseOperationsScenario } from "@layoutlab/simulation";
 import {
@@ -187,9 +188,10 @@ console.log(`ok reachability: ${pathCount} paths (${starts.length} starts x ${go
 }
 
 mkdirSync(".coordination/warehouse-environment", { recursive: true });
+const fixtureBytes = readFileSync(FIXTURE, "utf8");
 writeFileSync(".coordination/warehouse-environment/nav-proof.json", JSON.stringify({
   method: "probe-only occupancy adapter over unmodified core helpers; swept segments (not just endpoints) verified",
-  fixture: FIXTURE,
+  fixture: FIXTURE, fixtureSha256: createHash("sha256").update(fixtureBytes).digest("hex"), fixtureBytes: fixtureBytes.length,
   assertedLiterals: { roomMm: "24000x18000", cartMm: "600x800+margin100", navigationRadiusMm: NAV_R, gridCols: 240, gridRows: 180, inflatedRects: nav.inflatedObstacles.length },
   paths: pathCount, sweptSegments: segTotal, centerlinePoints: ptTotal,
   negatives: ["shifted-obstacle", "oversize-obstacle", "ghost-point"],

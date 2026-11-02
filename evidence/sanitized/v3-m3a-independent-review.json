@@ -1,0 +1,178 @@
+{
+  "reviewer": "Codex",
+  "milestone": "v3-M3a",
+  "verdict": "accepted after revisions",
+  "method": "Independent built-export inputs and literal positions/times/clearances; detached result and unchanged rejection checks",
+  "initialObservations": [
+    {
+      "case": "overlapping initial discs accepted",
+      "accepted": true,
+      "units": [
+        {
+          "id": "A",
+          "pose": {
+            "x": 1000,
+            "z": 2000
+          }
+        },
+        {
+          "id": "B",
+          "pose": {
+            "x": 1001,
+            "z": 2000
+          }
+        }
+      ]
+    },
+    {
+      "case": "accepted max-length unitID commit throws after mutation",
+      "error": "event id must be a 1..128 character string",
+      "stateChanged": true,
+      "active": 1,
+      "advance": {
+        "status": "queue-empty",
+        "clockMs": 2000,
+        "processedTotal": 0,
+        "eventId": null,
+        "diagnostic": null
+      },
+      "pose": {
+        "x": 4000,
+        "z": 1200
+      }
+    },
+    {
+      "case": "terminal disc still overlaps exclusive zone after hold release",
+      "a": {
+        "status": "granted",
+        "plan": {
+          "unitId": "A",
+          "planVersion": 1,
+          "destination": {
+            "x": 1500,
+            "z": 1400
+          },
+          "points": [
+            {
+              "x": 1000,
+              "z": 1400
+            },
+            {
+              "x": 1100,
+              "z": 1400
+            },
+            {
+              "x": 1200,
+              "z": 1400
+            },
+            {
+              "x": 1300,
+              "z": 1400
+            },
+            {
+              "x": 1400,
+              "z": 1400
+            },
+            {
+              "x": 1500,
+              "z": 1400
+            }
+          ],
+          "distancesMm": [
+            100,
+            100,
+            100,
+            100,
+            100
+          ],
+          "totalDistanceMm": 500,
+          "totalDurationMs": 500,
+          "startMs": 0,
+          "endMs": 500,
+          "requiredZones": [
+            "Z"
+          ]
+        },
+        "waitMs": 0
+      },
+      "b": "granted",
+      "requiredZones": [
+        "Z"
+      ],
+      "terminal": {
+        "x": 1500,
+        "z": 1400
+      },
+      "distanceFromTerminalToZone": 509.90195135927854,
+      "radius": 600
+    },
+    {
+      "case": "corridor blocker attributed to unrelated alphabetically first unit",
+      "result": {
+        "status": "waiting",
+        "unitId": "U-mover",
+        "destination": {
+          "x": 5000,
+          "z": 2000
+        },
+        "requestTimeMs": 0,
+        "ageMs": 0,
+        "blocker": {
+          "kind": "unit",
+          "blockerUnitId": "A-unrelated",
+          "reason": "CORRIDOR_BLOCKED"
+        }
+      }
+    },
+    {
+      "case": "mutable returned blocker edits owned diagnostic",
+      "ownedBlocker": {
+        "kind": "unit",
+        "blockerUnitId": "FAKE",
+        "reason": "CORRIDOR_BLOCKED"
+      }
+    }
+  ],
+  "finalChecks": [
+    {
+      "name": "initial penetrating and touching conservative envelopes reject",
+      "pass": true
+    },
+    {
+      "name": "128charID one atomic completion and exact midpoint",
+      "pass": true
+    },
+    {
+      "name": "terminal envelope cannot overlap released zone; safe terminal allowed",
+      "pass": true
+    },
+    {
+      "name": "initial zone-footprint overlap rejected",
+      "pass": true
+    },
+    {
+      "name": "actual corridor witness and detached diagnostic",
+      "pass": true
+    },
+    {
+      "name": "two separated real routes concurrent with literal2s and midpoint",
+      "pass": true
+    },
+    {
+      "name": "canonical capacity1 and all20 declared queue/service/park clearances",
+      "pass": true
+    }
+  ],
+  "sourceSHA256": {
+    "packages/simulation/src/navigation.ts": "2dbe6a7c3073337434a48ec3bd13e56dd58ef8ee3bddc2a4150f44da301cf177",
+    "packages/simulation/src/traffic.ts": "864886dd1f32910ed66895f24f50d816fcb0e26634681b10f70a6a4e08fccd40",
+    "packages/simulation/src/transport.ts": "f10a6a960f837bddce5fd941fed089efe6fb6270a7a82ef6c1a95606a896b994",
+    "fixtures/operations/main-warehouse.json": "ce33a9c5a77300f998c05c5452ed1c04eb9a6bd38d5e0c0eace5fb64d6edadef"
+  },
+  "limitations": [
+    "Headless transport only; no connected order/service/inventory execution",
+    "Conservative whole-transit and inflated-corner zone policy",
+    "Private movement-only kernel requires single-clock composition in next slice",
+    "No fresh browser evidence or public deployment from this milestone"
+  ]
+}

@@ -16,8 +16,10 @@ complete or authorize unsupported experiments.
   https://layoutlab.endpx.cloud. The operations environment is local.
 - Accepted M2a provides validated inputs and a deterministic scheduling
   kernel. M2b inventory/reservation/finite-resource state is accepted after
-  148 tests and 9 independent built-export assertion groups; movement,
-  physical queue occupancy and lifecycle coordination are still next.
+  148 tests and 9 independent built-export assertion groups. M3a canonical
+  navigation/transport is accepted after207 tests and7 independent assertion
+  groups. Physical queue occupancy and lifecycle coordination are still next;
+  arrivals, service and movement must share one authoritative kernel.
 - Muse delivered the main-interface static environment: 6 racks, 24 slots,
   12 products, 6 parked units, 28 orders and 12 deliveries. Independent
   buffer/hash/arithmetic checks cover 8 assets and 336 stored containers.

@@ -32,6 +32,7 @@ export const MAX_SEED_LEN = 256;
 // and must not be mistaken for that target.
 export const MAX_RACKS = 32;
 export const MAX_OBSTACLES = 256;
+export const MAX_TRAFFIC_ZONES = 64;
 export const MAX_LOCATIONS = 128;
 export const MAX_PRODUCTS = 64;
 export const MAX_STOCK_ENTRIES = 512;
@@ -68,7 +69,7 @@ const rackSchema = z.strictObject({
   dimensionsMm: dimensionsSchema,
 });
 
-// In-area obstacle rectangles (walls, columns, stations, traffic zones).
+// In-area obstacle rectangles (walls, columns, stations, staging).
 // The renderer and navigation must later consume these same definitions;
 // silently projecting walls away for an old report is forbidden.
 const obstacleSchema = z.strictObject({
@@ -79,10 +80,27 @@ const obstacleSchema = z.strictObject({
   maxZMm: coordMm,
 });
 
+// Exclusive traffic-policy zones (narrow aisles, intersections). These are
+// NOT physical obstacles: navigation never inflates them, and reachability
+// never treats them as blocked. They are explicit validated saved
+// configuration for time-space admission only (M3a whole-transit policy).
+// Optional for backward compatibility: fixtures without this field parse
+// unchanged. When present, zones must be strict non-degenerate rectangles
+// inside the room with unique ids (checked in superRefine below).
+const trafficZoneSchema = z.strictObject({
+  id,
+  kind: z.union([z.literal("narrow-aisle"), z.literal("intersection")]),
+  minXMm: coordMm,
+  minZMm: coordMm,
+  maxXMm: coordMm,
+  maxZMm: coordMm,
+});
+
 const geometrySchema = z.strictObject({
   room: z.strictObject({ widthMm: dimMm, depthMm: dimMm }),
   racks: z.array(rackSchema).max(MAX_RACKS),
   obstacles: z.array(obstacleSchema).max(MAX_OBSTACLES),
+  trafficZones: z.array(trafficZoneSchema).max(MAX_TRAFFIC_ZONES).optional(),
 });
 
 // Per-item definition: dimensions, handling class, integer conversion into
@@ -254,6 +272,9 @@ export const operationsScenarioSchema = z
   .superRefine((s, ctx) => {
     uniqueIds(s.geometry.racks, (r) => r.id, ctx);
     uniqueIds(s.geometry.obstacles, (o) => o.id, ctx);
+    if (s.geometry.trafficZones) {
+      uniqueIds(s.geometry.trafficZones, (z) => z.id, ctx);
+    }
     uniqueIds(s.products, (p) => p.id, ctx);
     uniqueIds(s.locations, (l) => l.id, ctx);
     uniqueIds(s.mobileUnits, (a) => a.id, ctx);
@@ -277,6 +298,26 @@ export const operationsScenarioSchema = z
         ctx.addIssue({
           code: "custom",
           message: `degenerate obstacle rectangle: ${o.id}`,
+        });
+      }
+    }
+
+    for (const z of s.geometry.trafficZones ?? []) {
+      if (z.minXMm >= z.maxXMm || z.minZMm >= z.maxZMm) {
+        ctx.addIssue({
+          code: "custom",
+          message: `degenerate traffic zone rectangle: ${z.id}`,
+        });
+      }
+      if (
+        z.minXMm < 0 ||
+        z.minZMm < 0 ||
+        z.maxXMm > s.geometry.room.widthMm ||
+        z.maxZMm > s.geometry.room.depthMm
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          message: `traffic zone ${z.id} exceeds room bounds`,
         });
       }
     }
@@ -538,6 +579,9 @@ export const operationsScenarioSchema = z
 export type OperationsScenario = z.infer<typeof operationsScenarioSchema>;
 export type OperationsGeometry = OperationsScenario["geometry"];
 export type OperationsObstacle = OperationsGeometry["obstacles"][number];
+export type OperationsTrafficZone = NonNullable<
+  OperationsGeometry["trafficZones"]
+>[number];
 export type OperationsRack = OperationsGeometry["racks"][number];
 export type OperationsProduct = OperationsScenario["products"][number];
 export type OperationsStorageLocation =
