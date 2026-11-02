@@ -142,14 +142,34 @@ export type {
   Trajectory,
   Xz,
 } from "./traffic.js";
-export { createTransportController } from "./transport.js";
+export { createOperationsController, parseOperationsExecutionConfig, operationsExecutionConfigSchema } from "./operations.js";
+export type {
+  OperationsChecks,
+  OperationsCompletion,
+  OperationsController,
+  OperationsCounts,
+  OperationsDiagnostic,
+  OperationsExecutionConfig,
+  OperationsOrderDiagnostic,
+  OperationsOrderView,
+  OperationsPackingView,
+  OperationsSnapshot,
+  OperationsTimelineEntry,
+  OperationsUnitTaskView,
+  OperationsUnitView,
+  OperationsWaitRecord,
+  OrderLifecycleState,
+} from "./operations.js";
+export { createTransportController, createTransportDomain } from "./transport.js";
 export type {
   CancelResult,
   GrantedPlan,
   MoveDestination,
   MoveResult,
   TransportController,
+  TransportDomain,
   TransportDiagnostic,
+  TransportGrantNotice,
   TransportSnapshot,
   UnitSnapshot,
   WaitBlocker,

@@ -1,0 +1,237 @@
+{
+  "provenance": {
+    "milestone": "v3-M3b",
+    "category": "synthetic",
+    "note": "First connected picking/packing slice (headless) from the built @layoutlab/simulation bundle: scheduled orders -> reservations -> concurrent picks -> packing queues -> READY_FOR_DISPATCH. No SHIPPED stage; no dispatch/inbound/putaway completion claimed.",
+    "producedBy": "packages/simulation/proof-m3b.mjs",
+    "seed": "m3b-burst-001",
+    "versions": {
+      "simulation": "0.1.0",
+      "operationsSchema": "layoutlab.operations/1",
+      "operationsEngine": "layoutlab.operations-engine/1"
+    },
+    "inputs": {
+      "burstFixture": {
+        "bytes": 30705,
+        "sha256": "70ec57ab7cc94b1916acb221c96054b0b2c57acfebd94869132ebabe6305014b"
+      },
+      "parentMainFixture": {
+        "bytes": 22374,
+        "sha256": "ce33a9c5a77300f998c05c5452ed1c04eb9a6bd38d5e0c0eace5fb64d6edadef"
+      },
+      "runconfig": {
+        "pickDurationMsPerItem": 2000,
+        "unloadDurationMsPerItem": 1500
+      }
+    }
+  },
+  "burst": {
+    "completion": {
+      "stage": "SUPPORTED_STAGE_COMPLETE",
+      "ready": 6,
+      "selected": 6,
+      "shipped": 0,
+      "backlog": 6,
+      "stageBacklog": 0,
+      "note": "all selected orders READY_FOR_DISPATCH; packed goods are finite output staging, nothing SHIPPED in M3b"
+    },
+    "clockMs": 420000,
+    "counts": {
+      "selected": 6,
+      "excluded": 0,
+      "arrived": 6,
+      "packed": 6,
+      "readyForDispatch": 6,
+      "shipped": 0,
+      "backlog": 6,
+      "stageBacklog": 0
+    },
+    "checks": {
+      "conservation": [],
+      "capacity": [],
+      "safety": []
+    },
+    "maxConcurrentMoving": {
+      "count": 3,
+      "atMs": 15000
+    },
+    "orders": [
+      {
+        "orderId": "B-01",
+        "state": "READY_FOR_DISPATCH",
+        "timestamps": {
+          "CREATED": 0,
+          "READY_FOR_PICKING": 0,
+          "PICKING": 0,
+          "WAITING_FOR_PACKING": 17400,
+          "PACKING": 89700,
+          "READY_FOR_DISPATCH": 179700
+        },
+        "unitId": "PK-1",
+        "packingResourceId": "PACK-1"
+      },
+      {
+        "orderId": "B-02",
+        "state": "READY_FOR_DISPATCH",
+        "timestamps": {
+          "CREATED": 5000,
+          "READY_FOR_PICKING": 5000,
+          "PICKING": 5000,
+          "WAITING_FOR_PACKING": 24000,
+          "PACKING": 49800,
+          "READY_FOR_DISPATCH": 139800
+        },
+        "unitId": "PK-2",
+        "packingResourceId": "PACK-2"
+      },
+      {
+        "orderId": "B-03",
+        "state": "READY_FOR_DISPATCH",
+        "timestamps": {
+          "CREATED": 10000,
+          "READY_FOR_PICKING": 10000,
+          "PICKING": 10000,
+          "WAITING_FOR_PACKING": 43000,
+          "PACKING": 146300,
+          "READY_FOR_DISPATCH": 236300
+        },
+        "unitId": "PK-3",
+        "packingResourceId": "PACK-2"
+      },
+      {
+        "orderId": "B-04",
+        "state": "READY_FOR_DISPATCH",
+        "timestamps": {
+          "CREATED": 15000,
+          "READY_FOR_PICKING": 15000,
+          "PICKING": 15000,
+          "WAITING_FOR_PACKING": 38900,
+          "PACKING": 187700,
+          "READY_FOR_DISPATCH": 277700
+        },
+        "unitId": "PK-4",
+        "packingResourceId": "PACK-1"
+      },
+      {
+        "orderId": "B-05",
+        "state": "READY_FOR_DISPATCH",
+        "timestamps": {
+          "CREATED": 20000,
+          "READY_FOR_PICKING": 20000,
+          "PICKING": 49800,
+          "WAITING_FOR_PACKING": 109200,
+          "PACKING": 284200,
+          "READY_FOR_DISPATCH": 374200
+        },
+        "unitId": "PK-2",
+        "packingResourceId": "PACK-1"
+      },
+      {
+        "orderId": "B-06",
+        "state": "READY_FOR_DISPATCH",
+        "timestamps": {
+          "CREATED": 25000,
+          "READY_FOR_PICKING": 25000,
+          "PICKING": 89700,
+          "WAITING_FOR_PACKING": 114700,
+          "PACKING": 250900,
+          "READY_FOR_DISPATCH": 340900
+        },
+        "unitId": "PK-1",
+        "packingResourceId": "PACK-2"
+      }
+    ],
+    "queueWaits": [
+      {
+        "orderId": "B-03",
+        "unitId": "PK-3",
+        "reason": "BUSY_STATION",
+        "startMs": 61400,
+        "endMs": 139800
+      },
+      {
+        "orderId": "B-04",
+        "unitId": "PK-4",
+        "reason": "BUSY_STATION",
+        "startMs": 106300,
+        "endMs": 179700
+      },
+      {
+        "orderId": "B-06",
+        "unitId": "PK-1",
+        "reason": "BUSY_STATION",
+        "startMs": 196900,
+        "endMs": 236300
+      },
+      {
+        "orderId": "B-05",
+        "unitId": "PK-2",
+        "reason": "BUSY_STATION",
+        "startMs": 220200,
+        "endMs": 277700
+      }
+    ],
+    "operatingPickers": [
+      "PK-1",
+      "PK-2",
+      "PK-3",
+      "PK-4"
+    ],
+    "timelineEvents": 156,
+    "motionGrants": 28,
+    "motionHistoryUnique": true,
+    "trafficWaitsOverlapMotion": false
+  },
+  "oracle": {
+    "note": "Hand-derived literals: 2000mm@1000mm/s=2000ms legs; pick 500ms/item; unload 400ms/item; single 1000ms packing lane.",
+    "o1": {
+      "CREATED": 0,
+      "READY_FOR_PICKING": 0,
+      "PICKING": 0,
+      "WAITING_FOR_PACKING": 2500,
+      "PACKING": 5100,
+      "READY_FOR_DISPATCH": 6100
+    },
+    "o2": {
+      "CREATED": 0,
+      "READY_FOR_PICKING": 0,
+      "PICKING": 5100,
+      "WAITING_FOR_PACKING": 7800,
+      "PACKING": 10400,
+      "READY_FOR_DISPATCH": 11400
+    },
+    "packJobs": [
+      {
+        "jobId": "pack-0",
+        "startTimeMs": 5100,
+        "finishTimeMs": 6100,
+        "waitMs": 2600
+      },
+      {
+        "jobId": "pack-1",
+        "startTimeMs": 10400,
+        "finishTimeMs": 11400,
+        "waitMs": 2600
+      }
+    ],
+    "transfers": 6,
+    "intermediate": {
+      "at2000Stored": 2,
+      "at4700Carried": 1,
+      "at4700Staged": 0,
+      "at6000Staged": 1,
+      "at6000Packed": 0
+    }
+  },
+  "determinism": {
+    "oneShotEqualsChunked500": true,
+    "oneShotEqualsChunked4000": true,
+    "oneShotEqualsChunked1000": true,
+    "oneShotEqualsChunked250": true,
+    "resetEqualsFresh": true
+  },
+  "negatives": {
+    "mainFixtureDeliveriesRejected": "UNSUPPORTED_DELIVERIES",
+    "stockShortWaitsWithZeroReservation": true
+  }
+}

@@ -1,0 +1,238 @@
+{
+  "reviewer": "Codex",
+  "milestone": "v3-M3b",
+  "verdict": "accepted after revisions",
+  "scope": "Headless picking/packing to READY_FOR_DISPATCH, not shipping",
+  "method": "Separate constructed one-job literal physical timing oracle and built-export negative assertions; stepped real burst for grant/wait audit",
+  "initialObservations": [
+    {
+      "case": "independent one-job timing oracle",
+      "expected": "2000 approach,2500 pick,6000 service arrival,6400 unload+packstart,7400 packfinish",
+      "phases": [
+        {
+          "time": 2000,
+          "storage": 1,
+          "carried": 0,
+          "staged": 0,
+          "packed": 0,
+          "state": "PICKING"
+        },
+        {
+          "time": 2499,
+          "storage": 1,
+          "carried": 0,
+          "staged": 0,
+          "packed": 0,
+          "state": "PICKING"
+        },
+        {
+          "time": 2500,
+          "storage": 0,
+          "carried": 1,
+          "staged": 0,
+          "packed": 0,
+          "state": "WAITING_FOR_PACKING"
+        },
+        {
+          "time": 6000,
+          "storage": 0,
+          "carried": 1,
+          "staged": 0,
+          "packed": 0,
+          "state": "WAITING_FOR_PACKING"
+        },
+        {
+          "time": 6399,
+          "storage": 0,
+          "carried": 1,
+          "staged": 0,
+          "packed": 0,
+          "state": "WAITING_FOR_PACKING"
+        },
+        {
+          "time": 6400,
+          "storage": 0,
+          "carried": 0,
+          "staged": 1,
+          "packed": 0,
+          "state": "PACKING"
+        },
+        {
+          "time": 7399,
+          "storage": 0,
+          "carried": 0,
+          "staged": 1,
+          "packed": 0,
+          "state": "PACKING"
+        },
+        {
+          "time": 7400,
+          "storage": 0,
+          "carried": 0,
+          "staged": 0,
+          "packed": 1,
+          "state": "READY_FOR_DISPATCH"
+        }
+      ],
+      "counts": {
+        "selected": 1,
+        "excluded": 0,
+        "arrived": 1,
+        "packed": 1,
+        "readyForDispatch": 1,
+        "shipped": 0,
+        "backlog": 0
+      },
+      "timestamps": {
+        "CREATED": 0,
+        "READY_FOR_PICKING": 0,
+        "PICKING": 0,
+        "WAITING_FOR_PACKING": 2500,
+        "PACKING": 6400,
+        "READY_FOR_DISPATCH": 7400
+      }
+    },
+    {
+      "case": "fixed-window advance overshoots horizon",
+      "expectedClock": 3000,
+      "actualClock": 20000,
+      "state": "READY_FOR_DISPATCH",
+      "counts": {
+        "selected": 1,
+        "excluded": 0,
+        "arrived": 1,
+        "packed": 1,
+        "readyForDispatch": 1,
+        "shipped": 0,
+        "backlog": 0
+      },
+      "completion": {
+        "stage": "WINDOW_ENDED",
+        "ready": 1,
+        "selected": 1,
+        "created": 1,
+        "backlog": 0,
+        "shipped": 0,
+        "detail": "fixed window ended at 3000ms with active/pending work and partial motion retained; this is not shipping completion",
+        "reasons": []
+      }
+    },
+    {
+      "case": "caller scenario mutation changes accepted run",
+      "scenarioId": "MUTATED",
+      "diagnostic": {
+        "code": "NO_ELIGIBLE_PICKER",
+        "message": "no picker role covers all handling classes of order O; held, no stock touched",
+        "terminal": true
+      }
+    },
+    {
+      "case": "reset rereads caller-mutated physical stock",
+      "quantity": 3
+    },
+    {
+      "case": "schema-valid zeroqueue fails after picking instead of directservice",
+      "diagnostic": {
+        "code": "NO_QUEUE_COORDS",
+        "message": "PACK admits direct service without a queue slot; physical placement unsupported in M3b; held with load safe",
+        "terminal": true
+      },
+      "carried": [
+        {
+          "productId": "P01",
+          "quantity": 1
+        }
+      ],
+      "jobs": [
+        {
+          "jobId": "pack-0",
+          "state": "queued",
+          "enqueueTimeMs": 2500,
+          "queueSlotId": null,
+          "positionId": null,
+          "startTimeMs": null,
+          "finishTimeMs": null,
+          "waitMs": null
+        }
+      ],
+      "checks": {
+        "conservation": [],
+        "capacity": [
+          "packing PACK queues 1/0 jobs"
+        ],
+        "safety": []
+      }
+    },
+    {
+      "case": "traffic wait remains open during admitted motion",
+      "examples": [
+        {
+          "clock": 15400,
+          "unit": "PK-3",
+          "planStart": 15400,
+          "waitStart": 10000,
+          "waitStillOpen": true
+        },
+        {
+          "clock": 15400,
+          "unit": "PK-3",
+          "planStart": 15400,
+          "waitStart": 10000,
+          "waitStillOpen": true
+        },
+        {
+          "clock": 15600,
+          "unit": "PK-3",
+          "planStart": 15400,
+          "waitStart": 10000,
+          "waitStillOpen": true
+        }
+      ]
+    }
+  ],
+  "finalChecks": [
+    {
+      "name": "literal one-job physical phase and unshipped backlog",
+      "pass": true
+    },
+    {
+      "name": "fixed-window oversized/repeated chunks and step preserve horizon",
+      "pass": true
+    },
+    {
+      "name": "fixed-window empty future queue reaches boundary without spinning",
+      "pass": true
+    },
+    {
+      "name": "invalid advance target rejected before horizon coercion",
+      "pass": true
+    },
+    {
+      "name": "accepted inputs isolated from caller and reset",
+      "pass": true
+    },
+    {
+      "name": "zeroqueue direct service physical arrival and packing",
+      "pass": true
+    },
+    {
+      "name": "all automatic grants audited and traffic waits closed on motion",
+      "pass": true
+    },
+    {
+      "name": "multilane unsupported configuration rejected upfront",
+      "pass": true
+    }
+  ],
+  "sourceSHA256": {
+    "packages/simulation/src/operations.ts": "ea915805fbe92b485f5a1d8ce9d27ec3b3c8cfe75b1d9d3271868eb2c06ceff4",
+    "packages/simulation/src/transport.ts": "26b716d9262de90c009effb42ae045b785f4e0acea72c60d39bb83988238f27c",
+    "fixtures/operations/picking-packing-burst.json": "70ec57ab7cc94b1916acb221c96054b0b2c57acfebd94869132ebabe6305014b",
+    "fixtures/operations/picking-packing-burst.runconfig.json": "48facb5cfd9083240b1ff561d4fb7689b36e63438eebf9429a3c89b4e727f7a1"
+  },
+  "limitations": [
+    "Single-trip pickup and single-lane packing stations only",
+    "No inbound/put-away/dispatch/SHIPPED or formal operations report replay yet",
+    "UI/rendering and public release not verified by headless proof"
+  ]
+}

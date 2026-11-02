@@ -77,6 +77,8 @@ import {
   MAX_PLAN_VERSION,
   createKernel,
   type Kernel,
+  type KernelApi,
+  type KernelEventView,
   type StepResult,
 } from "./kernel.js";
 import { createTransportNav, type TransportNav, type XzMm } from "./navigation.js";
@@ -283,12 +285,47 @@ function cloneGrantedPlan(plan: GrantedPlan): GrantedPlan {
   };
 }
 
-export function createTransportController(opts: {
+function cloneTrajectory(t: Trajectory): Trajectory {
+  return {
+    ...t,
+    segments: t.segments.map((s) => ({ ...s })),
+    destination: { ...t.destination },
+  };
+}
+
+// Shared-kernel seam (v3-M3b): the same admission core below can run on an
+// externally owned kernel. A TransportDomain holds no clock until bindKernel;
+// the owner creates ONE kernel whose onEvent routes MOVEMENT_COMPLETED to
+// handleMovementCompleted and all other kinds to domain logic. Standalone
+// createTransportController keeps its private kernel and identical behavior.
+export type TransportDomain = {
+  bindKernel(kernel: Kernel): void;
+  handleMovementCompleted(event: KernelEventView, api: KernelApi): void;
+  getClockMs(): number;
+  getKernelStatus(): string;
+  requestMove(
+    unitId: string,
+    destination: MoveDestination,
+    requestTimeMs?: number,
+  ): MoveResult;
+  cancelPlan(unitId: string): CancelResult;
+  poseAt(unitId: string, timeMs?: number): MoveDestination;
+  snapshot(): TransportSnapshot;
+  dispatch(): MoveResult[];
+  getDiagnostic(): TransportDiagnostic | null;
+};
+
+export type TransportGrantNotice = {
+  plan: GrantedPlan;
+  trajectory: Trajectory;
+};
+
+export function createTransportDomain(opts: {
   scenario: OperationsScenario;
-  maxProcessedEvents?: number;
-  maxEventsPerTimestamp?: number;
-}): TransportController {
+  onGrant?: (grant: TransportGrantNotice) => void;
+}): TransportDomain {
   const scenario = opts.scenario;
+  const onGrant = opts.onGrant;
   const nav: TransportNav = createTransportNav(scenario);
   const zones: OperationsTrafficZone[] = scenario.geometry.trafficZones ?? [];
   const zoneRects = new Map<string, Rect>();
@@ -444,38 +481,50 @@ export function createTransportController(opts: {
       if (id === excludeUnitId) continue;
       // Other moving units contribute their ACTUAL pose at the kernel clock
       // for static route blocking (conservative snapshot obstacle).
-      m.set(id, { ...poseAtInternal(id, kernel.getClockMs()) });
+      m.set(id, { ...poseAtInternal(id, requireKernel().getClockMs()) });
     }
     return m;
   };
 
-  const kernel: Kernel = createKernel({
-    maxProcessedEvents: opts.maxProcessedEvents ?? scenario.policies.eventLimits.maxProcessedEvents,
-    maxEventsPerTimestamp: opts.maxEventsPerTimestamp ?? scenario.policies.eventLimits.maxEventsPerTimestamp,
-    onEvent: (event, api) => {
-      if (event.kind !== "MOVEMENT_COMPLETED") return;
-      const data = event.data as { unitId?: unknown; planVersion?: unknown } | null;
-      const unitId = typeof data?.unitId === "string" ? data.unitId : null;
-      const version = typeof data?.planVersion === "number" ? data.planVersion : null;
-      if (unitId === null || version === null) return;
-      const u = units.get(unitId);
-      // Stale completions never move an agent: the kernel already skips
-      // plan-version-stale events, and this guard covers defensive mismatch
-      // (e.g., restored state): only the current version commits.
-      if (!u || !u.plan || !u.trajectory) return;
-      if (u.planVersion !== version || u.plan.planVersion !== version) return;
-      if (event.taskId !== unitId) return;
-      u.currentPose = { ...u.plan.destination };
-      holds = holds.filter(
-        (h) => !(h.unitId === unitId && h.planVersion === version),
-      );
-      u.plan = null;
-      u.trajectory = null;
-      void api;
-      // Meaningful release: exactly one bounded retry pass over pending.
-      retryPendingInternal();
-    },
-  });
+  // Bound by the owner (standalone controller binds its private kernel;
+  // composed controllers bind the ONE shared kernel). Every use below goes
+  // through requireKernel so an unbound domain fails loudly, never silently.
+  let kernel: Kernel | null = null;
+  const requireKernel = (): Kernel => {
+    if (!kernel) {
+      throw new Error("transport domain has no bound kernel");
+    }
+    return kernel;
+  };
+  const handleMovementCompleted = (
+    event: KernelEventView,
+    api: KernelApi,
+  ): void => {
+    if (event.kind !== "MOVEMENT_COMPLETED") return;
+    const data = event.data as { unitId?: unknown; planVersion?: unknown } | null;
+    const unitId = typeof data?.unitId === "string" ? data.unitId : null;
+    const version = typeof data?.planVersion === "number" ? data.planVersion : null;
+    if (unitId === null || version === null) return;
+    const u = units.get(unitId);
+    // Stale completions never move an agent: the kernel already skips
+    // plan-version-stale events, and this guard covers defensive mismatch
+    // (e.g., restored state): only the current version commits.
+    if (!u || !u.plan || !u.trajectory) return;
+    if (u.planVersion !== version || u.plan.planVersion !== version) return;
+    if (event.taskId !== unitId) return;
+    u.currentPose = { ...u.plan.destination };
+    holds = holds.filter(
+      (h) => !(h.unitId === unitId && h.planVersion === version),
+    );
+    u.plan = null;
+    u.trajectory = null;
+    void api;
+    // Meaningful release: exactly one bounded retry pass over pending.
+    retryPendingInternal();
+  };
+  const bindKernel = (next: Kernel): void => {
+    kernel = next;
+  };
 
   const poseAtInternal = (unitId: string, timeMs: number): MoveDestination => {
     const u = units.get(unitId);
@@ -882,7 +931,7 @@ export function createTransportController(opts: {
       unitOrder.get(unitId) as number,
       newVersion,
     );
-    kernel.schedule({
+    requireKernel().schedule({
       id: eventId,
       timeMs: granted.plan.endMs,
       priority: EVENT_PRIORITY.COMPLETION,
@@ -896,9 +945,9 @@ export function createTransportController(opts: {
       planVersion: newVersion,
     });
     try {
-      kernel.setTaskPlanVersion(unitId, newVersion);
+      requireKernel().setTaskPlanVersion(unitId, newVersion);
     } catch (err) {
-      kernel.cancel(eventId);
+      requireKernel().cancel(eventId);
       throw err;
     }
     u.planVersion = newVersion;
@@ -913,6 +962,15 @@ export function createTransportController(opts: {
         planVersion: newVersion,
         startMs: granted.plan.startMs,
         endMs: granted.plan.endMs,
+      });
+    }
+    // Single observation point for EVERY grant (explicit, dispatch, and
+    // movement-completion auto-retry): detached frozen clones, never owned
+    // aliases. Optional; standalone behavior is unchanged when absent.
+    if (onGrant) {
+      onGrant({
+        plan: freezeDeep(cloneGrantedPlan(granted.plan)),
+        trajectory: freezeDeep(cloneTrajectory(trajectory)),
       });
     }
   };
@@ -964,7 +1022,7 @@ export function createTransportController(opts: {
       const attempt = attemptGrant(
         entry.unitId,
         entry.destination,
-        kernel.getClockMs(),
+        requireKernel().getClockMs(),
         entry.requestTimeMs,
       );
       if (attempt.status === "granted") {
@@ -985,19 +1043,19 @@ export function createTransportController(opts: {
     }
   };
 
-  const controller: TransportController = {
-    getClockMs: () => kernel.getClockMs(),
-    getKernelStatus: () => kernel.getStatus(),
-    stepEvent: () => kernel.stepEvent(),
-    advanceTo: (targetMs: number) => kernel.advanceTo(targetMs),
+  const domain: TransportDomain = {
+    bindKernel,
+    handleMovementCompleted,
+    getClockMs: () => requireKernel().getClockMs(),
+    getKernelStatus: () => requireKernel().getStatus(),
 
     requestMove: (unitId, destination, requestTimeMs) => {
-      if (kernel.getStatus() === "invalid") {
+      if (requireKernel().getStatus() === "invalid") {
         throw new Error(
-          `cannot request move: kernel is invalid (${kernel.snapshot().diagnostic})`,
+          `cannot request move: kernel is invalid (${requireKernel().snapshot().diagnostic})`,
         );
       }
-      const clock = kernel.getClockMs();
+      const clock = requireKernel().getClockMs();
       const reqTime = requestTimeMs ?? clock;
       if (!Number.isSafeInteger(reqTime) || reqTime < 0 || reqTime > MAX_TIME_MS) {
         return {
@@ -1112,7 +1170,7 @@ export function createTransportController(opts: {
     },
 
     poseAt: (unitId, timeMs) => {
-      const t = timeMs ?? kernel.getClockMs();
+      const t = timeMs ?? requireKernel().getClockMs();
       if (!Number.isSafeInteger(t) || t < 0 || t > MAX_TIME_MS) {
         throw new Error("poseAt timeMs must be a safe integer in 0..MAX_TIME_MS");
       }
@@ -1120,7 +1178,7 @@ export function createTransportController(opts: {
     },
 
     snapshot: () => {
-      const clock = kernel.getClockMs();
+      const clock = requireKernel().getClockMs();
       const list: UnitSnapshot[] = [...units.values()]
         .sort((a, b) => (a.unitId < b.unitId ? -1 : 1))
         .map((u) => {
@@ -1160,7 +1218,7 @@ export function createTransportController(opts: {
     },
 
     dispatch: () => {
-      if (kernel.getStatus() === "invalid") {
+      if (requireKernel().getStatus() === "invalid") {
         throw new Error("cannot dispatch: kernel is invalid");
       }
       const order = [...pending];
@@ -1171,7 +1229,7 @@ export function createTransportController(opts: {
         const attempt = attemptGrant(
           entry.unitId,
           entry.destination,
-          kernel.getClockMs(),
+          requireKernel().getClockMs(),
           entry.requestTimeMs,
         );
         if (attempt.status === "granted") {
@@ -1188,7 +1246,7 @@ export function createTransportController(opts: {
             unitId: entry.unitId,
             destination: { ...entry.destination },
             requestTimeMs: entry.requestTimeMs,
-            ageMs: kernel.getClockMs() - entry.requestTimeMs,
+            ageMs: requireKernel().getClockMs() - entry.requestTimeMs,
             blocker: cloneWaitBlocker(attempt.blocker),
           });
         } else {
@@ -1202,7 +1260,7 @@ export function createTransportController(opts: {
             unitId: entry.unitId,
             destination: { ...entry.destination },
             requestTimeMs: entry.requestTimeMs,
-            ageMs: kernel.getClockMs() - entry.requestTimeMs,
+            ageMs: requireKernel().getClockMs() - entry.requestTimeMs,
             blocker: { kind: "unit", blockerUnitId: entry.unitId, reason: attempt.reason.code },
           });
         }
@@ -1211,7 +1269,7 @@ export function createTransportController(opts: {
     },
 
     getDiagnostic: () => {
-      const snap = kernel.snapshot();
+      const snap = requireKernel().snapshot();
       if (snap.status === "invalid") {
         return { status: "kernel-invalid", detail: snap.diagnostic ?? "kernel invalid" };
       }
@@ -1224,7 +1282,7 @@ export function createTransportController(opts: {
         const attempt = attemptGrant(
           entry.unitId,
           entry.destination,
-          kernel.getClockMs(),
+          requireKernel().getClockMs(),
           entry.requestTimeMs,
         );
         if (attempt.status === "granted") return null;
@@ -1242,7 +1300,7 @@ export function createTransportController(opts: {
         return {
           unitId: entry.unitId,
           blocker: cloneWaitBlocker(blocker),
-          ageMs: kernel.getClockMs() - entry.requestTimeMs,
+          ageMs: requireKernel().getClockMs() - entry.requestTimeMs,
         };
       });
       // Wait-for edges unit->unit (zone waits point at the holder unit).
@@ -1290,5 +1348,35 @@ export function createTransportController(opts: {
     },
   };
 
-  return controller;
+  return domain;
+}
+
+export function createTransportController(opts: {
+  scenario: OperationsScenario;
+  maxProcessedEvents?: number;
+  maxEventsPerTimestamp?: number;
+  onGrant?: (grant: TransportGrantNotice) => void;
+}): TransportController {
+  const domain = createTransportDomain({ scenario: opts.scenario, onGrant: opts.onGrant });
+  const kernel: Kernel = createKernel({
+    maxProcessedEvents: opts.maxProcessedEvents ?? opts.scenario.policies.eventLimits.maxProcessedEvents,
+    maxEventsPerTimestamp: opts.maxEventsPerTimestamp ?? opts.scenario.policies.eventLimits.maxEventsPerTimestamp,
+    onEvent: (event, api) => {
+      domain.handleMovementCompleted(event, api);
+    },
+  });
+  domain.bindKernel(kernel);
+  return {
+    getClockMs: () => domain.getClockMs(),
+    getKernelStatus: () => domain.getKernelStatus(),
+    stepEvent: () => kernel.stepEvent(),
+    advanceTo: (targetMs: number) => kernel.advanceTo(targetMs),
+    requestMove: (unitId, destination, requestTimeMs) =>
+      domain.requestMove(unitId, destination, requestTimeMs),
+    cancelPlan: (unitId) => domain.cancelPlan(unitId),
+    poseAt: (unitId, timeMs) => domain.poseAt(unitId, timeMs),
+    snapshot: () => domain.snapshot(),
+    dispatch: () => domain.dispatch(),
+    getDiagnostic: () => domain.getDiagnostic(),
+  };
 }

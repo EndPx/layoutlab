@@ -1,0 +1,7 @@
+{
+  "executionConfig": {
+    "pickDurationMsPerItem": 2000,
+    "unloadDurationMsPerItem": 1500
+  },
+  "note": "M3b slice runconfig: explicit per-item handling durations; packing uses configured resource serviceDurationMs (90000)."
+}

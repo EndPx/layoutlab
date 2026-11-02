@@ -10,7 +10,7 @@ in UI_REFERENCE_V3.md; apply them during bounded engine/UI integration.
 M2b stock/reservation/finite-resource state is now accepted after148 simulation
 tests and9 independent built-export assertion groups, including fixes for
 cumulative order fulfillment, receiving attribution and historical lane reuse.
-See V3_M2B_INDEPENDENT_REVIEW.md. Physical queues, lifecycle/UI
+See V3_M2B_INDEPENDENT_REVIEW.md. UI
 connection and operations report replay remain unimplemented; do not infer
 operations from the scene or the headless primitives. Public deployment is
 still R1. M3a navigation/traffic-admitted transport is now accepted after207
@@ -18,8 +18,14 @@ simulation tests and7 independent built-export assertion groups. Canonical
 packing capacities are1 per station;20 service/queue/parking points have
 minimum1500mm spacing. Current fixture SHA ce33a9c5a77300f998c05c5452ed1c04eb9a6bd38d5e0c0eace5fb64d6edadef;
 old static screenshots/hashes remain historical. See V3_M3A_INDEPENDENT_REVIEW.md.
-Next: one kernel for transport plus arrivals/services, then a connected
-order/inventory/packing scenario and controlled experiments before Meta.
+M3b connected headless picking/packing is now accepted after231 tests and8
+independent built-export assertion groups. One kernel owns arrivals,
+transport, handling and packing. The6-order burst reaches READY_FOR_DISPATCH,
+shipped0/backlog6/stageBacklog0; no shipping claim. See V3_M3B_INDEPENDENT_REVIEW.md.
+Next: bind real snapshots/controls/motion/queues to the main Operations UI
+using UI_REFERENCE_V3.md and record concurrent tasks/wait/progression.
+Dispatch, inbound/put-away, split trips, operations report replay and Meta
+Experimenter remain explicit subsequent gates. Public deployment stays R1.
 
 Current scope authority is the user-supplied [Implementation Brief v3](IMPLEMENTATION_BRIEF_V3.md),
 which explicitly expands the target to a configured warehouse operations

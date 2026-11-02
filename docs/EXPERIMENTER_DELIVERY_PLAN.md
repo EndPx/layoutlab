@@ -18,8 +18,10 @@ complete or authorize unsupported experiments.
   kernel. M2b inventory/reservation/finite-resource state is accepted after
   148 tests and 9 independent built-export assertion groups. M3a canonical
   navigation/transport is accepted after207 tests and7 independent assertion
-  groups. Physical queue occupancy and lifecycle coordination are still next;
-  arrivals, service and movement must share one authoritative kernel.
+  groups. M3b picking/packing lifecycle and physical queue handshakes now run
+  on one kernel (231 tests,8 independent gates). The6-order burst ends at
+  READY_FOR_DISPATCH with shipped0/backlog6/stageBacklog0; UI binding and
+  dispatch/inbound/put-away remain next, before complete operational claims.
 - Muse delivered the main-interface static environment: 6 racks, 24 slots,
   12 products, 6 parked units, 28 orders and 12 deliveries. Independent
   buffer/hash/arithmetic checks cover 8 assets and 336 stored containers.

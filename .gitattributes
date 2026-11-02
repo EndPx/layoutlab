@@ -5,3 +5,5 @@ assets/** -text
 # M6A: frozen benchmark fixtures are hashed raw byte-for-byte.
 # Windows autocrlf must never rewrite these bytes on checkout.
 fixtures/benchmark/*.json -text
+# Operations inputs/proofs also record raw hashes; keep them stable on checkout.
+fixtures/operations/**/*.json -text
