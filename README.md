@@ -9,9 +9,12 @@ measures every candidate; proposals come from a clearly labeled stub
 native server API with user approval. Racks stay fixed; only assignments
 change.
 
-Status: reference UI accepted (M6A); local native production start ready
-(M6B, this milestone). The actual 18-trial live benchmark is NOT RUN and
-public deployment is unauthorized — see `docs/MILESTONES.md`.
+Status: reference UI and local native start accepted; the actual 18-trial
+Meta benchmark is complete and reproducible. Storage-anchor/route-playback
+improvements are next. Public deployment to `layoutlab.endpx.cloud` is
+authorized with restricted access and a separate US$1 total inference
+allowance, but is not deployed or publicly verified yet. See
+`docs/MILESTONES.md` and `docs/EVALUATION.md`.
 
 ## Native start (Node 24.18 tested, no Docker)
 
@@ -76,6 +79,13 @@ npm run test:e2e   # Playwright (desktop 1440 + mobile 390; reuses :5173 if up)
 - Fixture benchmark: 18/18 trials, 72 loopback requests, **0 real** Meta
   requests, replay matched —
   `evidence/sanitized/m5-benchmark-fixture.{json,md}`.
+- Actual Meta benchmark: 18/18 runs, 72 real requests, all 54 proposal
+  attempts retained (38 valid, 16 unparseable); 18 reports replayed and 71
+  valid assignments independently checked. Meta beat the heuristic in two
+  synthetic runs; ties and failures are included, without a general
+  superiority claim. `evidence/sanitized/m5-benchmark-live.{json,md}` and
+  `docs/EVALUATION.md` document the phased execution and original local
+  infrastructure refusals.
 - Reference UI (M6A): `evidence/sanitized/m6a-1440-reference.png`,
   `m6a-390-reference.png`, `m6a-run-desktop-1440.png`, gates in
   `evidence/sanitized/m6-browser-gates.json`.

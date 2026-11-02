@@ -1,12 +1,11 @@
 # Evaluation (M5)
 
-Actual measured results only: offline (baseline+heuristic) and fixture
-(orchestration) runs from the frozen benchmark. The live Meta benchmark is
-NOT RUN — the user authorized it before the E1 evidence audit (18 synthetic
-runs, 72 requests, 3 proposals/run, 2000 output tokens/request, max US$1.50),
-but no run was performed, and this document contains no live samples, real or
-fabricated. Old M3 smoke results are not mixed with the frozen 18-trial
-protocol and no model-superiority or real-world-savings claim is made.
+Actual measured results from the frozen synthetic benchmark: offline
+(baseline+heuristic), fixture (orchestration only), and 18 actual Meta runs
+completed on 2026-11-02 under the separate US$1.50 authorization. The live set
+contains all 18 runs, 72 real requests and all 54 proposal attempts, including
+16 unparseable outputs. Old M3 smoke results remain separate. These results
+do not establish general model superiority or real-world savings.
 
 The current offline and fixture artifacts were regenerated from clean source
 commit `d8a3a34b49ae9edccd0ab72d2315f98a99e8775d` on 2026-11-02. Both CLI
@@ -84,13 +83,90 @@ The sample `warehouse-basic` (4 racks, 8 locations, 6 products, 3 order template
   non-official transport, dirty source — all refuse before any network
   request or output claim.
 
-## Live: NOT RUN (authorized; pending audit acceptance + clean freeze)
+## Live: 18 actual Meta runs, all outcomes retained
 
-The live 18-trial target (fixed protocol, 72-request cap, $1.195546
-conservative reservation, authoritative per-trial server fingerprint, atomic
-lock, disk journal) is implemented and refusal-tested but never executed.
-The user authorized it before the E1 evidence audit: 18 synthetic runs,
-72 requests, 3 proposals/run, 2000 output tokens/request, max US$1.50
-service cost. Execution stays pending until the audit is accepted and the
-source is frozen clean. Results will be appended here only from an actual
-authorized run.
+Source: `evidence/sanitized/m5-benchmark-live.{json,md}`. Model:
+`muse-spark-1.3-contributor`, official Meta transport, prompt
+`layoutlab.m4prompt/1`, low reasoning, maximum 2000 completion tokens/request,
+three proposals and four requests per run (including interpretation).
+All 18 runs completed with four actual requests each, 18 final reports and
+zero ambiguous runs. Trial-level failures are zero; this does **not** mean
+every proposal succeeded: only 38 of 54 proposals were valid. The other 16
+failed parsing and all carried `finishReason: length`.
+
+The numbers below are **weighted workload travel in millimeters**, not a
+single order's length. Each bracket lists trial 1, 2, 3; N/A means no valid
+proposal in that category. First means the actual first attempt, never a
+substitution with a later valid answer. Best Meta includes the first and
+feedback attempts; its winning attempt is retained in the JSON.
+
+| Scenario | Current | Heuristic | Meta first (three trials) | Best Meta including feedback (three trials) |
+|---|---:|---:|---|---|
+| bm-01-demand-skew | 78000 | 32000 | [32000, 32000, 32000] | [32000, 32000, 32000] |
+| bm-02-copick-cluster | 218000 | 186000 | [N/A, N/A, N/A] | [N/A, N/A, N/A] |
+| bm-03-tight-relocation | 38000 | 26000 | [26000, 26000, 26000] | [26000, 26000, 26000] |
+| bm-04-constraints | 36000 | 36000 | [36000, 36000, 36000] | [36000, 36000, 36000] |
+| bm-05-locked-frequent | 222000 | 196000 | [N/A, N/A, N/A] | [184000, N/A, 186000] |
+| bm-06-unreachable-repair | N/A | 12000 | [12000, 12000, 12000] | [12000, 12000, 12000] |
+
+Overall selection was heuristic in 13 runs, baseline in three, Meta in two.
+Selection counts include deterministic ties; they are not a 13-to-2 win rate.
+Nine runs on bm-01/03/06 tied the heuristic's distance; three constrained runs retained the
+baseline; four runs had no valid Meta proposal. In bm-05 trials 1 and 3,
+proposal 3 recovered from unparseable first attempts and beat the heuristic:
+184000 mm with four relocations, and 186000 mm with two relocations,
+respectively, versus heuristic 196000 mm. Improvement against the valid
+222000-mm baseline is 17.117117% and 16.216216%. These are two observed
+synthetic outcomes, not a general superiority claim. No run with a valid
+first proposal obtained a strictly shorter later proposal. All nine bm-02
+attempts were length-terminated and unparseable. No token cap was raised or
+failed model trial rerun to improve the recorded result.
+
+The interpretation draft is retained per trial, but the same predetermined
+fixture contract was approved before proposals. This controls the assignment
+comparison; it is not an unrestricted natural-language understanding test.
+bm-06 starts unreachable, so its improvement stays N/A even after a valid
+repair. No distance-to-labor, throughput or financial-savings conversion is
+made.
+
+### Execution phases and infrastructure failures
+
+The first three runs used clean source `36061bc`; all reached COMPLETED and
+were reconciled read-only to four requests each on their original run IDs.
+A runner bug had initially fetched the third run's partial RUNNING report,
+then caused 15 local HTTP 429 concurrency refusals with no run IDs and zero
+upstream requests. The initial snapshot observed 11 requests; reconciliation
+established 12 for those same three runs. This snapshot is preserved as
+`m5-live-initial-attempt.json`, explicitly historical and not the final result.
+
+The runner-only fix was reviewed, regression-tested and pushed as `d391d00`;
+see [BENCHMARK_FINALITY_REVIEW.md](BENCHMARK_FINALITY_REVIEW.md). A one-use,
+exclusively claimed collector then ran only the 15 conclusively unstarted
+slots (60 new requests), never the three paid runs again. Fixture bytes,
+contracts, core/routing versions, prompts, model, generation settings and
+server fingerprint stayed fixed. Per-trial phase/source/run IDs and canonical
+embedded-report hashes are in `m5-live-provenance.json`. All 15 original local
+refusals remain in `m5-live-infrastructure-attempts.json`; none is presented as
+a bad model proposal or silently removed from the attempt history.
+
+### Recompute and cost boundaries
+
+```sh
+npm run build
+node scripts/m5-benchmark.mjs replay evidence/sanitized/m5-benchmark-live.json
+```
+
+The aggregate replay matches every frozen input and embedded measurement.
+All 18 final reports also passed the network-denied single-report verifier.
+The coordinator's separate grid BFS and constraint/arithmetic checks matched
+71 valid assignments, including per-order distances and visit sequences;
+the unreachable baseline retained its null total. Evidence:
+`m5-live-independent-review.json`. Recalculation needs no model key/API and
+does not authenticate the origin of provider metadata.
+
+Complete reported usage: 106349 input and 77266 completion tokens. At the
+published Contributor rates recorded in the artifact (US$0.10/M input,
+US$0.20/M output), the usage estimate is **US$0.0260881**. The conservative
+reservation was US$1.1955456 against authorization US$1.50. Invoice was not
+retrieved: estimate, reservation and actual billed charge are distinct.
+The public-test US$1 allowance is separate and unused at this checkpoint.

@@ -1,0 +1,442 @@
+{
+  "source": "m5-live-initial-attempt.json",
+  "note": "Historical partial snapshot: 11 observed Meta requests later reconciled to 12 on the SAME three run IDs. Third report was RUNNING. Fifteen local HTTP429 create refusals had no run ID and zero upstream requests. They are infrastructure failures, not model proposals. Only those unstarted slots were subsequently run once.",
+  "originalZeroUpstreamRefusals": [
+    {
+      "scenarioId": "bm-02-copick-cluster",
+      "trialIndex": 0,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    },
+    {
+      "scenarioId": "bm-02-copick-cluster",
+      "trialIndex": 1,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    },
+    {
+      "scenarioId": "bm-02-copick-cluster",
+      "trialIndex": 2,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    },
+    {
+      "scenarioId": "bm-03-tight-relocation",
+      "trialIndex": 0,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    },
+    {
+      "scenarioId": "bm-03-tight-relocation",
+      "trialIndex": 1,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    },
+    {
+      "scenarioId": "bm-03-tight-relocation",
+      "trialIndex": 2,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    },
+    {
+      "scenarioId": "bm-04-constraints",
+      "trialIndex": 0,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    },
+    {
+      "scenarioId": "bm-04-constraints",
+      "trialIndex": 1,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    },
+    {
+      "scenarioId": "bm-04-constraints",
+      "trialIndex": 2,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    },
+    {
+      "scenarioId": "bm-05-locked-frequent",
+      "trialIndex": 0,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    },
+    {
+      "scenarioId": "bm-05-locked-frequent",
+      "trialIndex": 1,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    },
+    {
+      "scenarioId": "bm-05-locked-frequent",
+      "trialIndex": 2,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    },
+    {
+      "scenarioId": "bm-06-unreachable-repair",
+      "trialIndex": 0,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    },
+    {
+      "scenarioId": "bm-06-unreachable-repair",
+      "trialIndex": 1,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    },
+    {
+      "scenarioId": "bm-06-unreachable-repair",
+      "trialIndex": 2,
+      "runId": null,
+      "providerKind": "fixture",
+      "realMetaRequests": 0,
+      "interpretedDraft": null,
+      "normalization": "",
+      "reportAvailable": false,
+      "comparison": null,
+      "requestsUsed": 0,
+      "requestsReserved": 4,
+      "ambiguous": null,
+      "proposalsUsed": 0,
+      "budgets": {
+        "maxProposals": 3,
+        "maxRequests": 4,
+        "timeoutMs": 120000
+      },
+      "usageTotals": null,
+      "usageIncomplete": false,
+      "failure": {
+        "state": "CREATE_FAILED",
+        "lastError": "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly."
+      },
+      "notRun": null,
+      "report": null,
+      "failureRecord": null
+    }
+  ],
+  "canonicalSnapshotSha256": "faf9dccf0579608b7b27dcf8a9146eb0176c04b080bb1bbe1de33504198d1bd4"
+}

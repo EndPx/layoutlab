@@ -1,6 +1,6 @@
 # E1 evidence audit — implementation report
 
-One focused milestone. Detailed source audit lives in [EVIDENCE_BASE.md](EVIDENCE_BASE.md) (single home); this file reports only what was changed, checked, and left open. No paid benchmark was run; the future 18-run allowance is intact.
+One focused milestone. Detailed source audit lives in [EVIDENCE_BASE.md](EVIDENCE_BASE.md) (single home); this file reports what was changed, checked, and left open at E1 acceptance. No paid benchmark was run during E1. Subsequent authorized execution is recorded in [EVALUATION.md](EVALUATION.md); the historical pending notes below describe the E1 checkpoint.
 
 ## Files changed
 

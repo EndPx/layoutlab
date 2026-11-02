@@ -1,0 +1,672 @@
+{
+  "checkedAt": "2026-11-02T12:11:50.958Z",
+  "method": "All 18 exported reports recomputed using the network-denied verification CLI; 71 valid assignments additionally checked with a separately implemented integer-grid BFS, storage/lock/relocation checks, order visit sequences, weighted sums and improvement arithmetic. Invalid/unreachable baseline keeps null total. No model API required for recomputation.",
+  "aggregateReplay": {
+    "matchesSaved": true,
+    "mismatches": []
+  },
+  "reports": [
+    {
+      "runId": "726936c7-76b4-42f2-b313-026ccb16d5a2",
+      "scenarioId": "bm-01-demand-skew",
+      "validAssignmentsIndependentlyChecked": 5,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:04:17.870Z",
+      "canonicalReportSha256": "1ddf8516e22d225374887cbd6905864e082ff2be445d7e1a8db1b34efc4f9e31"
+    },
+    {
+      "runId": "7f01963d-caa2-4cd8-9f32-e1c27e65b2bb",
+      "scenarioId": "bm-01-demand-skew",
+      "validAssignmentsIndependentlyChecked": 5,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:04:18.251Z",
+      "canonicalReportSha256": "096127226604165d7fa5338c1f9c4a67f355ea8b05328db751eee3ce33317919"
+    },
+    {
+      "runId": "2ae872a6-a182-4279-8149-cce7f9cab8e6",
+      "scenarioId": "bm-01-demand-skew",
+      "validAssignmentsIndependentlyChecked": 5,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:04:18.559Z",
+      "canonicalReportSha256": "b9ce7693c492232e0367b15e4c401d2708f45b683367d2421facebc6ef15ee20"
+    },
+    {
+      "runId": "b7879faf-5216-4318-9e0a-df28217fc550",
+      "scenarioId": "bm-02-copick-cluster",
+      "validAssignmentsIndependentlyChecked": 2,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        },
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        },
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:04:18.876Z",
+      "canonicalReportSha256": "a20526f9db2fb58b8c79f98fb3e0e0201fc26fd85e9a72c2aa53a518f49075c8"
+    },
+    {
+      "runId": "ec6a6e04-8516-4e60-8860-a05c83b91977",
+      "scenarioId": "bm-02-copick-cluster",
+      "validAssignmentsIndependentlyChecked": 2,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        },
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        },
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:04:19.213Z",
+      "canonicalReportSha256": "740ed3b3cbd13996c72d85d9b7464ae1a6a5d9fc11b61d0460940337f62079be"
+    },
+    {
+      "runId": "91438d5a-3763-4dc1-85d8-4e356ede4c1d",
+      "scenarioId": "bm-02-copick-cluster",
+      "validAssignmentsIndependentlyChecked": 2,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        },
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        },
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:04:19.531Z",
+      "canonicalReportSha256": "65f0cc1ca10ce6674d6780cfaad1ee4df2fed5457359f79dd7ce7a1881a76854"
+    },
+    {
+      "runId": "4db1efe5-d839-4188-a2b9-16baa1079d6d",
+      "scenarioId": "bm-03-tight-relocation",
+      "validAssignmentsIndependentlyChecked": 5,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:05:00.414Z",
+      "canonicalReportSha256": "e99722d26806325b68c5dd8b7f3442244c8f3b3d363b75302a24f4926bbf9b1e"
+    },
+    {
+      "runId": "f82c4b4c-7638-48a4-b07c-26b4624ab6d2",
+      "scenarioId": "bm-03-tight-relocation",
+      "validAssignmentsIndependentlyChecked": 5,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:05:00.753Z",
+      "canonicalReportSha256": "5cd2dc2cf7540a0ce4ece54aa154b02e1b3de19f54adcfcc99f477e178663e73"
+    },
+    {
+      "runId": "1f0e7668-d309-4f32-9a5d-9124579a8b40",
+      "scenarioId": "bm-03-tight-relocation",
+      "validAssignmentsIndependentlyChecked": 5,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:06:15.617Z",
+      "canonicalReportSha256": "494f048821d4ebc2fe5244b55bacfb7a816357af01644b9dc10542edcca7ee9a"
+    },
+    {
+      "runId": "1a0f7bfc-a5c4-41b1-aea1-ab984a7c2ab8",
+      "scenarioId": "bm-04-constraints",
+      "validAssignmentsIndependentlyChecked": 5,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:06:15.986Z",
+      "canonicalReportSha256": "73ec32725c123a234b49f33202f880792bb063b7514ab892eb2bbbfff30c1059"
+    },
+    {
+      "runId": "f032409c-e7c1-45af-8288-b05b98e069d5",
+      "scenarioId": "bm-04-constraints",
+      "validAssignmentsIndependentlyChecked": 5,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:06:16.303Z",
+      "canonicalReportSha256": "e5824243115ae5150f54fcdf75d8ef7443760a662aa2fa76bcb98c3ed20f4787"
+    },
+    {
+      "runId": "7aa75d00-9000-42d9-88c0-5b919749bdea",
+      "scenarioId": "bm-04-constraints",
+      "validAssignmentsIndependentlyChecked": 5,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:07:30.366Z",
+      "canonicalReportSha256": "fcf3a3f3df986f5d75103e5fa8dd111ae2ace3bde98ed789da84de20dfaa70a5"
+    },
+    {
+      "runId": "56dc32be-3183-479d-bba7-8c28e2a1098b",
+      "scenarioId": "bm-05-locked-frequent",
+      "validAssignmentsIndependentlyChecked": 3,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        },
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:07:30.729Z",
+      "canonicalReportSha256": "e7bb38fad7ee7a5d8fbd527c938e7193751e95c94e1357a32b9fca0ec34c220d"
+    },
+    {
+      "runId": "d60dd7d9-3c2c-4462-bb1b-a5e6a59af5a9",
+      "scenarioId": "bm-05-locked-frequent",
+      "validAssignmentsIndependentlyChecked": 2,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        },
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        },
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:09:09.007Z",
+      "canonicalReportSha256": "7fab12ffaf6ca381b4130d302f80e384eb868a84a57d1832939121c7b26dbc84"
+    },
+    {
+      "runId": "cabc0688-850f-49f3-a43f-5529a37f5946",
+      "scenarioId": "bm-05-locked-frequent",
+      "validAssignmentsIndependentlyChecked": 3,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        },
+        {
+          "parseOk": false,
+          "applyOk": false,
+          "diagnostics": {
+            "errorCode": "PARSE_ERROR",
+            "finishReason": "length"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:10:14.170Z",
+      "canonicalReportSha256": "7e296e1150ee4335802fb5dbaed7607c49acb3505bdbce456f7541bec6137175"
+    },
+    {
+      "runId": "3c6db578-8a13-4de3-895d-1bbb5f72873c",
+      "scenarioId": "bm-06-unreachable-repair",
+      "validAssignmentsIndependentlyChecked": 4,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:10:14.480Z",
+      "canonicalReportSha256": "d0933f748a46beefa4f95b2eff6d633bf56be637b1de429d3a3f26077b9d4d9d"
+    },
+    {
+      "runId": "95382960-bcee-402e-89d4-1d2ea4c18d26",
+      "scenarioId": "bm-06-unreachable-repair",
+      "validAssignmentsIndependentlyChecked": 4,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:10:14.788Z",
+      "canonicalReportSha256": "7b3158be71f1210c689575123c63f705e45fd1f33e05fc26f9e78057320a6538"
+    },
+    {
+      "runId": "2d9a148d-3904-47d9-a71c-7fe70f7231b2",
+      "scenarioId": "bm-06-unreachable-repair",
+      "validAssignmentsIndependentlyChecked": 4,
+      "coreCliExit": 0,
+      "realMetaRequests": 4,
+      "proposalsUsed": 3,
+      "attempts": [
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        },
+        {
+          "parseOk": true,
+          "applyOk": true,
+          "diagnostics": {
+            "errorCode": null,
+            "finishReason": "stop"
+          }
+        }
+      ],
+      "checkedAt": "2026-11-02T12:10:53.796Z",
+      "canonicalReportSha256": "97fc36fdbe43875744d6970baf3e3a9cd938f9ac84c1f97aae083acb6bc804c9"
+    }
+  ],
+  "summary": {
+    "reports": 18,
+    "validAssignments": 71,
+    "proposals": 54,
+    "validProposals": 38,
+    "unparseableProposals": 16,
+    "lengthTerminatedProposals": 16,
+    "selected": {
+      "heuristic": 13,
+      "baseline": 3,
+      "meta": 2
+    }
+  },
+  "limits": "Synthetic fixtures under the declared evaluator and protocol; not independent reproduction of external warehouse savings, proof of global model superiority or cryptographic authentication of provider metadata."
+}

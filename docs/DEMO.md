@@ -165,6 +165,7 @@ retained; see [LIVE_SMOKE.md](LIVE_SMOKE.md)).
 
 - Fixtures are synthetic; modeled travel is not a measured customer saving.
 - The Conservative 2D clearance model is not a safety certification.
-- Stub/heuristic outputs are not Meta inference; the live 18-trial benchmark
-  is NOT RUN and fixture trials say nothing about live model behavior.
+- Stub/heuristic outputs are not Meta inference. The separately recorded
+  live benchmark completed 18 runs / 72 real requests with all failures
+  retained; see EVALUATION.md. Fixture trials remain plumbing evidence.
 - No warehouse savings, safety, optimality, or model-superiority claims.

@@ -9,8 +9,8 @@ Scope authority: [Implementation Brief v2](IMPLEMENTATION_BRIEF_V2.md). Codex pl
 | M2 | Browser load, manual edit, evaluate, compare, apply, persistence, report export and replay; English UI, 2D and basic 3D, revision protection | Accepted: 83 core tests, 22 browser tests; independent 390/1440 flow and replay checks pass |
 | M3 | Server-side Meta interpretation and proposals with measured feedback; maximum 3 proposals and 4 requests including repairs; timeout, cancellation, concurrency and input limits; separate live evidence | Local and live smoke accepted: one authorized run, 4 real requests, 2 failed attempts + 1 valid worse proposal; baseline retained, replay matched |
 | M4 | Bounded demand heuristic sharing evaluator; actual SimReady asset loaded, inspected and attributed; proxies clearly labeled until replaced | Accepted: 96 core + 41 API + 46 browser tests, independent heuristic/source/GLB/browser checks; final wording follow-up verified |
-| M5 | Six frozen scenarios, three actual model runs each when authorized; first versus feedback and heuristic comparison, all failures and budgets recorded; deterministic report replay | Offline/fixture readiness accepted; 18 real trials authorized up to US$1.50, queued after evidence-audit acceptance and clean freeze |
-| M6 | Documentation and demo agree with evidence; GitHub repository layoutlab; deployment requires authorization and public verification | Local gates accepted; Hostinger target selected; public inference/billing mode and deployment verification remain |
+| M5 | Six frozen scenarios, three actual model runs each when authorized; first versus feedback and heuristic comparison, all failures and budgets recorded; deterministic report replay | Accepted: 18 actual runs, 72 real requests, all 54 proposals retained (38 valid, 16 unparseable), aggregate replay matched and 71 valid assignments independently checked; two-phase runner recovery documented |
+| M6 | Documentation and demo agree with evidence; GitHub repository layoutlab; deployment requires authorization and public verification | Local gates accepted; Hostinger target selected; restricted public Live Meta authorized with separate US$1 total allowance, budget guard and public deployment verification pending |
 
 ## Remaining delivery gates
 
@@ -18,10 +18,21 @@ User resumed on 2026-11-02 with "lanjut sampai selesai". M6A is accepted after c
 
 - [x] M6A: supplied visual reference, actual-state metric/status attribution, canonical labels/routes, responsive behavior and regressions accepted. Contract: [VISUAL_REFERENCE_PLAN.md](VISUAL_REFERENCE_PLAN.md); result: [VISUAL_IMPLEMENTATION.md](VISUAL_IMPLEMENTATION.md).
 - [x] M6B: native production build/start, same-origin web/API, docs/demo and fresh committed Windows checkout accepted. No public deployment is implied by local production verification.
-- [ ] M5 live benchmark: user approved 18 synthetic runs, at most 72 requests total, three proposals/run, 2000 output tokens/request and US$1.50 total service-cost cap. Execute after audited source freeze; the earlier single-smoke allowance is separate.
-- [ ] M6 public deployment: user identified the existing Hostinger VPS and the `layoutlab` subdomain; read-only inventory resolves the target to `layoutlab.endpx.cloud`. Public inference/billing mode is pending user choice; no DNS or service deployment changes yet.
+- [x] M5 live benchmark: 18 synthetic runs completed, 72 real requests, three proposals/run and 2000 completion-token cap preserved. Estimate US$0.0260881 from complete reported usage; invoice not retrieved. Original 15 zero-upstream local create refusals retained, three original paid runs reconciled rather than repeated. See [EVALUATION.md](EVALUATION.md).
+- [ ] R1 storage anchors: restore/evaluate valid sample in browser; render actual-sized inventory inside racks separately from unchanged floor picking approaches, verified in 2D/3D. Canonical sample already has A at L1 and F at L8; persisted manual edits must not be silently erased.
+- [ ] R2 route playback: evaluator-generated route/numbered stops/arrows, shared cart playback and Play/Pause/Restart/Next Stop; separate picking/relocation modes; no operational-time claim.
+- [ ] M6 public deployment: user selected `layoutlab.endpx.cloud`, password/Basic Auth and Live Meta with US$1 total initial public allowance, persisted without automatic replenishment. Budget guard, DNS, isolated native service/TLS and public access checks pending. No DNS or service writes yet.
 
 Reviewed UI and native-runtime code are pushed to the private repository https://github.com/EndPx/layoutlab at code checkpoint d8a3a34b49ae9edccd0ab72d2315f98a99e8775d. Subsequent evidence/documentation commits do not change that tested application code. The initial inspection and older milestone notes below are historical checkpoints.
+
+Benchmark finality code was independently reviewed and pushed as `d391d00`.
+It waits for terminal reports after approval, preserves ambiguous runs, rejects
+unknown states and auth-denial replay shapes, and supports explicit phased
+aggregation. Full API suite: 84 passed. The final live set combines three
+original runs on `36061bc` with 15 previously unstarted slots on `d391d00`;
+inputs/model/prompt/evaluator/settings stayed fixed. Meta selected in two
+runs, heuristic in 13, baseline in three; selection counts include ties and
+are not a model win rate. Detailed review: [BENCHMARK_FINALITY_REVIEW.md](BENCHMARK_FINALITY_REVIEW.md).
 
 ## Review contract
 
