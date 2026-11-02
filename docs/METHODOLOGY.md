@@ -11,6 +11,11 @@ measurements come from this evaluator; nothing here is inferred by a model.
   (0, 0); the room spans `[0, widthMm] x [0, depthMm]`.
 - Rack positions are footprint centers. Yaw is one of 0/90/180/270; 90/270
   swap width and depth in the footprint.
+- Display rounding is presentation-only: the UI renders integer millimeters
+  as one-decimal meters (`36800 mm` → `36.8 m`) and improvement as
+  one-decimal percent (`19.0217…%` → `19.0%`). Percentages are always
+  recomputed from exact integer millimeters, never from displayed values.
+  Exact millimeters stay exposed in element titles and in every export.
 
 ## 2. Capacity semantics
 
@@ -109,7 +114,8 @@ improvementPercent = 100 * (baseline - candidate) / baseline
 - Otherwise the comparison is N/A (null), including invalid baselines and
   zero-travel baselines. A search without improvement is a valid outcome.
 - Travel reduction is not converted to labor, monetary, or throughput
-  improvement.
+  improvement. Any future distance-to-time conversion must state its speed,
+  units, and every additional assumption; bare hour claims are not allowed.
 
 ## 8. Validity layers
 
@@ -145,6 +151,28 @@ improvementPercent = 100 * (baseline - candidate) / baseline
   version/policy mismatches, recomputes everything without inference, and
   verifies full workload claims (orders, sequences, legs, distances,
   counts, flags) plus best name, percents, and outcome.
+- Every saved comparison carries the full recomputation contract:
+  scenario and provenance; products and locations; baseline and candidate
+  assignments; orders and frequencies; requirements (locks, relocation
+  budget); cart, navigation, grid, and routing-policy settings; evaluator
+  versions; validity; per-order distance and visit sequence; weighted
+  total; relocation count; and improvement where comparable. The existing
+  core, M2 (manual/stub), and M3 (live) envelopes already embed all of
+  these — no schema change is needed to verify a download.
+- Public verification (no API, key, or network — pure core replay from
+  the embedded inputs; saved totals are recomputed, never echoed, so
+  tampered totals, sequences, or percentages fail):
+
+```sh
+node scripts/verify-report.mjs <exported-envelope.json>   # one manual/stub/live report or failure audit
+node scripts/m5-benchmark.mjs replay <benchmark.json>      # full benchmark report
+node scripts/independent-bfs.mjs <measured-report.json>    # independent oracle (small on-grid scenes only)
+```
+
+- Replay is measurement recomputation, not provenance authentication: it
+  proves the saved measurements follow from the embedded inputs, not who
+  produced the file. A failure audit validates its audit facts and
+  explicitly reports that no approved measurement exists to match.
 
 ## 10. Performance bounds
 

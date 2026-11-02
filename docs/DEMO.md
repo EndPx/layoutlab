@@ -121,6 +121,9 @@ Skip the apply in section 5 and try this instead on a fresh run:
    (`provider: "stub"`, `modelRequests: 0`).
 2. Feed the same file back via Scenario > **Import/Replay**. The verdict
    reports **✓ matches saved measurements** — reproduction without inference.
+   The same check runs from a terminal with no API key:
+   `node scripts/verify-report.mjs <downloaded-report.json>` (measurement
+   recomputation from embedded inputs; tampered totals fail).
 3. A different envelope, the `m5failure/1` failure audit, appears only when a
    live run ends (failed, cancelled, or timed out) *before* requirements were
    approved: outcome/measurement null, zero proposals, and the explicit

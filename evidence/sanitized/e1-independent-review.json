@@ -1,0 +1,123 @@
+{
+  "checkedAt": "2026-11-02T10:55:32.351280+00:00",
+  "sourceScope": "User-supplied public-material audit plus coordinator retrieval/inspection of original pages/PDFs and independent arithmetic. Not an exhaustive data-existence search or reproduction of external operational savings.",
+  "primaryPdfs": [
+    {
+      "bytes": 430588,
+      "sha256": "c908f6c8303816fd887df3c7d87e118be6e08e72708c9bdf6c8caa235a1ae66c",
+      "pages": 14,
+      "embeddedAttachmentNames": [],
+      "fileAttachmentAnnotationPages": [],
+      "associatedFileCount": 0,
+      "url": "https://tge.sze.hu/tge/article/download/623/462"
+    },
+    {
+      "bytes": 1067856,
+      "sha256": "4d0e261eaa72e92f6a72acdd486245645fa37caf38d5ef1a1bf75a69514b0f8f",
+      "pages": 2,
+      "embeddedAttachmentNames": [],
+      "fileAttachmentAnnotationPages": [],
+      "associatedFileCount": 0,
+      "url": "https://daitum.com/wp-content/uploads/2023/09/Case-Study-SA-Power-Network-Warehousing-2.pdf"
+    },
+    {
+      "bytes": 2147529,
+      "sha256": "7abdaf03199e9820f195a4e2643e61e304b28870e6a6079da995008519252e29",
+      "pages": 19,
+      "embeddedAttachmentNames": [],
+      "fileAttachmentAnnotationPages": [],
+      "associatedFileCount": 0,
+      "url": "https://bioresources.cnr.ncsu.edu/wp-content/uploads/2026/06/BioRes_21_3_6924_Suri_MS_Warehouse_Layout_Optimiz_Modeling_Wood_25250.pdf"
+    }
+  ],
+  "visualChecks": [
+    "Araujo PDF page 9 Table 1",
+    "Suri PDF page 13 Table 3 partial processed worksheet"
+  ],
+  "araujoArithmetic": [
+    {
+      "beforeM": "167.8",
+      "afterM": "46.8",
+      "publishedPercent": "72",
+      "recomputedPercent": "72.10965435041716328963051251",
+      "roundedTwoDecimals": "72.11"
+    },
+    {
+      "beforeM": "167.8",
+      "afterM": "73.1",
+      "publishedPercent": "54",
+      "recomputedPercent": "56.43623361144219308700834327",
+      "roundedTwoDecimals": "56.44"
+    },
+    {
+      "beforeM": "167.8",
+      "afterM": "49.9",
+      "publishedPercent": "66",
+      "recomputedPercent": "70.26221692491060786650774732",
+      "roundedTwoDecimals": "70.26"
+    }
+  ],
+  "annualDifferenceM": "195607.20",
+  "walkingOnlyHoursAt1point2MPerSecond": "60.69433333333333333333333333",
+  "caveats": [
+    "The first 72 percent row is compatible with whole-percent rounding.",
+    "Page 8 uses a different 159.6 m baseline; scenario/denominator reconciliation remains unresolved.",
+    "The hours calculation is walking-only; additional components would require separate justification.",
+    "No accusation of fabrication, refusal or global absence of data."
+  ],
+  "recomputationReview": {
+    "checkedAt": "2026-11-02T10:51:15.419Z",
+    "networkDisabled": true,
+    "verificationChecks": [
+      {
+        "case": "m6-stub-report.json",
+        "exitCode": 0,
+        "output": "PASS evidence/sanitized/m6-stub-report.json: measurements match saved inputs (4 candidates, best heuristic, outcome IMPROVED_VALID_ASSIGNMENT; measurement-only, file provenance not authenticated)"
+      },
+      {
+        "case": "m3-live-smoke-report.json",
+        "exitCode": 0,
+        "output": "PASS evidence/sanitized/m3-live-smoke-report.json: measurements match saved inputs (1 candidates, best baseline, outcome NO_IMPROVEMENT_FOUND; measurement-only, file provenance not authenticated)"
+      },
+      {
+        "case": "plain-core.json",
+        "exitCode": 0,
+        "output": "PASS .coordination/e1-independent/plain-core.json: measurements match saved inputs (4 candidates, best heuristic, outcome IMPROVED_VALID_ASSIGNMENT; measurement-only, file provenance not authenticated)"
+      },
+      {
+        "case": "tampered-total.json",
+        "exitCode": 1,
+        "output": "FAIL .coordination/e1-independent/tampered-total.json: mismatches=[baseline]"
+      },
+      {
+        "case": "tampered-sequence.json",
+        "exitCode": 1,
+        "output": "FAIL .coordination/e1-independent/tampered-sequence.json: mismatches=[baseline]"
+      },
+      {
+        "case": "tampered-percent.json",
+        "exitCode": 1,
+        "output": "FAIL .coordination/e1-independent/tampered-percent.json: mismatches=[improvementPercents]"
+      },
+      {
+        "case": "changed-frequency.json",
+        "exitCode": 1,
+        "output": "FAIL .coordination/e1-independent/changed-frequency.json: mismatches=[baseline, candidates, improvementPercents]"
+      },
+      {
+        "case": "changed-constraints.json",
+        "exitCode": 1,
+        "output": "FAIL .coordination/e1-independent/changed-constraints.json: mismatches=[candidates, bestName, improvementPercents, outcome]"
+      }
+    ],
+    "validSampleAssignmentsCheckedByIndependentBfs": 5,
+    "weightedTotalsRecomposedFromPerOrderOutputs": true,
+    "bm04": {
+      "enumeratedCompleteAssignments": 24,
+      "validAssignments": 1,
+      "weightedTravelMm": 36000
+    },
+    "limits": "Measurement recomputation only; not authentication of inference provenance or replication of external operational savings."
+  },
+  "applicationMetaInferenceRequests": 0
+}

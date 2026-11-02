@@ -109,4 +109,39 @@ describe("assignment and measurement", () => {
     expect(baseline.workload!.reachableOrders).toBe(3);
     expect(baseline.weightedTravelMm).toBeGreaterThan(0);
   });
+
+  test("sample per-order distances sum to 36800; B/D swap is 29800 and 19.0217%", () => {
+    // Coordinator oracles (docs/INDEPENDENT_REVIEW_CASES.md): per-order
+    // distances, weighted sums, and the improvement below are hand-derived
+    // literals, not implementation output.
+    const s = loadFixture("sample", "warehouse-basic");
+    const freqOf = new Map(s.orders.map((o) => [o.id, o.frequency]));
+    const sumOf = (orders: { orderId: string; distanceMm: number | null }[]): number =>
+      orders.reduce((n, o) => n + (freqOf.get(o.orderId) as number) * (o.distanceMm as number), 0);
+    const baseline = evaluateBaseline(s, req());
+    const dist = new Map(baseline.workload!.orders.map((o) => [o.orderId, o.distanceMm]));
+    expect(dist.get("O1")).toBe(3400);
+    expect(dist.get("O2")).toBe(8000);
+    expect(dist.get("O3")).toBe(7200);
+    expect(sumOf(baseline.workload!.orders)).toBe(36800);
+    expect(baseline.weightedTravelMm).toBe(36800);
+    const swap = s.assignments.map((a) =>
+      a.productId === "sku-b" ? { ...a, locationId: "L4" } : a.productId === "sku-d" ? { ...a, locationId: "L2" } : { ...a },
+    );
+    const comparison = compareCandidates(s, req(), [{ name: "b-d-swap", mapping: swap }]);
+    const cand = comparison.ranked.find((c) => c.name === "b-d-swap")!;
+    const swapDist = new Map(cand.workload!.orders.map((o) => [o.orderId, o.distanceMm]));
+    expect(swapDist.get("O1")).toBe(3400);
+    expect(swapDist.get("O2")).toBe(4600);
+    expect(swapDist.get("O3")).toBe(7000);
+    expect(sumOf(cand.workload!.orders)).toBe(29800);
+    expect(cand.valid).toBe(true);
+    expect(cand.weightedTravelMm).toBe(29800);
+    expect(cand.relocationCount).toBe(2);
+    // Percentage from exact integer millimeters, never displayed values.
+    const baseMm = baseline.weightedTravelMm as number;
+    const candMm = cand.weightedTravelMm as number;
+    expect((100 * (baseMm - candMm)) / baseMm).toBeCloseTo(19.0217, 4);
+    expect(comparison.improvementPercents["b-d-swap"]).toBeCloseTo(19.0217, 4);
+  });
 });

@@ -28,6 +28,7 @@ test.describe("M6A data truth", () => {
     await page.goto("/");
     await clickOpen(page, "btn-sample");
     await expect(page.getByTestId("baseline-metrics")).toContainText("36.8 m");
+    await expect(page.getByTestId("baseline-metrics")).toHaveAttribute("title", "36800 mm");
     await expect(page.getByTestId("metric-reachable")).toContainText("3 / 3");
     await expect(page.getByTestId("metric-cards")).toContainText("3 order templates · 7 frequency-weighted orders");
     await expect(page.getByTestId("metric-relocated")).toContainText("0 / 4");

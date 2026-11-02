@@ -85,4 +85,8 @@ npm run test:e2e   # Playwright (desktop 1440 + mobile 390; reuses :5173 if up)
 Fixtures are synthetic. The Conservative 2D clearance model is not a safety
 certification. Modeled travel reductions are not measured customer savings,
 and nothing here claims model superiority. Limits:
-`docs/LIMITATIONS.md`.
+`docs/LIMITATIONS.md`. External-source boundaries:
+`docs/EVIDENCE_BASE.md`.
+
+Verify any downloaded report without an API key (pure core replay from
+embedded inputs): `node scripts/verify-report.mjs <report.json>`.

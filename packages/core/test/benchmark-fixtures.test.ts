@@ -186,6 +186,28 @@ describe("M5 benchmark fixtures", () => {
     expect(heu.mapping.some((a) => a.locationId === "L-small")).toBe(false);
     const report = createReport(scenario, req, [{ name: "heuristic", mapping: heu.mapping }]);
     expect(report.outcome).toBe("NO_IMPROVEMENT_FOUND");
+    // Exhaustive proof: P-b admits only L-near (allowlist/class/fit rule
+    // out the rest), P-c admits only L-far, leaving P-a only L-mid — so
+    // all 24 complete assignments except the baseline must be invalid.
+    const locs = ["L-mid", "L-near", "L-far", "L-small"];
+    let enumerated = 0;
+    let validCount = 0;
+    for (const a of locs) {
+      for (const b of locs) {
+        if (b === a) continue;
+        for (const c of locs) {
+          if (c === a || c === b) continue;
+          enumerated++;
+          const m = mapping([["P-a", a], ["P-b", b], ["P-c", c]]);
+          if (evaluateCandidate(scenario, req, m, "exhaust").valid) {
+            validCount++;
+            expect(m).toEqual(scenario.assignments);
+          }
+        }
+      }
+    }
+    expect(enumerated).toBe(24);
+    expect(validCount).toBe(1);
   });
 
   it("bm-05 locked frequent at brief scale: P-hot never moves, hand repair 210000", () => {
