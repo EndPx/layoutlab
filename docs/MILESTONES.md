@@ -1,4 +1,10 @@
-# LayoutLab delivery checklist
+# LayoutLab planner delivery checklist (v2 history)
+
+The user explicitly expanded the target with [Implementation Brief v3](IMPLEMENTATION_BRIEF_V3.md).
+Current simulator contracts and its separate v3-M0–M8 backlog live in
+[V3_IMPLEMENTATION_PLAN.md](V3_IMPLEMENTATION_PLAN.md). The checklist below
+records planner capabilities and evidence; its completed gates do not imply
+the operations simulator exists.
 
 Scope authority: [Implementation Brief v2](IMPLEMENTATION_BRIEF_V2.md). Codex plans, coordinates, and independently reviews. One Muse executor owns implementation files during each dispatch. Native Node processes only; no Docker or PostgreSQL. No push, deployment, or paid inference without authorization.
 

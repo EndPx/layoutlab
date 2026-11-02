@@ -18,6 +18,12 @@ The original-catalog warehouse-section investigation now precedes playback
 integration. See `docs/PUBLIC_DEPLOYMENT.md`,
 `docs/MILESTONES.md` and `docs/EVALUATION.md`.
 
+The user has expanded the target to a configured warehouse operations
+simulator: [Implementation Brief v3](docs/IMPLEMENTATION_BRIEF_V3.md) and
+[engine contracts/milestone plan](docs/V3_IMPLEMENTATION_PLAN.md). Receiving,
+inventory depletion, multi-agent traffic, resource queues and operational
+metrics are development targets, not features of the deployed R1 planner.
+
 ## Native start (Node 24.18 tested, no Docker)
 
 ```sh

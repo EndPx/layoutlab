@@ -1,4 +1,10 @@
-# LayoutLab product scope
+# LayoutLab deployed planner profile (v2)
+
+This document describes the released storage-planning profile. The user has
+explicitly expanded the target to [Implementation Brief v3](IMPLEMENTATION_BRIEF_V3.md);
+its operations capabilities, contracts and delivery gates are tracked in
+[V3_IMPLEMENTATION_PLAN.md](V3_IMPLEMENTATION_PLAN.md). The exclusions below
+describe the old planner profile, not restrictions on the new simulator scope.
 
 **Test warehouse changes before making them.**
 
