@@ -32,6 +32,7 @@ import {
   replayFailureRecord,
   type M3ReportEnvelope,
   type M5FailureEnvelope,
+  type RunState,
 } from "./runs.js";
 import { createApp } from "./server.js";
 
@@ -431,6 +432,18 @@ type HttpSummary = {
 // ambiguous trial (known run ID preserved), never a hung benchmark.
 export const RUNNER_HTTP_TIMEOUT_MS = 30000;
 
+function isRunState(s: string): s is RunState {
+  return (
+    s === "INTERPRETING" ||
+    s === "AWAITING_APPROVAL" ||
+    s === "RUNNING" ||
+    s === "COMPLETED" ||
+    s === "FAILED" ||
+    s === "CANCELLED" ||
+    s === "TIMED_OUT"
+  );
+}
+
 async function postJson(
   apiBase: string,
   path: string,
@@ -475,11 +488,16 @@ async function pollTerminal(
 ): Promise<HttpSummary> {
   for (;;) {
     const r = await getJson(apiBase, `/api/runs/${runId}`, httpTimeoutMs);
+    if (r.status !== 200) throw new Error(`Trial run ${runId} summary returned HTTP ${r.status}.`);
     const s = r.json as unknown as HttpSummary;
-    if (typeof s.state !== "string") throw new Error(`Trial run ${runId} returned a malformed summary.`);
+    if (typeof s.state !== "string" || !isRunState(s.state)) {
+      throw new Error(`Trial run ${runId} returned a malformed summary.`);
+    }
     if (s.state !== "INTERPRETING" && s.state !== "RUNNING") return s;
     if (Date.now() > deadlineMs) throw new Error(`Trial run ${runId} polling exceeded its deadline.`);
-    await new Promise((r) => setTimeout(r, 100));
+    // Paced below the API read limit: a long model run must never starve
+    // reads or trip rate limits while waiting for terminal state.
+    await new Promise((r) => setTimeout(r, 500));
   }
 }
 
@@ -557,7 +575,8 @@ export async function runTrial(
     try {
       const r = await getJson(apiBase, `/api/runs/${base.runId}`, httpTimeoutMs);
       const s = r.json as unknown as HttpSummary;
-      return r.status === 200 && typeof s.state === "string" ? s : null;
+      if (r.status !== 200 || typeof s.state !== "string" || !isRunState(s.state)) return null;
+      return s;
     } catch {
       return null;
     }
@@ -640,10 +659,34 @@ export async function runTrial(
       callbacks.onProgress?.(base);
       return base;
     }
-    const fresh = await reconcile();
-    if (fresh) {
-      observe(fresh);
-      summary = fresh;
+    // Finality: approval accepted (direct 200 or reconciled). The approve
+    // POST may have timed out client-side while the server still runs; a
+    // single observe plus an immediate report fetch would grab a partial
+    // RUNNING report and release the slot while the model is still active
+    // (concurrency 429s for the next trial). Poll to actual terminal state
+    // BEFORE the final report and before the next slot. Same run ID, same
+    // deadline, no POST retry.
+    if (summary.state === "INTERPRETING" || summary.state === "RUNNING" || summary.state === "AWAITING_APPROVAL") {
+      try {
+        const final = await pollTerminal(apiBase, runId, deadlineMs, httpTimeoutMs);
+        observe(final);
+        summary = final;
+      } catch (e) {
+        const settled = await reconcile();
+        if (
+          !settled || settled.state === "INTERPRETING" || settled.state === "RUNNING" ||
+          settled.state === "AWAITING_APPROVAL"
+        ) {
+          return markAmbiguous(
+            `post-approval poll failed (${transportReason(e)}) with an outstanding run; refusing paid retries`,
+          );
+        }
+        observe(settled);
+        summary = settled;
+      }
+    }
+    if (summary.state === "AWAITING_APPROVAL") {
+      return markAmbiguous("approval accepted but run still awaits approval; refusing paid retries");
     }
   } else {
     base.normalization = "Run never reached approval; no contract was applied.";
@@ -659,6 +702,15 @@ export async function runTrial(
     base.report = envelope;
     base.reportAvailable = true;
     base.comparison = compareTrialReport(envelope);
+    // Counters from the terminal envelope, not a stale pre-final summary.
+    if (envelope.providerKind === "meta" || envelope.providerKind === "fixture") {
+      base.providerKind = envelope.providerKind;
+    }
+    base.realMetaRequests = envelope.realMetaRequests;
+    base.requestsUsed = envelope.modelRequestsUsed;
+    base.proposalsUsed = envelope.proposalsUsed;
+    base.usageTotals = envelope.usageTotals;
+    base.usageIncomplete = envelope.usageIncomplete;
     callbacks.onProgress?.(base);
     return base;
   }
@@ -674,6 +726,12 @@ export async function runTrial(
     const envelope = failure.json as unknown as M5FailureEnvelope;
     base.failureRecord = envelope;
     base.failure = { state: envelope.state, lastError: envelope.lastError };
+    base.providerKind = envelope.providerKind;
+    base.realMetaRequests = envelope.realMetaRequests;
+    base.requestsUsed = envelope.modelRequestsUsed;
+    base.proposalsUsed = envelope.proposalsUsed;
+    base.usageTotals = envelope.usageTotals;
+    base.usageIncomplete = envelope.usageIncomplete;
     callbacks.onProgress?.(base);
     return base;
   }
@@ -776,6 +834,49 @@ function totalsOf(scenarios: ScenarioResult[], mode: BenchmarkReport["mode"], re
     scenarios,
     limitations: [...BENCHMARK_LIMITATIONS],
   };
+}
+
+// Pure finalizer for phased assembly (e.g., verified original-phase trials
+// plus continuation-phase slots). No I/O, no inference, no resume: the
+// caller supplies fully formed ScenarioResults with one explicit
+// phase/source provenance entry per trial; this validates coverage and runs
+// the single totalsOf aggregation path (no duplicated math). The caller
+// must set freeze (sourceCommit, manifest, modelId, etc.) and persist the
+// returned provenance manifest alongside the report — the benchmark schema
+// carries runIds/reports, not phase labels, so per-trial phase/source stays
+// explicit only in that manifest.
+export type PhasedTrialProvenance = {
+  scenarioId: BenchmarkId;
+  trialIndex: number;
+  phase: string;
+  source: string;
+};
+
+export function finalizeBenchmarkReport(
+  scenarios: ScenarioResult[],
+  opts: { mode: BenchmarkReport["mode"]; reservationUsd: number; provenance: PhasedTrialProvenance[] },
+): { report: BenchmarkReport; provenance: PhasedTrialProvenance[] } {
+  const trials = scenarios.flatMap((s) => s.trials);
+  if (!Array.isArray(opts.provenance) || opts.provenance.length !== trials.length) {
+    throw new Error(`Phased provenance must cover every trial exactly once (got ${opts.provenance?.length ?? 0} for ${trials.length}).`);
+  }
+  const seen = new Set<string>();
+  for (const p of opts.provenance) {
+    if (typeof p.phase !== "string" || p.phase.length === 0 || typeof p.source !== "string" || p.source.length === 0) {
+      throw new Error("Phased provenance entries require non-empty phase and source strings.");
+    }
+    const key = `${p.scenarioId}#${p.trialIndex}`;
+    if (seen.has(key)) throw new Error(`Duplicate phased provenance for ${p.scenarioId} trial ${p.trialIndex}.`);
+    seen.add(key);
+    if (!trials.some((t) => t.scenarioId === p.scenarioId && t.trialIndex === p.trialIndex)) {
+      throw new Error(`Phased provenance names an unknown trial: ${p.scenarioId} trial ${p.trialIndex}.`);
+    }
+  }
+  const report = totalsOf(scenarios, opts.mode, opts.reservationUsd);
+  const provenance = [...opts.provenance].sort((a, b) =>
+    a.scenarioId < b.scenarioId ? -1 : a.scenarioId > b.scenarioId ? 1 : a.trialIndex - b.trialIndex,
+  );
+  return { report, provenance };
 }
 
 export function buildOfflineBenchmark(rootDir: string): BenchmarkReport {
@@ -1145,6 +1246,32 @@ export function replayBenchmarkReport(reportJson: unknown, rootDir: string): { m
         if (trial.comparison !== null) mismatches.push(`${tag}.failure-comparison-must-be-null`);
         if (trial.requestsUsed !== trial.failureRecord.modelRequestsUsed) mismatches.push(`${tag}.requestsUsed`);
         if (trial.realMetaRequests !== trial.failureRecord.realMetaRequests) mismatches.push(`${tag}.realMetaRequests`);
+      } else if (
+        trial.failure?.state === "CREATE_FAILED" &&
+        typeof trial.failure.lastError === "string" &&
+        /HTTP 4\d\d/.test(trial.failure.lastError) &&
+        !/HTTP 40[13]/.test(trial.failure.lastError) &&
+        trial.runId === null &&
+        trial.report === null &&
+        trial.failureRecord === null &&
+        trial.reportAvailable === false &&
+        trial.comparison === null &&
+        trial.requestsUsed === 0 &&
+        trial.realMetaRequests === 0 &&
+        trial.proposalsUsed === 0 &&
+        trial.ambiguous === null &&
+        trial.notRun === null &&
+        trial.interpretedDraft === null &&
+        trial.normalization === "" &&
+        trial.usageTotals === null &&
+        trial.usageIncomplete === false
+      ) {
+        // Conclusive local start refusal (HTTP 429/4xx except auth-denial
+        // 401/403, no Model run was created, zero requests): no server audit
+        // can exist, so strict shape plus zero counts validate instead.
+        // Anything else without a report or audit — bare missing, 5xx,
+        // auth-denial 401/403, auth states, non-zero counts — still fails
+        // below. Real failures preserved, never NotRun.
       } else {
         mismatches.push(`${tag}.missing-report-and-audit`);
       }

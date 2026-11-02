@@ -4,15 +4,18 @@
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createServer, type Server } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   BENCHMARK_IDS,
+  LIVE_MODEL_ID,
   buildOfflineBenchmark,
   checkServerFingerprint,
   conservativeReservationUsd,
+  finalizeBenchmarkReport,
   loadBenchmark,
   preflightLive,
   readServerFingerprint,
@@ -22,6 +25,8 @@ import {
   runTrial,
   usageEstimatedUsd,
   verifyBenchmarkHashes,
+  type BenchmarkId,
+  type BenchmarkReport,
 } from "../src/benchmark.js";
 import { loadConfig, type ApiConfig } from "../src/config.js";
 import { replayFailureRecord } from "../src/runs.js";
@@ -949,5 +954,366 @@ describe("M5 fixture benchmark", () => {
     expect(trial.failureRecord?.envelopeVersion).toBe("layoutlab.m5failure/1");
     expect(trial.failure?.state).toBe("FAILED");
     expect(replayFailureRecord(trial.failureRecord).evaluated).toBe(false);
+  });
+});
+
+describe("M5 post-approval finality", () => {
+  it("waits for terminal state after approve timeout; next trial never overlaps", async () => {
+    const fake = await startFakeMeta();
+    closers.push(fake.close);
+    // Trial 1 proposals are slow: the approve POST exceeds the small runner
+    // HTTP timeout while the server still runs. Trial 2 is fast. The runner
+    // must wait for trial 1's terminal report before starting trial 2.
+    fake.setHandler(
+      scriptHandler(
+        [
+          { kind: "ok", contentJson: draftRequirements() },
+          { kind: "ok", contentJson: proposal(0, [], "retain"), delayMs: 1200 },
+          { kind: "ok", contentJson: proposal(0, [], "retain"), delayMs: 1200 },
+          { kind: "ok", contentJson: proposal(0, [], "retain"), delayMs: 1200 },
+          { kind: "ok", contentJson: draftRequirements() },
+          { kind: "ok", contentJson: proposal(0, [], "retain") },
+          { kind: "ok", contentJson: proposal(0, [], "retain") },
+          { kind: "ok", contentJson: proposal(0, [], "retain") },
+        ],
+        FAKE_MODEL,
+      ),
+    );
+    const api = await startApi(testConfig(fake));
+    closers.push(api.close);
+    const loaded = loadBenchmark(rootDir());
+    const scenario = loaded.scenarios.get("bm-01-demand-skew") as never;
+    const contract = loaded.contracts.get("bm-01-demand-skew") as never;
+    const requestText = loaded.requestTexts.get("bm-01-demand-skew") as string;
+    const t1 = await runTrial(api.apiUrl, scenario, contract, requestText, { trialIndex: 0, httpTimeoutMs: 500 });
+    expect(t1.reportAvailable).toBe(true);
+    expect(t1.ambiguous).toBeNull();
+    expect(t1.failure).toBeNull();
+    expect(t1.requestsUsed).toBe(4);
+    expect(t1.proposalsUsed).toBe(3);
+    expect(t1.realMetaRequests).toBe(0);
+    expect(t1.report?.modelRequestsUsed).toBe(4);
+    expect(t1.report?.proposalsUsed).toBe(3);
+    expect(t1.comparison).not.toBeNull();
+    const t2 = await runTrial(api.apiUrl, scenario, contract, requestText, { trialIndex: 1, httpTimeoutMs: 5000 });
+    expect(t2.reportAvailable).toBe(true);
+    expect(t2.failure).toBeNull();
+    expect(t2.requestsUsed).toBe(4);
+    expect(t2.proposalsUsed).toBe(3);
+    expect(fake.requestCount()).toBe(8);
+  }, 30000);
+
+  it("marks post-approval unsettled runs ambiguous instead of returning partial", async () => {
+    const fake = await startFakeMeta();
+    closers.push(fake.close);
+    fake.setHandler(
+      scriptHandler(
+        [
+          { kind: "ok", contentJson: draftRequirements() },
+          { kind: "ok", contentJson: proposal(0, [], "retain"), delayMs: 3000 },
+          { kind: "ok", contentJson: proposal(0, [], "retain"), delayMs: 3000 },
+          { kind: "ok", contentJson: proposal(0, [], "retain"), delayMs: 3000 },
+        ],
+        FAKE_MODEL,
+      ),
+    );
+    const api = await startApi(testConfig(fake));
+    closers.push(api.close);
+    const loaded = loadBenchmark(rootDir());
+    const scenario = loaded.scenarios.get("bm-01-demand-skew") as never;
+    const contract = loaded.contracts.get("bm-01-demand-skew") as never;
+    const requestText = loaded.requestTexts.get("bm-01-demand-skew") as string;
+    setTimeout(() => void api.close().catch(() => {}), 1500);
+    const trial = await runTrial(api.apiUrl, scenario, contract, requestText, {
+      trialIndex: 0,
+      requestsReserved: 4,
+      httpTimeoutMs: 500,
+    });
+    expect(trial.runId).toBeTruthy();
+    expect(trial.ambiguous).not.toBeNull();
+    expect(trial.ambiguous?.reason).toMatch(/post-approval|outstanding/);
+    expect(trial.reportAvailable).toBe(false);
+    expect(trial.comparison).toBeNull();
+    expect(trial.requestsReserved).toBe(4);
+    expect(fake.requestCount()).toBe(2);
+  }, 15000);
+
+  it("holds unknown run states ambiguous without POST retry or slot release", async () => {
+    const posts: string[] = [];
+    const stub: Server = createServer((req, res) => {
+      if (req.method === "POST" && req.url === "/api/runs") {
+        posts.push("create");
+        req.resume();
+        req.on("end", () => {
+          res.writeHead(202, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ runId: "run-garbage-1", expiresAt: new Date(Date.now() + 60000).toISOString() }));
+        });
+        return;
+      }
+      if (req.method === "GET" && req.url === "/api/runs/run-garbage-1") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({
+          runId: "run-garbage-1",
+          state: "GARBAGE",
+          expiresAt: new Date(Date.now() + 60000).toISOString(),
+          modelRequestsUsed: 0,
+          proposalsUsed: 0,
+          budgets: { maxProposals: 3, maxRequests: 4, timeoutMs: 120000 },
+          requirementsDraft: null,
+          usageTotals: null,
+          usageIncomplete: false,
+          providerKind: "fixture",
+          realMetaRequests: 0,
+          lastError: null,
+        }));
+        return;
+      }
+      if (req.method === "POST" && (req.url ?? "").includes("/approve")) {
+        posts.push("approve");
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ code: "UNEXPECTED_APPROVE" }));
+        return;
+      }
+      res.writeHead(409, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ code: "NO_REPORT" }));
+    });
+    await new Promise<void>((resolve) => stub.listen(0, "127.0.0.1", resolve));
+    closers.push(() => new Promise<void>((resolve, reject) => stub.close((e) => (e ? reject(e) : resolve()))));
+    const apiBase = `http://127.0.0.1:${(stub.address() as { port: number }).port}`;
+    const loaded = loadBenchmark(rootDir());
+    const trial = await runTrial(
+      apiBase,
+      loaded.scenarios.get("bm-01-demand-skew") as never,
+      loaded.contracts.get("bm-01-demand-skew") as never,
+      loaded.requestTexts.get("bm-01-demand-skew") as string,
+      { trialIndex: 0, requestsReserved: 4, httpTimeoutMs: 2000 },
+    );
+    expect(trial.runId).toBe("run-garbage-1");
+    expect(trial.ambiguous).not.toBeNull();
+    expect(trial.ambiguous?.reason).toMatch(/outstanding|malformed|poll failed/);
+    expect(trial.reportAvailable).toBe(false);
+    expect(trial.comparison).toBeNull();
+    expect(trial.failure).toBeNull();
+    expect(trial.requestsReserved).toBe(4);
+    expect(posts).toEqual(["create"]);
+  }, 15000);
+});
+
+describe("M5 replay of conclusive create refusals", () => {
+  function createFailedTrial(scenarioId: BenchmarkId, trialIndex: number): BenchmarkReport["scenarios"][number]["trials"][number] {
+    return {
+      scenarioId,
+      trialIndex,
+      runId: null,
+      providerKind: "fixture",
+      realMetaRequests: 0,
+      interpretedDraft: null,
+      normalization: "",
+      reportAvailable: false,
+      comparison: null,
+      requestsUsed: 0,
+      requestsReserved: 4,
+      ambiguous: null,
+      proposalsUsed: 0,
+      budgets: { maxProposals: 3, maxRequests: 4, timeoutMs: 120000 },
+      usageTotals: null,
+      usageIncomplete: false,
+      failure: { state: "CREATE_FAILED", lastError: "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly." },
+      notRun: null,
+      report: null,
+      failureRecord: null,
+    };
+  }
+
+  function liveAllRefusedReport(): BenchmarkReport {
+    const offlineBase = buildOfflineBenchmark(rootDir());
+    const scenarios = BENCHMARK_IDS.map((id) => {
+      const base = offlineBase.scenarios.find((s) => s.scenarioId === id);
+      if (!base) throw new Error("offline base missing");
+      return { scenarioId: id, offline: base.offline, trials: [0, 1, 2].map((t) => createFailedTrial(id, t)) };
+    });
+    return {
+      benchmarkVersion: offlineBase.benchmarkVersion,
+      generatedAt: new Date().toISOString(),
+      mode: "live",
+      providerKind: "meta",
+      realMetaRequests: 0,
+      freeze: { ...offlineBase.freeze, modelId: LIVE_MODEL_ID },
+      totals: {
+        scenarios: 6,
+        trialsPlanned: 18,
+        trialsRun: 18,
+        trialsNotRun: 0,
+        modelRequests: 0,
+        realMetaRequests: 0,
+        failures: 18,
+        reportsAvailable: 0,
+        reportsMissing: 18,
+        requestsReserved: 72,
+        ambiguousTrials: 0,
+        requestsUnknown: false,
+      },
+      costs: {
+        reservationUsd: 1.2,
+        usageEstimated: null,
+        invoiceUsd: null,
+        invoiceNote: "test: no invoice retrieved",
+        pricingSource: offlineBase.costs.pricingSource,
+      },
+      scenarios,
+      limitations: offlineBase.limitations,
+    };
+  }
+
+  it("accepts conclusive 0-request CREATE_FAILED trials", () => {
+    const replayed = replayBenchmarkReport(liveAllRefusedReport(), rootDir());
+    expect(replayed.mismatches).toEqual([]);
+    expect(replayed.matchesSaved).toBe(true);
+  });
+
+  it("accepts 429 but rejects 401/403 with identical strict CREATE_FAILED shape", () => {
+    const base = liveAllRefusedReport();
+    for (const status of [429, 401, 403]) {
+      const r = JSON.parse(JSON.stringify(base)) as BenchmarkReport;
+      r.scenarios[0]!.trials[0]!.failure = { state: "CREATE_FAILED", lastError: `create failed: HTTP ${status} refused` };
+      const check = replayBenchmarkReport(r, rootDir());
+      if (status === 429) {
+        expect(check.mismatches).toEqual([]);
+        expect(check.matchesSaved).toBe(true);
+      } else {
+        expect(check.matchesSaved).toBe(false);
+        expect(check.mismatches).toContain("bm-01-demand-skew.trial-0.missing-report-and-audit");
+      }
+    }
+  });
+
+  it("rejects wrong counters, bare missing, 5xx, auth, and pairing mismatch", () => {
+    const base = liveAllRefusedReport();
+    const fresh = () => JSON.parse(JSON.stringify(base)) as BenchmarkReport;
+    const wrong = fresh();
+    wrong.scenarios[0]!.trials[0]!.requestsUsed = 1;
+    wrong.totals.modelRequests = 1;
+    const wrongReplay = replayBenchmarkReport(wrong, rootDir());
+    expect(wrongReplay.matchesSaved).toBe(false);
+    expect(wrongReplay.mismatches).toContain("bm-01-demand-skew.trial-0.missing-report-and-audit");
+    const bare = fresh();
+    bare.scenarios[0]!.trials[0]!.failure = null;
+    bare.totals.failures = 17;
+    expect(replayBenchmarkReport(bare, rootDir()).mismatches).toContain("bm-01-demand-skew.trial-0.missing-report-and-audit");
+    const five = fresh();
+    five.scenarios[0]!.trials[0]!.failure = { state: "CREATE_FAILED", lastError: "create failed: HTTP 500 boom" };
+    expect(replayBenchmarkReport(five, rootDir()).mismatches).toContain("bm-01-demand-skew.trial-0.missing-report-and-audit");
+    const auth = fresh();
+    auth.scenarios[0]!.trials[0]!.failure = { state: "AUTH_DENIED", lastError: "create refused: HTTP 403" };
+    expect(replayBenchmarkReport(auth, rootDir()).mismatches).toContain("bm-01-demand-skew.trial-0.missing-report-and-audit");
+    const paired = fresh();
+    paired.scenarios[0]!.trials[0]!.scenarioId = "bm-02-copick-cluster";
+    expect(replayBenchmarkReport(paired, rootDir()).mismatches).toContain("bm-01-demand-skew.trial-0.scenario-id");
+  }, 15000);
+});
+
+describe("M5 phased finalizer", () => {
+  function phasedFailedTrial(scenarioId: BenchmarkId, trialIndex: number): BenchmarkReport["scenarios"][number]["trials"][number] {
+    return {
+      scenarioId,
+      trialIndex,
+      runId: null,
+      providerKind: "fixture",
+      realMetaRequests: 0,
+      interpretedDraft: null,
+      normalization: "",
+      reportAvailable: false,
+      comparison: null,
+      requestsUsed: 0,
+      requestsReserved: 4,
+      ambiguous: null,
+      proposalsUsed: 0,
+      budgets: { maxProposals: 3, maxRequests: 4, timeoutMs: 120000 },
+      usageTotals: null,
+      usageIncomplete: false,
+      failure: { state: "CREATE_FAILED", lastError: "create failed: HTTP 429 Server is busy (concurrency limit); retry shortly." },
+      notRun: null,
+      report: null,
+      failureRecord: null,
+    };
+  }
+
+  function phasedScenarios(): BenchmarkReport["scenarios"] {
+    const offlineBase = buildOfflineBenchmark(rootDir());
+    return BENCHMARK_IDS.map((id) => {
+      const base = offlineBase.scenarios.find((s) => s.scenarioId === id);
+      if (!base) throw new Error("offline base missing");
+      return { scenarioId: id, offline: base.offline, trials: [0, 1, 2].map((t) => phasedFailedTrial(id, t)) };
+    });
+  }
+
+  it("aggregates explicit phased trials with validated provenance, no duplicated math", () => {
+    const offlineBase = buildOfflineBenchmark(rootDir());
+    const scenarios = BENCHMARK_IDS.map((id) => {
+      const base = offlineBase.scenarios.find((s) => s.scenarioId === id);
+      if (!base) throw new Error("offline base missing");
+      return { scenarioId: id, offline: base.offline, trials: [] as never[] };
+    });
+    const { report, provenance } = finalizeBenchmarkReport(scenarios, { mode: "offline", reservationUsd: 0, provenance: [] });
+    expect(report.totals).toMatchObject({ scenarios: 6, trialsPlanned: 0, trialsRun: 0, modelRequests: 0 });
+    expect(provenance).toEqual([]);
+    const full = buildOfflineBenchmark(rootDir());
+    const withTrials = full.scenarios.map((s) => ({ ...s, trials: [] as never[] }));
+    expect(() => finalizeBenchmarkReport(withTrials, { mode: "offline", reservationUsd: 0, provenance: [{ scenarioId: "bm-01-demand-skew", trialIndex: 0, phase: "p", source: "s" }] }))
+      .toThrow(/cover every trial/);
+  });
+
+  it("finalizes nonempty phased trials with independently asserted aggregates", () => {
+    const scenarios = phasedScenarios();
+    const provenance = scenarios.flatMap((s) =>
+      s.trials.map((t) => ({
+        scenarioId: s.scenarioId,
+        trialIndex: t.trialIndex,
+        phase: s.scenarioId === "bm-01-demand-skew" ? "original" : "continuation",
+        source: "constructed test",
+      })),
+    );
+    const { report, provenance: sorted } = finalizeBenchmarkReport(scenarios, {
+      mode: "live",
+      reservationUsd: 1.2,
+      provenance,
+    });
+    expect(report.mode).toBe("live");
+    expect(report.costs.reservationUsd).toBe(1.2);
+    expect(report.totals).toEqual({
+      scenarios: 6,
+      trialsPlanned: 18,
+      trialsRun: 18,
+      trialsNotRun: 0,
+      modelRequests: 0,
+      realMetaRequests: 0,
+      failures: 18,
+      reportsAvailable: 0,
+      reportsMissing: 18,
+      requestsReserved: 72,
+      ambiguousTrials: 0,
+      requestsUnknown: false,
+    });
+    expect(sorted).toHaveLength(18);
+    expect(sorted[0]).toEqual({ scenarioId: "bm-01-demand-skew", trialIndex: 0, phase: "original", source: "constructed test" });
+    expect(sorted.filter((p) => p.phase === "original")).toHaveLength(3);
+    expect(sorted.filter((p) => p.phase === "continuation")).toHaveLength(15);
+  });
+
+  it("rejects missing, duplicate, and unknown phased provenance", () => {
+    const scenarios = phasedScenarios();
+    const full = scenarios.flatMap((s) =>
+      s.trials.map((t) => ({ scenarioId: s.scenarioId, trialIndex: t.trialIndex, phase: "p", source: "s" })),
+    );
+    expect(full).toHaveLength(18);
+    const missing = full.slice(0, 17);
+    expect(() => finalizeBenchmarkReport(scenarios, { mode: "live", reservationUsd: 1.2, provenance: missing }))
+      .toThrow(/cover every trial/);
+    const duplicate = [...full.slice(0, 17), full[0]!];
+    expect(() => finalizeBenchmarkReport(scenarios, { mode: "live", reservationUsd: 1.2, provenance: duplicate }))
+      .toThrow(/Duplicate/);
+    const unknown = [...full.slice(0, 17), { scenarioId: "bm-01-demand-skew" as BenchmarkId, trialIndex: 99, phase: "x", source: "y" }];
+    expect(() => finalizeBenchmarkReport(scenarios, { mode: "live", reservationUsd: 1.2, provenance: unknown }))
+      .toThrow(/unknown trial/);
   });
 });
