@@ -1,0 +1,55 @@
+{
+  "checkedAt": "2026-11-02T09:08:49.207Z",
+  "sourceCommit": "d8a3a34b49ae9edccd0ab72d2315f98a99e8775d",
+  "sourceWasClean": true,
+  "method": "Independent grid BFS and assignment constraints; no core geometry/navigation/routing helpers.",
+  "offlineCases": [
+    {
+      "id": "bm-01-demand-skew",
+      "baselineMm": 78000,
+      "baselineReachableTemplates": 3,
+      "heuristicMm": 32000,
+      "heuristicRelocations": 3
+    },
+    {
+      "id": "bm-02-copick-cluster",
+      "baselineMm": 218000,
+      "baselineReachableTemplates": 10,
+      "heuristicMm": 186000,
+      "heuristicRelocations": 2
+    },
+    {
+      "id": "bm-03-tight-relocation",
+      "baselineMm": 38000,
+      "baselineReachableTemplates": 2,
+      "heuristicMm": 26000,
+      "heuristicRelocations": 1
+    },
+    {
+      "id": "bm-04-constraints",
+      "baselineMm": 36000,
+      "baselineReachableTemplates": 3,
+      "heuristicMm": 36000,
+      "heuristicRelocations": 0
+    },
+    {
+      "id": "bm-05-locked-frequent",
+      "baselineMm": 222000,
+      "baselineReachableTemplates": 10,
+      "heuristicMm": 196000,
+      "heuristicRelocations": 1
+    },
+    {
+      "id": "bm-06-unreachable-repair",
+      "baselineMm": null,
+      "baselineReachableTemplates": 1,
+      "heuristicMm": 12000,
+      "heuristicRelocations": 1
+    }
+  ],
+  "fixtureTrials": 18,
+  "localFixtureRequests": 72,
+  "realMetaRequests": 0,
+  "validAssignmentsIndependentlyChecked": 81,
+  "replayCheckedByCli": true
+}

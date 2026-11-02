@@ -1,12 +1,12 @@
 {
   "benchmarkVersion": "layoutlab.m5benchmark/1",
-  "generatedAt": "2026-11-01T19:53:46.029Z",
+  "generatedAt": "2026-11-02T09:05:10.220Z",
   "mode": "offline",
   "providerKind": "fixture",
   "realMetaRequests": 0,
   "freeze": {
-    "sourceCommit": "84d4bca83091dac40b92f26f5ada8921052d2fbc",
-    "sourceDirty": true,
+    "sourceCommit": "d8a3a34b49ae9edccd0ab72d2315f98a99e8775d",
+    "sourceDirty": false,
     "protocol": "meta-chat-completions/json_schema-strict/1",
     "promptVersion": "layoutlab.m4prompt/1",
     "generationSettings": {

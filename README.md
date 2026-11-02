@@ -49,10 +49,15 @@ discloses this and requires consent before any live request.
 
 ## Checks
 
+On a fresh checkout, build once before typechecking: browser integration
+helpers import the compiled API. Install Playwright Chromium once if its
+browser binary is not already available on the machine.
+
 ```sh
-npm run typecheck  # core + api + web
 npm run build      # core + api + web
+npm run typecheck  # core + api + web, after the first build
 npm test           # deterministic core tests + API fixture tests
+npx playwright install chromium  # first browser-test setup only
 npm run test:e2e   # Playwright (desktop 1440 + mobile 390; reuses :5173 if up)
 ```
 

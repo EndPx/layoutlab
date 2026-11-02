@@ -1,7 +1,7 @@
 # LayoutLab M5 benchmark (offline)
 
-Generated 2026-11-01T19:53:46.029Z from 84d4bca83091dac40b92f26f5ada8921052d2fbc (meta-chat-completions/json_schema-strict/1, prompt layoutlab.m4prompt/1, reasoning low, max 2000 output tokens).
-Source: DIRTY (uncommitted changes; HEAD predates this run — commit and rerun validation before live).
+Generated 2026-11-02T09:05:10.220Z from d8a3a34b49ae9edccd0ab72d2315f98a99e8775d (meta-chat-completions/json_schema-strict/1, prompt layoutlab.m4prompt/1, reasoning low, max 2000 output tokens).
+Source: clean (HEAD matches this run).
 ProviderKind fixture; real Meta requests 0; model requests observed 0 (reserved 0); trials run 0/0, not run 0; reports available 0, missing 0; ambiguous trials 0.
 Costs: conservative reservation $0.0000; usage estimate n/a; invoice not retrieved.
 

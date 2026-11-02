@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-11-02T09:13:01.379Z",
+  "base": "http://127.0.0.1:4356",
+  "status": {
+    "liveAvailable": false,
+    "providerKind": "meta"
+  },
+  "glbSha256": "571cc601bbbf8759977e05c5104a1d9381a682d2537942a238c68ebf8f8ae9ea",
+  "observations": [
+    {
+      "width": 1440,
+      "checked": 5,
+      "scrollWidth": 1440,
+      "errors": [],
+      "inferenceRequests": []
+    },
+    {
+      "width": 390,
+      "checked": 5,
+      "scrollWidth": 390,
+      "errors": [],
+      "inferenceRequests": []
+    }
+  ],
+  "localOnly": true,
+  "realMetaRequests": 0
+}

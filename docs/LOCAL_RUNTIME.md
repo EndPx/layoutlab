@@ -101,10 +101,16 @@ the key itself never leaves the server.
 
 ## Checks
 
+Build first on a fresh checkout because the browser integration helpers
+import the compiled API. The fresh Windows verification used this order.
+Playwright Chromium was already installed on that host; the install command
+below prepares it on a machine without the matching browser binary.
+
 ```sh
-npm run typecheck  # core + api + web
 npm run build      # core + api + web
+npm run typecheck  # core + api + web, after the first build
 npm test           # deterministic core tests + API fixture tests (110 + 75)
+npx playwright install chromium  # first browser-test setup only
 npm run test:e2e   # Playwright, desktop 1440 + mobile 390 (reuses :5173 if up)
 ```
 

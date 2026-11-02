@@ -84,13 +84,20 @@ not touched.
 ## Blockers and next gate
 
 - No M6B code blocker remains.
-- Coordinator-owned next: fresh committed Windows checkout verification
-  (`autocrlf=true`, `npm ci`/`build`/`start`, frozen fixture hashes, no key).
-  Actual production HTTP/browser smoke already passed independently; the
-  code checkpoint is committed before the clean checkout gate.
+- Fresh committed Windows checkout verification is complete; see the
+  coordinator acceptance below. Actual production HTTP/browser smoke passed
+  independently before this final isolated-checkout gate.
 - Still separately gated: actual 18-trial live benchmark (no new paid
   authorization; the US$0.10 smoke is consumed) and any public deployment.
 
 ## Coordinator code review
 
 The native HTTP and built-browser smoke passed independently at 1440/390: root HTML, exact GLB MIME/hash, missing resource and unknown API responses, private/source path denial, manual/stub/apply/export/replay, ten independently checked valid assignments, no page errors or overflow, and zero inference POSTs. This root-workspace smoke is not the keyless proof. The accepted M6A image bytes were restored after routine browser-test recaptures; application UI layout is unchanged. The remaining local gate is a fresh committed Windows checkout with npm ci/build/start, frozen byte hashes and missing-key setup_required.
+
+## Fresh-checkout acceptance
+
+The coordinator verified code checkpoint `d8a3a34b49ae9edccd0ab72d2315f98a99e8775d` in a fresh local Windows clone with `core.autocrlf=true` and no `.env`: npm ci, build, typecheck after build, 110 core tests and 75 API tests passed. Direct typecheck before the first build cannot resolve compiled API imports in integration helpers; documentation now states the correct build-first order. The matching Playwright Chromium binary was already installed on the host.
+
+The native Node entrypoint used by npm start was launched from a directory outside that clone. It served a clone-only probe from the correct web build, reported setup_required without a key, delivered the original GLB hash/MIME and passed the full built-browser stub flow at 1440/390 without inference. The owned server exited, the probe was removed, all seven frozen hashes/byte counts matched, and git status remained clean. Evidence: `evidence/sanitized/m6b-fresh-checkout.json` and `m6b-fresh-browser.json`.
+
+Local M6B is accepted. Actual paid benchmark completion and public deployment remain separate, unperformed gates pending user authorization/target.

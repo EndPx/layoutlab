@@ -1,12 +1,12 @@
 {
   "benchmarkVersion": "layoutlab.m5benchmark/1",
-  "generatedAt": "2026-11-01T19:53:53.709Z",
+  "generatedAt": "2026-11-02T09:05:15.861Z",
   "mode": "fixture",
   "providerKind": "fixture",
   "realMetaRequests": 0,
   "freeze": {
-    "sourceCommit": "84d4bca83091dac40b92f26f5ada8921052d2fbc",
-    "sourceDirty": true,
+    "sourceCommit": "d8a3a34b49ae9edccd0ab72d2315f98a99e8775d",
+    "sourceDirty": false,
     "protocol": "meta-chat-completions/json_schema-strict/1",
     "promptVersion": "layoutlab.m4prompt/1",
     "generationSettings": {
@@ -126,7 +126,7 @@
         {
           "scenarioId": "bm-01-demand-skew",
           "trialIndex": 0,
-          "runId": "024c7b3d-dee6-49f3-a550-6d2f59ff63b5",
+          "runId": "8a619722-1a12-4318-b08b-2ee639905aae",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -203,8 +203,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "024c7b3d-dee6-49f3-a550-6d2f59ff63b5",
-            "exportedAt": "2026-11-01T19:53:48.862Z",
+            "runId": "8a619722-1a12-4318-b08b-2ee639905aae",
+            "exportedAt": "2026-11-02T09:05:10.726Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -1424,7 +1424,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 8,
+                "durationMs": 6,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -1712,12 +1712,12 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:48.573Z",
-              "completedAt": "2026-11-01T19:53:48.811Z",
+              "createdAt": "2026-11-02T09:05:10.351Z",
+              "completedAt": "2026-11-02T09:05:10.689Z",
               "durationsMs": [
-                29,
+                99,
                 19,
-                8,
+                6,
                 18
               ]
             },
@@ -1735,7 +1735,7 @@
         {
           "scenarioId": "bm-01-demand-skew",
           "trialIndex": 1,
-          "runId": "239b1755-5208-4a22-a812-31d596f073a6",
+          "runId": "4737b615-8ec2-42c9-a0d9-aa0bb36d6dca",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -1812,8 +1812,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "239b1755-5208-4a22-a812-31d596f073a6",
-            "exportedAt": "2026-11-01T19:53:48.984Z",
+            "runId": "4737b615-8ec2-42c9-a0d9-aa0bb36d6dca",
+            "exportedAt": "2026-11-02T09:05:10.834Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -2900,7 +2900,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 20,
+                "durationMs": 16,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -3033,7 +3033,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 2,
+                "durationMs": 3,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -3166,7 +3166,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 7,
+                "durationMs": 8,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -3321,13 +3321,13 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:48.884Z",
-              "completedAt": "2026-11-01T19:53:48.948Z",
+              "createdAt": "2026-11-02T09:05:10.734Z",
+              "completedAt": "2026-11-02T09:05:10.796Z",
               "durationsMs": [
-                7,
-                20,
-                2,
-                7
+                4,
+                16,
+                3,
+                8
               ]
             },
             "limitations": [
@@ -3344,7 +3344,7 @@
         {
           "scenarioId": "bm-01-demand-skew",
           "trialIndex": 2,
-          "runId": "7d49c218-7187-4f54-931c-75d94dd604ba",
+          "runId": "a3dfc299-85c0-46db-9024-acbb603eb5a7",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -3421,8 +3421,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "7d49c218-7187-4f54-931c-75d94dd604ba",
-            "exportedAt": "2026-11-01T19:53:49.108Z",
+            "runId": "a3dfc299-85c0-46db-9024-acbb603eb5a7",
+            "exportedAt": "2026-11-02T09:05:10.971Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -4509,7 +4509,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 16,
+                "durationMs": 15,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -4642,7 +4642,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 4,
+                "durationMs": 14,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -4775,7 +4775,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 8,
+                "durationMs": 13,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -4930,13 +4930,13 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:48.990Z",
-              "completedAt": "2026-11-01T19:53:49.058Z",
+              "createdAt": "2026-11-02T09:05:10.841Z",
+              "completedAt": "2026-11-02T09:05:10.920Z",
               "durationsMs": [
-                5,
-                16,
-                4,
-                8
+                6,
+                15,
+                14,
+                13
               ]
             },
             "limitations": [
@@ -4980,7 +4980,7 @@
         {
           "scenarioId": "bm-02-copick-cluster",
           "trialIndex": 0,
-          "runId": "98e9c22a-e552-4004-8098-f71f7e25628a",
+          "runId": "3e631a1b-7ac3-4236-bd48-306c57df71c9",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -5057,8 +5057,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "98e9c22a-e552-4004-8098-f71f7e25628a",
-            "exportedAt": "2026-11-01T19:53:49.686Z",
+            "runId": "3e631a1b-7ac3-4236-bd48-306c57df71c9",
+            "exportedAt": "2026-11-02T09:05:11.336Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -8050,7 +8050,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 5,
+                "durationMs": 2,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -8764,7 +8764,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 8,
+                "durationMs": 11,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -8895,13 +8895,13 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:49.153Z",
-              "completedAt": "2026-11-01T19:53:49.591Z",
+              "createdAt": "2026-11-02T09:05:10.995Z",
+              "completedAt": "2026-11-02T09:05:11.249Z",
               "durationsMs": [
-                14,
-                5,
+                2,
+                2,
                 8,
-                8
+                11
               ]
             },
             "limitations": [
@@ -8918,7 +8918,7 @@
         {
           "scenarioId": "bm-02-copick-cluster",
           "trialIndex": 1,
-          "runId": "1979213d-5931-46bc-bd42-d8f53550d8b1",
+          "runId": "619a913d-3c02-45a8-9784-d0565c11989d",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -8995,8 +8995,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "1979213d-5931-46bc-bd42-d8f53550d8b1",
-            "exportedAt": "2026-11-01T19:53:50.098Z",
+            "runId": "619a913d-3c02-45a8-9784-d0565c11989d",
+            "exportedAt": "2026-11-02T09:05:11.667Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -11988,7 +11988,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 17,
+                "durationMs": 14,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -12345,7 +12345,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 8,
+                "durationMs": 9,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -12702,7 +12702,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 10,
+                "durationMs": 9,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -12833,13 +12833,13 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:49.709Z",
-              "completedAt": "2026-11-01T19:53:50.013Z",
+              "createdAt": "2026-11-02T09:05:11.349Z",
+              "completedAt": "2026-11-02T09:05:11.585Z",
               "durationsMs": [
                 3,
-                17,
-                8,
-                10
+                14,
+                9,
+                9
               ]
             },
             "limitations": [
@@ -12856,7 +12856,7 @@
         {
           "scenarioId": "bm-02-copick-cluster",
           "trialIndex": 2,
-          "runId": "63ae9fe1-dbd7-4f93-a9cd-5e1180c34713",
+          "runId": "67e3499b-5dbb-4125-aa87-4fb72a44dbb4",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -12933,8 +12933,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "63ae9fe1-dbd7-4f93-a9cd-5e1180c34713",
-            "exportedAt": "2026-11-01T19:53:50.535Z",
+            "runId": "67e3499b-5dbb-4125-aa87-4fb72a44dbb4",
+            "exportedAt": "2026-11-02T09:05:12.223Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -15926,7 +15926,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 2,
+                "durationMs": 11,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -16283,7 +16283,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 7,
+                "durationMs": 3,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -16640,7 +16640,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 3,
+                "durationMs": 12,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -16771,13 +16771,13 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:50.111Z",
-              "completedAt": "2026-11-01T19:53:50.441Z",
+              "createdAt": "2026-11-02T09:05:11.687Z",
+              "completedAt": "2026-11-02T09:05:12.113Z",
               "durationsMs": [
-                5,
-                2,
-                7,
-                3
+                4,
+                11,
+                3,
+                12
               ]
             },
             "limitations": [
@@ -16821,7 +16821,7 @@
         {
           "scenarioId": "bm-03-tight-relocation",
           "trialIndex": 0,
-          "runId": "d484df43-8b7f-4d20-b234-bbf5292e24bc",
+          "runId": "3871f5be-af1b-433c-ad28-45882459e192",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -16898,8 +16898,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "d484df43-8b7f-4d20-b234-bbf5292e24bc",
-            "exportedAt": "2026-11-01T19:53:50.924Z",
+            "runId": "3871f5be-af1b-433c-ad28-45882459e192",
+            "exportedAt": "2026-11-02T09:05:12.713Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -17738,7 +17738,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 21,
+                "durationMs": 13,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -17841,7 +17841,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 14,
+                "durationMs": 2,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -17944,7 +17944,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 12,
+                "durationMs": 38,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -18051,13 +18051,13 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:50.824Z",
-              "completedAt": "2026-11-01T19:53:50.906Z",
+              "createdAt": "2026-11-02T09:05:12.557Z",
+              "completedAt": "2026-11-02T09:05:12.632Z",
               "durationsMs": [
-                8,
-                21,
-                14,
-                12
+                3,
+                13,
+                2,
+                38
               ]
             },
             "limitations": [
@@ -18074,7 +18074,7 @@
         {
           "scenarioId": "bm-03-tight-relocation",
           "trialIndex": 1,
-          "runId": "71e141d8-c8bc-4e4f-835f-ecc7f63fbc77",
+          "runId": "41dd2040-fb76-4382-97be-922a9590d633",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -18151,8 +18151,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "71e141d8-c8bc-4e4f-835f-ecc7f63fbc77",
-            "exportedAt": "2026-11-01T19:53:51.036Z",
+            "runId": "41dd2040-fb76-4382-97be-922a9590d633",
+            "exportedAt": "2026-11-02T09:05:12.870Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -18991,7 +18991,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 16,
+                "durationMs": 18,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -19094,7 +19094,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 15,
+                "durationMs": 13,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -19197,7 +19197,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 13,
+                "durationMs": 17,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -19304,13 +19304,13 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:50.937Z",
-              "completedAt": "2026-11-01T19:53:51.000Z",
+              "createdAt": "2026-11-02T09:05:12.720Z",
+              "completedAt": "2026-11-02T09:05:12.823Z",
               "durationsMs": [
-                5,
-                16,
-                15,
-                13
+                14,
+                18,
+                13,
+                17
               ]
             },
             "limitations": [
@@ -19327,7 +19327,7 @@
         {
           "scenarioId": "bm-03-tight-relocation",
           "trialIndex": 2,
-          "runId": "f94b3a29-38e5-4901-b422-03d6d84be249",
+          "runId": "1852217f-9616-42a2-bb2a-084b41e2dc93",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -19404,8 +19404,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "f94b3a29-38e5-4901-b422-03d6d84be249",
-            "exportedAt": "2026-11-01T19:53:51.145Z",
+            "runId": "1852217f-9616-42a2-bb2a-084b41e2dc93",
+            "exportedAt": "2026-11-02T09:05:13.116Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -20244,7 +20244,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 10,
+                "durationMs": 11,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -20347,7 +20347,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 14,
+                "durationMs": 15,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -20450,7 +20450,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 14,
+                "durationMs": 15,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -20557,13 +20557,13 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:51.049Z",
-              "completedAt": "2026-11-01T19:53:51.111Z",
+              "createdAt": "2026-11-02T09:05:12.882Z",
+              "completedAt": "2026-11-02T09:05:13.082Z",
               "durationsMs": [
-                4,
-                10,
                 14,
-                14
+                11,
+                15,
+                15
               ]
             },
             "limitations": [
@@ -20607,7 +20607,7 @@
         {
           "scenarioId": "bm-04-constraints",
           "trialIndex": 0,
-          "runId": "b0fb0293-d06d-4c76-8182-6752006e7221",
+          "runId": "1fb09494-bb7c-439d-bdac-2106f3c35202",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -20684,8 +20684,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "b0fb0293-d06d-4c76-8182-6752006e7221",
-            "exportedAt": "2026-11-01T19:53:51.395Z",
+            "runId": "1fb09494-bb7c-439d-bdac-2106f3c35202",
+            "exportedAt": "2026-11-02T09:05:13.241Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -21775,7 +21775,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 7,
+                "durationMs": 9,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -21908,7 +21908,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 3,
+                "durationMs": 13,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -22041,7 +22041,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 11,
+                "durationMs": 14,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -22118,13 +22118,13 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:51.161Z",
-              "completedAt": "2026-11-01T19:53:51.342Z",
+              "createdAt": "2026-11-02T09:05:13.143Z",
+              "completedAt": "2026-11-02T09:05:13.207Z",
               "durationsMs": [
-                10,
-                7,
-                3,
-                11
+                2,
+                9,
+                13,
+                14
               ]
             },
             "limitations": [
@@ -22141,7 +22141,7 @@
         {
           "scenarioId": "bm-04-constraints",
           "trialIndex": 1,
-          "runId": "373c6a25-9995-40e4-a2b8-f7033f154395",
+          "runId": "deb88f65-9c55-4b9c-9f3a-6fafe3473aea",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -22218,8 +22218,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "373c6a25-9995-40e4-a2b8-f7033f154395",
-            "exportedAt": "2026-11-01T19:53:51.503Z",
+            "runId": "deb88f65-9c55-4b9c-9f3a-6fafe3473aea",
+            "exportedAt": "2026-11-02T09:05:13.334Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -23309,7 +23309,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 13,
+                "durationMs": 12,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -23575,7 +23575,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 3,
+                "durationMs": 14,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -23652,13 +23652,13 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:51.404Z",
-              "completedAt": "2026-11-01T19:53:51.457Z",
+              "createdAt": "2026-11-02T09:05:13.251Z",
+              "completedAt": "2026-11-02T09:05:13.315Z",
               "durationsMs": [
-                3,
-                13,
+                2,
+                12,
                 14,
-                3
+                14
               ]
             },
             "limitations": [
@@ -23675,7 +23675,7 @@
         {
           "scenarioId": "bm-04-constraints",
           "trialIndex": 2,
-          "runId": "47dcac6d-ee3e-43f3-84fc-ef1d9bf5c79f",
+          "runId": "840bad48-3e01-4dd0-afcc-690a3891d68b",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -23752,8 +23752,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "47dcac6d-ee3e-43f3-84fc-ef1d9bf5c79f",
-            "exportedAt": "2026-11-01T19:53:51.596Z",
+            "runId": "840bad48-3e01-4dd0-afcc-690a3891d68b",
+            "exportedAt": "2026-11-02T09:05:13.582Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -24843,7 +24843,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 5,
+                "durationMs": 12,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -24976,7 +24976,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 17,
+                "durationMs": 13,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -25109,7 +25109,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 14,
+                "durationMs": 13,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -25186,13 +25186,13 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:51.512Z",
-              "completedAt": "2026-11-01T19:53:51.574Z",
+              "createdAt": "2026-11-02T09:05:13.344Z",
+              "completedAt": "2026-11-02T09:05:13.545Z",
               "durationsMs": [
-                3,
-                5,
-                17,
-                14
+                16,
+                12,
+                13,
+                13
               ]
             },
             "limitations": [
@@ -25236,7 +25236,7 @@
         {
           "scenarioId": "bm-05-locked-frequent",
           "trialIndex": 0,
-          "runId": "507170a4-09da-45d3-a9df-995ead836d77",
+          "runId": "f3ddbc40-c50a-46a6-babe-19d3b1e77654",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -25315,8 +25315,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "507170a4-09da-45d3-a9df-995ead836d77",
-            "exportedAt": "2026-11-01T19:53:51.975Z",
+            "runId": "f3ddbc40-c50a-46a6-babe-19d3b1e77654",
+            "exportedAt": "2026-11-02T09:05:14.033Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -28227,7 +28227,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 17,
+                "durationMs": 8,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -28576,7 +28576,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 4,
+                "durationMs": 8,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -28925,7 +28925,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 12,
+                "durationMs": 11,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -29032,13 +29032,13 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:51.612Z",
-              "completedAt": "2026-11-01T19:53:51.889Z",
+              "createdAt": "2026-11-02T09:05:13.597Z",
+              "completedAt": "2026-11-02T09:05:13.954Z",
               "durationsMs": [
-                3,
-                17,
-                4,
-                12
+                2,
+                8,
+                8,
+                11
               ]
             },
             "limitations": [
@@ -29055,7 +29055,7 @@
         {
           "scenarioId": "bm-05-locked-frequent",
           "trialIndex": 1,
-          "runId": "ccc28fb4-86ce-46d3-8469-7454e052647f",
+          "runId": "6a0a310b-24a3-4b8b-a9a1-c4d8e4b4255c",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -29134,8 +29134,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "ccc28fb4-86ce-46d3-8469-7454e052647f",
-            "exportedAt": "2026-11-01T19:53:52.520Z",
+            "runId": "6a0a310b-24a3-4b8b-a9a1-c4d8e4b4255c",
+            "exportedAt": "2026-11-02T09:05:14.546Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -32046,7 +32046,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 9,
+                "durationMs": 12,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -32395,7 +32395,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 4,
+                "durationMs": 3,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -32744,7 +32744,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 4,
+                "durationMs": 10,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -32851,13 +32851,13 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:51.990Z",
-              "completedAt": "2026-11-01T19:53:52.419Z",
+              "createdAt": "2026-11-02T09:05:14.042Z",
+              "completedAt": "2026-11-02T09:05:14.452Z",
               "durationsMs": [
-                6,
-                9,
-                4,
-                4
+                16,
+                12,
+                3,
+                10
               ]
             },
             "limitations": [
@@ -32874,7 +32874,7 @@
         {
           "scenarioId": "bm-05-locked-frequent",
           "trialIndex": 2,
-          "runId": "4ad9e496-a8b0-44b1-880e-cbb9027919b2",
+          "runId": "36177e57-b4e4-494e-9a42-576f3a94799e",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -32953,8 +32953,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "4ad9e496-a8b0-44b1-880e-cbb9027919b2",
-            "exportedAt": "2026-11-01T19:53:52.976Z",
+            "runId": "36177e57-b4e4-494e-9a42-576f3a94799e",
+            "exportedAt": "2026-11-02T09:05:15.204Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -35865,7 +35865,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 6,
+                "durationMs": 21,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -36214,7 +36214,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 5,
+                "durationMs": 20,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -36563,7 +36563,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 13,
+                "durationMs": 15,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -36670,13 +36670,13 @@
               "proposal-3": 0
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:52.559Z",
-              "completedAt": "2026-11-01T19:53:52.872Z",
+              "createdAt": "2026-11-02T09:05:14.569Z",
+              "completedAt": "2026-11-02T09:05:15.110Z",
               "durationsMs": [
-                4,
-                6,
-                5,
-                13
+                20,
+                21,
+                20,
+                15
               ]
             },
             "limitations": [
@@ -36720,7 +36720,7 @@
         {
           "scenarioId": "bm-06-unreachable-repair",
           "trialIndex": 0,
-          "runId": "32aa4a2d-5f23-4ea1-95b8-7ffa8aa93f04",
+          "runId": "4799e707-a847-4f8a-aab9-48de751f0b8a",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -36791,8 +36791,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "32aa4a2d-5f23-4ea1-95b8-7ffa8aa93f04",
-            "exportedAt": "2026-11-01T19:53:53.364Z",
+            "runId": "4799e707-a847-4f8a-aab9-48de751f0b8a",
+            "exportedAt": "2026-11-02T09:05:15.496Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -37725,7 +37725,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 15,
+                "durationMs": 16,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -37826,7 +37826,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 12,
+                "durationMs": 14,
                 "requestIndex": 4,
                 "transportError": null,
                 "diagnostics": {
@@ -37937,13 +37937,13 @@
               "proposal-3": null
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:53.271Z",
-              "completedAt": "2026-11-01T19:53:53.331Z",
+              "createdAt": "2026-11-02T09:05:15.399Z",
+              "completedAt": "2026-11-02T09:05:15.462Z",
               "durationsMs": [
-                5,
+                2,
                 11,
-                15,
-                12
+                16,
+                14
               ]
             },
             "limitations": [
@@ -37960,7 +37960,7 @@
         {
           "scenarioId": "bm-06-unreachable-repair",
           "trialIndex": 1,
-          "runId": "e4707834-7aef-40a2-af42-6086f734a0cd",
+          "runId": "8cf479fe-34ee-4db8-b1c7-0e9d124aceea",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -38031,8 +38031,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "e4707834-7aef-40a2-af42-6086f734a0cd",
-            "exportedAt": "2026-11-01T19:53:53.472Z",
+            "runId": "8cf479fe-34ee-4db8-b1c7-0e9d124aceea",
+            "exportedAt": "2026-11-02T09:05:15.747Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -38965,7 +38965,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 13,
+                "durationMs": 16,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -39177,12 +39177,12 @@
               "proposal-3": null
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:53.376Z",
-              "completedAt": "2026-11-01T19:53:53.440Z",
+              "createdAt": "2026-11-02T09:05:15.508Z",
+              "completedAt": "2026-11-02T09:05:15.713Z",
               "durationsMs": [
-                4,
+                16,
                 12,
-                13,
+                16,
                 14
               ]
             },
@@ -39200,7 +39200,7 @@
         {
           "scenarioId": "bm-06-unreachable-repair",
           "trialIndex": 2,
-          "runId": "b45e8a40-c7b3-4ebe-abc9-10b508697add",
+          "runId": "86059580-4fe0-4d8f-a1ec-9962c18417f1",
           "providerKind": "fixture",
           "realMetaRequests": 0,
           "interpretedDraft": {
@@ -39271,8 +39271,8 @@
           "notRun": null,
           "report": {
             "envelopeVersion": "layoutlab.m3report/1",
-            "runId": "b45e8a40-c7b3-4ebe-abc9-10b508697add",
-            "exportedAt": "2026-11-01T19:53:53.700Z",
+            "runId": "86059580-4fe0-4d8f-a1ec-9962c18417f1",
+            "exportedAt": "2026-11-02T09:05:15.854Z",
             "appVersion": "0.4.0",
             "apiVersion": "0.4.0",
             "coreVersion": "0.1.0",
@@ -40102,7 +40102,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 10,
+                "durationMs": 11,
                 "requestIndex": 2,
                 "transportError": null,
                 "diagnostics": {
@@ -40205,7 +40205,7 @@
                   "completionTokens": 10,
                   "totalTokens": 60
                 },
-                "durationMs": 14,
+                "durationMs": 15,
                 "requestIndex": 3,
                 "transportError": null,
                 "diagnostics": {
@@ -40417,12 +40417,12 @@
               "proposal-3": null
             },
             "timingsMs": {
-              "createdAt": "2026-11-01T19:53:53.485Z",
-              "completedAt": "2026-11-01T19:53:53.686Z",
+              "createdAt": "2026-11-02T09:05:15.760Z",
+              "completedAt": "2026-11-02T09:05:15.822Z",
               "durationsMs": [
+                2,
+                11,
                 15,
-                10,
-                14,
                 14
               ]
             },

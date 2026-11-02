@@ -9,19 +9,19 @@ Scope authority: [Implementation Brief v2](IMPLEMENTATION_BRIEF_V2.md). Codex pl
 | M2 | Browser load, manual edit, evaluate, compare, apply, persistence, report export and replay; English UI, 2D and basic 3D, revision protection | Accepted: 83 core tests, 22 browser tests; independent 390/1440 flow and replay checks pass |
 | M3 | Server-side Meta interpretation and proposals with measured feedback; maximum 3 proposals and 4 requests including repairs; timeout, cancellation, concurrency and input limits; separate live evidence | Local and live smoke accepted: one authorized run, 4 real requests, 2 failed attempts + 1 valid worse proposal; baseline retained, replay matched |
 | M4 | Bounded demand heuristic sharing evaluator; actual SimReady asset loaded, inspected and attributed; proxies clearly labeled until replaced | Accepted: 96 core + 41 API + 46 browser tests, independent heuristic/source/GLB/browser checks; final wording follow-up verified |
-| M5 | Six frozen scenarios, three actual model runs each when authorized; first versus feedback and heuristic comparison, all failures and budgets recorded; deterministic report replay | Readiness locally accepted: 110 core + 67 API + 50 browser tests; six offline cases and 18 fixture trials verified; real 18-trial benchmark awaits new authorization |
-| M6 | Documentation and demo agree with evidence; GitHub repository layoutlab; deployment requires authorization and public verification | Reference UI and native code/production smoke accepted; fresh checkout gate next; public deployment pending |
+| M5 | Six frozen scenarios, three actual model runs each when authorized; first versus feedback and heuristic comparison, all failures and budgets recorded; deterministic report replay | Offline/fixture readiness accepted from clean source: six cases, 18 fixture trials, 72 local requests, zero real Meta; actual 18-trial benchmark awaits new authorization |
+| M6 | Documentation and demo agree with evidence; GitHub repository layoutlab; deployment requires authorization and public verification | Local UI, native start, docs/demo and fresh Windows checkout accepted; public deployment awaits authorized target |
 
 ## Remaining delivery gates
 
 User resumed on 2026-11-02 with "lanjut sampai selesai". M6A is accepted after coordinator diff/visual/measurement review and an actual full browser execution. The earlier paused handoff was archived privately; [RESUME_CHECKPOINT.md](RESUME_CHECKPOINT.md) now records the current delivery gates.
 
 - [x] M6A: supplied visual reference, actual-state metric/status attribution, canonical labels/routes, responsive behavior and regressions accepted. Contract: [VISUAL_REFERENCE_PLAN.md](VISUAL_REFERENCE_PLAN.md); result: [VISUAL_IMPLEMENTATION.md](VISUAL_IMPLEMENTATION.md).
-- [ ] M6B: native production build/start and same-origin web/API behavior, consistent README/demo/evidence documentation, and a fresh Windows checkout check. No public deployment is implied by a local production start.
+- [x] M6B: native production build/start, same-origin web/API, docs/demo and fresh committed Windows checkout accepted. No public deployment is implied by local production verification.
 - [ ] M5 live benchmark: after clean source freeze and new paid authorization, six frozen scenarios times three runs, at most 72 Meta requests, actual failure/usage accounting and independent measurement replay. The earlier US$0.10 smoke authorization is consumed.
 - [ ] M6 public deployment: user-authorized destination, public smoke checks and evidence. Deployment authorization is still absent.
 
-Reviewed source through M5 readiness is pushed to the private repository https://github.com/EndPx/layoutlab at f189e59643df06b0ea562c69bd28bb516ca515f8. The initial inspection and older milestone notes below are historical checkpoints.
+Reviewed UI and native-runtime code are pushed to the private repository https://github.com/EndPx/layoutlab at code checkpoint d8a3a34b49ae9edccd0ab72d2315f98a99e8775d. Subsequent evidence/documentation commits do not change that tested application code. The initial inspection and older milestone notes below are historical checkpoints.
 
 ## Review contract
 
@@ -121,3 +121,10 @@ Reviewed source through M5 readiness is pushed to the private repository https:/
 - Credential handling review: a discarded worker probe briefly renamed `.env` and restored it. The coordinator verified its presence and moved further keyless verification to an isolated checkout; no key values were printed. A Node child-process probe preserves an empty environment entry; the observed shell-launch behavior is not claimed as a general Windows/Node limitation.
 - Evidence: `evidence/sanitized/m6b-code-gates.json`, `m6b-production-review.json`, and [M6_LOCAL_READINESS.md](M6_LOCAL_READINESS.md).
 - Next gate: commit this reviewed code, then verify a fresh Windows checkout with `autocrlf=true`, `npm ci`, build and actual native startup without `.env`. This remains a local readiness gate; no public deployment or additional real Meta inference has occurred.
+
+## Final local readiness and frozen evidence
+
+- A fresh checkout of d8a3a34 with `core.autocrlf=true`, no `.env`, Node v24.18.0 and npm 11.8.0 passed `npm ci` (135 packages), `npm run build`, typecheck after build, and 110 core / 75 API tests. A first direct typecheck before build exposed compiled-API imports in browser test helpers; startup/check instructions now explicitly build first. Playwright Chromium already existed on the Windows host, so this is not a fresh operating-system claim.
+- The exact Node entrypoint used by `npm start` was booted from a different working directory. A unique asset probe verified module-relative static serving; `/api/status` reported setup_required with no key. Native HTTP/built-browser checks at 1440/390 passed, with zero inference POSTs. The owned test process stopped, its probe was removed, and the checkout stayed clean. All seven frozen scenario/requirements files retained exact manifest bytes/hashes.
+- Evidence: `evidence/sanitized/m6b-fresh-checkout.json` and `m6b-fresh-browser.json`. Offline and fixture benchmark artifacts were regenerated from clean d8a3a34; both CLI replays match. Independent BFS/constraints matched six offline cases and 81 valid assignments across 18 fixture reports (72 local requests, zero real Meta, zero scripted failures).
+- All authorized local implementation and verification gates are complete. The actual 18-trial Meta benchmark still awaits the requested new service-cost authorization; public deployment awaits an authorized hosting target. Neither gate is marked complete, and no customer-savings or model-superiority claim follows from local evidence.

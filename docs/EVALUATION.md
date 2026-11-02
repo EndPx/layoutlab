@@ -7,6 +7,14 @@ contains no live samples, real or fabricated. Old M3 smoke results are not
 mixed with the frozen 18-trial protocol and no model-superiority or
 real-world-savings claim is made.
 
+The current offline and fixture artifacts were regenerated from clean source
+commit `d8a3a34b49ae9edccd0ab72d2315f98a99e8775d` on 2026-11-02. Both CLI
+replays match. Independent BFS and constraint checks matched all six offline
+cases and 81 valid assignments across the 18 fixture reports; see
+`evidence/sanitized/m5-final-independent-review.json`. Fixture token/cost
+estimates use scripted usage for plumbing verification: they are hypothetical,
+with zero real Meta requests and no invoice or paid charge claim.
+
 ## Offline: baseline vs bounded heuristic (0 model calls)
 
 Source: `evidence/sanitized/m5-benchmark-offline.{json,md}` (replay: match).
@@ -63,6 +71,7 @@ Source: `evidence/sanitized/m5-benchmark-fixture.{json,md}` (replay: match).
 The live 18-trial target (fixed protocol, 72-request cap, $1.195546
 conservative reservation, authoritative per-trial server fingerprint, atomic
 lock, disk journal) is implemented and refusal-tested but never executed.
-Next gate is coordinator-owned: review, commit, rerun validation on the clean
-tree, then authorize and execute. Results will be appended here only from an
-actual authorized run.
+Code review, a committed clean checkpoint and local replay/independent
+validation are complete. New user authorization is still required before
+execution; a US$1.50 service-cost cap has been requested and is not assumed
+granted. Results will be appended here only from an actual authorized run.
