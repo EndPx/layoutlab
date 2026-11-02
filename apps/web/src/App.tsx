@@ -139,6 +139,26 @@ function buildRouteFor(
   }
 }
 
+// Location stops behind a drawn route: the evaluated visit sequence of one
+// frame mapped through that frame's assignment. Mirrors buildRouteFor's
+// guards so approaches appear exactly when their route does.
+function stopsForOrder(
+  assignment: Assignment[],
+  result: CandidateResult | null,
+  orderId: string | null,
+): string[] {
+  if (!orderId) return [];
+  const orderResult = result?.workload?.orders.find((o) => o.orderId === orderId);
+  if (!orderResult || !orderResult.reachable || orderResult.distanceMm === null) return [];
+  const locOf = new Map(assignment.map((a) => [a.productId, a.locationId]));
+  const out: string[] = [];
+  for (const pid of orderResult.visitSequence) {
+    const lid = locOf.get(pid);
+    if (lid && !out.includes(lid)) out.push(lid);
+  }
+  return out;
+}
+
 export function App(): React.JSX.Element {
   const [scenario, setScenario] = useState<Scenario | null>(null);
   const [scenarioError, setScenarioError] = useState<string | null>(null);
@@ -150,6 +170,8 @@ export function App(): React.JSX.Element {
   const [stubRun, setStubRun] = useState<StubRunState>(IDLE_RUN);
   const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [showSelected, setShowSelected] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>("3d");
   const [showCurrentRoute, setShowCurrentRoute] = useState(true);
@@ -376,6 +398,8 @@ export function App(): React.JSX.Element {
       setApplyMessage(null);
       setSelectedCandidate("baseline");
       setSelectedOrderId(scn.orders[0]?.id ?? null);
+      setSelectedLocationId(null);
+      setSelectedProductId(null);
       evaluateCurrent(scn, requirements);
     } catch (e) {
       setScenarioError(e instanceof Error ? e.message : "Sample failed to parse.");
@@ -402,6 +426,8 @@ export function App(): React.JSX.Element {
       setApplyMessage(null);
       setSelectedCandidate("baseline");
       setSelectedOrderId(scn.orders[0]?.id ?? null);
+      setSelectedLocationId(null);
+      setSelectedProductId(null);
       evaluateCurrent(scn, requirements);
     } catch (e) {
       setScenarioError(e instanceof Error ? `Invalid scenario: ${e.message}` : "Invalid scenario file.");
@@ -417,6 +443,8 @@ export function App(): React.JSX.Element {
     setScenario(updated);
     setMode("MANUAL");
     setApplyMessage(null);
+    // A reassigned product keeps its selection; the location follows it.
+    if (productId === selectedProductId) setSelectedLocationId(locationId);
     evaluateCurrent(updated, requirements);
   };
 
@@ -944,6 +972,8 @@ export function App(): React.JSX.Element {
     setStubRun(IDLE_RUN);
     setSelectedCandidate(null);
     setSelectedOrderId(null);
+    setSelectedLocationId(null);
+    setSelectedProductId(null);
     setShowSelected(true);
     setMode("MANUAL");
     setReplayInfo(null);
@@ -1076,6 +1106,71 @@ export function App(): React.JSX.Element {
         : null,
     [scenario, selectedStub, selectedOrderId],
   );
+
+  // Selection is view-only and validated against the loaded scene; stale
+  // ids (after load/reset) resolve to null instead of rendering.
+  const validSelectedLocationId =
+    scenario && selectedLocationId && scenario.locations.some((l) => l.id === selectedLocationId)
+      ? selectedLocationId
+      : null;
+  const validSelectedProductId =
+    scenario && selectedProductId && scenario.products.some((p) => p.id === selectedProductId)
+      ? selectedProductId
+      : null;
+  // Frame-aware selection: a selected product resolves its displayed location
+  // from the displayed assignment; the explicit location applies only when no
+  // product is followed. Never mixes frozen historical and current frames.
+  const productLocationInDisplay =
+    validSelectedProductId && displayedAssignment
+      ? (displayedAssignment.find((a) => a.productId === validSelectedProductId)?.locationId ?? null)
+      : null;
+  const effectiveSelectedLocationId = validSelectedProductId
+    ? (productLocationInDisplay && scenario?.locations.some((l) => l.id === productLocationInDisplay)
+        ? productLocationInDisplay
+        : null)
+    : validSelectedLocationId;
+  // Approach dots stay hidden unless selected or on a drawn route: the
+  // effective selected location and each drawn route's actual stops in its
+  // own frame.
+  const visibleApproachIds = useMemo(() => {
+    if (!scenario) return [];
+    const ids = new Set<string>();
+    if (effectiveSelectedLocationId) ids.add(effectiveSelectedLocationId);
+    if (showCurrentRoute && currentRoute) {
+      for (const lid of stopsForOrder(scenario.assignments, baselineResult, selectedOrderId)) ids.add(lid);
+    }
+    if (showCandidateRoute && candidateRoute && selectedStub?.candidate) {
+      for (const lid of stopsForOrder(selectedStub.candidate.assignment, selectedStub.candidate, selectedOrderId)) {
+        ids.add(lid);
+      }
+    }
+    return [...ids].sort();
+  }, [scenario, effectiveSelectedLocationId, showCurrentRoute, currentRoute, baselineResult, showCandidateRoute, candidateRoute, selectedStub, selectedOrderId]);
+
+  const locateProduct = (productId: string): void => {
+    if (!scenario || !displayedAssignment) return;
+    setSelectedProductId(productId);
+    setSelectedLocationId(
+      displayedAssignment.find((a) => a.productId === productId)?.locationId ?? null,
+    );
+  };
+
+  const selectLocation = (id: string | null): void => {
+    setSelectedLocationId(id);
+    // None clears the followed product too, so no marker/highlight remains.
+    // A directly picked location keeps the product only when it lives there
+    // in the displayed frame.
+    if (id === null) {
+      setSelectedProductId(null);
+      return;
+    }
+    if (
+      validSelectedProductId && displayedAssignment &&
+      displayedAssignment.find((a) => a.productId === validSelectedProductId)?.locationId !== id
+    ) {
+      setSelectedProductId(null);
+    }
+  };
 
   // Frozen run baseline evaluation: candidates are ALWAYS compared against
   // the run they were generated from, never the mutable edited scene.
@@ -1317,6 +1412,8 @@ export function App(): React.JSX.Element {
             candidate={effectiveShowSelected ? (selectedStub?.candidate ?? null) : null}
             runBaseline={comparisonRun.baseline?.assignments ?? null}
             frameCandidate={effectiveShowSelected}
+            selectedProductId={validSelectedProductId}
+            onLocate={locateProduct}
           />
         </div>
 
@@ -1341,6 +1438,10 @@ export function App(): React.JSX.Element {
             originAssignment={originAssignment}
             currentEdited={sceneDiffersFromRun}
             currentNote={routeCurrentNote}
+            selectedLocationId={effectiveSelectedLocationId}
+            onSelectLocation={selectLocation}
+            selectedProductId={validSelectedProductId}
+            visibleApproachIds={visibleApproachIds}
           />
         </div>
 

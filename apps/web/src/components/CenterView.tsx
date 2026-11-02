@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { rackFootprint, type Assignment, type Scenario } from "@layoutlab/core";
+import type { ProductPlacement, StorageAnchor } from "../lib/storageAnchors";
 
 export type RoutePolyline = { points: { x: number; z: number }[] };
 
@@ -19,8 +20,14 @@ export function CenterView(props: {
   showCurrent: boolean;
   showCandidate: boolean;
   currentNote: string | null;
+  anchors: Map<string, StorageAnchor>;
+  placements: ProductPlacement[];
+  selectedLocationId: string | null;
+  selectedProductId: string | null;
+  visibleApproachIds: string[];
 }): React.JSX.Element {
   const { scenario, assignment, baselineAssignment, currentRoute, candidateRoute, showCurrent, showCandidate, currentNote } = props;
+  const { anchors, placements, selectedLocationId, selectedProductId, visibleApproachIds } = props;
   const W = scenario.room.widthMm;
   const D = scenario.room.depthMm;
   const [cam, setCam] = useState<Camera>({ scale: 1, cx: W / 2, cz: D / 2 });
@@ -38,8 +45,20 @@ export function CenterView(props: {
       if (from) movedFrom.add(from);
     }
   }
-  const prodAt = new Map<string, string>();
-  for (const [pid, lid] of locOf) prodAt.set(lid, pid);
+  // Every occupant listed (duplicates included); never a Map overwrite.
+  const prodsAt = new Map<string, ProductPlacement[]>();
+  for (const p of placements) {
+    const list = prodsAt.get(p.locationId) ?? [];
+    list.push(p);
+    prodsAt.set(p.locationId, list);
+  }
+  const anchorsByRack = new Map<string, StorageAnchor[]>();
+  for (const a of anchors.values()) {
+    const list = anchorsByRack.get(a.rackId) ?? [];
+    list.push(a);
+    anchorsByRack.set(a.rackId, list);
+  }
+  const visibleApproach = new Set(visibleApproachIds);
 
   const drawnCurrent = showCurrent ? currentRoute : null;
   const drawnCandidate = showCandidate ? candidateRoute : null;
@@ -117,6 +136,7 @@ export function CenterView(props: {
         <rect x={0} y={0} width={W} height={D} fill="#fbfcfe" stroke="#1a2333" strokeWidth={40} />
         {scenario.racks.map((r) => {
           const f = rackFootprint(r);
+          const slots = anchorsByRack.get(r.id) ?? [];
           return (
             <g key={r.id}>
               <rect
@@ -128,7 +148,35 @@ export function CenterView(props: {
                 stroke="#1a2333"
                 strokeWidth={50}
               />
-              <text x={(f.minX + f.maxX) / 2} y={(f.minZ + f.maxZ) / 2} textAnchor="middle" fontSize={320} fill="#1a2333">
+              {slots.map((a) => {
+                const s = a.slotRectMm;
+                const selected = a.locationId === selectedLocationId;
+                return (
+                  <rect
+                    key={a.locationId}
+                    x={s.minX}
+                    y={s.minZ}
+                    width={s.maxX - s.minX}
+                    height={s.maxZ - s.minZ}
+                    fill="#ffffff"
+                    stroke={selected ? "#0b6b6e" : "#4a5568"}
+                    strokeWidth={selected ? 70 : 35}
+                    strokeDasharray="140 90"
+                    data-testid={`slot-${a.locationId}`}
+                    data-anchor={`${a.centerMm.x},${a.centerMm.z},${a.baseYMm}`}
+                  />
+                );
+              })}
+              <text
+                x={(f.minX + f.maxX) / 2}
+                y={(f.minZ + f.maxZ) / 2}
+                textAnchor="middle"
+                fontSize={300}
+                fill="#1a2333"
+                stroke="#ffffff"
+                strokeWidth={60}
+                paintOrder="stroke"
+              >
                 {r.id}
               </text>
             </g>
@@ -165,49 +213,108 @@ export function CenterView(props: {
         <text x={scenario.packingPointMm.x} y={scenario.packingPointMm.z - 220} textAnchor="middle" fontSize={280} fill="#0b6b6e">
           PACK
         </text>
-        {scenario.locations.map((l, idx) => {
-          const pid = prodAt.get(l.id);
+        {scenario.locations.map((l) => {
+          const anchor = anchors.get(l.id);
+          const occupants = prodsAt.get(l.id) ?? [];
           const isTo = movedTo.has(l.id);
           const isFrom = movedFrom.has(l.id) && !isTo;
-          // Stagger label sides so close pairs (L1/L3, L5/L7) stay legible.
-          const side = idx % 4 < 2 ? -1 : 1;
-          const lx = l.pickPointMm.x + side * 520;
+          const selected = l.id === selectedLocationId;
+          const showApproach = visibleApproach.has(l.id);
+          // Locations without a valid storage pose render no slot geometry;
+          // the diagnostics panel names them (never a fabricated pose).
+          if (!anchor) {
+            if (!showApproach) return null;
+            return (
+              <g key={l.id}>
+                <circle
+                  cx={l.pickPointMm.x}
+                  cy={l.pickPointMm.z}
+                  r={220}
+                  fill="#ffffff"
+                  stroke="#b42318"
+                  strokeWidth={70}
+                  strokeDasharray="140 90"
+                  data-testid={`approach-${l.id}`}
+                  data-pick={`${l.pickPointMm.x},${l.pickPointMm.z}`}
+                />
+                <text x={l.pickPointMm.x} y={l.pickPointMm.z + 560} textAnchor="middle" fontSize={230} fill="#b42318">
+                  {l.id} ! no storage pose
+                </text>
+              </g>
+            );
+          }
+          const cx = anchor.centerMm.x;
+          const cz = anchor.centerMm.z;
+          // Alternate labels above/below the slot by slot parity: neighboring
+          // slots (800mm apart) never share a label row, so nothing collides.
+          const above = anchor.slotIndex % 2 === 0;
+          const ly1 = above ? cz - 950 : cz + 700;
+          const ly2 = above ? cz - 700 : cz + 950;
+          const label = occupants.length > 0 ? occupants.map((o) => o.productId).join(",") : "empty";
           return (
             <g key={l.id}>
-              <circle
-                cx={l.pickPointMm.x}
-                cy={l.pickPointMm.z}
-                r={isTo || isFrom ? 260 : 170}
-                fill={isTo ? "#123a9e" : isFrom ? "#ffffff" : "#7aa5ff"}
-                stroke="#1a2333"
-                strokeWidth={isTo || isFrom ? 90 : 50}
-                strokeDasharray={isFrom ? "160 120" : undefined}
-                data-testid={`loc-${l.id}`}
-              />
+              {occupants.map((o) => {
+                // Invalid stacks offset display-only so every occupant stays
+                // visible at true size; the anchor itself never moves.
+                const ox = o.occupantIndex * 150;
+                const oz = o.occupantIndex * 150;
+                const r = o.loadRectMm;
+                const isSel = o.productId === selectedProductId;
+                const bad = !o.fits || o.occupantCount > 1;
+                return (
+                  <rect
+                    key={`${o.productId}@${o.occupantIndex}`}
+                    x={r.minX + ox}
+                    y={r.minZ + oz}
+                    width={r.maxX - r.minX}
+                    height={r.maxZ - r.minZ}
+                    fill={bad ? "#fdeceb" : isSel ? "#e6f4f4" : "#d7e3f4"}
+                    stroke={bad ? "#b42318" : isSel ? "#0b6b6e" : "#1a2333"}
+                    strokeWidth={bad || isSel ? 70 : 40}
+                    strokeDasharray={bad ? "140 90" : undefined}
+                    data-testid={`stored-${o.productId}`}
+                    data-location={o.locationId}
+                    data-anchor={`${cx},${cz},${anchor.baseYMm}`}
+                  />
+                );
+              })}
+              {showApproach && (
+                <line
+                  x1={l.pickPointMm.x}
+                  y1={l.pickPointMm.z}
+                  x2={cx}
+                  y2={cz}
+                  stroke="#4a5568"
+                  strokeWidth={30}
+                  strokeDasharray="120 100"
+                />
+              )}
+              {showApproach && (
+                <circle
+                  cx={l.pickPointMm.x}
+                  cy={l.pickPointMm.z}
+                  r={selected ? 220 : 170}
+                  fill={selected ? "#0b6b6e" : "#ffffff"}
+                  stroke="#1a2333"
+                  strokeWidth={selected ? 80 : 50}
+                  data-testid={`approach-${l.id}`}
+                  data-pick={`${l.pickPointMm.x},${l.pickPointMm.z}`}
+                />
+              )}
               <line
-                x1={l.pickPointMm.x}
-                y1={l.pickPointMm.z - 170}
-                x2={lx}
-                y2={l.pickPointMm.z - 330}
+                x1={cx}
+                y1={above ? cz - 170 : cz + 170}
+                x2={cx}
+                y2={above ? ly2 : ly1}
                 stroke="#4a5568"
                 strokeWidth={30}
               />
-              <text x={lx} y={l.pickPointMm.z - 360} textAnchor="middle" fontSize={230} fill="#1a2333">
-                {l.id}
+              <text x={cx} y={ly1} textAnchor="middle" fontSize={230} fill="#1a2333">
+                {l.id}{selected ? " ◆Selected" : ""}{isTo ? " · TO" : ""}{isFrom ? " · FROM" : ""}
               </text>
-              <text x={lx} y={l.pickPointMm.z - 110} textAnchor="middle" fontSize={200} fill="#4a5568">
-                {pid ?? "empty"}
+              <text x={cx} y={ly2} textAnchor="middle" fontSize={200} fill="#4a5568">
+                {label}{occupants.length > 1 ? ` ⚠×${occupants.length}` : ""}
               </text>
-              {isTo && (
-                <text x={l.pickPointMm.x} y={l.pickPointMm.z + 560} textAnchor="middle" fontSize={240} fill="#123a9e">
-                  TO
-                </text>
-              )}
-              {isFrom && (
-                <text x={l.pickPointMm.x} y={l.pickPointMm.z + 560} textAnchor="middle" fontSize={240} fill="#4a5568">
-                  FROM
-                </text>
-              )}
             </g>
           );
         })}

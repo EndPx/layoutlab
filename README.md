@@ -10,8 +10,8 @@ native server API with user approval. Racks stay fixed; only assignments
 change.
 
 Status: reference UI and local native start accepted; the actual 18-trial
-Meta benchmark is complete and reproducible. Storage-anchor/route-playback
-improvements are next. Public deployment to `layoutlab.endpx.cloud` is
+Meta benchmark is complete and reproducible. Inside-rack storage mapping is
+accepted; evaluator path playback is next. Public deployment to `layoutlab.endpx.cloud` is
 authorized with restricted access and a separate US$1 total inference
 allowance, but is not deployed or publicly verified yet. See
 `docs/MILESTONES.md` and `docs/EVALUATION.md`.

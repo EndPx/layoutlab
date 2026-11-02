@@ -242,9 +242,10 @@ always name which frame is shown.
 ## 6. 2D and 3D contract
 
 2D SVG: room rect, rack footprints from core `rackFootprint` (centers +
-yaw), location pick points, packing point, product labels (distinct text,
-never color alone), source/destination highlight (dashed outline +
-`FROM`/`TO` tags). Route overlays use real core `shortestPathPointsMm`
+yaw), storage slots + product boxes at storage anchors (§8), picking
+approaches only when selected (§8), packing point, product labels
+(distinct text, never color alone), source/destination highlight
+(dashed outline + `FROM`/`TO` tags on storage slots). Route overlays use real core `shortestPathPointsMm`
 polylines for the selected actual order: solid teal candidate route and
 dashed orange current route, each with a visibility toggle. If the routes
 coincide or a route is unavailable, the view reports the actual condition
@@ -260,9 +261,14 @@ the scale/yaw contract and `data-asset`/`data-racks-loaded`/`data-rack-bbox`
 instrumentation). Rack/location/PACK/product-id labels anchor to canonical
 mm coordinates via three addons (CSS2D labels, OrbitControls zoom/pan),
 readable and keyboard-resettable; no auto-motion, single render per state
-change (plus control-change renders). GLB load failure keeps the labeled
-proxy fallback with an explicit status line. Markers stay on canonical pick
-points; chips use true 2D greedy packing (first-fit candidate cells
+change (plus control-change renders). View-only selection and
+same-geometry frame/order/route changes preserve the camera
+(position, target, zoom); only loading different geometry resets to
+home, and reset always returns to the actual home (`data-cam` target,
+`data-cam-pos`, `data-cam-dist` instrument this). GLB load failure keeps the labeled
+proxy fallback with an explicit status line. Product boxes and chips sit on
+storage anchors (§8); approach markers appear only when selected (§8);
+chips use true 2D greedy packing (first-fit candidate cells
 above/below/sides of the projected anchor, inside-canvas and
 non-overlapping — display only) with thin leader lines drawn from each
 projected canonical anchor to its displaced chip — leaders begin at
@@ -289,7 +295,82 @@ color-only signals (demand, validity, locks, from/to, routes all have
 text/symbol); reduced motion honored; 390px has no page-level horizontal
 scroll; touch targets ≥44px for primary actions.
 
-## 8. Accepted debt and limits
+## 8. Storage anchors (R1): inside-rack products, aisle approaches
+
+Every storage location has two presentation references, resolved by one
+shared pure web helper (`storageAnchors.ts`) used identically by the 2D
+plan and the 3D scene:
+
+- Storage anchor (presentation only): canonical mm XZ center + base Y
+  (floor, 0) + rack yaw, derived from the location's rack envelope,
+  usable dimensions, and stable identity (sorted slot index within the
+  rack). Products render INSIDE rack slots at this anchor with their
+  true `storedLoadDimensionsMm`, centered in the usable footprint. No
+  input-schema field exists; the anchor is never routed to and never
+  portrayed as measured warehouse data.
+- Picking approach (evaluator truth): the existing immutable
+  `pickPointMm` aisle point. All route endpoints, visit sequences, and
+  travel math keep using it exactly as before; the route path is
+  unchanged by this milestone.
+
+Synthetic presentation assumptions (declared, not measured): single
+floor row of slots across the rack width (slot i of N at local
+`-w/2 + w·(i+0.5)/N`, z centered, base Y 0); depth-split tried only if
+width-split doesn't fit all but depth-split does; yaw 90/270 swaps
+width/depth exactly like the core footprint convention and the GLB
+`rotationY` mapping; no multi-level stacking (usable height must fit
+the rack height). GLB calibration: the integrated rack mesh is an open
+upright+beam frame (vertex histogram peaks ≈0.45 m and ≈2.30 m source
+height, ground contact at the uprights, no solid shelf deck), so floor
+placement is the only non-fabricated base. A location whose usable box
+cannot fit its slot cell, whose rack is missing, or whose product load
+exceeds the usable box gets an unavailable-placement warning in the
+warehouse diagnostics and on its product row — never an aisle
+inventory marker and never a plausible fabricated pose. Invalid
+duplicate assignments render EVERY occupant (stacked/tagged `×N` with
+a warning), never a Map overwrite that hides one.
+
+Visual roles: rack footprint (existing) → slot outline (usable
+footprint, dashed) → product box (true load footprint) → location
+label at the storage anchor. Approach floor markers are hidden by
+default and appear only for the selected location or the selected
+order's actual pick approaches (visit sequence of the displayed
+frame); unselected locations show no aisle dot. FROM/TO relocation
+tags sit on storage slots. Selection highlight (outline + `Selected`
+text, leader lines in 3D) never moves a canonical anchor. Frame
+switch moves products and labels to the frame's assignment while
+route endpoints resolve from the same frame's `pickPointMm`.
+
+Selection and accessibility: location selection is a native
+`<select>` in the warehouse footer (keyboard-operable, all locations
++ none); product rows carry a small `Locate` button that selects the
+product and its location; everything is reachable by keyboard with
+visible focus, and selection/validity/occupancy always pair color
+with text or shape (never color alone). A selected product resolves
+its displayed location from the displayed assignment, so Current/
+candidate frame switches and selected-candidate changes move the
+highlight, footer readout, and approach dot with the product (never
+a stale explicit location, never a mix of frozen and current frames);
+the explicit dropdown location applies only when no product is
+followed. Choosing None clears both product and location selection;
+order-stop approaches from drawn routes still show, and the None
+label (`None (order stops still shown)`) states that exception.
+Instrumentation for review:
+the footer readout names the selected location's storage anchor and
+approach coordinates in mm (`L1 storage (900, 1500, base 0) ·
+approach (2900, 1500)`), and both views expose anchor coordinates via
+`data-*` attributes; route metadata still reports true polyline point
+counts. Panel density, scroll ownership, camera controls, frame
+rules, and all honest sample/stub/live labels from §1–§7 are
+unchanged.
+
+Limits: no multi-level shelf stacking, no physical capacity or
+temperature simulation, no playback (R2). Benchmark scenes whose
+usable boxes exceed their small rack envelopes (e.g. 800×600 usable
+in 400×400 racks) intentionally resolve to unavailable-placement
+diagnostics; only geometrically fittable slots render.
+
+## 9. Accepted debt and limits
 
 Plain CSS (no Tailwind/shadcn) to stay offline and minimal — matches the
 existing stack, so no framework migration. No virtualized tables (MVP

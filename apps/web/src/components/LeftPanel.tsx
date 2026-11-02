@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Assignment, CandidateResult, PlanningRequirements, Scenario } from "@layoutlab/core";
 import { buildRelocationRows, checkCompatibility, computeDemandUnits, demandBucket, DEMAND_META, isLocked } from "../lib/planner";
+import { resolveProductPlacements, resolveStorageAnchors } from "../lib/storageAnchors";
 
 // Stable per-product identity swatches, deliberately independent of the
 // demand-bucket colors (demand already has its own pill). Index follows
@@ -17,8 +18,11 @@ export function LeftPanel(props: {
   candidate: CandidateResult | null;
   runBaseline: Assignment[] | null;
   frameCandidate: boolean;
+  selectedProductId: string | null;
+  onLocate: (productId: string) => void;
 }): React.JSX.Element {
   const { scenario, requirements, scenarioError, onEdit, onEvaluate, selectedName, candidate, runBaseline, frameCandidate } = props;
+  const { selectedProductId, onLocate } = props;
   const [filter, setFilter] = useState("");
   if (!scenario) {
     return (
@@ -42,6 +46,21 @@ export function LeftPanel(props: {
     ? buildRelocationRows(runBaseline ?? scenario.assignments, candidate.assignment, scenario, () => selectedName)
     : [];
   const weightedOrders = scenario.orders.reduce((n, o) => n + o.frequency, 0);
+  // Storage status for the SHOWN frame (candidate destinations read-only,
+  // current assignment otherwise). Pure and small; recomputed per render.
+  const frameAssignment: Assignment[] =
+    frameCandidate && candidate ? candidate.assignment : scenario.assignments;
+  const frameResolved = resolveStorageAnchors(scenario);
+  const framePlaced = resolveProductPlacements(scenario, frameAssignment, frameResolved.anchors);
+  const anchorNote = new Map<string, string>();
+  for (const d of [...frameResolved.diagnostics, ...framePlaced.diagnostics]) {
+    if (d.productId) anchorNote.set(d.productId, d.message);
+  }
+  for (const a of frameAssignment) {
+    if (!frameResolved.anchors.has(a.locationId) && !anchorNote.has(a.productId)) {
+      anchorNote.set(a.productId, `location ${a.locationId} has no valid storage pose; routing approach unchanged`);
+    }
+  }
   return (
     <div className="panel" data-testid="left-panel">
       <h2>Products &amp; assignments</h2>
@@ -83,12 +102,14 @@ export function LeftPanel(props: {
             const identity = identitySlot < 0
               ? "#64748b"
               : (IDENTITY_SWATCHES[identitySlot % IDENTITY_SWATCHES.length] ?? "#64748b");
+            const note = anchorNote.get(p.id);
+            const isSel = p.id === selectedProductId;
             return (
-              <tr key={p.id} data-testid={`product-row-${p.id}`}>
+              <tr key={p.id} data-testid={`product-row-${p.id}`} aria-current={isSel ? "true" : undefined}>
                 <td className="product-cell">
                   <span className="cube" style={{ backgroundColor: identity }} aria-hidden="true" />
                   <span className="pname">{p.label}</span> <span className="mono sku">{p.id}</span>
-                  {(lock.locked || changed || p.requiredStorageClass === "cold") && <br />}
+                  {(lock.locked || changed || p.requiredStorageClass === "cold" || note || isSel) && <br />}
                   {lock.locked && (
                     <> <span className="badge lock" aria-label={`locked: ${lock.reason}`}>LOCK</span></>
                   )}
@@ -98,6 +119,21 @@ export function LeftPanel(props: {
                   {p.requiredStorageClass === "cold" && (
                     <> <span className="badge cold">✳ Cold</span></>
                   )}
+                  {note && (
+                    <> <span className="badge warn" title={note} data-testid={`anchor-warn-${p.id}`}>⚠ Storage</span></>
+                  )}
+                  {isSel && (
+                    <> <span className="badge selected">Selected</span></>
+                  )}{" "}
+                  <button
+                    type="button"
+                    className="mini-btn"
+                    data-testid={`locate-${p.id}`}
+                    onClick={() => onLocate(p.id)}
+                    aria-label={`Locate ${p.id} in the warehouse views`}
+                  >
+                    Locate
+                  </button>
                 </td>
                 <td className="loc-cell">
                   {readOnly ? (

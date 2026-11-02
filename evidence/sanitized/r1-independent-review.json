@@ -1,0 +1,25 @@
+{
+  "checkedAt": "2026-11-02T13:16:55.181Z",
+  "method": "Coordinator Chromium review of built Vite preview with setup-required status fixture and no model calls; explicit assertions on frame selection, None clearing, preserved pan target and ribbon overlap. Zoom/camera position and all-viewports overlay regressions are separately recorded by the implementation browser suite.",
+  "assertionsPassed": true,
+  "frozenBenchmarkHashes": "all seven matched",
+  "observations": {
+    "candidate": {
+      "readout": "L4 storage (5100, 1500, base 0) · approach (4700, 2700)",
+      "storedLocation": "L4"
+    },
+    "current": {
+      "readout": "L2 storage (1700, 1500, base 0) · approach (1300, 2700)",
+      "storedLocation": "L2",
+      "selectedLocation": "L2"
+    },
+    "none": {
+      "readout": "No location selected; approaches hidden except the selected order's stops.",
+      "approaches": 0,
+      "selectedProducts": 0
+    },
+    "cameraBeforeLocate": "3.211,0,2.884",
+    "cameraAfterLocate": "3.211,0,2.884",
+    "ribbonOverlaps": []
+  }
+}

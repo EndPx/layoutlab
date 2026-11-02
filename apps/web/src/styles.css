@@ -91,6 +91,7 @@ p { overflow-wrap: anywhere; }
 .badge.live-used { border-color: var(--valid); color: var(--valid); background: var(--valid-bg); }
 .badge.stale { border-color: var(--warn); color: var(--warn); background: var(--warn-bg); }
 .badge.selected { border-color: var(--accent); color: #fff; background: var(--accent); }
+.badge.warn { border-color: var(--warn); color: var(--warn); background: var(--warn-bg); }
 
 /* Headline band + status pill. */
 .headline { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
@@ -210,6 +211,8 @@ input[type="search"] { width: 100%; }
 .product-cell .badge { margin-left: 2px; }
 .loc-cell { white-space: nowrap; font-size: 12px; }
 .loc-cell select { width: auto; padding: 3px 4px; font-size: 12px; }
+.mini-btn { padding: 1px 8px; font-size: 12px; margin-left: 4px; }
+tr[aria-current="true"] { background: #eef6f6; }
 
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
@@ -232,7 +235,7 @@ tr.invalid-row { background: #fdf0ef; }
 /* Square rooms letterbox instead of dominating the column; aspect is exact. */
 .viewbox svg[data-testid="svg-2d"] { max-height: 600px; width: auto; max-width: 100%; margin: 0 auto; display: block; }
 .proxy-ribbon {
-  position: absolute; top: 6px; right: 6px; z-index: 2; font-size: 11px; font-weight: 700;
+  display: inline-block; font-size: 11px; font-weight: 700; white-space: nowrap;
   border: 1px solid var(--warn); color: var(--warn); background: #fff8e8;
   padding: 2px 6px; border-radius: 4px;
 }
@@ -254,6 +257,10 @@ tr.invalid-row { background: #fdf0ef; }
 }
 .tag3d.rack { background: #12263fee; color: #fff; border-color: #12263f; }
 .tag3d.pack { background: var(--accent); color: #fff; border-color: var(--accent); }
+.tag3d.selected { outline: 2px solid var(--accent); outline-offset: 1px; }
+.anchor-readout { margin: 4px 0 0; font-size: 11px; color: var(--muted); }
+details.storage-warn { margin: 8px 0 0; border-color: var(--warn); }
+details.storage-warn summary { color: var(--warn); }
 .warehouse-foot { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; margin-top: 4px; font-size: 12px; }
 .warehouse-foot label { margin: 0; font-size: 12px; }
 .warehouse-foot select { width: auto; min-width: 200px; padding: 3px 6px; font-size: 12px; }

@@ -1,4 +1,6 @@
+import { useMemo } from "react";
 import type { Assignment, Scenario } from "@layoutlab/core";
+import { resolveProductPlacements, resolveStorageAnchors } from "../lib/storageAnchors";
 import { CenterView, type RoutePolyline } from "./CenterView";
 import { ThreeView } from "./ThreeView";
 
@@ -26,6 +28,10 @@ export function WarehousePanel(props: {
   originAssignment: Assignment[];
   currentEdited: boolean;
   currentNote: string | null;
+  selectedLocationId: string | null;
+  onSelectLocation: (id: string | null) => void;
+  selectedProductId: string | null;
+  visibleApproachIds: string[];
 }): React.JSX.Element {
   const {
     scenario, displayedAssignment, selectedStubName, hasCandidate,
@@ -33,8 +39,21 @@ export function WarehousePanel(props: {
     viewMode, onViewMode, currentRoute, candidateRoute,
     showCurrentRoute, onShowCurrentRoute, showCandidateRoute, onShowCandidateRoute,
     originAssignment, currentEdited, currentNote,
+    selectedLocationId, onSelectLocation, selectedProductId, visibleApproachIds,
   } = props;
-  if (!scenario || !displayedAssignment) {
+  // One shared resolution per frame; both views render the same anchors.
+  const resolved = useMemo(
+    () => (scenario ? resolveStorageAnchors(scenario) : null),
+    [scenario],
+  );
+  const placed = useMemo(
+    () =>
+      scenario && displayedAssignment && resolved
+        ? resolveProductPlacements(scenario, displayedAssignment, resolved.anchors)
+        : null,
+    [scenario, displayedAssignment, resolved],
+  );
+  if (!scenario || !displayedAssignment || !resolved || !placed) {
     return (
       <div className="panel" data-testid="warehouse-panel">
         <h2>Warehouse</h2>
@@ -42,10 +61,14 @@ export function WarehousePanel(props: {
       </div>
     );
   }
+  const diagnostics = [...resolved.diagnostics, ...placed.diagnostics];
+  const selLoc = scenario.locations.find((l) => l.id === selectedLocationId) ?? null;
+  const selAnchor = selectedLocationId ? (resolved.anchors.get(selectedLocationId) ?? null) : null;
   return (
     <div className="panel" data-testid="warehouse-panel">
       <div className="warehouse-head">
         <h2>Warehouse</h2>
+        {viewMode === "3d" && <span className="proxy-ribbon">SIMREADY RACKS · PROXY MARKERS</span>}
         <div className="segmented" role="group" aria-label="View mode">
           <button type="button" aria-pressed={viewMode === "2d"} className={viewMode === "2d" ? "on" : ""} onClick={() => onViewMode("2d")} data-testid="view-tab-2d">2D</button>
           <button type="button" aria-pressed={viewMode === "3d"} className={viewMode === "3d" ? "on" : ""} onClick={() => onViewMode("3d")} data-testid="view-tab-3d">3D</button>
@@ -93,20 +116,40 @@ export function WarehousePanel(props: {
           showCurrent={showCurrentRoute}
           showCandidate={showCandidateRoute}
           currentNote={currentNote}
+          anchors={resolved.anchors}
+          placements={placed.placements}
+          selectedLocationId={selectedLocationId}
+          selectedProductId={selectedProductId}
+          visibleApproachIds={visibleApproachIds}
         />
       </div>
       <div className="viewbox" data-testid="view-3d" hidden={viewMode !== "3d"}>
-        <span className="proxy-ribbon">SIMREADY RACKS · PROXY MARKERS</span>
         <ThreeView
           scenario={scenario}
-          assignment={displayedAssignment}
+          anchors={resolved.anchors}
+          placements={placed.placements}
           currentRoute={currentRoute}
           candidateRoute={candidateRoute}
           showCurrent={showCurrentRoute}
           showCandidate={showCandidateRoute}
           active={viewMode === "3d"}
+          selectedLocationId={selectedLocationId}
+          selectedProductId={selectedProductId}
+          visibleApproachIds={visibleApproachIds}
         />
       </div>
+      {diagnostics.length > 0 && (
+        <details className="compact storage-warn" data-testid="anchor-diagnostics">
+          <summary>
+            ⚠ Storage warnings ({diagnostics.length}): no valid pose — routing approaches unchanged
+          </summary>
+          <ul className="mono orders">
+            {diagnostics.map((d, i) => (
+              <li key={`${d.locationId}-${d.code}-${i}`}>{d.message}</li>
+            ))}
+          </ul>
+        </details>
+      )}
       <div className="warehouse-foot">
         <label>
           Selected order
@@ -118,6 +161,21 @@ export function WarehousePanel(props: {
             {scenario.orders.map((o) => (
               <option key={o.id} value={o.id}>
                 {o.id} · Products {o.lines.map((l) => l.productId).join(", ")} (×{o.frequency})
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Selected location
+          <select
+            data-testid="select-location"
+            value={selectedLocationId ?? ""}
+            onChange={(e) => onSelectLocation(e.target.value || null)}
+          >
+            <option value="">None (order stops still shown)</option>
+            {scenario.locations.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.id} · {l.label}
               </option>
             ))}
           </select>
@@ -151,6 +209,13 @@ export function WarehousePanel(props: {
         </span>
         <span className="hint">Fixed racks · Conservative 2D routing</span>
       </div>
+      <p className="mono anchor-readout" data-testid="anchor-readout">
+        {selLoc && selAnchor
+          ? `${selLoc.id} storage (${selAnchor.centerMm.x}, ${selAnchor.centerMm.z}, base ${selAnchor.baseYMm}) · approach (${selLoc.pickPointMm.x}, ${selLoc.pickPointMm.z})`
+          : selLoc
+            ? `${selLoc.id} has no valid storage pose; approach (${selLoc.pickPointMm.x}, ${selLoc.pickPointMm.z})`
+            : "No location selected; approaches hidden except the selected order's stops."}
+      </p>
     </div>
   );
 }

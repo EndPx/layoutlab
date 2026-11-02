@@ -3,8 +3,9 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { CSS2DObject, CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import type { Assignment, Scenario } from "@layoutlab/core";
+import type { Scenario } from "@layoutlab/core";
 import { RACK_GLB_URL, rackScaleFor } from "../lib/rackAsset";
+import type { ProductPlacement, StorageAnchor } from "../lib/storageAnchors";
 import type { RoutePolyline } from "./CenterView";
 
 const MM = 0.001; // mm -> m for the renderer only; measurement stays in mm in core.
@@ -28,19 +29,26 @@ function round3(n: number): number {
 
 export function ThreeView(props: {
   scenario: Scenario;
-  assignment: Assignment[];
+  anchors: Map<string, StorageAnchor>;
+  placements: ProductPlacement[];
   currentRoute: RoutePolyline | null;
   candidateRoute: RoutePolyline | null;
   showCurrent: boolean;
   showCandidate: boolean;
   active: boolean;
+  selectedLocationId: string | null;
+  selectedProductId: string | null;
+  visibleApproachIds: string[];
 }): React.JSX.Element {
-  const { scenario, assignment, currentRoute, candidateRoute, showCurrent, showCandidate, active } = props;
+  const { scenario, anchors, placements, currentRoute, candidateRoute, showCurrent, showCandidate, active } = props;
+  const { selectedLocationId, selectedProductId, visibleApproachIds } = props;
   const mountRef = useRef<HTMLDivElement | null>(null);
   const statusRef = useRef<HTMLParagraphElement | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
   const homeRef = useRef<{ pos: THREE.Vector3; target: THREE.Vector3 } | null>(null);
   const renderRef = useRef<(() => void) | null>(null);
+  const savedCamRef = useRef<{ pos: THREE.Vector3; target: THREE.Vector3 } | null>(null);
+  const geomKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -52,6 +60,14 @@ export function ThreeView(props: {
     delete mount.dataset["rackBbox"];
     delete mount.dataset["labelOverlap"];
     delete mount.dataset["cam"];
+    delete mount.dataset["camPos"];
+    delete mount.dataset["camDist"];
+    // Anchor instrumentation for review: storage centers + shown approaches.
+    mount.dataset["anchors"] = [...anchors.values()]
+      .sort((a, b) => (a.locationId < b.locationId ? -1 : 1))
+      .map((a) => `${a.locationId}:${a.centerMm.x},${a.centerMm.z},${a.baseYMm}`)
+      .join(";");
+    mount.dataset["approachesShown"] = [...visibleApproachIds].sort().join(",");
     if (statusRef.current) statusRef.current.textContent = "Racks: loading SimReady GLB…";
 
     let renderer: THREE.WebGLRenderer | null = null;
@@ -102,6 +118,16 @@ export function ThreeView(props: {
     controls.target.set(roomW * 0.5, 0, roomD * 0.5);
     controls.update();
     homeRef.current = { pos: camera.position.clone(), target: controls.target.clone() };
+    // View-only rebuilds (selection, same-geometry frame/order) keep the
+    // user's camera; only a geometry change resets to home.
+    const geomKey = JSON.stringify({ room: scenario.room, racks: scenario.racks });
+    const saved = savedCamRef.current;
+    if (saved && geomKeyRef.current === geomKey) {
+      camera.position.copy(saved.pos);
+      controls.target.copy(saved.target);
+      controls.update();
+    }
+    geomKeyRef.current = geomKey;
     controlsRef.current = controls;
     // Keyboard camera pan via the installed controls (arrow keys pan, update
     // dispatches change so the single-render contract holds).
@@ -163,31 +189,79 @@ export function ThreeView(props: {
       addLabel(rackGroup, rack.id, "rack", rack.positionMm.x * MM, h + 0.1, rack.positionMm.z * MM);
     }
 
-    const prodsOf = new Map<string, string[]>();
-    for (const a of assignment) {
-      const list = prodsOf.get(a.locationId) ?? [];
-      list.push(a.productId);
-      prodsOf.set(a.locationId, list);
+    // Every occupant keeps its own box (duplicates included, stacked
+    // display-only); locations without a valid anchor render nothing.
+    const prodsAt = new Map<string, ProductPlacement[]>();
+    for (const p of placements) {
+      const list = prodsAt.get(p.locationId) ?? [];
+      list.push(p);
+      prodsAt.set(p.locationId, list);
     }
-    const locMat = new THREE.MeshStandardMaterial({ color: 0x0b6b6e, roughness: 0.5, metalness: 0 });
-    const emptyMat = new THREE.MeshStandardMaterial({ color: 0x9fb2c8, roughness: 0.7, metalness: 0 });
+    const visibleApproach = new Set(visibleApproachIds);
+    // Load rects are already world axis-aligned (yaw applied by the shared
+    // resolver), so boxes need no extra rotation — same mapping as 2D.
+    const boxMat = new THREE.MeshStandardMaterial({ color: 0x9db8dd, roughness: 0.6, metalness: 0 });
+    const boxSelMat = new THREE.MeshStandardMaterial({ color: 0x0b6b6e, roughness: 0.5, metalness: 0 });
+    const boxBadMat = new THREE.MeshStandardMaterial({ color: 0xe0685c, roughness: 0.6, metalness: 0 });
+    const slotMat = new THREE.LineBasicMaterial({ color: 0x4a5568 });
+    const slotSelMat = new THREE.LineBasicMaterial({ color: 0x0b6b6e });
+    const approachMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5, metalness: 0 });
+    const approachSelMat = new THREE.MeshStandardMaterial({ color: 0x0b6b6e, roughness: 0.5, metalness: 0 });
     for (const loc of scenario.locations) {
-      const pids = prodsOf.get(loc.id) ?? [];
-      const marker = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), pids.length > 0 ? locMat : emptyMat);
-      marker.position.set(loc.pickPointMm.x * MM, 0.12, loc.pickPointMm.z * MM);
-      scene.add(marker);
-      // One chip per location (id + every occupying product, invalid stacks
-      // included). The marker stays on the canonical pick point; the chip
-      // floats above with analytic screen-space de-collision so close pairs
-      // (L1/L3, L5/L7) stay legible without moving any geometry.
-      addLabel(
-        scene,
-        pids.length > 0 ? `${loc.id} · ${pids.join(", ")}` : `${loc.id} · empty`,
-        "loc",
-        loc.pickPointMm.x * MM,
-        0.12,
-        loc.pickPointMm.z * MM,
-      );
+      const anchor = anchors.get(loc.id);
+      const occupants = prodsAt.get(loc.id) ?? [];
+      const selected = loc.id === selectedLocationId;
+      if (anchor) {
+        const s = anchor.slotRectMm;
+        const outline = new THREE.LineLoop(
+          new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(s.minX * MM, 0.02, s.minZ * MM),
+            new THREE.Vector3(s.maxX * MM, 0.02, s.minZ * MM),
+            new THREE.Vector3(s.maxX * MM, 0.02, s.maxZ * MM),
+            new THREE.Vector3(s.minX * MM, 0.02, s.maxZ * MM),
+          ]),
+          selected ? slotSelMat : slotMat,
+        );
+        scene.add(outline);
+        // True load dimensions, centered at the anchor; invalid stacks rise
+        // display-only so every occupant stays visible. Anchors never move.
+        let stackMm = 0;
+        for (const o of occupants) {
+          const r = o.loadRectMm;
+          const bad = !o.fits || o.occupantCount > 1;
+          const box = new THREE.Mesh(
+            new THREE.BoxGeometry((r.maxX - r.minX) * MM, o.loadHeightMm * MM, (r.maxZ - r.minZ) * MM),
+            bad ? boxBadMat : o.productId === selectedProductId ? boxSelMat : boxMat,
+          );
+          box.position.set(anchor.centerMm.x * MM, (stackMm + o.loadHeightMm / 2) * MM, anchor.centerMm.z * MM);
+          box.userData["productId"] = o.productId;
+          box.userData["locationId"] = o.locationId;
+          scene.add(box);
+          stackMm += o.loadHeightMm;
+        }
+        // One chip per location at the storage anchor (id + every occupant,
+        // invalid stacks included); de-collision still only moves chips.
+        const pids = occupants.map((o) => o.productId);
+        const tags =
+          `${selected ? " ◆Selected" : ""}` +
+          `${occupants.length > 1 ? ` ⚠×${occupants.length}` : ""}` +
+          `${occupants.some((o) => !o.fits) ? " ⚠size" : ""}`;
+        addLabel(
+          scene,
+          `${loc.id} · ${pids.length > 0 ? pids.join(", ") : "empty"}${tags}`,
+          selected ? "loc selected" : "loc",
+          anchor.centerMm.x * MM,
+          (occupants.length > 0 ? stackMm : 250) * MM + 0.1,
+          anchor.centerMm.z * MM,
+        );
+      }
+      // Approach markers appear only for the selected location or the
+      // selected order's actual stops; they carry no chips.
+      if (visibleApproach.has(loc.id)) {
+        const marker = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 12), selected ? approachSelMat : approachMat);
+        marker.position.set(loc.pickPointMm.x * MM, 0.09, loc.pickPointMm.z * MM);
+        scene.add(marker);
+      }
     }
     const pack = new THREE.Mesh(
       new THREE.BoxGeometry(0.3, 0.3, 0.3),
@@ -345,6 +419,9 @@ export function ThreeView(props: {
       decollide();
       mount.dataset["cam"] =
         `${round3(controls.target.x)},${round3(controls.target.y)},${round3(controls.target.z)}`;
+      mount.dataset["camPos"] =
+        `${round3(camera.position.x)},${round3(camera.position.y)},${round3(camera.position.z)}`;
+      mount.dataset["camDist"] = String(round3(camera.position.distanceTo(controls.target)));
     };
     renderRef.current = renderOnce;
     controls.addEventListener("change", renderOnce);
@@ -413,6 +490,7 @@ export function ThreeView(props: {
     const handle = renderer;
     const labelHandle = labelRenderer;
     return () => {
+      savedCamRef.current = { pos: camera.position.clone(), target: controls.target.clone() };
       cancelled = true;
       resizer.disconnect();
       controls.dispose();
@@ -421,7 +499,7 @@ export function ThreeView(props: {
       mount.replaceChildren();
       if (controlsRef.current === controls) controlsRef.current = null;
     };
-  }, [scenario, assignment, currentRoute, candidateRoute, showCurrent, showCandidate, active]);
+  }, [scenario, anchors, placements, currentRoute, candidateRoute, showCurrent, showCandidate, active, selectedLocationId, selectedProductId, visibleApproachIds]);
 
   const zoom3d = (f: number): void => {
     const controls = controlsRef.current;
