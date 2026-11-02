@@ -1,4 +1,4 @@
-# Public deployment checkpoint
+# Restricted public deployment
 
 Target: `https://layoutlab.endpx.cloud`. The user authorized the existing
 Hostinger VPS, restricted password/Basic Auth access, and US$1 total for the
@@ -26,24 +26,41 @@ The service is active; loopback GET `/` returns200 and `/api/status` reports
 stub behavior is available in the installed release. Public Live Meta is not
 enabled before the persistent allowance guard passes review.
 
-## Remaining public gates
+## Public DNS, HTTPS and access verification
 
-DNS does not yet resolve `layoutlab.endpx.cloud`. Required new record:
+The following record was added through the user's existing external Edge
+hPanel session and read back in the DNS list. No other record was edited:
 
 | Type | Host | Value | TTL |
 |---|---|---|---:|
 | A | layoutlab | 76.13.179.205 | 300 |
 
-Do not change other records. The new HTTP ACME challenge location was tested
-from outside the VPS with an explicit hostname/IP resolution override and
-returned200 with the expected probe. This verifies reachability, not DNS or
-HTTPS. Nginx configuration validation passes.
+The authoritative nameserver and the VPS resolver both resolve the hostname
+to76.13.179.205. A certificate was issued for this exact hostname, valid from
+2026-11-02 to2027-01-31. The existing certbot timer is enabled, with a Nginx
+reload deploy hook recorded for this certificate. Nginx validation passed.
 
-After DNS resolves correctly, issue a certificate for this exact hostname,
-enable the prepared HTTPS reverse proxy with Basic Auth over the whole
-origin, and verify anonymous401 plus authenticated UI/API/assets. Redirect
-plain HTTP to HTTPS. Do not send credentials over plain HTTP or report the
-domain live before public TLS and browser checks succeed.
+Public checks used normal hostname resolution and certificate verification,
+without a host override or certificate bypass:
+
+- HTTP redirects301 to HTTPS.
+- Anonymous UI, API status and GLB requests return401 with Basic Auth.
+- An incorrect password returns401; correct credentials return200.
+- Private/source paths (`/.env`, `/.git/config`, `/package.json`, API source)
+  return404 even with valid preview credentials.
+- The served GLB SHA256 matches the reviewed R1 asset.
+- Actual external Microsoft Edge156, visible test windows, at1440/390px:
+  sample A at L1/F at L8; four real GLB racks loaded; baseline36.8m;
+  stub/heuristic selection29.8m; downloaded reports independently checked
+  (five valid assignments per export); no page errors or horizontal overflow.
+- No POST to the model-run API occurred during these browser flows.
+
+Evidence: `evidence/sanitized/deploy-r1-public-verification.json` and
+`deploy-r1-public-{1440,390}.png`. Credentials are stored privately outside
+Git; obtain them from the project owner. The preview is password-restricted,
+not anonymous public access.
+
+## Remaining public Live Meta gate
 
 The separate public budget-guard milestone must then enforce durable full-run
 reservations, no automatic reset/refill, fail-closed persistence errors and
@@ -53,7 +70,12 @@ the separate US$1 allowance. The final reserved run must still be allowed to
 finish its approved proposals. An HTTP rate limiter alone is not a total
 budget guard.
 
-R2 playback continues separately through Muse. It is not present in the
-installed R1 release; upgrade only to a reviewed commit. The deployment is
-currently **installed internally, with DNS/TLS/public-access and bounded Live
-Meta gates pending**, not a verified public demo yet.
+The installed R1 preview supports sample/manual/stub evaluation and reports.
+Public Live Meta remains `setup_required`; no model key is installed and
+the separate US$1 allowance has not been used. This is a verified public
+preview, not a completed public inference rollout.
+
+The user subsequently prioritized a static warehouse-section investigation
+from the original SimReady Central catalog before playback integration.
+Unreviewed R2 work is preserved separately; neither R2 nor the new section
+is present in the deployed R1 release. Upgrade only to a reviewed commit.

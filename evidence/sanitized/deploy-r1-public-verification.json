@@ -1,0 +1,91 @@
+{
+  "checkedAt": "2026-11-02T16:17:05.341Z",
+  "url": "https://layoutlab.endpx.cloud",
+  "releaseCommit": "d039fa9",
+  "tlsVerification": "normal HTTPS verification, no certificate bypass or hostname override",
+  "checks": [
+    {
+      "case": "HTTP redirects to HTTPS",
+      "status": 301
+    },
+    {
+      "case": "anonymous /",
+      "status": 401
+    },
+    {
+      "case": "anonymous /api/status",
+      "status": 401
+    },
+    {
+      "case": "anonymous /assets/rack_large_empty_a01.glb",
+      "status": 401
+    },
+    {
+      "case": "incorrect password",
+      "status": 401
+    },
+    {
+      "case": "authenticated UI",
+      "status": 200
+    },
+    {
+      "case": "authenticated API, public inference unavailable honestly",
+      "status": 200,
+      "liveAvailable": false
+    },
+    {
+      "case": "source/private boundary /.env",
+      "status": 404
+    },
+    {
+      "case": "source/private boundary /.git/config",
+      "status": 404
+    },
+    {
+      "case": "source/private boundary /package.json",
+      "status": 404
+    },
+    {
+      "case": "source/private boundary /apps/api/src/config.ts",
+      "status": 404
+    },
+    {
+      "case": "authenticated GLB content hash",
+      "status": 200,
+      "sha256": "571cc601bbbf8759977e05c5104a1d9381a682d2537942a238c68ebf8f8ae9ea"
+    }
+  ],
+  "flows": [
+    {
+      "width": 1440,
+      "externalEdge": true,
+      "headless": false,
+      "edgeVersion": "156.0.4314.58",
+      "actualAsset": "simready-glb",
+      "racksLoaded": 4,
+      "baselineDisplay": "36.8 m",
+      "candidateDisplay": "29.8 m",
+      "exportAssignmentsIndependentlyChecked": 5,
+      "pageErrors": [],
+      "modelApiRequests": 0,
+      "scrollWidth": 1425
+    },
+    {
+      "width": 390,
+      "externalEdge": true,
+      "headless": false,
+      "edgeVersion": "156.0.4314.58",
+      "actualAsset": "simready-glb",
+      "racksLoaded": 4,
+      "baselineDisplay": "36.8 m",
+      "candidateDisplay": "29.8 m",
+      "exportAssignmentsIndependentlyChecked": 5,
+      "pageErrors": [],
+      "modelApiRequests": 0,
+      "scrollWidth": 375
+    }
+  ],
+  "mode": "Restricted public R1 preview: sample/manual/stub work; public Live Meta intentionally unavailable until persistent allowance guard passes.",
+  "publicMetaRequests": 0,
+  "credentialsInEvidence": false
+}

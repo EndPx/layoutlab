@@ -3,7 +3,12 @@
 A reproducible local walkthrough of the accepted reference UI on the synthetic
 sample. It uses only deterministic local behavior (sample/manual/stub) plus the
 honest live boundaries (setup-required, consent, no promised answer). There is
-no demo video and no public URL; every step below runs on loopback.
+no demo video. The reviewed R1 preview is also available at
+https://layoutlab.endpx.cloud with password/Basic Auth; external Edge checks
+verified its sample/stub/GLB/export flow. Public Meta inference remains
+unavailable until the persistent allowance guard is complete. Steps below
+describe the local loopback walkthrough; see PUBLIC_DEPLOYMENT.md for the
+public release and access boundary.
 
 Start the native production server first (see
 [LOCAL_RUNTIME.md](LOCAL_RUNTIME.md)):

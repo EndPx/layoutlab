@@ -11,10 +11,11 @@ change.
 
 Status: reference UI and local native start accepted; the actual 18-trial
 Meta benchmark is complete and reproducible. Inside-rack storage mapping is
-accepted; evaluator path playback is next. Public deployment to `layoutlab.endpx.cloud` is
-authorized with restricted access and a separate US$1 total inference
-allowance. Reviewed R1 is installed internally on the VPS; DNS/TLS/public
-access and the public inference guard remain pending. See
+accepted. [Restricted web preview](https://layoutlab.endpx.cloud) runs reviewed
+R1 on the VPS with verified DNS, HTTPS and password access. Sample/manual/stub
+flows work; public Live Meta awaits its persistent US$1 total allowance guard.
+The original-catalog warehouse-section investigation now precedes playback
+integration. See `docs/PUBLIC_DEPLOYMENT.md`,
 `docs/MILESTONES.md` and `docs/EVALUATION.md`.
 
 ## Native start (Node 24.18 tested, no Docker)
