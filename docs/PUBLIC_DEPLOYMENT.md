@@ -79,3 +79,23 @@ The user subsequently prioritized a static warehouse-section investigation
 from the original SimReady Central catalog before playback integration.
 Unreviewed R2 work is preserved separately; neither R2 nor the new section
 is present in the deployed R1 release. Upgrade only to a reviewed commit.
+
+## Upgrade to the reviewed operations release (2026-11-03)
+
+Release `67ddd74` (M3c Operations UI + cargo C2 picking/packing experience)
+was exported with `git archive`, built natively on the VPS (Node24.14.0,
+`npm ci` and the full production build passed; the web bundle hash matches
+the local build), and installed at `/opt/layoutlab/releases/67ddd74`.
+`layoutlab.service` now runs that release on `127.0.0.1:4301`; the R1
+release directory `d039fa9` is retained for rollback.
+
+Public re-verification after the switch: HTTP redirects301 to HTTPS;
+anonymous UI/API return401; an incorrect password returns401; correct
+credentials return200 with the app shell; `/api/status` still reports
+`setup_required` with `liveAvailable:false` (no model key installed);
+the new cargo GLB and the prior rack GLB return200; `/.env`,
+`/.git/config`, `/package.json` and API source paths return404. The
+shipped experience is the six-order picking/packing stage
+(`READY_FOR_DISPATCH`, 0 shipped); dispatch/shipping, inbound/put-away
+and the Meta Experimenter remain unimplemented, and public Live Meta
+stays disabled pending its separate budget-guard gate.

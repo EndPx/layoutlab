@@ -22,10 +22,16 @@ M3b connected headless picking/packing is now accepted after231 tests and8
 independent built-export assertion groups. One kernel owns arrivals,
 transport, handling and packing. The6-order burst reaches READY_FOR_DISPATCH,
 shipped0/backlog6/stageBacklog0; no shipping claim. See V3_M3B_INDEPENDENT_REVIEW.md.
-Next: bind real snapshots/controls/motion/queues to the main Operations UI
-using UI_REFERENCE_V3.md and record concurrent tasks/wait/progression.
-Dispatch, inbound/put-away, split trips, operations report replay and Meta
-Experimenter remain explicit subsequent gates. Public deployment stays R1.
+M3c binds the engine to the main Operations UI; cargo C2 (full-size cart/crates,
+engine-carried loads) is integrated and independently reviewed. Publication
+patch (sparse 1.75m arrowheads, true active-window render deltas) verified:
+simulation 237, core 111, API 84, web unit 22, typecheck and root build pass.
+Committed and pushed as 67ddd74 and installed on the VPS as release
+/opt/layoutlab/releases/67ddd74 (previous R1 release d039fa9 retained for
+rollback); public HTTPS checks pass (anonymous 401, authenticated 200,
+setup_required, cargo GLB served, private paths 404).
+Next: dispatch/shipping, inbound/put-away, split trips, operations report
+replay, formal experiments and the Meta Experimenter remain subsequent gates.
 
 Current scope authority is the user-supplied [Implementation Brief v3](IMPLEMENTATION_BRIEF_V3.md),
 which explicitly expands the target to a configured warehouse operations
