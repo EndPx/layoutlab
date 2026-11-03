@@ -421,6 +421,20 @@ export function OperationsPanel(props: { run: OpsRunState; onResetRun: () => voi
         <div className="metric"><div><p className="metric-label">Packing queue</p><p className="metric-value" data-testid="ops-m-queue">{snap ? `${queuedJobs.length} jobs · ${arrivedUnits} arrived` : "—"}</p><p className="metric-caption">Jobs placed (some still travelling) · units physically at a station</p></div></div>
       </div>
 
+      {snap && snap.deliveries.length > 0 && (
+        <div className="panel" data-testid="ops-deliveries" aria-label="Inbound deliveries">
+          <h2>Inbound deliveries</h2>
+          <ul className="ops-delivery-list">
+            {snap.deliveries.map((d) => (
+              <li key={d.deliveryId} data-delivery-id={d.deliveryId}>
+                {d.deliveryId} · {d.state} · {d.lines.map((l) => `${l.productId} ×${l.quantity}`).join(" · ")}
+                {d.waitReason ? ` · waiting: ${d.waitReason}` : ""}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="ops-workspace">
         <div className="panel ops-viewport" data-testid="ops-viewport-panel">
           <div className="warehouse-head">

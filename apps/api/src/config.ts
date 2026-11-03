@@ -31,6 +31,12 @@ export type ApiConfig = {
   maxResponseBytes: number;
   maxContextChars: number;
   heuristicMaxEvaluations: number;
+  // Public budget guard (v3-M8): durable allowance for future public Live
+  // Meta. Empty state file disables reservation enforcement locally; the
+  // public deployment sets both values and stays fail-closed.
+  publicBudgetUsd: number;
+  publicBudgetPerRunUsd: number;
+  budgetStateFile: string;
 };
 
 function clampInt(raw: string | undefined, fallback: number, min: number, max: number): number {
@@ -76,6 +82,15 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
     maxResponseBytes: 65536,
     maxContextChars: 20000,
     heuristicMaxEvaluations,
+    publicBudgetUsd: (() => {
+      const n = Number.parseFloat(env["PUBLIC_BUDGET_USD"] ?? "1");
+      return Number.isFinite(n) && n > 0 ? Math.min(n, 1000) : 1;
+    })(),
+    publicBudgetPerRunUsd: (() => {
+      const n = Number.parseFloat(env["PUBLIC_BUDGET_PER_RUN_USD"] ?? "0.25");
+      return Number.isFinite(n) && n > 0 ? Math.min(n, 1000) : 0.25;
+    })(),
+    budgetStateFile: (env["BUDGET_STATE_FILE"] ?? "").trim(),
   };
 }
 

@@ -9,6 +9,8 @@ import { join } from "node:path";
 import { z } from "zod";
 import { API_VERSION, liveAvailable, loadConfig, sanitizeMessage, type ApiConfig } from "./config.js";
 import { PROMPT_VERSION } from "./prompts.js";
+import { createBudgetGuard, type BudgetGuard } from "./budget-guard.js";
+import { proposePatch, runExperiment, validatePatch } from "./operations-api.js";
 import { generationSettingsOf, type FetchLike } from "./provider.js";
 import { RunStore, toSummary } from "./runs.js";
 
@@ -82,6 +84,7 @@ export function createApp(opts: {
   config?: ApiConfig;
   fetchImpl?: FetchLike;
   trustProxy?: boolean;
+  budgetGuard?: BudgetGuard;
   // Built web root (apps/web/dist). Absent or unbuilt: the API still serves
   // every /api route and answers GET / with setup guidance (dev parity).
   webDir?: string;
@@ -89,6 +92,11 @@ export function createApp(opts: {
   const config = opts.config ?? loadConfig();
   const fetchImpl = opts.fetchImpl ?? fetch;
   const store = new RunStore(config);
+  const budgetGuard: BudgetGuard | null =
+    opts.budgetGuard ??
+    (config.budgetStateFile !== ""
+      ? createBudgetGuard({ filePath: config.budgetStateFile, capUsd: config.publicBudgetUsd })
+      : null);
   const app = express();
   if (opts.trustProxy === true) app.set("trust proxy", 1);
   app.disable("x-powered-by");
@@ -226,6 +234,76 @@ export function createApp(opts: {
       const id = _req.params["id"] as string;
       const envelope = store.buildFailureRecord(id);
       res.json(envelope);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.get("/api/budget", (_req: Request, res: Response, next: (e: unknown) => void) => {
+    try {
+      if (!budgetGuard) {
+        res.json({ guard: "not_configured", publicBudgetUsd: config.publicBudgetUsd });
+        return;
+      }
+      const snap = budgetGuard.snapshot();
+      res.json({
+        guard: "active",
+        capUsd: snap.capMicroUsd / 1_000_000,
+        reservedUsd: snap.reservedMicroUsd / 1_000_000,
+        committedUsd: snap.committedMicroUsd / 1_000_000,
+        availableUsd: snap.availableMicroUsd / 1_000_000,
+        entries: snap.entries.length,
+      });
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.post("/api/operations/patches/validate", (req: Request, res: Response, next: (e: unknown) => void) => {
+    try {
+      const patch = validatePatch((req.body as { patch?: unknown })?.patch ?? req.body);
+      res.json({ valid: true, patch });
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.post("/api/operations/experiments", (req: Request, res: Response, next: (e: unknown) => void) => {
+    try {
+      res.json(runExperiment(req.body as { scenario?: unknown; executionConfig?: unknown; candidates?: unknown }));
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.post("/api/operations/proposals", async (req: Request, res: Response, next: (e: unknown) => void) => {
+    try {
+      const observation = (req.body as { observation?: unknown })?.observation;
+      if (typeof observation !== "string") {
+        res.status(400).json({ code: "BAD_REQUEST", message: "Body must be { observation: string }." });
+        return;
+      }
+      // Fail-closed: when the public guard is configured, a durable
+      // reservation must land before any model call; guard errors stop here.
+      let reservationId: string | null = null;
+      if (budgetGuard) {
+        reservationId = `proposal-${Date.now()}-${Math.floor(Math.random() * 1e9)}`;
+        budgetGuard.reserve(reservationId, config.publicBudgetPerRunUsd);
+      }
+      try {
+        const result = await proposePatch({ config, fetchImpl, observation });
+        if (budgetGuard && reservationId) budgetGuard.commit(reservationId);
+        res.json(result);
+      } catch (e) {
+        if (budgetGuard && reservationId) {
+          try {
+            budgetGuard.release(reservationId);
+          } catch {
+            // Release failure leaves the reservation visible for audit.
+          }
+        }
+        throw e;
+      }
     } catch (e) {
       next(e);
     }

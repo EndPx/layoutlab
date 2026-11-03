@@ -165,6 +165,17 @@ export type {
   OperationsWaitRecord,
   OrderLifecycleState,
 } from "./operations.js";
+export {
+  applyOperationsPatch,
+  operationsPatchSchema,
+  parseOperationsPatch,
+  runOperationsExperiment,
+} from "./experiments.js";
+export type {
+  ExperimentCandidateResult,
+  OperationsExperimentResult,
+  OperationsPatch,
+} from "./experiments.js";
 export { createTransportController, createTransportDomain } from "./transport.js";
 export type {
   CancelResult,

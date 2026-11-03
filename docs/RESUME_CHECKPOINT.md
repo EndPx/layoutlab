@@ -41,7 +41,13 @@ recomputation (simulation 240/240). The main 28+12 fixture ships orders and
 drains deliveries concurrently in its fixed window; full-window drain is
 fixture-calibration work, not an engine gate. Operations UI does not yet
 render deliveries (engine snapshots expose them).
-Next: formal experiments and the Meta Experimenter remain subsequent gates.
+Controlled experiments, bounded Meta patch proposals, and the durable US$1
+public budget guard are implemented (simulation 242, API 90): candidates rank
+deterministically with recomputable reports, invalid patches are rejected
+before any run, proposals refuse without a server key, and the guard
+reserves durably and fail-closes on corrupt state. Operations UI lists
+inbound deliveries. Public Live Meta still needs a server key plus explicit
+spend authorization; the guard alone does not enable it.
 
 Current scope authority is the user-supplied [Implementation Brief v3](IMPLEMENTATION_BRIEF_V3.md),
 which explicitly expands the target to a configured warehouse operations
