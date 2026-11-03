@@ -104,6 +104,22 @@ export type OperationsOrderDiagnostic = {
   terminal: boolean;
 };
 
+export type DeliveryLifecycleState =
+  | "RECEIVING"
+  | "PUTAWAY_PENDING"
+  | "PUTAWAY"
+  | "STORED";
+
+export type OperationsDeliveryView = {
+  deliveryId: string;
+  arrivalTimeMs: number;
+  state: DeliveryLifecycleState | "NOT_ARRIVED";
+  timestamps: Partial<Record<DeliveryLifecycleState, number>>;
+  lines: { productId: string; quantity: number }[];
+  receivingResourceId: string | null;
+  waitReason: string | null;
+};
+
 export type OperationsOrderView = {
   orderId: string;
   arrivalTimeMs: number;
@@ -136,6 +152,11 @@ export type OperationsUnitTaskView =
   | { kind: "awaiting-staging"; orderId: string; resourceId: string }
   | { kind: "awaiting-service-start"; orderId: string; resourceId: string }
   | { kind: "to-vacate"; resourceId: string; slotId: string }
+  | { kind: "to-receive"; deliveryId: string; resourceId: string }
+  | { kind: "collecting"; deliveryId: string; resourceId: string; productId: string; quantity: number }
+  | { kind: "awaiting-location"; deliveryId: string }
+  | { kind: "to-store"; deliveryId: string; locationId: string }
+  | { kind: "storing"; deliveryId: string; locationId: string }
   | { kind: "to-parking" };
 
 export type OperationsUnitView = {
@@ -221,6 +242,7 @@ export type OperationsSnapshot = {
   executionConfig: OperationsExecutionConfig;
   clockMs: number;
   runMode: "fixed-window" | "finite-cohort";
+  deliveries: OperationsDeliveryView[];
   orders: OperationsOrderView[];
   excludedOrderIds: string[];
   units: OperationsUnitView[];
@@ -288,7 +310,86 @@ export type OperationsController = {
   snapshot(): OperationsSnapshot;
   getCompletionStatus(): OperationsCompletion;
   getDiagnostic(): OperationsDiagnostic | null;
+  exportReport(): OperationsReport;
 };
+
+export type OperationsReport = {
+  schema: "layoutlab.operations-report/1";
+  scenarioId: string;
+  seed: string;
+  versions: OperationsSnapshot["versions"];
+  scenario: OperationsScenario;
+  executionConfig: OperationsExecutionConfig;
+  completionStage: string;
+  counts: OperationsCounts;
+  orders: { orderId: string; state: string; timestamps: Partial<Record<OrderLifecycleState, number>> }[];
+  deliveries: { deliveryId: string; state: string }[];
+  checks: OperationsChecks;
+};
+
+export type OperationsReportVerification = {
+  ok: boolean;
+  recomputedStage: string;
+  recomputedCounts: OperationsCounts;
+  mismatches: string[];
+};
+
+// Independently recompute a report: rerun its embedded scenario/config
+// headlessly and compare final counts and per-order/delivery states. Any
+// tampered count or state is reported as a mismatch, never accepted.
+export function recomputeOperationsReport(
+  report: OperationsReport,
+): OperationsReportVerification {
+  const mismatches: string[] = [];
+  if (report.schema !== "layoutlab.operations-report/1") {
+    return {
+      ok: false,
+      recomputedStage: "UNKNOWN",
+      recomputedCounts: report.counts,
+      mismatches: [`unsupported report schema ${String(report.schema)}`],
+    };
+  }
+  const c = createOperationsController({
+    scenario: report.scenario,
+    executionConfig: report.executionConfig,
+  });
+  const CAP = 3_600_000;
+  let stage = c.getCompletionStatus().stage;
+  let guard = 0;
+  while (stage === "IN_PROGRESS" && guard < 240) {
+    c.advanceTo(Math.min(c.getClockMs() + 60_000, CAP));
+    stage = c.getCompletionStatus().stage;
+    guard += 1;
+  }
+  const s = c.snapshot();
+  const rc = s.counts;
+  const ec = report.counts;
+  for (const key of Object.keys(ec) as (keyof OperationsCounts)[]) {
+    if (rc[key] !== ec[key]) {
+      mismatches.push(`counts.${key}: report ${ec[key]} != recomputed ${rc[key]}`);
+    }
+  }
+  if (stage !== report.completionStage) {
+    mismatches.push(`completionStage: report ${report.completionStage} != recomputed ${stage}`);
+  }
+  for (const o of report.orders) {
+    const r = s.orders.find((x) => x.orderId === o.orderId);
+    if (!r) {
+      mismatches.push(`order ${o.orderId}: missing on recomputation`);
+    } else if (r.state !== o.state) {
+      mismatches.push(`order ${o.orderId}: report ${o.state} != recomputed ${r.state}`);
+    }
+  }
+  for (const d of report.deliveries) {
+    const r = s.deliveries.find((x) => x.deliveryId === d.deliveryId);
+    if (!r) {
+      mismatches.push(`delivery ${d.deliveryId}: missing on recomputation`);
+    } else if (r.state !== d.state) {
+      mismatches.push(`delivery ${d.deliveryId}: report ${d.state} != recomputed ${r.state}`);
+    }
+  }
+  return { ok: mismatches.length === 0, recomputedStage: stage, recomputedCounts: rc, mismatches };
+}
 
 type PickLeg = {
   locationId: string;
@@ -318,6 +419,7 @@ type OrderRuntime = {
   queueSlotId: string | null;
   queueRequestMs: number | null;
   jobEnqueued: boolean;
+  partialTrips: number;
   dispatchJobId: string | null;
   dispatchEnqueued: boolean;
   unloadCommitted: boolean;
@@ -341,7 +443,27 @@ type UnitTask =
   | { kind: "awaiting-staging"; orderId: string; resourceId: string }
   | { kind: "awaiting-service-start"; orderId: string; resourceId: string }
   | { kind: "to-vacate"; resourceId: string; slotId: string }
+  | { kind: "to-receive"; deliveryId: string; resourceId: string }
+  | { kind: "collecting"; deliveryId: string; resourceId: string; productId: string; quantity: number }
+  | { kind: "awaiting-location"; deliveryId: string }
+  | { kind: "to-store"; deliveryId: string; locationId: string }
+  | { kind: "storing"; deliveryId: string; locationId: string }
   | { kind: "to-parking" };
+
+type DeliveryRuntime = {
+  idx: number;
+  deliveryId: string;
+  arrivalTimeMs: number;
+  lines: { productId: string; quantity: number }[];
+  created: boolean;
+  state: DeliveryLifecycleState;
+  timestamps: Partial<Record<DeliveryLifecycleState, number>>;
+  receivingResourceId: string | null;
+  receivingJobId: string | null;
+  jobEnqueued: boolean;
+  serviceDone: boolean;
+  waitReason: string | null;
+};
 
 type UnitRuntime = {
   unitId: string;
@@ -402,16 +524,10 @@ export function createOperationsController(opts: {
   const scenario = deepFreezeAccepted(
     parseOperationsScenario(structuredClone(opts.scenario)),
   );
-  // The full main 28-order + 12-delivery fixture is NOT executable as this
-  // slice: inbound has no support yet, so nonempty deliveries are an
-  // explicit unsupported capability, never silently ignored.
-  if (scenario.deliverySchedule.length > 0) {
-    throw new Error(
-      `unsupported capability [UNSUPPORTED_DELIVERIES]: M3b covers picking/packing only; ` +
-        `scenario carries ${scenario.deliverySchedule.length} inbound deliverie(s), ` +
-        `which need a future receiving/put-away slice`,
-    );
-  }
+  // Inbound: scheduled deliveries arrive externally, are accepted into
+  // finite receiving staging through the receiving lane(s), and put-away
+  // units store them into canonical locations before orders can reserve
+  // that stock. Deliveries never teleport into storage.
   const packingConfigs = scenario.resources.filter((r) => r.kind === "packing");
   if (packingConfigs.length === 0) {
     throw new Error("M3b slice requires at least one packing resource");
@@ -466,6 +582,21 @@ export function createOperationsController(opts: {
     }
   }
   const dispatchConfigById = new Map(dispatchConfigs.map((r) => [r.id, r]));
+  const receivingConfigs = scenario.resources.filter((r) => r.kind === "receiving");
+  for (const cfg of receivingConfigs) {
+    if (cfg.servicePositions.length > 1 || cfg.serviceCapacity > 1) {
+      throw new Error(
+        `unsupported capability [UNSUPPORTED_MULTILANE]: receiving is single-lane-per-station; ` +
+          `resource ${cfg.id} advertises ${cfg.servicePositions.length} service position(s) / capacity ${cfg.serviceCapacity}`,
+      );
+    }
+  }
+  const receivingConfigById = new Map(receivingConfigs.map((r) => [r.id, r]));
+  if (scenario.deliverySchedule.length > 0 && receivingConfigs.length === 0) {
+    throw new Error(
+      "unsupported capability [UNSUPPORTED_DELIVERIES]: scenario schedules inbound deliveries but configures no receiving resource",
+    );
+  }
 
   const runMode =
     scenario.policies.run.mode === "finite-cohort"
@@ -504,6 +635,9 @@ export function createOperationsController(opts: {
     units: Map<string, UnitRuntime>;
     resources: Map<string, ResourceRuntime>;
     dispatchStations: Map<string, ServiceStation>;
+    receivingStations: Map<string, ServiceStation>;
+    receivingCoords: Map<string, MoveDestination>;
+    deliveries: Map<string, DeliveryRuntime>;
     timeline: OperationsTimelineEntry[];
     waits: OperationsWaitRecord[];
     trajectories: RetainedTrajectory[];
@@ -565,6 +699,7 @@ export function createOperationsController(opts: {
         queueSlotId: null,
         queueRequestMs: null,
         jobEnqueued: false,
+        partialTrips: 0,
         dispatchJobId: null,
         dispatchEnqueued: false,
         unloadCommitted: false,
@@ -608,6 +743,34 @@ export function createOperationsController(opts: {
       resources,
       dispatchStations: new Map(
         dispatchConfigs.map((cfg) => [cfg.id, createServiceStation(cfg)]),
+      ),
+      receivingStations: new Map(
+        receivingConfigs.map((cfg) => [cfg.id, createServiceStation(cfg)]),
+      ),
+      receivingCoords: new Map(
+        receivingConfigs.map((cfg) => [
+          cfg.id,
+          { x: cfg.servicePositions[0]!.x, z: cfg.servicePositions[0]!.z },
+        ]),
+      ),
+      deliveries: new Map(
+        scenario.deliverySchedule.map((d, idx) => [
+          d.id,
+          {
+            idx,
+            deliveryId: d.id,
+            arrivalTimeMs: d.arrivalTimeMs,
+            lines: d.lines.map((l) => ({ ...l })),
+            created: false,
+            state: "RECEIVING" as DeliveryLifecycleState,
+            timestamps: {},
+            receivingResourceId: null,
+            receivingJobId: null,
+            jobEnqueued: false,
+            serviceDone: false,
+            waitReason: null,
+          },
+        ]),
       ),
       timeline: [],
       waits: [],
@@ -929,16 +1092,21 @@ export function createOperationsController(opts: {
             );
             continue;
           }
+          // Split-trip: an order larger than one cart is carried in several
+          // capacity-bounded trips. Only an order whose single items exceed
+          // every eligible cart can never move.
+          const maxItemCost = Math.max(
+            ...rt.lines.map((l) => productCost.get(l.productId) ?? 0),
+          );
           const fits = eligible.some(
-            (id) => (unitCapacity.get(id) ?? 0) >= rt.totalCostUnits,
+            (id) => (unitCapacity.get(id) ?? 0) >= maxItemCost,
           );
           if (!fits) {
             diagnose(
               rt,
               "UNSUPPORTED_SINGLE_TRIP_REQUIRED",
-              `order ${rt.orderId} needs ${rt.totalCostUnits} handling-cost units; ` +
-                `no eligible picker carries it in one trip; split-trip pickup stays v3 backlog; ` +
-                `held with zero reservation`,
+              `order ${rt.orderId} has items costing ${maxItemCost} handling-cost units; ` +
+                `no eligible picker can carry even one item; held with zero reservation`,
               true,
               now,
             );
@@ -1006,9 +1174,12 @@ export function createOperationsController(opts: {
         ) {
           continue;
         }
+        const maxItemCost = Math.max(
+          ...rt.lines.map((l) => productCost.get(l.productId) ?? 0),
+        );
         const candidates = eligiblePickersFor(rt).filter(
           (id) =>
-            (unitCapacity.get(id) ?? 0) >= rt.totalCostUnits &&
+            (unitCapacity.get(id) ?? 0) >= maxItemCost &&
             (isUnitFree(id) || tryStealForAssignment(id)),
         );
         if (candidates.length === 0) {
@@ -1024,6 +1195,23 @@ export function createOperationsController(opts: {
         }
         const unitId = candidates[0] as string;
         rt.unitId = unitId;
+        // Split legs into cart-bounded chunks for the assigned picker, so a
+        // leg larger than one cart is picked across several trips.
+        {
+          const cap = unitCapacity.get(unitId) ?? 0;
+          const chunked: PickLeg[] = [];
+          for (const leg of rt.legs) {
+            const cost = productCost.get(leg.productId) ?? 0;
+            const perTrip = cost > 0 ? Math.max(1, Math.floor(cap / cost)) : leg.quantity;
+            let remaining = leg.quantity;
+            while (remaining > 0) {
+              const qty = Math.min(remaining, perTrip);
+              chunked.push({ ...leg, quantity: qty, committed: false });
+              remaining -= qty;
+            }
+          }
+          rt.legs = chunked;
+        }
         closeWaitsFor(null, rt.orderId, now);
         rt.waitReason = null;
         transition(rt, "PICKING", now, unitId, `assigned ${unitId}`);
@@ -1094,6 +1282,8 @@ export function createOperationsController(opts: {
           tryPackCommit(rt, now);
         }
       }
+      tryAdvanceReceiving(now);
+      tryAdvancePutAway(now);
       tryAdvanceDispatch(now);
       // Idle units with no assignable work leave the service position
       // and return to parking; they never wander, and units already home
@@ -1109,6 +1299,12 @@ export function createOperationsController(opts: {
           rt.state === "READY_FOR_PICKING" &&
           rt.unitId === null &&
           !rt.diagnostic?.terminal,
+      );
+      const pendingPutAwayWork = [...S.deliveries.values()].some(
+        (d) =>
+          d.created &&
+          (d.state === "PUTAWAY_PENDING" || d.state === "PUTAWAY") &&
+          deliveryReceivingRemaining(d.deliveryId) > 0,
       );
       if (!pendingPickWork) {
         for (const unit of S.units.values()) {
@@ -1141,6 +1337,21 @@ export function createOperationsController(opts: {
               continue;
             }
           }
+          unit.task = { kind: "to-parking" };
+          const mv = requestUnitMove(unit.unitId, home, now, null, "parking-return");
+          if (mv.status !== "granted" && mv.status !== "waiting") {
+            unit.task = { kind: "idle" };
+          }
+        }
+      }
+      // Put-away units vacate storage/receiving positions once no staged
+      // inbound remains, so pickers can reach the same approaches.
+      if (!pendingPutAwayWork) {
+        for (const unit of S.units.values()) {
+          if (unit.role !== "putaway" || unit.task.kind !== "idle") continue;
+          const home = unitParking.get(unit.unitId) as MoveDestination;
+          const pose = transportUnitById(unit.unitId).pose;
+          if (posesEqual(pose, home)) continue;
           unit.task = { kind: "to-parking" };
           const mv = requestUnitMove(unit.unitId, home, now, null, "parking-return");
           if (mv.status !== "granted" && mv.status !== "waiting") {
@@ -1189,7 +1400,9 @@ export function createOperationsController(opts: {
       resourceId: string,
       now: number,
     ): void => {
-      const at = now + rt.totalItems * executionConfig.unloadDurationMsPerItem;
+      const carriedRow = S.store.snapshot().carried.find((c) => c.unitId === unitId);
+      const carriedItems = (carriedRow?.loads ?? []).reduce((n, l) => n + l.quantity, 0);
+      const at = now + carriedItems * executionConfig.unloadDurationMsPerItem;
       if (at > MAX_TIME_MS) {
         diagnose(
           rt,
@@ -1200,9 +1413,9 @@ export function createOperationsController(opts: {
         );
         return;
       }
-      record(now, "UNLOAD_STARTED", rt.orderId, unitId, `${rt.totalItems} item(s) at ${resourceId}`);
+      record(now, "UNLOAD_STARTED", rt.orderId, unitId, `${carriedItems} carried item(s) at ${resourceId}`);
       S.kernel.schedule({
-        id: `ops-unload-${rt.idx}`,
+        id: `ops-unload-${rt.idx}-t${rt.partialTrips}`,
         timeMs: at,
         priority: EVENT_PRIORITY.COMPLETION,
         kind: "HANDLING_COMPLETED",
@@ -1519,8 +1732,17 @@ export function createOperationsController(opts: {
       }
       const cfg = packingConfigById.get(resourceId);
       if (!cfg) return;
+      // Transfer only what the cart physically carries (one split-trip load).
+      const carriedRow = S.store.snapshot().carried.find((c) => c.unitId === unitId);
+      const loads = (carriedRow?.loads ?? []).filter((l) => l.quantity > 0);
+      const carriedItems = loads.reduce((n, l) => n + l.quantity, 0);
+      const carriedCost = loads.reduce(
+        (n, l) => n + (productCost.get(l.productId) ?? 0) * l.quantity,
+        0,
+      );
+      if (carriedItems === 0) return;
       const staged = packingStagedUnits(resourceId);
-      if (staged + rt.totalCostUnits > cfg.inputStagingCapacity) {
+      if (staged + carriedCost > cfg.inputStagingCapacity) {
         unit.task = { kind: "awaiting-staging", orderId: rt.orderId, resourceId };
         rt.waitReason = "PACKING_STAGING_FULL";
         openWait(
@@ -1528,25 +1750,50 @@ export function createOperationsController(opts: {
           rt.orderId,
           "PACKING_STAGING_FULL",
           `${resourceId} staging ${staged}/${cfg.inputStagingCapacity} cost units; ` +
-            `order needs ${rt.totalCostUnits}; holding service position with load`,
+            `load needs ${carriedCost}; holding service position with load`,
           now,
         );
         return;
       }
-      rt.lines.forEach((line, lineIdx) => {
+      loads.forEach((load) => {
         S.store.transferToPacking({
-          eventId: `inv-xfer-${rt.idx}-${lineIdx}`,
+          eventId: `inv-xfer-${rt.idx}-t${rt.partialTrips}-${load.productId}`,
           timeMs: now,
           orderId: rt.orderId,
           unitId,
           resourceId,
-          productId: line.productId,
-          quantity: line.quantity,
+          productId: load.productId,
+          quantity: load.quantity,
         });
       });
-      rt.unloadCommitted = true;
       rt.waitReason = null;
       closeWaitsFor(unitId, rt.orderId, now);
+      if (rt.legsDone < rt.legs.length) {
+        // Split-trip: stage this load, then return for the remaining legs.
+        // Packing service starts only after the final trip stages the rest.
+        rt.partialTrips += 1;
+        record(now, "PARTIAL_UNLOAD_COMMITTED", rt.orderId, unitId, `trip ${rt.partialTrips}: ${carriedItems} item(s) staged at ${resourceId}; ${rt.legs.length - rt.legsDone} leg(s) remain`);
+        const next = rt.legs[rt.legsDone] as PickLeg;
+        const pose = transportUnitById(unitId).pose;
+        unit.task = { kind: "to-pick", orderId: rt.orderId, legIndex: rt.legsDone };
+        if (posesEqual(pose, next.approach)) {
+          unit.task = { kind: "picking", orderId: rt.orderId, legIndex: rt.legsDone };
+          schedulePickCompletion(unitId, rt, rt.legsDone, now);
+          return;
+        }
+        const mv = requestUnitMove(unitId, next.approach, now, rt.orderId, `pick-leg-${rt.legsDone}:${next.locationId}`);
+        if (mv.status === "rejected") {
+          diagnose(
+            rt,
+            "UNREACHABLE_APPROACH",
+            `static route back to ${next.locationId} approach rejected (${mv.reason}); staged load retained`,
+            true,
+            now,
+          );
+        }
+        return;
+      }
+      rt.unloadCommitted = true;
       record(now, "UNLOAD_COMMITTED", rt.orderId, unitId, `all ${rt.totalItems} item(s) staged at ${resourceId}`);
       tryServiceStart(unitId, rt, resourceId, now);
     };
@@ -1857,6 +2104,368 @@ export function createOperationsController(opts: {
       requestDispatch(now);
     };
 
+    // Route a loaded picker to its packing station. The first trip creates
+    // and enqueues the packing job; split-trip returns rejoin that job.
+    const deliverToPacking = (unitId: string, rt: OrderRuntime, now: number): void => {
+      if (rt.state === "PICKING") {
+        transition(rt, "WAITING_FOR_PACKING", now, unitId, `carrying load toward packing (trip ${rt.partialTrips + 1})`);
+      }
+      if (!rt.packingResourceId) {
+        rt.packingResourceId = choosePackingResource();
+      }
+      const res = S.resources.get(rt.packingResourceId) as ResourceRuntime;
+      if (!rt.jobEnqueued) {
+        tryEnqueue(rt, res, now);
+        return;
+      }
+      const unit = S.units.get(unitId) as UnitRuntime;
+      unit.task = { kind: "awaiting-head", orderId: rt.orderId, resourceId: res.resourceId };
+      releaseToQueue(rt, res, now);
+    };
+
+    // ---- Inbound: receiving acceptance + put-away orchestration ----
+    const receivingStagedCost = (resourceId: string): number => {
+      let total = 0;
+      for (const row of S.store.snapshot().receiving) {
+        if (row.resourceId !== resourceId) continue;
+        total += (productCost.get(row.productId) ?? 0) * row.quantity;
+      }
+      return total;
+    };
+
+    const deliveryExternalRemaining = (deliveryId: string): number => {
+      let total = 0;
+      for (const row of S.store.snapshot().externalPending) {
+        if (row.deliveryId === deliveryId) total += row.quantity;
+      }
+      return total;
+    };
+
+    const deliveryReceivingRemaining = (deliveryId: string): number => {
+      let total = 0;
+      for (const row of S.store.snapshot().receiving) {
+        if (row.deliveryId === deliveryId) total += row.quantity;
+      }
+      return total;
+    };
+
+    // Accept as much of the delivery as finite receiving staging holds.
+    // Returns true when nothing remains external.
+    const tryAcceptInbound = (dt: DeliveryRuntime, now: number): boolean => {
+      const resourceId = dt.receivingResourceId as string;
+      const cfg = receivingConfigById.get(resourceId);
+      if (!cfg) return false;
+      let staged = receivingStagedCost(resourceId);
+      for (const line of dt.lines) {
+        const pending =
+          S.store
+            .snapshot()
+            .externalPending.find(
+              (r) => r.deliveryId === dt.deliveryId && r.productId === line.productId,
+            )?.quantity ?? 0;
+        if (pending <= 0) continue;
+        const cost = productCost.get(line.productId) ?? 0;
+        const fits =
+          cost > 0
+            ? Math.max(0, Math.floor((cfg.outputStagingCapacity - staged) / cost))
+            : pending;
+        const qty = Math.min(pending, fits);
+        if (qty <= 0) continue;
+        S.store.acceptInbound({
+          eventId: `inv-accept-${dt.idx}-${line.productId}-${now}`,
+          timeMs: now,
+          deliveryId: dt.deliveryId,
+          resourceId,
+          productId: line.productId,
+          quantity: qty,
+        });
+        staged += cost * qty;
+        record(now, "INBOUND_ACCEPTED", null, null, `${dt.deliveryId} ${line.productId}x${qty} into ${resourceId} staging`);
+      }
+      return deliveryExternalRemaining(dt.deliveryId) === 0;
+    };
+
+    const finishReceivingIfAccepted = (dt: DeliveryRuntime, now: number): void => {
+      if (!dt.serviceDone || dt.state !== "RECEIVING") return;
+      if (!tryAcceptInbound(dt, now)) {
+        dt.waitReason = "RECEIVING_STAGING_FULL";
+        openWait(null, null, "RECEIVING_STAGING_FULL", `${dt.deliveryId} waits for receiving staging space`, now);
+        return;
+      }
+      const station = S.receivingStations.get(dt.receivingResourceId as string);
+      const job = station?.snapshot().jobs.find((j) => j.jobId === dt.receivingJobId);
+      if (station && job?.state === "in-service") {
+        station.completeService({ jobId: dt.receivingJobId as string, timeMs: now, outputBlocked: false });
+      }
+      dt.waitReason = null;
+      closeWaitsFor(null, null, now);
+      dt.state = "PUTAWAY_PENDING";
+      dt.timestamps.PUTAWAY_PENDING = now;
+      record(now, "RECEIVING_DONE", null, null, `${dt.deliveryId} fully accepted; put-away pending`);
+      requestDispatch(now);
+    };
+
+    const tryAdvanceReceiving = (now: number): void => {
+      for (const dt of S.deliveries.values()) {
+        if (!dt.created || dt.state !== "RECEIVING") continue;
+        if (dt.serviceDone) {
+          finishReceivingIfAccepted(dt, now);
+          continue;
+        }
+        if (!dt.jobEnqueued) {
+          let bestId: string | null = null;
+          let bestLoad = Number.POSITIVE_INFINITY;
+          for (const [id, station] of S.receivingStations) {
+            const load = station.snapshot().jobs.filter((j) => j.state === "queued" || j.state === "in-service").length;
+            if (load < bestLoad || (load === bestLoad && (bestId === null || id < bestId))) {
+              bestId = id;
+              bestLoad = load;
+            }
+          }
+          if (bestId === null) return;
+          const station = S.receivingStations.get(bestId) as ServiceStation;
+          const jobId = `rcv-job-${dt.idx}`;
+          const enq = station.enqueue({ jobId, enqueueTimeMs: now });
+          if (enq.status === "waiting-outside") {
+            dt.waitReason = "RECEIVING_QUEUE_FULL";
+            continue;
+          }
+          dt.jobEnqueued = true;
+          dt.receivingJobId = jobId;
+          dt.receivingResourceId = bestId;
+          record(now, "RECEIVING_QUEUED", null, null, `${dt.deliveryId} queued on ${bestId}`);
+        }
+        const station = S.receivingStations.get(dt.receivingResourceId as string) as ServiceStation;
+        const job = station.snapshot().jobs.find((j) => j.jobId === dt.receivingJobId);
+        if (!job || job.state !== "queued") continue;
+        const started = station.tryStart({ jobId: dt.receivingJobId as string, timeMs: now, inputReady: true });
+        if (started.status === "waiting") {
+          dt.waitReason = `RECEIVING_WAIT_${started.reason}`;
+          continue;
+        }
+        dt.waitReason = null;
+        record(now, "RECEIVING_STARTED", null, null, `${dt.deliveryId} at ${dt.receivingResourceId}`);
+        const cfg = receivingConfigById.get(dt.receivingResourceId as string);
+        const at = now + (cfg?.serviceDurationMs ?? 0);
+        if (at > MAX_TIME_MS) continue;
+        S.kernel.schedule({
+          id: `ops-receive-done-${dt.idx}`,
+          timeMs: at,
+          priority: EVENT_PRIORITY.COMPLETION,
+          kind: "RECEIVE_COMPLETED",
+          data: { deliveryIdx: dt.idx },
+        });
+      }
+    };
+
+    const carriedCostOf = (unitId: string): number => {
+      const row = S.store.snapshot().carried.find((c) => c.unitId === unitId);
+      let total = 0;
+      for (const load of row?.loads ?? []) {
+        total += (productCost.get(load.productId) ?? 0) * load.quantity;
+      }
+      return total;
+    };
+
+    const schedulePutAwayHandling = (
+      unitId: string,
+      dt: DeliveryRuntime,
+      phase: "collect" | "place",
+      quantity: number,
+      locationId: string | null,
+      now: number,
+    ): void => {
+      const at = now + quantity * executionConfig.pickDurationMsPerItem;
+      if (at > MAX_TIME_MS) return;
+      record(now, phase === "collect" ? "PUTAWAY_COLLECT_STARTED" : "PUTAWAY_PLACE_STARTED", null, unitId, `${dt.deliveryId} ${quantity} item(s)${locationId ? ` -> ${locationId}` : ""}`);
+      S.kernel.schedule({
+        id: `ops-putaway-${phase}-${dt.idx}-${now}`,
+        timeMs: at,
+        priority: EVENT_PRIORITY.COMPLETION,
+        kind: "PUTAWAY_COMPLETED",
+        data: { unitId, deliveryIdx: dt.idx, phase, locationId },
+      });
+    };
+
+    const tryAdvancePutAway = (now: number): void => {
+      // Retry units holding a collected load with no eligible location yet.
+      for (const unit of S.units.values()) {
+        if (unit.task.kind !== "awaiting-location") continue;
+        const carriedRow = S.store.snapshot().carried.find((c) => c.unitId === unit.unitId);
+        const load = carriedRow?.loads.find((l) => l.quantity > 0);
+        if (!load) {
+          unit.task = { kind: "idle" };
+          continue;
+        }
+        const sel = S.store.selectPutAwayLocation(load.productId, load.quantity);
+        if (sel.status !== "selectable") continue;
+        const dt = S.deliveries.get(unit.task.deliveryId) as DeliveryRuntime;
+        unit.task = { kind: "to-store", deliveryId: dt.deliveryId, locationId: sel.locationId };
+        const dest = locationApproach.get(sel.locationId) as MoveDestination;
+        const pose = transportUnitById(unit.unitId).pose;
+        if (posesEqual(pose, dest)) {
+          unit.task = { kind: "storing", deliveryId: dt.deliveryId, locationId: sel.locationId };
+          schedulePutAwayHandling(unit.unitId, dt, "place", load.quantity, sel.locationId, now);
+        } else {
+          requestUnitMove(unit.unitId, dest, now, null, `putaway-store:${sel.locationId}`);
+        }
+      }
+      for (const unit of S.units.values()) {
+        if (unit.role !== "putaway" || unit.task.kind !== "idle") continue;
+        // Oldest delivery with staged goods wins (FIFO by arrival, then idx).
+        const candidates = [...S.deliveries.values()]
+          .filter((d) => d.created && (d.state === "RECEIVING" || d.state === "PUTAWAY_PENDING" || d.state === "PUTAWAY") && deliveryReceivingRemaining(d.deliveryId) > 0)
+          .sort((a, b) => a.arrivalTimeMs - b.arrivalTimeMs || a.idx - b.idx);
+        const dt = candidates[0];
+        if (!dt) return;
+        const stagedRows = S.store.snapshot().receiving.filter((r) => r.deliveryId === dt.deliveryId && r.quantity > 0);
+        const row = stagedRows[0];
+        if (!row) continue;
+        const capacity = unitCapacity.get(unit.unitId) ?? 0;
+        const carried = carriedCostOf(unit.unitId);
+        const cost = productCost.get(row.productId) ?? 0;
+        const fits = cost > 0 ? Math.floor((capacity - carried) / cost) : row.quantity;
+        if (fits <= 0) continue;
+        const qty = Math.min(row.quantity, fits);
+        if (dt.state === "PUTAWAY_PENDING") {
+          dt.state = "PUTAWAY";
+          dt.timestamps.PUTAWAY = now;
+        }
+        // A delivery still in RECEIVING keeps that state until acceptance
+        // completes; put-away draining happens concurrently.
+        dt.waitReason = null;
+        unit.task = { kind: "to-receive", deliveryId: dt.deliveryId, resourceId: row.resourceId };
+        const dest = S.receivingCoords.get(row.resourceId) as MoveDestination;
+        const pose = transportUnitById(unit.unitId).pose;
+        if (posesEqual(pose, dest)) {
+          unit.task = { kind: "collecting", deliveryId: dt.deliveryId, resourceId: row.resourceId, productId: row.productId, quantity: qty };
+          schedulePutAwayHandling(unit.unitId, dt, "collect", qty, null, now);
+        } else {
+          const mv = requestUnitMove(unit.unitId, dest, now, null, `putaway-collect:${dt.deliveryId}`);
+          if (mv.status === "rejected") {
+            unit.task = { kind: "idle" };
+          } else {
+            // Remember the intended chunk on the task once arrived; stash via
+            // a collecting task only on arrival recompute (same rule).
+            unit.task = { kind: "to-receive", deliveryId: dt.deliveryId, resourceId: row.resourceId };
+          }
+        }
+      }
+    };
+
+    const onDeliveryArrival = (event: KernelEventView, now: number): void => {
+      const data = event.data as { deliveryId?: unknown } | null;
+      const deliveryId = typeof data?.deliveryId === "string" ? data.deliveryId : null;
+      const dt = deliveryId ? S.deliveries.get(deliveryId) : undefined;
+      if (!dt || dt.created) {
+        record(now, "STALE_IGNORED", null, null, "unknown or duplicate delivery arrival; no mutation");
+        return;
+      }
+      dt.created = true;
+      dt.timestamps.RECEIVING = now;
+      record(now, "DELIVERY_ARRIVED", null, null, `${dt.deliveryId} arrived with ${dt.lines.length} line(s)`);
+      requestDispatch(now);
+    };
+
+    const onReceiveCompleted = (event: KernelEventView, now: number): void => {
+      const data = event.data as { deliveryIdx?: unknown } | null;
+      const deliveryIdx = typeof data?.deliveryIdx === "number" ? data.deliveryIdx : null;
+      if (deliveryIdx === null) return;
+      const spec = scenario.deliverySchedule[deliveryIdx];
+      const dt = spec ? S.deliveries.get(spec.id) : undefined;
+      if (!dt || !dt.created || dt.state !== "RECEIVING" || dt.serviceDone) {
+        record(now, "STALE_IGNORED", null, null, "unexpected receiving completion; no mutation");
+        return;
+      }
+      dt.serviceDone = true;
+      finishReceivingIfAccepted(dt, now);
+    };
+
+    const onPutAwayCompleted = (event: KernelEventView, now: number): void => {
+      const data = event.data as { unitId?: unknown; deliveryIdx?: unknown; phase?: unknown; locationId?: unknown } | null;
+      const unitId = typeof data?.unitId === "string" ? data.unitId : null;
+      const deliveryIdx = typeof data?.deliveryIdx === "number" ? data.deliveryIdx : null;
+      const phase = data?.phase === "collect" || data?.phase === "place" ? data.phase : null;
+      if (unitId === null || deliveryIdx === null || phase === null) return;
+      const spec = scenario.deliverySchedule[deliveryIdx];
+      const dt = spec ? S.deliveries.get(spec.id) : undefined;
+      const unit = S.units.get(unitId);
+      if (!dt || !unit) {
+        record(now, "STALE_IGNORED", null, unitId, "put-away completion for unknown delivery/unit; no mutation");
+        return;
+      }
+      if (phase === "collect") {
+        if (unit.task.kind !== "collecting" || unit.task.deliveryId !== dt.deliveryId) {
+          record(now, "STALE_IGNORED", null, unitId, "unexpected put-away collect; no mutation");
+          return;
+        }
+        const collectedProduct = unit.task.productId;
+        const collectedQty = unit.task.quantity;
+        const collectedResource = unit.task.resourceId;
+        S.store.collectPutAway({
+          eventId: `inv-collect-${dt.idx}-${now}`,
+          timeMs: now,
+          deliveryId: dt.deliveryId,
+          resourceId: collectedResource,
+          unitId,
+          productId: collectedProduct,
+          quantity: collectedQty,
+        });
+        record(now, "PUTAWAY_COLLECTED", null, unitId, `${dt.deliveryId} ${collectedProduct}x${collectedQty} collected`);
+        finishReceivingIfAccepted(dt, now);
+        const sel = S.store.selectPutAwayLocation(collectedProduct, collectedQty);
+        if (sel.status !== "selectable") {
+          unit.task = { kind: "awaiting-location", deliveryId: dt.deliveryId };
+          dt.waitReason = "PUTAWAY_NO_LOCATION";
+          openWait(unitId, null, "PUTAWAY_NO_LOCATION", `${collectedProduct} has no eligible storage location yet`, now);
+          return;
+        }
+        closeWaitsFor(unitId, null, now);
+        unit.task = { kind: "to-store", deliveryId: dt.deliveryId, locationId: sel.locationId };
+        const dest = locationApproach.get(sel.locationId) as MoveDestination;
+        const pose = transportUnitById(unitId).pose;
+        if (posesEqual(pose, dest)) {
+          unit.task = { kind: "storing", deliveryId: dt.deliveryId, locationId: sel.locationId };
+          schedulePutAwayHandling(unitId, dt, "place", carriedCostOf(unitId) > 0 ? (S.store.snapshot().carried.find((c) => c.unitId === unitId)?.loads.find((l) => l.quantity > 0)?.quantity ?? 0) : 0, sel.locationId, now);
+        } else {
+          requestUnitMove(unitId, dest, now, null, `putaway-store:${sel.locationId}`);
+        }
+        return;
+      }
+      // place
+      const locationId = typeof data?.locationId === "string" ? data.locationId : null;
+      if (unit.task.kind !== "storing" || unit.task.deliveryId !== dt.deliveryId || locationId === null) {
+        record(now, "STALE_IGNORED", null, unitId, "unexpected put-away place; no mutation");
+        return;
+      }
+      const carriedRow = S.store.snapshot().carried.find((c) => c.unitId === unitId);
+      for (const load of carriedRow?.loads ?? []) {
+        if (load.quantity <= 0) continue;
+        S.store.placePutAway({
+          eventId: `inv-place-${dt.idx}-${load.productId}-${now}`,
+          timeMs: now,
+          deliveryId: dt.deliveryId,
+          unitId,
+          locationId,
+          productId: load.productId,
+          quantity: load.quantity,
+        });
+        record(now, "PUTAWAY_STORED", null, unitId, `${dt.deliveryId} ${load.productId}x${load.quantity} stored at ${locationId}`);
+      }
+      unit.task = { kind: "idle" };
+      if (
+        deliveryExternalRemaining(dt.deliveryId) === 0 &&
+        deliveryReceivingRemaining(dt.deliveryId) === 0 &&
+        ![...S.units.values()].some((u) => (S.store.snapshot().carried.find((c) => c.unitId === u.unitId)?.loads ?? []).some((l) => l.quantity > 0) && (u.task.kind !== "idle"))
+      ) {
+        dt.state = "STORED";
+        dt.timestamps.STORED = now;
+        dt.waitReason = null;
+        record(now, "DELIVERY_STORED", null, null, `${dt.deliveryId} fully stored`);
+      }
+      requestDispatch(now);
+    };
+
     const onMovementCompleted = (unitId: string, now: number): void => {
       const unit = S.units.get(unitId);
       if (!unit) return;
@@ -1865,7 +2474,37 @@ export function createOperationsController(opts: {
       // mismatch the transport core already ignored) changes nothing here.
       if (snap.state === "moving") return;
       const t = unit.task;
-      if (t.kind === "to-pick") {
+      if (t.kind === "to-receive") {
+        const dt = S.deliveries.get(t.deliveryId);
+        const dest = S.receivingCoords.get(t.resourceId);
+        if (!dt || !dest || !posesEqual(snap.pose, dest)) return;
+        const stagedRows = S.store.snapshot().receiving.filter((r) => r.deliveryId === dt.deliveryId && r.quantity > 0);
+        const row = stagedRows[0];
+        if (!row) {
+          unit.task = { kind: "idle" };
+          return;
+        }
+        const capacity = unitCapacity.get(unitId) ?? 0;
+        const cost = productCost.get(row.productId) ?? 0;
+        const fits = cost > 0 ? Math.floor((capacity - carriedCostOf(unitId)) / cost) : row.quantity;
+        if (fits <= 0) {
+          unit.task = { kind: "idle" };
+          return;
+        }
+        const qty = Math.min(row.quantity, fits);
+        unit.task = { kind: "collecting", deliveryId: dt.deliveryId, resourceId: t.resourceId, productId: row.productId, quantity: qty };
+        record(now, "PUTAWAY_AT_RECEIVING", null, unitId, `at ${t.resourceId} for ${dt.deliveryId}`);
+        schedulePutAwayHandling(unitId, dt, "collect", qty, null, now);
+      } else if (t.kind === "to-store") {
+        const dt = S.deliveries.get(t.deliveryId);
+        const dest = locationApproach.get(t.locationId);
+        if (!dt || !dest || !posesEqual(snap.pose, dest)) return;
+        const carriedRow = S.store.snapshot().carried.find((c) => c.unitId === unitId);
+        const qty = carriedRow?.loads.find((l) => l.quantity > 0)?.quantity ?? 0;
+        unit.task = { kind: "storing", deliveryId: dt.deliveryId, locationId: t.locationId };
+        record(now, "PUTAWAY_AT_LOCATION", null, unitId, `at ${t.locationId} for ${dt.deliveryId}`);
+        schedulePutAwayHandling(unitId, dt, "place", qty, t.locationId, now);
+      } else if (t.kind === "to-pick") {
         const rt = S.orders.get(t.orderId);
         const leg = rt?.legs[t.legIndex];
         if (!rt || rt.unitId !== unitId || !leg || !posesEqual(snap.pose, leg.approach)) {
@@ -1937,7 +2576,7 @@ export function createOperationsController(opts: {
           unit.task.legIndex !== legIndex ||
           !leg ||
           leg.committed ||
-          rt.state !== "PICKING" ||
+          (rt.state !== "PICKING" && rt.state !== "WAITING_FOR_PACKING") ||
           rt.unitId !== unitId ||
           !posesEqual(pose, leg.approach)
         ) {
@@ -1957,6 +2596,18 @@ export function createOperationsController(opts: {
         rt.legsDone += 1;
         record(now, "PICK_COMMITTED", rt.orderId, unitId, `${leg.productId}x${leg.quantity} from ${leg.locationId}`);
         const nextIndex = legIndex + 1;
+        // Split-trip boundary: a full cart delivers its partial load to
+        // packing staging before picking the remaining legs.
+        if (nextIndex < rt.legs.length) {
+          const nextLeg = rt.legs[nextIndex] as PickLeg;
+          const nextCost = (productCost.get(nextLeg.productId) ?? 0) * nextLeg.quantity;
+          const carriedNow = carriedCostOf(unitId);
+          const capNow = unitCapacity.get(unitId) ?? 0;
+          if (carriedNow > 0 && carriedNow + nextCost > capNow) {
+            deliverToPacking(unitId, rt, now);
+            return;
+          }
+        }
         if (nextIndex < rt.legs.length) {
           const next = rt.legs[nextIndex] as PickLeg;
           unit.task = { kind: "to-pick", orderId: rt.orderId, legIndex: nextIndex };
@@ -1978,12 +2629,9 @@ export function createOperationsController(opts: {
           }
           return;
         }
-        // All legs picked: choose a packing station and queue physically.
-        transition(rt, "WAITING_FOR_PACKING", now, unitId, `carrying ${rt.totalItems} item(s)`);
-        const resourceId = choosePackingResource();
-        rt.packingResourceId = resourceId;
-        const res = S.resources.get(resourceId) as ResourceRuntime;
-        tryEnqueue(rt, res, now);
+        // All legs picked: deliver (first trip enqueues; split-trip returns
+        // rejoin the already-enqueued job).
+        deliverToPacking(unitId, rt, now);
         return;
       }
       const resourceId = typeof data?.resourceId === "string" ? data.resourceId : null;
@@ -2064,6 +2712,15 @@ export function createOperationsController(opts: {
         case "DISPATCH_COMPLETED":
           onDispatchCompleted(event, now);
           break;
+        case "DELIVERY_ARRIVAL":
+          onDeliveryArrival(event, now);
+          break;
+        case "RECEIVE_COMPLETED":
+          onReceiveCompleted(event, now);
+          break;
+        case "PUTAWAY_COMPLETED":
+          onPutAwayCompleted(event, now);
+          break;
         default:
           break;
       }
@@ -2088,6 +2745,17 @@ export function createOperationsController(opts: {
         priority: EVENT_PRIORITY.ARRIVAL,
         kind: "ORDER_ARRIVAL",
         data: { orderId: rt.orderId },
+      });
+    }
+    let deliverySeq = 0;
+    for (const dt of S.deliveries.values()) {
+      deliverySeq += 1;
+      kernel.schedule({
+        id: `ops-delivery-${deliverySeq}`,
+        timeMs: dt.arrivalTimeMs,
+        priority: EVENT_PRIORITY.ARRIVAL,
+        kind: "DELIVERY_ARRIVAL",
+        data: { deliveryId: dt.deliveryId },
       });
     }
     return S;
@@ -2308,6 +2976,18 @@ export function createOperationsController(opts: {
       }
       return out;
     };
+    const deliveries: OperationsDeliveryView[] = scenario.deliverySchedule.map((spec) => {
+      const dt = S.deliveries.get(spec.id) as DeliveryRuntime;
+      return {
+        deliveryId: dt.deliveryId,
+        arrivalTimeMs: dt.arrivalTimeMs,
+        state: dt.created ? dt.state : "NOT_ARRIVED",
+        timestamps: { ...dt.timestamps },
+        lines: dt.lines.map((l) => ({ ...l })),
+        receivingResourceId: dt.receivingResourceId,
+        waitReason: dt.waitReason,
+      };
+    });
     const orders: OperationsOrderView[] = fifoSelected.map(({ spec }) => {
       const rt = S.orders.get(spec.id) as OrderRuntime;
       return {
@@ -2402,6 +3082,7 @@ export function createOperationsController(opts: {
       executionConfig: { ...executionConfig },
       clockMs: S.kernel.getClockMs(),
       runMode,
+      deliveries,
       orders,
       excludedOrderIds: [...excludedOrderIds],
       units,
@@ -2454,8 +3135,12 @@ export function createOperationsController(opts: {
     const done = ready + shipped;
     if (runMode === "finite-cohort") {
       const hasDispatch = S.dispatchStations.size > 0;
+      const deliveriesStored =
+        S.deliveries.size === 0 ||
+        [...S.deliveries.values()].every((d) => d.created && d.state === "STORED");
       if (
         all.length > 0 &&
+        deliveriesStored &&
         (hasDispatch ? shipped === all.length : done === all.length)
       ) {
         return {
@@ -2674,5 +3359,32 @@ export function createOperationsController(opts: {
     snapshot: () => buildSnapshot(S),
     getCompletionStatus: () => completionOf(S),
     getDiagnostic: () => diagnosticOf(S),
+    exportReport: (): OperationsReport => {
+      const snap = buildSnapshot(S);
+      return {
+        schema: "layoutlab.operations-report/1",
+        scenarioId: snap.scenarioId,
+        seed: snap.seed,
+        versions: { ...snap.versions },
+        scenario: structuredClone(scenario) as OperationsScenario,
+        executionConfig: { ...executionConfig },
+        completionStage: completionOf(S).stage,
+        counts: { ...snap.counts },
+        orders: snap.orders.map((o) => ({
+          orderId: o.orderId,
+          state: o.state,
+          timestamps: { ...o.timestamps },
+        })),
+        deliveries: snap.deliveries.map((d) => ({
+          deliveryId: d.deliveryId,
+          state: d.state,
+        })),
+        checks: {
+          conservation: [...snap.checks.conservation],
+          capacity: [...snap.checks.capacity],
+          safety: [...snap.checks.safety],
+        },
+      };
+    },
   };
 }

@@ -9,6 +9,7 @@ import { describe, expect, test } from "vitest";
 import {
   createOperationsController,
   parseOperationsScenario,
+  recomputeOperationsReport,
   type OperationsScenario,
 } from "../src/index.js";
 
@@ -49,6 +50,16 @@ type M3bMicroOpts = {
     cap?: number;
   }[];
   orders?: { id: string; arrival: number; lines: { productId: string; quantity: number }[] }[];
+  deliveries?: { id: string; arrival: number; lines: { productId: string; quantity: number }[] }[];
+  extraResources?: {
+    id: string;
+    kind: "receiving" | "dispatch";
+    service: { id: string; x: number; z: number }[];
+    queue: { id: string; x: number; z: number }[];
+    durationMs: number;
+    inputCap: number;
+    outputCap: number;
+  }[];
   run?: { mode: "fixed-window"; horizonMs: number } | { mode: "finite-cohort"; cutoffMs: number };
   seed?: string;
 };
@@ -146,22 +157,38 @@ function m3bScenario(opts: M3bMicroOpts): OperationsScenario {
       eligibleHandlingClasses: u.classes ?? ["ambient"],
       parkingSlotMm: { ...u.park },
     })),
-    resources: packing.map((p) => ({
-      id: p.id,
-      kind: "packing",
-      servicePositions: p.service.map((s) => ({ ...s })),
-      queueSlots: p.queue.map((q) => ({ ...q })),
-      serviceCapacity: p.cap ?? 1,
-      inputStagingCapacity: p.inputCap,
-      outputStagingCapacity: p.outputCap,
-      serviceDurationMs: p.durationMs,
-    })),
+    resources: [
+      ...packing.map((p) => ({
+        id: p.id,
+        kind: "packing" as const,
+        servicePositions: p.service.map((s) => ({ ...s })),
+        queueSlots: p.queue.map((q) => ({ ...q })),
+        serviceCapacity: p.cap ?? 1,
+        inputStagingCapacity: p.inputCap,
+        outputStagingCapacity: p.outputCap,
+        serviceDurationMs: p.durationMs,
+      })),
+      ...(opts.extraResources ?? []).map((r) => ({
+        id: r.id,
+        kind: r.kind,
+        servicePositions: r.service.map((s) => ({ ...s })),
+        queueSlots: r.queue.map((q) => ({ ...q })),
+        serviceCapacity: 1,
+        inputStagingCapacity: r.inputCap,
+        outputStagingCapacity: r.outputCap,
+        serviceDurationMs: r.durationMs,
+      })),
+    ],
     orderSchedule: orders.map((o) => ({
       id: o.id,
       arrivalTimeMs: o.arrival,
       lines: o.lines.map((l) => ({ ...l })),
     })),
-    deliverySchedule: [],
+    deliverySchedule: (opts.deliveries ?? []).map((d) => ({
+      id: d.id,
+      arrivalTimeMs: d.arrival,
+      lines: d.lines.map((l) => ({ ...l })),
+    })),
     policies: {
       reservePolicy: "full-order-all-or-none",
       run,
@@ -375,13 +402,11 @@ describe("M3b gate 3: stock, role, capacity, queue, output, reachability", () =>
     expect(c.getCompletionStatus()).toMatchObject({ stage: "BLOCKED" });
   });
 
-  test("oversize order is rejected upfront for single-trip with backlog note", () => {
+  test("oversize order completes via split trips instead of rejection", () => {
     const c = createOperationsController({
       scenario: m3bScenario({
         id: "m3b-oversize",
-        units: [
-          { id: "U1", park: { x: 1000, z: 2000 }, capacity: 2 },
-        ],
+        units: [{ id: "U1", park: { x: 1000, z: 2000 }, capacity: 2 }],
         locations: [
           { id: "L-A1", approach: { x: 3000, z: 2000 }, productId: "P-A", stock: 10 },
         ],
@@ -391,17 +416,27 @@ describe("M3b gate 3: stock, role, capacity, queue, output, reachability", () =>
       }),
       executionConfig: EXEC,
     });
-    c.advanceTo(60000);
+    const CAP = 600_000;
+    let status = c.getCompletionStatus();
+    let guard = 0;
+    while (status.stage === "IN_PROGRESS" && guard < 120) {
+      c.advanceTo(Math.min(c.getClockMs() + 10_000, CAP));
+      status = c.getCompletionStatus();
+      guard += 1;
+    }
+    expect(status.stage).toBe("SUPPORTED_STAGE_COMPLETE");
     const s = c.snapshot();
     const o1 = s.orders.find((o) => o.orderId === "O1");
-    expect(o1?.diagnostic?.code).toBe("UNSUPPORTED_SINGLE_TRIP_REQUIRED");
-    expect(o1?.diagnostic?.terminal).toBe(true);
-    expect(o1?.diagnostic?.message).toMatch(/split-trip.*v3 backlog/);
-    expect(o1?.reservation).toEqual([]);
+    expect(o1?.state).toBe("READY_FOR_DISPATCH");
+    expect(o1?.diagnostic).toBeNull();
+    // Capacity 2 with 5 items: two partial trips precede the final unload.
+    expect(
+      s.timeline.filter((t) => t.kind === "PARTIAL_UNLOAD_COMMITTED").length,
+    ).toBeGreaterThanOrEqual(2);
     expect(
       s.inventory.storage.find((r) => r.locationId === "L-A1")?.quantity,
-    ).toBe(10);
-    expect(s.units.find((u) => u.unitId === "U1")?.carried).toEqual([]);
+    ).toBe(5);
+    expect(s.checks).toEqual({ conservation: [], capacity: [], safety: [] });
   });
 
   test("second job meets a full queue, holds its load, then recovers", () => {
@@ -632,14 +667,68 @@ describe("M3b config and capability gates", () => {
     ).toThrow();
   });
 
-  test("nonempty deliveries are an explicit unsupported capability", () => {
+  test("nonempty deliveries construct with receiving configured", () => {
     const main = parseOperationsScenario(
       JSON.parse(readFileSync(MAIN_FIXTURE, "utf8")),
     );
     expect(main.deliverySchedule.length).toBeGreaterThan(0);
-    expect(() =>
-      createOperationsController({ scenario: main, executionConfig: EXEC }),
-    ).toThrow(/UNSUPPORTED_DELIVERIES/);
+    const c = createOperationsController({ scenario: main, executionConfig: EXEC });
+    const s = c.snapshot();
+    expect(s.deliveries.length).toBe(main.deliverySchedule.length);
+    expect(s.deliveries.every((d) => d.state === "NOT_ARRIVED")).toBe(true);
+  });
+});
+
+describe("M3d inbound: receiving and put-away feed picking", () => {
+  test("stock-short order waits, delivery is stored by put-away, then order packs", () => {
+    const scenario = m3bScenario({
+      id: "m3d-inbound-micro",
+      racks: [{ id: "R-FAR", x: 3000, z: 3500 }],
+      locations: [{ id: "L-A1", approach: { x: 3000, z: 2000 }, productId: "P-A", stock: 0, maxQuantity: 10 }],
+      units: [
+        { id: "U1", park: { x: 1000, z: 3300 } },
+        { id: "PA1", role: "putaway", park: { x: 5300, z: 3300 } },
+      ],
+      extraResources: [
+        {
+          id: "RCV-1",
+          kind: "receiving",
+          service: [{ id: "RS1", x: 1500, z: 2000 }],
+          queue: [{ id: "RQ1", x: 800, z: 2000 }],
+          durationMs: 1000,
+          inputCap: 10,
+          outputCap: 10,
+        },
+      ],
+      deliveries: [{ id: "D1", arrival: 0, lines: [{ productId: "P-A", quantity: 2 }] }],
+      orders: [{ id: "O1", arrival: 0, lines: [{ productId: "P-A", quantity: 1 }] }],
+      run: { mode: "finite-cohort", cutoffMs: 0 },
+    });
+    const c = createOperationsController({ scenario, executionConfig: EXEC });
+    const CAP = 600_000;
+    let status = c.getCompletionStatus();
+    let guard = 0;
+    while (status.stage === "IN_PROGRESS" && guard < 120) {
+      c.advanceTo(Math.min(c.getClockMs() + 10_000, CAP));
+      status = c.getCompletionStatus();
+      guard += 1;
+    }
+    expect(status.stage).toBe("SUPPORTED_STAGE_COMPLETE");
+    const s = c.snapshot();
+    expect(s.deliveries.map((d) => d.state)).toEqual(["STORED"]);
+    expect(s.orders.map((o) => o.state)).toEqual(["READY_FOR_DISPATCH"]);
+    expect(s.checks).toEqual({ conservation: [], capacity: [], safety: [] });
+    // Stored stock: 2 delivered - 1 picked = 1 remains at L-A1.
+    const stored = s.inventory.storage.find((r) => r.locationId === "L-A1");
+    expect(stored?.quantity).toBe(1);
+    expect(s.timeline.some((t) => t.kind === "DELIVERY_STORED")).toBe(true);
+    expect(s.timeline.some((t) => t.kind === "PUTAWAY_STORED")).toBe(true);
+    // The order waited for stock before reserving.
+    const o1 = s.orders[0]!;
+    expect(o1.timestamps.WAITING_FOR_STOCK ?? o1.timestamps.CREATED).toBeTypeOf("number");
+    expect(o1.timestamps.READY_FOR_DISPATCH).toBeGreaterThan(
+      s.deliveries[0]!.timestamps.STORED as number,
+    );
   });
 });
 
@@ -704,6 +793,39 @@ describe("M3c dispatch: packed orders ship through DSP-1", () => {
       expect(shippedTimes[i]! - shippedTimes[i - 1]!).toBeGreaterThanOrEqual(60_000);
     }
     expect(s.timeline.some((t) => t.kind === "SHIPPED")).toBe(true);
+  });
+});
+
+describe("M3e operations report: versioned export and recomputation", () => {
+  test("burst report recomputes exactly; tampered counts are rejected", () => {
+    const scenario = parseOperationsScenario(
+      JSON.parse(readFileSync(BURST_FIXTURE, "utf8")),
+    );
+    const runconfig = JSON.parse(readFileSync(BURST_RUNCONFIG, "utf8"));
+    const c = createOperationsController({
+      scenario,
+      executionConfig: runconfig.executionConfig,
+    });
+    const CAP = 3_600_000;
+    let guard = 0;
+    while (c.getCompletionStatus().stage === "IN_PROGRESS" && guard < 120) {
+      c.advanceTo(Math.min(c.getClockMs() + 60_000, CAP));
+      guard += 1;
+    }
+    const report = c.exportReport();
+    expect(report.schema).toBe("layoutlab.operations-report/1");
+    expect(report.counts).toMatchObject({ shipped: 6, backlog: 0 });
+    const verified = recomputeOperationsReport(report);
+    expect(verified.mismatches).toEqual([]);
+    expect(verified.ok).toBe(true);
+    expect(verified.recomputedCounts).toMatchObject({ shipped: 6, backlog: 0 });
+    const tampered = {
+      ...report,
+      counts: { ...report.counts, shipped: 0, backlog: 6 },
+    };
+    const rejected = recomputeOperationsReport(tampered);
+    expect(rejected.ok).toBe(false);
+    expect(rejected.mismatches.length).toBeGreaterThanOrEqual(1);
   });
 });
 
@@ -1316,7 +1438,7 @@ describe("M3b cargo-C2: bounded stuck reporting and capacity-4 admission", () =>
     expect(c.snapshot().orders.find((o) => o.orderId === "O1")?.state).toBe("WAITING_FOR_PACKING");
   });
 
-  test("capacity 4 admits a 4u order and rejects an 8u order upfront", () => {
+  test("capacity 4 admits a 4u order and split-trips an 8u order", () => {
     const mk = (qty: number, stock: number) =>
       createOperationsController({
         scenario: m3bScenario({
@@ -1330,18 +1452,23 @@ describe("M3b cargo-C2: bounded stuck reporting and capacity-4 admission", () =>
     const ok = mk(4, 4);
     ok.advanceTo(60000);
     expect(ok.getCompletionStatus().stage).toBe("SUPPORTED_STAGE_COMPLETE");
+    // An 8u order on a 4u cart now completes in two split trips.
     const big = mk(8, 8);
-    big.advanceTo(60000);
-    const status = big.getCompletionStatus();
-    expect(status.stage).toBe("BLOCKED");
-    if (status.stage !== "BLOCKED") return;
-    expect(status.reasons).toHaveLength(1);
-    expect(status.reasons[0]).toMatchObject({ orderId: "O1", code: "UNSUPPORTED_SINGLE_TRIP_REQUIRED" });
-    // Rejected upfront: zero reservation, stock and loads untouched.
+    const CAP = 600_000;
+    let status = big.getCompletionStatus();
+    let guard = 0;
+    while (status.stage === "IN_PROGRESS" && guard < 120) {
+      big.advanceTo(Math.min(big.getClockMs() + 10_000, CAP));
+      status = big.getCompletionStatus();
+      guard += 1;
+    }
+    expect(status.stage).toBe("SUPPORTED_STAGE_COMPLETE");
     const s = big.snapshot();
-    expect(s.orders.find((o) => o.orderId === "O1")?.state).toBe("CREATED");
-    expect(s.units.find((u) => u.unitId === "U1")?.carried).toEqual([]);
-    expect(s.inventory.storage).toEqual([{ locationId: "L-A1", productId: "P-A", quantity: 8 }]);
+    expect(s.orders.find((o) => o.orderId === "O1")?.state).toBe("READY_FOR_DISPATCH");
+    expect(
+      s.timeline.filter((t) => t.kind === "PARTIAL_UNLOAD_COMMITTED").length,
+    ).toBeGreaterThanOrEqual(1);
+    expect(s.inventory.storage.find((r) => r.locationId === "L-A1")?.quantity).toBe(0);
     expect(s.checks).toEqual({ conservation: [], capacity: [], safety: [] });
   });
 });

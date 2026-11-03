@@ -33,8 +33,15 @@ setup_required, cargo GLB served, private paths 404).
 Dispatch/shipping now ships packed orders through DSP-1 (commit 2e08925,
 deployed as /opt/layoutlab/releases/2e08925; 67ddd74 retained for rollback):
 6/6 SHIPPED, backlog 0, dispatched stock conserved (simulation 238/238).
-Next: inbound/put-away, split trips, operations report replay, formal
-experiments and the Meta Experimenter remain subsequent gates.
+Inbound/put-away now runs end-to-end (receiving acceptance into finite
+staging, put-away units store into canonical locations, stock-short orders
+reserve after storage), oversize orders complete via split trips, and
+operations reports export as layoutlab.operations-report/1 with independent
+recomputation (simulation 240/240). The main 28+12 fixture ships orders and
+drains deliveries concurrently in its fixed window; full-window drain is
+fixture-calibration work, not an engine gate. Operations UI does not yet
+render deliveries (engine snapshots expose them).
+Next: formal experiments and the Meta Experimenter remain subsequent gates.
 
 Current scope authority is the user-supplied [Implementation Brief v3](IMPLEMENTATION_BRIEF_V3.md),
 which explicitly expands the target to a configured warehouse operations

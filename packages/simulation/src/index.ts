@@ -143,17 +143,21 @@ export type {
   Trajectory,
   Xz,
 } from "./traffic.js";
-export { createOperationsController, parseOperationsExecutionConfig, operationsExecutionConfigSchema } from "./operations.js";
+export { createOperationsController, parseOperationsExecutionConfig, operationsExecutionConfigSchema, recomputeOperationsReport } from "./operations.js";
 export type {
   OperationsChecks,
   OperationsCompletion,
   OperationsController,
   OperationsCounts,
+  OperationsDeliveryView,
+  DeliveryLifecycleState,
   OperationsDiagnostic,
   OperationsExecutionConfig,
   OperationsOrderDiagnostic,
   OperationsOrderView,
   OperationsPackingView,
+  OperationsReport,
+  OperationsReportVerification,
   OperationsSnapshot,
   OperationsTimelineEntry,
   OperationsUnitTaskView,
