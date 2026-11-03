@@ -30,8 +30,11 @@ Committed and pushed as 67ddd74 and installed on the VPS as release
 /opt/layoutlab/releases/67ddd74 (previous R1 release d039fa9 retained for
 rollback); public HTTPS checks pass (anonymous 401, authenticated 200,
 setup_required, cargo GLB served, private paths 404).
-Next: dispatch/shipping, inbound/put-away, split trips, operations report
-replay, formal experiments and the Meta Experimenter remain subsequent gates.
+Dispatch/shipping now ships packed orders through DSP-1 (commit 2e08925,
+deployed as /opt/layoutlab/releases/2e08925; 67ddd74 retained for rollback):
+6/6 SHIPPED, backlog 0, dispatched stock conserved (simulation 238/238).
+Next: inbound/put-away, split trips, operations report replay, formal
+experiments and the Meta Experimenter remain subsequent gates.
 
 Current scope authority is the user-supplied [Implementation Brief v3](IMPLEMENTATION_BRIEF_V3.md),
 which explicitly expands the target to a configured warehouse operations
