@@ -2,12 +2,16 @@
   "bindingsVersion": "layoutlab.operations-bindings/1",
   "fixture": "fixtures/operations/main-warehouse.json",
   "fixtureId": "main-warehouse-1",
+  "fixtureSha256": "c6e4f208835e31de2554850fa618953bb6f9a1b03c360b137c784bd5112660cb",
+  "fixtureBytes": 23520,
+  "carryModel": "cargo-c2-centered680x1220",
   "publicPrefix": "The renderer serves GLBs from the web public dir: strip the leading 'apps/web/public' from each glb path to get the browser URL (e.g. 'apps/web/public/assets/x.glb' -> '/assets/x.glb'). Repo-relative paths are the reviewable source of truth.",
   "notes": {
     "authority": "All warehouse POSITIONS come from the fixture. This file binds fixture IDs to sourced GLB assets plus measured source bounds/scaling. It invents no positions; shell placements are explicit below and the fit proof verifies walls/entrances lie outside the planning boundary.",
     "containers": "unitDimsMm are CEILING integers of the measured sourced-container geometry (W1 fit authority) and the fit proof re-checks them against actual GLB POSITION buffers.",
     "aggregation": "unitsPerVisual is the declared item count per rendered container. Every stocked quantity must be an exact multiple (checked by the fit proof via containersForStock); fractional containers do not exist.",
-    "unusedDecks": "Rack deck index 2 (top, 2330 mm) carries no modeled slots in any rack; it renders bare and is explicitly not counted."
+    "unusedDecks": "Rack deck index 2 (top, 2330 mm) carries no modeled slots in any rack; it renders bare and is explicitly not counted.",
+    "carry": "Cargo-C2: carried loads are aggregated picked items in 2 equipment crates x 2 fixed 220x320x160 cells (capacity 4, universal cargo yaw90). The carry packet is the single source of cart/tote bounds, normalization, docks, cells, profile, and capacity; the renderer consumes it and refuses drifted geometry. Carried items render as labeled wireframe bounds markers sized from canonical SKU dims, never as solid inventory models or whole storage boxes."
   },
   "containers": {
     "warehouse-section/box_cardboard_a01": {
@@ -50,11 +54,24 @@
     "material": "replacement rack blue-gray [0.45, 0.55, 0.68] shared by frame and decks (recorded limit); source MDL/textures unsupported"
   },
   "mobileUnits": {
-    "asset": "warehouse-section/handTruck_convertible_steel_orange_a01",
-    "glb": "apps/web/public/assets/warehouse-section/handTruck_convertible_steel_orange_a01.glb",
-    "manifest": "assets/manifests/warehouse-section-handTruck_convertible_steel_orange_a01.manifest.json",
-    "material": "replacement equipment orange [0.85, 0.45, 0.10]; source MDL/textures unsupported",
-    "yawDeg": 0
+    "asset": "warehouse-cargo/cart_luggage_platform_a01",
+    "glb": "apps/web/public/assets/warehouse-cargo/cart_luggage_platform_a01.glb",
+    "manifest": "assets/manifests/warehouse-cargo-cart_luggage_platform_a01.manifest.json",
+    "material": "replacement cart warm gray [0.72, 0.70, 0.66]; source MDL/textures unsupported, UVs lost",
+    "yawDeg": 0,
+    "yawConvention": "Cart length along unit length axis (Z); canonical yaw kept at render per the holonomic disc assumption; the whole cart+cargo assembly carries normalizationM from the carry packet (no independent cart/cargo shifts, no scale).",
+    "carryPacket": "assets/cargo/carry-luggage-platform-a01.json",
+    "equipmentCrates": {
+      "asset": "warehouse-section/crate_blue_a01",
+      "glb": "apps/web/public/assets/warehouse-section/crate_blue_a01.glb",
+      "role": "Two cart equipment slots at the packet dock poses; NOT extra SKU inventory. Empty totes render as labeled empty equipment."
+    },
+    "fallback": {
+      "asset": "warehouse-section/handTruck_convertible_steel_orange_a01",
+      "glb": "apps/web/public/assets/warehouse-section/handTruck_convertible_steel_orange_a01.glb",
+      "manifest": "assets/manifests/warehouse-section-handTruck_convertible_steel_orange_a01.manifest.json",
+      "role": "Diagnostic/fallback only; the hand truck is NOT a valid loaded cart."
+    }
   },
   "stations": {
     "PACK-1": {

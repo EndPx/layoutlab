@@ -1,0 +1,205 @@
+{
+  "capturedAt": "2026-11-03T05:46:04.725Z",
+  "model": "cargo-c2-centered680x1220",
+  "fixtures": {
+    "parent": {
+      "path": "fixtures/operations/main-warehouse.json",
+      "bytes": 23520,
+      "sha256": "c6e4f208835e31de2554850fa618953bb6f9a1b03c360b137c784bd5112660cb"
+    },
+    "burst": {
+      "path": "fixtures/operations/picking-packing-burst.json",
+      "bytes": 31113,
+      "sha256": "9eda552bd8f2da8378c84dccf5440d8264869af3013065ae6e34ecb4529cdbf7"
+    }
+  },
+  "packet": {
+    "path": "assets/cargo/carry-luggage-platform-a01.json",
+    "sha256": "2047d6a6895921c2e064ef20a481968a56e9b273e606dd4caeb02acd88d889e6"
+  },
+  "command": "headless burst to SUPPORTED_STAGE_COMPLETE",
+  "exitCode": 0,
+  "burst": {
+    "clockMs": 360000,
+    "completion": {
+      "stage": "SUPPORTED_STAGE_COMPLETE",
+      "ready": 6,
+      "selected": 6,
+      "shipped": 0,
+      "backlog": 6,
+      "stageBacklog": 0,
+      "note": "all selected orders READY_FOR_DISPATCH; packed goods are finite output staging, nothing SHIPPED in M3b"
+    },
+    "diagnostic": null,
+    "orders": [
+      {
+        "orderId": "B-01",
+        "state": "READY_FOR_DISPATCH"
+      },
+      {
+        "orderId": "B-02",
+        "state": "READY_FOR_DISPATCH"
+      },
+      {
+        "orderId": "B-03",
+        "state": "READY_FOR_DISPATCH"
+      },
+      {
+        "orderId": "B-04",
+        "state": "READY_FOR_DISPATCH"
+      },
+      {
+        "orderId": "B-05",
+        "state": "READY_FOR_DISPATCH"
+      },
+      {
+        "orderId": "B-06",
+        "state": "READY_FOR_DISPATCH"
+      }
+    ],
+    "maxConcurrentMoving": {
+      "count": 4,
+      "atMs": 29200
+    },
+    "waits": [
+      {
+        "unitId": "PK-3",
+        "orderId": "B-03",
+        "reason": "TRAFFIC",
+        "startMs": 10000,
+        "endMs": 15600
+      },
+      {
+        "unitId": "PK-1",
+        "orderId": "B-01",
+        "reason": "TRAFFIC",
+        "startMs": 17600,
+        "endMs": 20000
+      },
+      {
+        "unitId": null,
+        "orderId": "B-05",
+        "reason": "NO_IDLE_PICKER",
+        "startMs": 20000,
+        "endMs": 52400
+      },
+      {
+        "unitId": "PK-2",
+        "orderId": "B-02",
+        "reason": "TRAFFIC",
+        "startMs": 24000,
+        "endMs": 27200
+      },
+      {
+        "unitId": null,
+        "orderId": "B-06",
+        "reason": "NO_IDLE_PICKER",
+        "startMs": 25000,
+        "endMs": 57500
+      },
+      {
+        "unitId": "PK-4",
+        "orderId": "B-04",
+        "reason": "AWAITING_HEAD",
+        "startMs": 38900,
+        "endMs": 57500
+      },
+      {
+        "unitId": "PK-2",
+        "orderId": "B-05",
+        "reason": "TRAFFIC",
+        "startMs": 52400,
+        "endMs": 80900
+      },
+      {
+        "unitId": "PK-4",
+        "orderId": "B-04",
+        "reason": "TRAFFIC",
+        "startMs": 57500,
+        "endMs": 63100
+      },
+      {
+        "unitId": "PK-3",
+        "orderId": "B-03",
+        "reason": "BUSY_STATION",
+        "startMs": 63100,
+        "endMs": 142400
+      },
+      {
+        "unitId": "PK-4",
+        "orderId": "B-04",
+        "reason": "BUSY_STATION",
+        "startMs": 81700,
+        "endMs": 147500
+      },
+      {
+        "unitId": "PK-1",
+        "orderId": "B-06",
+        "reason": "TRAFFIC",
+        "startMs": 84900,
+        "endMs": 106700
+      },
+      {
+        "unitId": "PK-2",
+        "orderId": "B-05",
+        "reason": "AWAITING_HEAD",
+        "startMs": 108700,
+        "endMs": 155700
+      },
+      {
+        "unitId": "PK-1",
+        "orderId": "B-06",
+        "reason": "AWAITING_HEAD",
+        "startMs": 115100,
+        "endMs": 149800
+      },
+      {
+        "unitId": "PK-3",
+        "orderId": null,
+        "reason": "TRAFFIC",
+        "startMs": 149800,
+        "endMs": 165800
+      },
+      {
+        "unitId": "PK-4",
+        "orderId": null,
+        "reason": "TRAFFIC",
+        "startMs": 155700,
+        "endMs": 190100
+      },
+      {
+        "unitId": "PK-1",
+        "orderId": "B-06",
+        "reason": "BUSY_STATION",
+        "startMs": 165800,
+        "endMs": 239800
+      },
+      {
+        "unitId": "PK-2",
+        "orderId": "B-05",
+        "reason": "BUSY_STATION",
+        "startMs": 182300,
+        "endMs": 245700
+      },
+      {
+        "unitId": "PK-3",
+        "orderId": null,
+        "reason": "TRAFFIC",
+        "startMs": 190100,
+        "endMs": 211700
+      },
+      {
+        "unitId": "PK-2",
+        "orderId": null,
+        "reason": "TRAFFIC",
+        "startMs": 252200,
+        "endMs": 280300
+      }
+    ],
+    "checks": {
+      "conservation": [],
+      "capacity": [],
+      "safety": []
+    }
+  }
+}

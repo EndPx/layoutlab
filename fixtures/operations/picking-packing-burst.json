@@ -1016,12 +1016,12 @@
         "cold"
       ],
       "footprintMm": {
-        "length": 800,
+        "length": 1220,
         "margin": 100,
-        "width": 600
+        "width": 680
       },
       "id": "PK-1",
-      "loadCapacityUnits": 96,
+      "loadCapacityUnits": 4,
       "parkingSlotMm": {
         "x": 3000,
         "z": 1200
@@ -1035,12 +1035,12 @@
         "cold"
       ],
       "footprintMm": {
-        "length": 800,
+        "length": 1220,
         "margin": 100,
-        "width": 600
+        "width": 680
       },
       "id": "PK-2",
-      "loadCapacityUnits": 96,
+      "loadCapacityUnits": 4,
       "parkingSlotMm": {
         "x": 6000,
         "z": 1200
@@ -1054,12 +1054,12 @@
         "cold"
       ],
       "footprintMm": {
-        "length": 800,
+        "length": 1220,
         "margin": 100,
-        "width": 600
+        "width": 680
       },
       "id": "PK-3",
-      "loadCapacityUnits": 96,
+      "loadCapacityUnits": 4,
       "parkingSlotMm": {
         "x": 9000,
         "z": 1200
@@ -1073,12 +1073,12 @@
         "cold"
       ],
       "footprintMm": {
-        "length": 800,
+        "length": 1220,
         "margin": 100,
-        "width": 600
+        "width": 680
       },
       "id": "PK-4",
-      "loadCapacityUnits": 96,
+      "loadCapacityUnits": 4,
       "parkingSlotMm": {
         "x": 12000,
         "z": 1200
@@ -1092,12 +1092,12 @@
         "cold"
       ],
       "footprintMm": {
-        "length": 800,
+        "length": 1220,
         "margin": 100,
-        "width": 600
+        "width": 680
       },
       "id": "PA-1",
-      "loadCapacityUnits": 96,
+      "loadCapacityUnits": 4,
       "parkingSlotMm": {
         "x": 15000,
         "z": 1200
@@ -1111,12 +1111,12 @@
         "cold"
       ],
       "footprintMm": {
-        "length": 800,
+        "length": 1220,
         "margin": 100,
-        "width": 600
+        "width": 680
       },
       "id": "PA-2",
-      "loadCapacityUnits": 96,
+      "loadCapacityUnits": 4,
       "parkingSlotMm": {
         "x": 18000,
         "z": 1200
@@ -1373,11 +1373,12 @@
     "description": "M3b first connected picking/packing slice: 6 small burst orders on the accepted main-warehouse geometry/stock/products/resources/units; no inbound deliveries; finite-cohort run for SUPPORTED_STAGE_COMPLETE.",
     "sourceUrls": [],
     "assumptions": [
-      "Derived from fixtures/operations/main-warehouse.json sha256 ce33a9c5a77300f998c05c5452ed1c04eb9a6bd38d5e0c0eace5fb64d6edadef (22374 bytes): room, racks, obstacles, products, locations, initial stock, home assignments, mobile units (4 pickers + 2 putaway), and all resource coordinates/capacities/durations are unchanged.",
+      "Derived from fixtures/operations/main-warehouse.json sha256 c6e4f208835e31de2554850fa618953bb6f9a1b03c360b137c784bd5112660cb (23520 bytes), cargo-c2 model: room, racks, obstacles, products, locations, initial stock, home assignments, mobile units (4 pickers + 2 putaway), and all resource coordinates/capacities/durations are unchanged FROM THE PARENT (the historical ce33a9c5/70ec57ab revision pair is preserved in oracles/git history, never rewritten).",
       "Constructed fields: id, seed, provenance, orderSchedule (6 burst orders B-01..B-06 at 0/5000/10000/15000/20000/25000ms, 3-4 items each, single-trip loads), empty deliverySchedule, finite-cohort run with arrivalCutoffMs 25000.",
       "Why this fixture exists: the full 28-order + 12-delivery main schedule is NOT executable as the M3b slice (inbound unsupported); this burst proves scheduled orders -> reservations -> concurrent picks -> packing queues -> READY_FOR_DISPATCH on real main-warehouse coordinates.",
       "Simplifications: no inbound deliveries; putaway units stay idle at occupied parking; packing service uses the configured 90000ms durations; pick/unload handling durations come from the saved execution runconfig, not the scenario.",
-      "Both PACK-1 and PACK-2 run as configured (1 lane each); queue waits arise from the 90s service under the 6-order burst, not from hardcoded metrics."
+      "Both PACK-1 and PACK-2 run as configured (1 lane each); queue waits arise from the 90s service under the 6-order burst, not from hardcoded metrics.",
+      "Cargo-C2: centered 680x1220+100 (r799) profile, capacity 4 (2 equipment crates x 2 fixed cells); all 6 burst orders are 3-4 items in unchanged single-trip lines; PACK2-Q3 at (20500,9400); 6/6 READY proven on this geometry with the consistent disc-occupancy planner."
     ],
     "inventedFields": [
       "burst order ids, arrivals, and quantities; run mode and cutoff"
@@ -1392,13 +1393,13 @@
       "queueSlots": [
         {
           "id": "RCV-Q1",
-          "x": 2500,
+          "x": 2300,
           "z": 14400
         },
         {
           "id": "RCV-Q2",
-          "x": 1000,
-          "z": 13800
+          "x": 900,
+          "z": 13200
         }
       ],
       "serviceCapacity": 1,
@@ -1425,12 +1426,12 @@
         {
           "id": "PACK1-Q2",
           "x": 22500,
-          "z": 8400
+          "z": 8600
         },
         {
           "id": "PACK1-Q3",
           "x": 22500,
-          "z": 9900
+          "z": 10300
         }
       ],
       "serviceCapacity": 1,
@@ -1452,17 +1453,17 @@
         {
           "id": "PACK2-Q1",
           "x": 22500,
-          "z": 11400
+          "z": 12000
         },
         {
           "id": "PACK2-Q2",
           "x": 22500,
-          "z": 12900
+          "z": 13700
         },
         {
           "id": "PACK2-Q3",
-          "x": 22500,
-          "z": 14400
+          "x": 20500,
+          "z": 9400
         }
       ],
       "serviceCapacity": 1,
@@ -1483,13 +1484,13 @@
       "queueSlots": [
         {
           "id": "DSP-Q1",
-          "x": 18500,
+          "x": 18200,
           "z": 14400
         },
         {
           "id": "DSP-Q2",
-          "x": 17000,
-          "z": 13800
+          "x": 16400,
+          "z": 14000
         }
       ],
       "serviceCapacity": 1,
@@ -1497,7 +1498,7 @@
       "servicePositions": [
         {
           "id": "DSP-S1",
-          "x": 20000,
+          "x": 19900,
           "z": 14400
         }
       ]

@@ -1146,15 +1146,18 @@ describe("M3b review revision: independent findings 1-6", () => {
         expect(overlaps).toBe(false);
       }
     }
-    // Independent positive: the burst PK-3 wait 10000..15400 ends exactly at
-    // the 15400 automatic grant while the agent moves under it.
+    // Independent positive: the burst PK-3 wait 10000..15600 ends exactly at
+    // the 15600 automatic grant while the agent moves under it. (Cargo-C2
+    // model: r799 geometry + consistent disc occupancy shift the honest
+    // grant from the historical 600-profile 15400; the historical timing is
+    // preserved in git history and oracles, never rewritten.)
     const pk3 = s.waits.filter(
       (w) => w.unitId === "PK-3" && w.reason === "TRAFFIC" && w.startMs === 10000,
     );
     expect(pk3.length).toBeGreaterThanOrEqual(1);
-    for (const w of pk3) expect(w.endMs).toBe(15400);
+    for (const w of pk3) expect(w.endMs).toBe(15600);
     expect(
-      s.motionHistory.filter((m) => m.unitId === "PK-3" && m.startMs === 15400),
+      s.motionHistory.filter((m) => m.unitId === "PK-3" && m.startMs === 15600),
     ).toHaveLength(1);
     expect(s.checks).toEqual({ conservation: [], capacity: [], safety: [] });
   }, 120000);
@@ -1198,6 +1201,80 @@ describe("M3b review revision: independent findings 1-6", () => {
     expect(() =>
       createOperationsController({ scenario: twoCap, executionConfig: EXEC }),
     ).toThrow(/UNSUPPORTED_MULTILANE/);
+  });
+});
+
+describe("M3b cargo-C2: bounded stuck reporting and capacity-4 admission", () => {
+  test("permanently occupied queue slot reports bounded BLOCKED, never hangs IN_PROGRESS", () => {
+    // PA (putaway, never assigned) idles exactly on PACK-1 Q1. U1 picks its
+    // item, enqueues onto Q1, and waits OCCUPIED_GOAL forever with no future
+    // release scheduled: completion must be bounded BLOCKED with the
+    // preserved order/load and the witnessed cause.
+    const c = createOperationsController({
+      scenario: m3bScenario({
+        id: "m3b-c2-stuck",
+        locations: [{ id: "L-A1", approach: { x: 2400, z: 2000 }, productId: "P-A", stock: 2 }],
+        units: [
+          { id: "U1", park: { x: 1000, z: 2000 }, capacity: 4 },
+          { id: "PA", role: "putaway", park: { x: 4200, z: 2000 }, capacity: 4 },
+        ],
+        orders: [{ id: "O1", arrival: 0, lines: [{ productId: "P-A", quantity: 1 }] }],
+      }),
+      executionConfig: EXEC,
+    });
+    c.advanceTo(60000);
+    const status = c.getCompletionStatus();
+    expect(status.stage).toBe("BLOCKED");
+    if (status.stage !== "BLOCKED") return;
+    expect(status).toMatchObject({ ready: 0, selected: 1, created: 1, shipped: 0, backlog: 1, stageBacklog: 1 });
+    expect(status.detail).toMatch(/stuck with no scheduled release/);
+    expect(status.reasons).toHaveLength(1);
+    expect(status.reasons[0]).toMatchObject({ orderId: "O1", code: "STUCK_TRAFFIC" });
+    const d = c.getDiagnostic();
+    expect(d?.status).toBe("stuck");
+    // Preserved state: the order still waits with its picked load, nothing
+    // teleported, deleted, or partially fulfilled.
+    const s = c.snapshot();
+    const order = s.orders.find((o) => o.orderId === "O1");
+    expect(order?.state).toBe("WAITING_FOR_PACKING");
+    expect(order?.waitReason).toMatch(/TRAFFIC/);
+    expect(s.units.find((u) => u.unitId === "U1")?.carried).toEqual([
+      { productId: "P-A", quantity: 1 },
+    ]);
+    expect(s.checks).toEqual({ conservation: [], capacity: [], safety: [] });
+    // Bounded: further advances change nothing about the verdict.
+    c.advanceTo(120000);
+    expect(c.getCompletionStatus().stage).toBe("BLOCKED");
+    expect(c.snapshot().orders.find((o) => o.orderId === "O1")?.state).toBe("WAITING_FOR_PACKING");
+  });
+
+  test("capacity 4 admits a 4u order and rejects an 8u order upfront", () => {
+    const mk = (qty: number, stock: number) =>
+      createOperationsController({
+        scenario: m3bScenario({
+          id: "m3b-c2-cap",
+          units: [{ id: "U1", park: { x: 1000, z: 2000 }, capacity: 4 }],
+          locations: [{ id: "L-A1", approach: { x: 3000, z: 2000 }, productId: "P-A", stock }],
+          orders: [{ id: "O1", arrival: 0, lines: [{ productId: "P-A", quantity: qty }] }],
+        }),
+        executionConfig: EXEC,
+      });
+    const ok = mk(4, 4);
+    ok.advanceTo(60000);
+    expect(ok.getCompletionStatus().stage).toBe("SUPPORTED_STAGE_COMPLETE");
+    const big = mk(8, 8);
+    big.advanceTo(60000);
+    const status = big.getCompletionStatus();
+    expect(status.stage).toBe("BLOCKED");
+    if (status.stage !== "BLOCKED") return;
+    expect(status.reasons).toHaveLength(1);
+    expect(status.reasons[0]).toMatchObject({ orderId: "O1", code: "UNSUPPORTED_SINGLE_TRIP_REQUIRED" });
+    // Rejected upfront: zero reservation, stock and loads untouched.
+    const s = big.snapshot();
+    expect(s.orders.find((o) => o.orderId === "O1")?.state).toBe("CREATED");
+    expect(s.units.find((u) => u.unitId === "U1")?.carried).toEqual([]);
+    expect(s.inventory.storage).toEqual([{ locationId: "L-A1", productId: "P-A", quantity: 8 }]);
+    expect(s.checks).toEqual({ conservation: [], capacity: [], safety: [] });
   });
 });
 
@@ -1276,5 +1353,3 @@ describe("M3b final revision: time-boundary edge cases", () => {
     expect(c.getClockMs()).toBe(3000);
   });
 });
-
-

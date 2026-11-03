@@ -2288,6 +2288,49 @@ export function createOperationsController(opts: {
           reasons,
         };
       }
+      // Bounded stuck reporting: when every arrival is in, no future release
+      // is scheduled, and the transport diagnostic confirms a deadlock with
+      // retained waits, IN_PROGRESS would never advance again. Report BLOCKED
+      // with the preserved orders/state and the witnessed cause instead of
+      // hanging forever. This never validates a blocked run: only
+      // SUPPORTED_STAGE_COMPLETE (6 READY here) passes the integration gate.
+      const stuck = diagnosticOf(S);
+      if (stuck && stuck.status === "stuck" && created === all.length) {
+        const stuckReasons = [...reasons];
+        for (const w of stuck.operationsWaits) {
+          stuckReasons.push({
+            orderId: w.orderId,
+            code: `STUCK_${w.reason}`,
+            message: stuck.detail,
+          });
+        }
+        if (stuckReasons.length === reasons.length) {
+          for (const o of all) {
+            if (o.state !== "READY_FOR_DISPATCH") {
+              stuckReasons.push({
+                orderId: o.orderId,
+                code: "TRANSPORT_STUCK",
+                message: stuck.detail,
+              });
+            }
+          }
+        }
+        return {
+          stage: "BLOCKED",
+          ready,
+          selected: all.length,
+          created,
+          backlog: created,
+          stageBacklog: created - ready,
+          shipped: 0,
+          detail:
+            `stuck with no scheduled release: ${stuck.detail}; ` +
+            `${created}/${all.length} arrived, ${ready} ready for dispatch, ` +
+            `${created} unshipped backlog, ${created - ready} stage backlog; ` +
+            `orders/state preserved, no teleport or task deletion`,
+          reasons: stuckReasons,
+        };
+      }
       return {
         stage: "IN_PROGRESS",
         ready,
@@ -2431,6 +2474,3 @@ export function createOperationsController(opts: {
     getDiagnostic: () => diagnosticOf(S),
   };
 }
-
-
-

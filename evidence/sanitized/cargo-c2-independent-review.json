@@ -1,0 +1,67 @@
+{
+  "reviewer": "Codex",
+  "method": "Separate step-driven run, literal preserved-input checks, independent BigInt travel arithmetic and quadratic minimum-separation checks including all stationary gaps/terminal holds; no simulation traffic/travel helpers used",
+  "profile": {
+    "width": 680,
+    "length": 1220,
+    "margin": 100,
+    "radius": 799,
+    "capacity": 4
+  },
+  "completion": {
+    "stage": "SUPPORTED_STAGE_COMPLETE",
+    "ready": 6,
+    "selected": 6,
+    "shipped": 0,
+    "backlog": 6,
+    "stageBacklog": 0,
+    "note": "all selected orders READY_FOR_DISPATCH; packed goods are finite output staging, nothing SHIPPED in M3b"
+  },
+  "exactLastReadyMs": 342200,
+  "observedClockMs": 342200,
+  "orders": [
+    {
+      "id": "B-01",
+      "readyMs": 147500
+    },
+    {
+      "id": "B-02",
+      "readyMs": 142400
+    },
+    {
+      "id": "B-03",
+      "readyMs": 239800
+    },
+    {
+      "id": "B-04",
+      "readyMs": 245700
+    },
+    {
+      "id": "B-05",
+      "readyMs": 342200
+    },
+    {
+      "id": "B-06",
+      "readyMs": 337100
+    }
+  ],
+  "motionGrants": 32,
+  "routeSegments": 3860,
+  "continuousPairChecks": 19445,
+  "minSimultaneousCenterDistanceMm": 1600,
+  "minStaticSlotDistanceMm": 1615.5494421403514,
+  "pointsNavigable": 44,
+  "maxConcurrentMoving": {
+    "count": 4,
+    "atMs": 29200
+  },
+  "sha256": {
+    "parent": "c6e4f208835e31de2554850fa618953bb6f9a1b03c360b137c784bd5112660cb",
+    "burst": "9eda552bd8f2da8378c84dccf5440d8264869af3013065ae6e34ecb4529cdbf7",
+    "packet": "2047d6a6895921c2e064ef20a481968a56e9b273e606dd4caeb02acd88d889e6"
+  },
+  "notes": [
+    "No shipping/real warehouse/physical safety certification claim",
+    "C2 browser gate still pending; this is independent headless evidence"
+  ]
+}

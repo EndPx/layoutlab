@@ -11,8 +11,8 @@ test.describe("operations environment", () => {
     await page.getByTestId("btn-sample").click();
     await expect(page.getByTestId("scenario-label")).toContainText("warehouse-basic");
     await page.getByTestId("mode-operations").click();
-    await expect(page.getByTestId("ops-status")).toContainText("ENVIRONMENT READY");
-    await expect(page.getByTestId("ops-status")).toContainText("OPERATIONS CONNECTION PENDING");
+    await expect(page.getByTestId("ops-state-badge")).toContainText("READY");
+    await expect(page.getByTestId("ops-status")).toContainText("picking-packing-burst");
     await page.getByTestId("mode-planning").click();
     await expect(page.getByTestId("scenario-label")).toContainText("warehouse-basic");
     await expect(page.getByTestId("selected-status")).toContainText("Current assignment");
@@ -25,9 +25,9 @@ test.describe("operations environment", () => {
       if (m.type() === "error") errors.push(`console: ${m.text().slice(0, 200)}`);
     });
     await page.goto("/?mode=operations");
-    await expect(page.getByTestId("ops-status")).toContainText("main-warehouse-1");
-    await expect(page.getByTestId("ops-status")).toContainText("6 racks");
-    await expect(page.getByTestId("ops-status")).toContainText("24 slots");
+    await expect(page.getByTestId("ops-status")).toContainText("picking-packing-burst");
+    await expect(page.getByTestId("ops-status")).toContainText("6 orders");
+    await expect(page.getByTestId("ops-status")).toContainText("2 single-lane packing");
     // All 8 sourced assets must load (never silent proxies).
     await expect(page.getByTestId("ops-asset-status")).toContainText("sourced assets loaded", { timeout: 120_000 });
     const canvas = page.getByTestId("ops-canvas");
@@ -72,7 +72,7 @@ test.describe("operations environment", () => {
     expect(labelCount).toBeGreaterThanOrEqual(24);
     // Developer diagnostics carry engineering data, not the main view.
     await page.getByTestId("ops-diagnostics").locator("summary").first().click();
-    await expect(page.getByTestId("ops-diagnostics")).toContainText("main-warehouse.json");
+    await expect(page.getByTestId("ops-diagnostics")).toContainText("picking-packing-burst.json");
     await expect(page.getByTestId("ops-diagnostics")).toContainText("336");
   });
 
@@ -85,7 +85,7 @@ test.describe("operations environment", () => {
     // (b) operations shows the loaded scenario id + synthetic/configured
     // label, with no planner badges/menu/export (incl. LIVE-USED).
     await page.getByTestId("mode-operations").click();
-    await expect(page.getByTestId("scenario-label")).toContainText("main-warehouse-1");
+    await expect(page.getByTestId("scenario-label")).toContainText("picking-packing-burst");
     await expect(page.getByTestId("ops-sample-badge")).toContainText("SYNTHETIC SAMPLE");
     await expect(page.getByTestId("ops-sample-badge")).toContainText("CONFIGURED");
     for (const id of ["sample-badge", "mode-badge", "valid-badge", "live-used-badge", "fixture-badge", "scenario-menu", "btn-export"]) {
@@ -107,7 +107,7 @@ test.describe("operations environment", () => {
   test("operations URL loads with a truthful header", async ({ page }) => {
     // (d) ?mode=operations initial load labels the loaded scene honestly.
     await page.goto("/?mode=operations");
-    await expect(page.getByTestId("scenario-label")).toContainText("main-warehouse-1");
+    await expect(page.getByTestId("scenario-label")).toContainText("picking-packing-burst");
     await expect(page.getByTestId("ops-sample-badge")).toContainText("SYNTHETIC SAMPLE");
     await expect(page.getByTestId("scenario-menu")).toHaveCount(0);
     await expect(page.getByTestId("btn-export")).toHaveCount(0);

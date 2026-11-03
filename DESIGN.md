@@ -471,7 +471,7 @@ counting meters, no staged queues-as-activity.
 
 ## 10. Accepted debt and limits
 
-Plain CSS (no Tailwind/shadcn) to stay offline and minimal — matches the
+M3c playback debt also lands here: no new UI framework, fonts, or paid assets; the existing console tokens satisfy the v3 reference rhythm (no brand redesign); Playwright video is the recording method; no Lighthouse or 60fps claim without measurement (see section 11). Plain CSS (no Tailwind/shadcn) to stay offline and minimal — matches the
 existing stack, so no framework migration. No virtualized tables (MVP
 scale ≤64 products). No react-grab/react-scan/react-doctor installs: the
 React Dev Tooling Gate's `npx` installs would add dependencies and network
@@ -483,3 +483,151 @@ measurement; no hidden content or asset swaps for scores. No paid
 services, no deployment, no global harness changes. The reference
 warehouse photograph is style/composition guidance only and never ships
 as a background or geometry.
+
+## 11. M3c operations playback binding (engine-connected)
+
+Binds the accepted M3b engine (single picking/packing burst) to the MAIN
+Operations Simulation view. Reference hierarchy comes from UI v3 packet 03
+(compact header/status + simulation controls/clock, metric strip, dominant
+cutaway warehouse, right agent/resource inspector, event timeline, queue
+visibility), 06 (order lifecycle, stock reservation/reconciliation detail),
+and 08 (ready / running / paused / blocked / stage-complete /
+provider-not-used states). No invented animation, routes, or results: every
+value, pose, and event is the actual engine snapshot at the shown clock.
+
+### 11.1 Tokens, layout, and states
+
+- No new tokens. The existing console palette already satisfies the packet
+  rhythm (warm near-white paper, deep ink, teal actions, amber waits, green
+  checks, 8px spacing, 6/10px radii, system sans + tabular/mono data). No
+  brand redesign, no new fonts, no icon set (text + glyph status, never
+  color alone).
+- Layout follows reference 03 hierarchy: the operations workspace is
+  (dominant warehouse viewport | right inspector ~380px). The compact
+  entity `<select>` and label-layer control live at the inspector top
+  (same testids); no separate left entity column. Inside the same mode:
+  a metric strip under the status band, playback controls + sim clock in
+  the status band, resource queues in the right column, and a
+  committed-event timeline below the workspace in an explicit bounded
+  scroll body (~180-240px desktop, keyboard-scrollable, sticky header;
+  full history reachable without growing the page). Developer diagnostics
+  stay collapsed (dimensions, asset paths, renderer counts, perf
+  measurements). No fake Experiments/Compare/Reports destinations; the
+  mode shell stays Storage Planning / Operations Simulation until a
+  destination has working behavior. Planner layout (§2) is untouched.
+- Sample identity is explicit: SYNTHETIC picking-packing-burst sample,
+  scenario id + seed + runconfig durations in the status band. Run states:
+  READY (clock 0, never started), RUNNING, PAUSED, BLOCKED (truthful engine
+  diagnostic, state retained), STAGE COMPLETE (READY_FOR_DISPATCH counts;
+  never all-shipped), LOAD FAILED. A model was not used in this run: a
+  persistent provider-not-used line, never a LIVE claim; no planner badges,
+  menu, or export leak into operations.
+- Playback: Run/Pause, Reset (new engine from the same frozen inputs), Step
+  event (actual stepEvent), 1x/4x/16x speeds, sim clock (mm:ss.mmm,
+  presentation only). One controller instance per run, owned above the mode
+  switch: leaving Operations pauses presentation but never destroys,
+  reruns, or resets the run. Pause freezes the logical clock; speed
+  changes reset the wall-time origin without touching configured
+  durations. Reduced motion: default is paused, no autoplay; playback is
+  explicit user-initiated engine stepping only.
+- Metrics derive directly from the snapshot: arrived/selected orders, ready
+  for dispatch + packed, shipped (0 in this slice), unshipped backlog
+  (arrived minus shipped), stage backlog (arrived minus ready), active
+  agents (on task OR wheels engaged, of 6 — picking/unloading/queued
+  handling with idle transport is busy, never idle; transport state is
+  shown as secondary detail), packing queue as job count with the
+  arrived-at-slot count beside it (jobs placed first, physical arrival
+  separate). Captions define each term; stageBacklog 0 is never labeled
+  overall backlog 0. Sample caption counts (orders, picker/putaway roles,
+  packing lanes) derive from the loaded scenario, never hardcoded.
+
+### 11.2 Scene truth (burst on canonical bindings)
+
+- The burst runs on geometry spatially identical to main-warehouse-1; the
+  web loader proves it with an explicit derived-fixture compatibility check
+  (room, rack, obstacle, location, resource, and mobile-unit spatial
+  ids/dims/anchors/coords/footprints/parks/roles compared field by field)
+  instead of bypassing the fixture-id check. Changed workload/provenance
+  (orders, deliveries, stock, seed, policies) stays allowed; any reused
+  spatial assumption that drifts refuses the bindings (fail closed). The
+  28-order + 12-delivery main schedule is never executed here (unsupported
+  inbound).
+- Shelf stock renders at storage anchors from the live ledger: full
+  containers plus at most one clearly partial container (same full-size
+  mesh) labeled with its remaining item count; zero stock hides the
+  visuals. The web helper never throws, shrinks, or rounds when quantity
+  is not a multiple of unitsPerVisual.
+- Carried loads ride the integrated SimReady luggage-platform carts
+  (cargo-C2): each unit cart carries 2 sourced equipment crates at the
+  packet unit-frame dock poses on the ray-witnessed 290.7289mm deck
+  (whole-assembly normalization +41.02388mm Z, centered 680x1220 r799,
+  no independent shifts, canonical yaw kept per the holonomic disc
+  assumption). Actual ledger lines allocate into the 4 fixed
+  220x320x160 cells in stable SKU/item-ordinal order at cargo yaw90;
+  each item renders as a labeled wireframe bounds marker sized from its
+  canonical SKU dims and resting on the crate interior floor — never a
+  solid inventory model, never a whole storage box. Empty totes render
+  as labeled empty equipment. The carry packet is the single source of
+  bounds/normalization/docks/cells/yaw/profile/capacity; cart or crate
+  geometry drift from the packet bounds attaches nothing (fail closed).
+  Attachment is visual only, never claimed as physics certification or
+  packing certification.
+- Routes show only the selected unit CURRENT authorized granted plan
+  points at floor height: the whole authorized polyline is kept and its
+  presentation splits completed vs active at the EXACT engine pose
+  projected onto its timed segment (pose inserted as the split vertex;
+  mid-segment poses never snap to the nearest grid vertex, no points
+  deleted, no invented path). Numbered pick stops are markers with no
+  connecting lines (intent is not admitted movement) and distinguish
+  completed picks (remaining 0) from remaining intent; a zero-remaining
+  reservation is never shown as an unvisited future stop. No plan means
+  no path; the inspector states the idle/wait reason instead. Approach
+  markers stay hidden until selected; product containers stay inside
+  racks. The room outline is the true four corners
+  (0,0),(W,0),(W,D),(0,D) — the same boundary navigation uses.
+- Route direction uses SPARSE arrowheads on the unchanged active
+  polyline only: modest cones (0.25m head length, 0.10m radius) placed
+  at 1.75m arc-distance intervals along the actual segments, tangent
+  to the hosting segment, never one per 100mm grid point, never a
+  corner shortcut or invented segment. The pose-split LINE stays exact;
+  arrowheads are presentation-only direction cues that preserve the
+  clear floor path and cargo visibility.
+
+### 11.3 Performance and responsiveness contract
+
+- Persistent static setup: one renderer/scene/camera/asset load per mount;
+  snapshots update poses, stock visibility, labels, and overlays only.
+  Never recreate the renderer, reload GLBs, or rebuild static geometry on
+  snapshot, frame, or selection. No semantic animation clock; the browser
+  frame only advances the real engine and re-renders on snapshot change.
+- Overview camera sits low (~30-35deg elevation) so shelf goods read on
+  rack fronts instead of gray rack tops. Frame cost is instrumented via
+  the data-render-ms dataset (diagnostics only). Resize handling guards
+  against unchanged sizes and defers layout writes to rAF (no
+  ResizeObserver loop errors; console errors are never suppressed).
+- Presentation snapshot cadence is 40ms (~25Hz): the engine still
+  advances every rAF to the monotonic wall target with all events
+  processed and unchanged simulation durations; only the React
+  snapshot/render commit is throttled, from the prior 150ms (~6.7Hz)
+  policy. Pause freezes the logical clock; speed changes reset the
+  wall origin only. Parity, Step/Reset, pause, mode, and speed
+  semantics are unchanged.
+- Active-window measurement over >=5s of real playback: baseline
+  counters + performance.now sampled AFTER assets load and settle just
+  before Run, end counters + time sampled after >=5s ACTIVE playback
+  BEFORE Pause/screenshot/diagnostics/layout writes. Reported rates
+  are deltas (delta renders / delta wall, delta CPU total / delta
+  renders, same-window rAF/advances/snapshots); start/end counters
+  and times ship in the JSON so arithmetic checks offline. Window
+  maxima are never derived by subtracting lifetime maxima (lifetime
+  maxima are labeled as such or omitted). Actual renders, rAF
+  callbacks, engine advances, snapshots, render-CPU cost, GPU
+  renderer string, asset payload bytes, and error count stay
+  SEPARATE. Static load time is not FPS proof; no 60fps, mobile, or
+  GPU-time claim without measurement. Full source geometry stays the
+  default; a blocking bottleneck is reported with its exact
+  measurement and bounded fix, never silently reduced.
+- Desktop 1586x992/1440x900 three-column workspace; 768 stacked (viewport
+  first); 390 single column; no page-level horizontal overflow; primary
+  controls >=44px on narrow; keyboard-reachable controls with visible
+  focus; status never color-alone.

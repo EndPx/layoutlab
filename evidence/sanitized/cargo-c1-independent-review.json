@@ -1,0 +1,51 @@
+{
+  "reviewer": "Codex",
+  "source": "Actual prepared GLB triangle scan, no manifest-bound reuse",
+  "sha256": "8f078d71d7fe1314f8fee4f559ae4046037e29aeec900b8c8078217eaea27595",
+  "triangles": 186990,
+  "boundsM": {
+    "lo": [
+      -0.33572521805763245,
+      3.681016096379608e-7,
+      -0.6505696773529053
+    ],
+    "hi": [
+      0.33572521805763245,
+      0.9525318145751953,
+      0.5685219168663025
+    ]
+  },
+  "supportRays": 25,
+  "measuredDeckYM": {
+    "min": 0.2907289298633728,
+    "max": 0.2907289846001702
+  },
+  "sourceCenterZM": -0.04102388024330139,
+  "normalizationOffsetZM": 0.04102388024330139,
+  "centeredZBoundsM": [
+    -0.6095457971096039,
+    0.6095457971096039
+  ],
+  "proposedCenteredProfile": {
+    "width": 680,
+    "length": 1220,
+    "margin": 100,
+    "radius": 799
+  },
+  "cargoCapacityReview": {
+    "universalEightUnsupported": true,
+    "proposedConstructedCapacity": 4,
+    "proof": "Each of2crates holds2fixed220x320x160 cells (items rotated90):440x320x160 fits580x380x247; every currentSKU fits a cell. All6burst orders contain<=4items. No kg/vendor payload claim."
+  },
+  "notes": [
+    "Cart/crate source unchanged; centered placement proposed, not integrated",
+    "Need docks separated without the original0.13mm interpenetration",
+    "Recompute placements using canonical product/order inputs rather than only duplicate hardcoded lists"
+  ],
+  "sourceClosure": {
+    "files": 6,
+    "bytes": 10517375,
+    "hashes": "all matched",
+    "license": "CC-BY-4.0 copy byte-identical to prior verified source"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "browser": "desktop",
+  "channel": "msedge",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "speed": "1x",
+  "simClockMs": 6275,
+  "wallSecondsMeasured": 6.2,
+  "rafCallbacks": 603,
+  "engineAdvances": 603,
+  "avgAdvanceMs": 0.09,
+  "maxAdvanceMs": 32.8,
+  "snapshots": 41,
+  "renders": 48,
+  "avgRenderCpuMs": 7.44,
+  "maxRenderCpuMs": 115.9,
+  "renderSpanSeconds": 7.5,
+  "activeRenderFps": 6.4,
+  "renderer": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "assetGlbCount": 8,
+  "assetGlbBytes": 69390832,
+  "consoleErrors": [],
+  "note": "rAF callbacks, engine advances, snapshots, and actual WebGL renders are separate counts. Active render fps derives from actual renders over the render span only. No 60fps/mobile/GPU-time claim is made."
+}

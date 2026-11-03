@@ -1,0 +1,337 @@
+{
+  "attribution": "cart_luggage_platform_a01 geometry derived from NVIDIA SimReady Assets package cart_luggage_platform_a01 (https://huggingface.co/datasets/nvidia/simready-assets), revision 653d91e182011f357cf1644013cc94ddf194d349, used under CC-BY-4.0. Geometry converted to GLB with axis remap and a simplified fallback color material; see discardedFeatures. (c) NVIDIA Corporation; changes by LayoutLab documented in this manifest.",
+  "catalogCategory": "Industrial/Warehouse/Equipment",
+  "catalogSource": "https://nvidia-simready-central.hf.space/install_categories.json (Space pin 15a2ab916b355627dee6a841c1ae622230cf1ba5)",
+  "conversionCommands": [
+    "node scripts/warehouse-cargo-fetch.mjs",
+    "<temp-venv>/Scripts/python scripts/m4-usd-inspect.py <stage>/simready_usd/sm_cart_luggage_platform_a01_01.usd",
+    "<temp-venv>/Scripts/python scripts/warehouse-section-usd-to-glb.py <stage>/simready_usd/sm_cart_luggage_platform_a01_01.usd apps/web/public/assets/warehouse-cargo/cart_luggage_platform_a01.glb 0.72,0.70,0.66 cart_luggage_platform_a01",
+    "node scripts/warehouse-cargo-verify.mjs"
+  ],
+  "dataset": "nvidia/simready-assets",
+  "datasetUrl": "https://huggingface.co/datasets/nvidia/simready-assets",
+  "derivative": {
+    "axisMap": "(x, y, z)Z-up -> (x, z, -y)Y-up (proper rotation, det +1; winding preserved)",
+    "bytes": 13467192,
+    "calibratedWithin1mm": true,
+    "format": "glTF 2.0 binary (GLB), 6 mesh(es), TRIANGLES primitives, non-indexed soup",
+    "material": "layoutlab-fallback-cart_luggage_platform_a01: baseColor [0.72, 0.70, 0.66, 1.0], metallic 0.0, roughness 0.9, doubleSided true",
+    "path": "apps/web/public/assets/warehouse-cargo/cart_luggage_platform_a01.glb",
+    "scaleBaked": "none: GLB keeps source meters; placement scaling applied in the browser per placement rule",
+    "sha256": "8f078d71d7fe1314f8fee4f559ae4046037e29aeec900b8c8078217eaea27595",
+    "soupVertices": 560970,
+    "triangles": 186990
+  },
+  "discardedFeatures": [
+    "SimReady physics payloads and MuJoCo/Newton/PhysX variants (GLB conversion does NOT preserve SimReady physics metadata)",
+    "MDL materials (OmniPBR.mdl) and PNG/UDIM textures (never downloaded; original MDL not preserved)",
+    "UVs (present in source, unused by the untextured fallback material)",
+    "Per-material splits merged into one fallback color material",
+    "Validation and runtime-testing metadata (kept only as provenance records)"
+  ],
+  "fullPackageBytes": 55024735,
+  "license": "CC-BY-4.0",
+  "licenseCopy": "assets/licenses/warehouse-cargo-cart_luggage_platform_a01-LICENSE.txt",
+  "manifestVersion": "layoutlab.asset-manifest/1",
+  "observedSource": {
+    "defaultPrim": "/RootNode",
+    "materialNote": "Each material pairs UsdPreviewSurface with mdl:OmniPBR (OmniPBR.mdl, UDIM/file PNG textures). Textures and MDL were never downloaded; original MDL not preserved.",
+    "materialsDeclared": [
+      "opaque__rubber__black_glossy_standard_a",
+      "opaque__metal__glossy_a",
+      "opaque__metal__aluminium_brushed_a",
+      "opaque__rubber__black_glossy_a",
+      "opaque__polyester__gray_glossy_shelf_a"
+    ],
+    "meshCount": 6,
+    "meshes": [
+      {
+        "doubleSided": true,
+        "faces": 38786,
+        "hasUVs": true,
+        "instance": "/RootNode/Geometry/sm_tire3_a01_obj_00",
+        "localToWorld": [
+          [
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            -0.41616,
+            0.10167,
+            1
+          ]
+        ],
+        "normals": "faceVarying",
+        "path": "/__Prototype_2/sm_tire3_a01_mesh_01",
+        "points": 36076,
+        "subdivision": "none"
+      },
+      {
+        "doubleSided": true,
+        "faces": 19393,
+        "hasUVs": true,
+        "instance": "/RootNode/Geometry/sm_tire1_a01_obj_00",
+        "localToWorld": [
+          [
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            -0.2286,
+            0.5489,
+            0.10167,
+            1
+          ]
+        ],
+        "normals": "faceVarying",
+        "path": "/__Prototype_3/sm_tire1_a01_mesh_01",
+        "points": 18038,
+        "subdivision": "none"
+      },
+      {
+        "doubleSided": true,
+        "faces": 19393,
+        "hasUVs": true,
+        "instance": "/RootNode/Geometry/sm_tire2_a01_obj_00",
+        "localToWorld": [
+          [
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0.2286,
+            0.5489,
+            0.10167,
+            1
+          ]
+        ],
+        "normals": "faceVarying",
+        "path": "/__Prototype_1/sm_tire2_a01_mesh_00",
+        "points": 18038,
+        "subdivision": "none"
+      },
+      {
+        "doubleSided": true,
+        "faces": 19346,
+        "hasUVs": true,
+        "instance": "/RootNode/Geometry/sm_cart_luggage_platform_a01_obj_00",
+        "localToWorld": [
+          [
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "normals": "faceVarying",
+        "path": "/__Prototype_5/sm_cart_luggage_platform_a01_mesh_00",
+        "points": 20035,
+        "subdivision": "none"
+      },
+      {
+        "doubleSided": true,
+        "faces": 2740,
+        "hasUVs": true,
+        "instance": "/RootNode/Geometry/sm_wheel1_a01_obj_00",
+        "localToWorld": [
+          [
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            -0.2286,
+            0.472839,
+            0.236195,
+            1
+          ]
+        ],
+        "normals": "faceVarying",
+        "path": "/__Prototype_4/sm_wheel1_a01_mesh_00",
+        "points": 2853,
+        "subdivision": "none"
+      },
+      {
+        "doubleSided": true,
+        "faces": 2740,
+        "hasUVs": true,
+        "instance": "/RootNode/Geometry/sm_wheel2_a01_obj_00",
+        "localToWorld": [
+          [
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0.2286,
+            0.472839,
+            0.236195,
+            1
+          ]
+        ],
+        "normals": "faceVarying",
+        "path": "/__Prototype_6/sm_wheel2_a01_mesh_00",
+        "points": 2853,
+        "subdivision": "none"
+      }
+    ],
+    "metersPerUnit": 1,
+    "sizeXYZ_m": [
+      0.67145,
+      1.219092,
+      0.952532
+    ],
+    "totalFaces": 102398,
+    "totalPoints": 97893,
+    "upAxis": "Z",
+    "worldBoundsMax_m": [
+      0.335725,
+      0.65057,
+      0.952532
+    ],
+    "worldBoundsMin_m": [
+      -0.335725,
+      -0.568522,
+      0
+    ]
+  },
+  "package": "cart_luggage_platform_a01",
+  "packageHashSha256": "ca3288bad72534835c5fec6ff1b5efa6ce7dcef2b96824e5da6468c26c5dbbe2",
+  "placement": "Cargo-C2 integrated as the main-warehouse fleet cart (carry packet assets/cargo/carry-luggage-platform-a01.json): whole-assembly normalization +41.02388mm GLB Z for the centered 680x1220 profile (r799, no scale, no independent cart/cargo shifts); two W1 crate_blue_a01 equipment docks at crate-origin centers (0, 290.6467, +/-203.1)mm yaw 0 with a measured 1.067mm positive seam gap; crate bottoms rest exactly on the ray-witnessed 290.7289mm deck inside the flat rect (X +/-310, cart-Z -565..+505); measured end clearances 13.86/70.54mm; loaded union verified inside 680x1220; capacity 4 (2 crates x 2 fixed 220x320x160 cells, universal cargo yaw90). The C1 diagnostic section (experiments/warehouse-cargo-section) is preserved as the calibration viewer, updated to the same docks. Old hand truck preserved as fallback/diagnostic only.",
+  "sourceFileUrlPattern": "https://huggingface.co/datasets/nvidia/simready-assets/resolve/653d91e182011f357cf1644013cc94ddf194d349/cart_luggage_platform_a01/<path>",
+  "sourceRevision": "653d91e182011f357cf1644013cc94ddf194d349",
+  "sourceRevisionNote": "Per-package revision registered in install_categories.json; distinct from dataset HEAD 4763fbfaa4f8e97658e68b57d01b4c86659e08b5 (existing rack_large_empty_a01). Not conflated.",
+  "stagedBytes": 10517375,
+  "stagedSourceFiles": [
+    {
+      "bomVerified": true,
+      "bytes": 21413,
+      "path": "simready_usd/sm_cart_luggage_platform_a01_01.usd",
+      "sha256": "56f1cf43e7d1b5c1e6229a6474a47ed2080a2980cf904ed3dc9dcc1711156802"
+    },
+    {
+      "bomVerified": true,
+      "bytes": 18588,
+      "path": "simready_usd/payloads/base.usda",
+      "sha256": "ee0f2aa677287badecac5e8aa1a85887fafae413c724c0c847d929ce4dd6dd4d"
+    },
+    {
+      "bomVerified": true,
+      "bytes": 21730,
+      "path": "simready_usd/payloads/instances.usda",
+      "sha256": "400fa78c542beb1bfd7581a99b00674c79fb6c73986102459093e0468ec6807d"
+    },
+    {
+      "bomVerified": true,
+      "bytes": 10414196,
+      "path": "simready_usd/payloads/geometries.usd",
+      "sha256": "cb148a4b18d0057c40ca57db379df8e05c66338d7cdceeaa8dba1526447dbe7e",
+      "sha256First1m": "1f6dddb81e7f1c516deaedc4fb6e67a9fbfb37fa9aeed7035c87d6a6efa2d000"
+    },
+    {
+      "bomVerified": true,
+      "bytes": 30292,
+      "path": "simready_usd/payloads/materials.usda",
+      "sha256": "86b9652470b49d132d955ad9107654df69e4e6e7b8eded890aada567e8031cab"
+    },
+    {
+      "bomVerified": true,
+      "bytes": 11156,
+      "path": "simready_usd/payloads/Physics/physics.usda",
+      "sha256": "3fc67e68be136aeb90067eb4d75ffb2baa83108323cb4bb9b9c869a73f5095db"
+    }
+  ],
+  "toolVersions": {
+    "node": "v24.18.0",
+    "python": "3.12.10",
+    "tooling": "scratch TEMP venv + stdlib-only scripts (no numpy, no Docker, no Blender)",
+    "usd-core": "26.11"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "speed": "1x",
+  "simClockMs": 6212,
+  "wallSecondsMeasured": 6.1,
+  "frames": 594,
+  "engineAdvances": 594,
+  "avgAdvanceMs": 0.1,
+  "maxAdvanceMs": 36.6,
+  "snapshots": 41,
+  "renderer": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "assetGlbCount": 8,
+  "assetGlbBytes": 63776668,
+  "consoleErrors": [],
+  "note": "Wall time covers real 1x playback; static asset load time is excluded from advance stats. No fps claim is derived from load timing."
+}

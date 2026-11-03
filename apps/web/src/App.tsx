@@ -41,7 +41,12 @@ import {
   type RunSummary,
 } from "./lib/api";
 import { buildExportEnvelope, newRunId, replayAnyEnvelope, type M4HeuristicMeta } from "./lib/export";
-import { loadOperationsScene } from "./lib/operations";
+import {
+  createBurstController,
+  loadBurstOperationsScene,
+  type OperationsScene,
+} from "./lib/operations";
+import type { OperationsController } from "@layoutlab/simulation";
 import {
   clearPersisted,
   loadPersisted,
@@ -1239,19 +1244,34 @@ export function App(): React.JSX.Element {
     return { stale: false, reason: null };
   }, [comparisonRun, scenario, requirements]);
 
-  // Operations header metadata comes from the same shared scene loader the
-  // viewport uses (cached), never a hardcoded id. A load failure leaves the
-  // header truthfully unavailable instead of publishing a fake canonical id.
+  // ONE operations run for the app lifetime: scene + engine controller owned
+  // above the mode switch, so Storage Planning <-> Operations switches never
+  // destroy, rerun, or reset it. Reset replaces the controller only, from
+  // the same frozen inputs. Header metadata comes from this same holder,
+  // never a hardcoded id.
+  const [opsRun, setOpsRun] = useState<
+    { scene: OperationsScene; controller: OperationsController } | { error: string }
+  >(() => {
+    try {
+      return { scene: loadBurstOperationsScene(), controller: createBurstController() };
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : String(e) };
+    }
+  });
+  const resetOpsRun = (): void => {
+    try {
+      const scene = "error" in opsRun ? loadBurstOperationsScene() : opsRun.scene;
+      setOpsRun({ scene, controller: createBurstController() });
+    } catch (e) {
+      setOpsRun({ error: e instanceof Error ? e.message : String(e) });
+    }
+  };
   const opsHeader = useMemo(
     (): { ok: true; id: string; synthetic: boolean } | { ok: false } => {
-      try {
-        const loaded = loadOperationsScene();
-        return { ok: true, id: loaded.scenario.id, synthetic: loaded.scenario.provenance.category === "synthetic" };
-      } catch {
-        return { ok: false };
-      }
+      if ("error" in opsRun) return { ok: false };
+      return { ok: true, id: opsRun.scene.scenario.id, synthetic: opsRun.scene.scenario.provenance.category === "synthetic" };
     },
-    [],
+    [opsRun],
   );
   const sampleMode = scenario?.provenance.category === "synthetic";
   // Status truth: badges follow the ACTIVE run provenance, never stale
@@ -1419,7 +1439,7 @@ export function App(): React.JSX.Element {
       </header>
 
       <div className="page">
-      {appMode === "operations" ? <OperationsPanel /> : (<>
+      {appMode === "operations" ? <OperationsPanel run={opsRun} onResetRun={resetOpsRun} /> : (<>
       <section className="headline" aria-label="Planner headline">
         <div>
           <h1>A better place for every product.</h1>

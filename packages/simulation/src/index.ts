@@ -111,6 +111,7 @@ export {
   createTransportNav,
   footprintRadiusMm,
   footprintRect,
+  occupancyRectFor,
 } from "./navigation.js";
 export type {
   RouteFailure,

@@ -10,18 +10,26 @@
 // physical obstacles. No unrelated background.
 //
 // Per-unit conservative disc: radiusMm(unit) =
-// ceil(hypot(footprint.width, footprint.length)/2) + margin. For the main
-// 600x800+100 profile this is 500+100=600mm. Static checks inflate every
-// rack/obstacle/other-occupancy rect by the MOVING unit's radius and require
-// the center outside (inclusive boundary counts as blocked, matching core).
-// Declared footprints are axis-aligned rects centered at the slot:
-// width along X, length along Z. A navigable center implies its declared
-// rect is interior-disjoint from racks/obstacles and in-room, because the
-// rect halves (300/400 for 600x800) are smaller than the 600 radius.
+// ceil(hypot(footprint.width, footprint.length)/2) + margin (e.g. 600x800+100
+// gives 500+100=600mm; the canonical 680x1220+100 gives 699+100=799mm).
+// Static checks inflate every rack/obstacle rect by the MOVING unit's radius
+// and require the center outside (inclusive boundary counts as blocked,
+// matching core). Declared footprints are axis-aligned rects centered at the
+// slot: width along X, length along Z. A navigable center implies its
+// declared rect is interior-disjoint from racks/obstacles and in-room,
+// because the rect halves are smaller than the circumscribed radius.
 //
 // A route query excludes ONLY its own occupied footprint. All other
-// occupancies (other units' current poses as declared rects) are inflated
-// obstacles. Goals never include parking slots as destinations in the main
+// occupancies are represented by their DECLARED CIRCUMSCRIBED DISCS (disc
+// AABB +-rB inflated by the mover's radius rA), never by the smaller
+// physical rect without margin: the planner must agree with the analytic
+// continuous admission (center distance <= rA+rB+EPS conflicts), which
+// compares discs. Planning against the smaller rect can return a shortest
+// path hugging a stopped unit that admission then rejects, although a clear
+// detour exists, and the grant waits forever on the same hugging path. The
+// disc square's corners are conservative (up to ~1.42x the disc radius
+// diagonally): planning may wait where admission would pass, never the
+// reverse. Goals never include parking slots as destinations in the main
 // proof, but the adapter supports any navigable destination.
 //
 // Distances: per-segment ceil(hypot(dx,dz)) in integer mm (conservative,
@@ -45,6 +53,7 @@ import {
   type Scenario,
 } from "@layoutlab/core";
 import type { OperationsScenario } from "./schema.js";
+import { TRAFFIC_CONTACT_EPS_MM } from "./traffic.js";
 
 export type XzMm = { x: number; z: number };
 
@@ -106,6 +115,29 @@ export function footprintRect(
     maxX: center.x + footprint.width / 2,
     minZ: center.z - footprint.length / 2,
     maxZ: center.z + footprint.length / 2,
+  };
+}
+
+// Stationary-other occupancy for consistent conservative planning: the other
+// unit's declared circumscribed disc (AABB +-rB) inflated by the mover's
+// radius rA. The square COVERS the analytic admission disc (conflict iff
+// center distance <= rA+rB+EPS), so a path whose swept centerline avoids the
+// closed square always clears admission for this occupier; the +EPS closes
+// the inclusive-contact convention exactly. Corners over-approximate the
+// disc diagonally (documented conservative behavior): the planner may report
+// a corridor blocked where the analytic check would pass, but it never
+// returns a hugging path that admission then rejects.
+export function occupancyRectFor(
+  moverRadiusMm: number,
+  otherPose: XzMm,
+  otherRadiusMm: number,
+): Rect {
+  const half = otherRadiusMm + moverRadiusMm + TRAFFIC_CONTACT_EPS_MM;
+  return {
+    minX: otherPose.x - half,
+    maxX: otherPose.x + half,
+    minZ: otherPose.z - half,
+    maxZ: otherPose.z + half,
   };
 }
 
@@ -222,9 +254,10 @@ export function createTransportNav(
         if (otherId === forUnitId) continue;
         const other = profiles.get(otherId);
         if (!other) continue;
-        // Stationary B as its declared rect, inflated by A's moving radius:
-        // A's disc (rA) avoids B's rect.
-        inflated.push(inflateRect(footprintRect(pose, other.footprintMm), r));
+        // Stationary B as its declared circumscribed disc (AABB +-rB),
+        // inflated by A's moving radius rA: consistent with the analytic
+        // rA+rB admission, never the smaller physical rect without margin.
+        inflated.push(occupancyRectFor(r, pose, other.radiusMm));
       }
     }
     return {
@@ -271,11 +304,11 @@ export function createTransportNav(
     rect.maxX <= roomMm.widthMm &&
     rect.maxZ <= roomMm.depthMm;
 
-  // Witnessed occupiers: other units whose inflated occupancy rect (declared
-  // rect inflated by the mover's radius, exactly mirroring buildNav)
-  // contains the point (inclusive, matching pointInRect). Sorted unitIds.
-  // Center distance is NOT used: with distinct profiles the nearest unit
-  // may not be the one whose rect actually covers the point.
+  // Witnessed occupiers: other units whose disc occupancy square (declared
+  // disc AABB +-rB inflated by the mover's radius rA, exactly mirroring
+  // buildNav) contains the point (inclusive, matching pointInRect). Sorted
+  // unitIds. Center distance is NOT used: with distinct profiles the nearest
+  // unit may not be the one whose square actually covers the point.
   const occupiersContaining = (
     point: XzMm,
     forUnitId: string,
@@ -290,7 +323,7 @@ export function createTransportNav(
       if (
         pointInRect(
           point as PointMm,
-          inflateRect(footprintRect(pose, other.footprintMm), self.radiusMm),
+          occupancyRectFor(self.radiusMm, pose, other.radiusMm),
         )
       ) {
         out.push(otherId);
@@ -312,10 +345,7 @@ export function createTransportNav(
       if (otherId === forUnitId) continue;
       const other = profiles.get(otherId);
       if (!other) continue;
-      const inflated = inflateRect(
-        footprintRect(pose, other.footprintMm),
-        self.radiusMm,
-      );
+      const inflated = occupancyRectFor(self.radiusMm, pose, other.radiusMm);
       let touches = false;
       if (points.length <= 1) {
         touches =

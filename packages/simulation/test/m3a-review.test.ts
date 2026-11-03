@@ -383,19 +383,21 @@ describe("M3a review R4: actual blocker evidence", () => {
     // Uniform R2 correction (exposed by the new gate): old B(2000,1500)/
     // C(2000,2600) were 1100 apart (invalid under r600 envelopes). C moved
     // to z2800 (B-C 1300, valid); goal (2000,2050) still inside both
-    // inflated rects (550/750 in z, within 1000), preserving ambiguity.
+    // occupancy squares (550/750 in z, within 1200), preserving ambiguity.
+    // C2 disc-occupancy note: the squares cover x800..3200, so U starts at
+    // x700 (outside both squares, clear of the wall band) instead of x1000.
     const scenario = microScenario({
       room: { widthMm: 6000, depthMm: 6000 },
       units: [
-        { id: "U", parkingSlotMm: { x: 1000, z: 800 } },
+        { id: "U", parkingSlotMm: { x: 700, z: 800 } },
         { id: "B", parkingSlotMm: { x: 2000, z: 1500 } },
         { id: "C", parkingSlotMm: { x: 2000, z: 2800 } },
       ],
     });
-    // Nav-level: both inflated rects cover the goal.
+    // Nav-level: both disc occupancy squares cover the goal.
     const nav = createTransportNav(scenario);
     const direct = nav.findRoute(
-      { x: 1000, z: 800 },
+      { x: 700, z: 800 },
       { x: 2000, z: 2050 },
       "U",
       new Map([
@@ -427,9 +429,11 @@ describe("M3a review R4: actual blocker evidence", () => {
   });
 
   test("distinct profiles: actual occupier blamed, not the nearest center", () => {
-    // Goal (3000,2000) is nearer to N (708.1) than to F (750), but only
-    // F's inflated rect covers the goal.
-    expect(Math.hypot(3000 - 2900, 2000 - 2701)).toBeLessThan(
+    // Goal (3000,2000) is nearer to N (749.7) than to F (750), but only
+    // F's disc occupancy square covers the goal: N (r142) sits 743 in z,
+    // just outside its 742-wide square (1mm margin, mirroring the old
+    // rect-geometry margin under C2 disc occupancy).
+    expect(Math.hypot(3000 - 2900, 2000 - 2743)).toBeLessThan(
       Math.hypot(3000 - 3750, 2000 - 2000),
     );
     const c = createTransportController({
@@ -441,7 +445,7 @@ describe("M3a review R4: actual blocker evidence", () => {
             width: 200,
             length: 200,
             margin: 0,
-            parkingSlotMm: { x: 2900, z: 2701 },
+            parkingSlotMm: { x: 2900, z: 2743 },
           },
           { id: "F", parkingSlotMm: { x: 3750, z: 2000 } },
         ],
@@ -455,6 +459,121 @@ describe("M3a review R4: actual blocker evidence", () => {
       blockerUnitId: "F",
       reason: "OCCUPIED_GOAL",
     });
+  });
+});
+
+describe("M3a C2: consistent conservative disc occupancy", () => {
+  // C2 root fix: the planner represents stationary others by their declared
+  // circumscribed discs (AABB +-rB inflated rA), matching the analytic
+  // rA+rB admission. Planning against the smaller physical rect returned a
+  // hugging path that admission then rejected (STOPPED_AGENT_IN_PATH) even
+  // when a clear detour existed, and the grant waited forever.
+  const farRack = [{ id: "R-FAR", x: 5500, z: 5500, width: 200, depth: 200, height: 1000 }];
+
+  test("stopped unit yields a granted detour, not a hugging wait", () => {
+    // S (r600) sits mid-corridor; U (r600) crosses west-east. The disc
+    // square (half 1200) forces a detour clearing z<800/z>3200; every
+    // granted centerline point stays >1200 from S, so analytic admission
+    // agrees (no STOPPED_AGENT_IN_PATH). The old rect inflation (half
+    // 900/1000) hugged at z~900 (1100 < 1200) and waited forever.
+    const c = createTransportController({
+      scenario: microScenario({
+        room: { widthMm: 6000, depthMm: 6000 },
+        racks: farRack,
+        units: [
+          { id: "U", parkingSlotMm: { x: 1000, z: 2000 } },
+          { id: "S", parkingSlotMm: { x: 3000, z: 2000 } },
+        ],
+      }),
+    });
+    const r = c.requestMove("U", { x: 5000, z: 2000 });
+    expect(r.status).toBe("granted");
+    if (r.status !== "granted") return;
+    expect(r.plan.totalDistanceMm).toBeGreaterThan(4000);
+    for (const p of r.plan.points) {
+      expect(Math.hypot(p.x - 3000, p.z - 2000)).toBeGreaterThan(1200);
+    }
+  });
+
+  test("different radii: small mover detours a large stopped blocker", () => {
+    // U (200x200+0, r142) vs B (600x800+100, r600): the square half is
+    // 742, so the detour clears z<1258/z>2742 and grants. Rect inflation
+    // by r142 hugged at z~1400 (600 < 742) and waited.
+    const c = createTransportController({
+      scenario: microScenario({
+        room: { widthMm: 6000, depthMm: 6000 },
+        racks: farRack,
+        units: [
+          { id: "U", width: 200, length: 200, margin: 0, parkingSlotMm: { x: 1000, z: 2000 } },
+          { id: "B", parkingSlotMm: { x: 3000, z: 2000 } },
+        ],
+      }),
+    });
+    const r = c.requestMove("U", { x: 5000, z: 2000 });
+    expect(r.status).toBe("granted");
+    if (r.status !== "granted") return;
+    for (const p of r.plan.points) {
+      expect(Math.hypot(p.x - 3000, p.z - 2000)).toBeGreaterThan(742);
+    }
+  });
+
+  test("fully blocked corridor reports witnessed blockers, never a fake path", () => {
+    // S1/S2 squares (half 1200) cover every navigable row: no centerline
+    // can pass, while the static corridor stays open. Both squares touch
+    // the static centerline, so attribution is honestly unknown with two
+    // witnessed candidates (no invented blocker, no false deadlock edge).
+    const scenario = microScenario({
+      room: { widthMm: 6000, depthMm: 4000 },
+      units: [
+        { id: "U", parkingSlotMm: { x: 1000, z: 2000 } },
+        { id: "S1", parkingSlotMm: { x: 3000, z: 1300 } },
+        { id: "S2", parkingSlotMm: { x: 3000, z: 2700 } },
+      ],
+    });
+    const nav = createTransportNav(scenario);
+    const statik = nav.findStaticRoute({ x: 1000, z: 2000 }, { x: 5000, z: 2000 }, "U");
+    expect(statik.status).toBe("ok");
+    if (statik.status !== "ok") return;
+    const others = new Map([
+      ["S1", { x: 3000, z: 1300 }],
+      ["S2", { x: 3000, z: 2700 }],
+    ]);
+    const blocked = nav.findRoute({ x: 1000, z: 2000 }, { x: 5000, z: 2000 }, "U", others);
+    expect(blocked.status).toBe("rejected");
+    if (blocked.status !== "rejected") return;
+    expect(blocked.reason).toBe("NO_PATH");
+    expect(nav.blockingCandidatesOnCorridor(statik.points, "U", others)).toEqual(["S1", "S2"]);
+    const c = createTransportController({ scenario });
+    const r = c.requestMove("U", { x: 5000, z: 2000 });
+    expect(r.status).toBe("waiting");
+    if (r.status !== "waiting") return;
+    expect(r.blocker).toEqual({ kind: "unknown", reason: "CORRIDOR_BLOCKED", candidates: ["S1", "S2"] });
+  });
+
+  test("idle units at parking: routes pass around, occupied goals blamed", () => {
+    // P2 idles at its parking; U routes past it (detour grants) but a goal
+    // inside its disc square reports OCCUPIED_GOAL with the witnessed
+    // occupier, never an arbitrary blocker.
+    const scenario = microScenario({
+      room: { widthMm: 6000, depthMm: 6000 },
+      racks: farRack,
+      units: [
+        { id: "U", parkingSlotMm: { x: 1000, z: 2000 } },
+        { id: "P2", parkingSlotMm: { x: 4000, z: 2000 } },
+      ],
+    });
+    const c = createTransportController({ scenario });
+    const past = c.requestMove("U", { x: 5300, z: 2000 });
+    expect(past.status).toBe("granted");
+    if (past.status !== "granted") return;
+    for (const p of past.plan.points) {
+      expect(Math.hypot(p.x - 4000, p.z - 2000)).toBeGreaterThan(1200);
+    }
+    const c2 = createTransportController({ scenario });
+    const into = c2.requestMove("U", { x: 4000, z: 2000 });
+    expect(into.status).toBe("waiting");
+    if (into.status !== "waiting") return;
+    expect(into.blocker).toEqual({ kind: "unit", blockerUnitId: "P2", reason: "OCCUPIED_GOAL" });
   });
 });
 

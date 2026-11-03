@@ -1,0 +1,52 @@
+{
+  "capturedAt": "2026-11-03T05:46:04.725Z",
+  "model": "cargo-c2-centered680x1220",
+  "fixtures": {
+    "parent": {
+      "path": "fixtures/operations/main-warehouse.json",
+      "bytes": 23520,
+      "sha256": "c6e4f208835e31de2554850fa618953bb6f9a1b03c360b137c784bd5112660cb"
+    },
+    "burst": {
+      "path": "fixtures/operations/picking-packing-burst.json",
+      "bytes": 31113,
+      "sha256": "9eda552bd8f2da8378c84dccf5440d8264869af3013065ae6e34ecb4529cdbf7"
+    }
+  },
+  "packet": {
+    "path": "assets/cargo/carry-luggage-platform-a01.json",
+    "sha256": "2047d6a6895921c2e064ef20a481968a56e9b273e606dd4caeb02acd88d889e6"
+  },
+  "command": "node scripts/warehouse-cargo-fit.mjs",
+  "exitCode": 0,
+  "stdout": [
+    "cart bounds x -0.3357..0.3357 y 0.0000..0.9525 z -0.6506..0.5685 tris=186990",
+    "crate bounds x -0.3026..0.3026 y 0.0001..0.2533 z -0.2026..0.2026 tris=60744",
+    "ok calibration: cart+crate bounds == packet within 1mm; 186990/60744 tris; centerZ -41.02388mm",
+    "ok deck witness: 25/25 rays hit 290.72893..290.72898mm (packet 290.7289mm, 1um band)",
+    "ok support: 0 above-deck vertices and 0 deck-crossing edges inside either crate XZ rect (clean flat support)",
+    "ok dock A: bottom exactly on 290.7289mm deck, X -302.6..302.6 in +/-310, Z 0.5..405.7 in -565..+505",
+    "ok dock B: bottom exactly on 290.7289mm deck, X -302.6..302.6 in +/-310, Z -405.7..-0.5 in -565..+505",
+    "ok frames: nearest above-deck structure +419.53/-476.21mm; end clearances 13.86/70.54mm",
+    "ok volumes: 0 cart triangles touch either crate volume above the resting contact plane",
+    "ok seam: positive gap 1.067mm (no penetration, no waiver)",
+    "ok profile: normalized union X -335.7..335.7 in +/-340, Z -609.5..609.5 in +/-610 (r799)",
+    "ok demands: all 6 burst order lines exactly as canonical (B-01..B-06 unchanged)",
+    "ok cells: 2x 220x320x160 within interior 580x380x247 (outer 605.1x405.1x253.2)",
+    "ok skus: all 12 canonical SKUs (cost 1) fit a yaw90 cell; worst P05 320x220x160 exact-fits",
+    "ok load B-01: 3 items allocate into 4 fixed cells",
+    "ok load B-02: 4 items allocate into 4 fixed cells",
+    "ok load B-03: 3 items allocate into 4 fixed cells",
+    "ok load B-04: 3 items allocate into 4 fixed cells",
+    "ok load B-05: 3 items allocate into 4 fixed cells",
+    "ok load B-06: 3 items allocate into 4 fixed cells",
+    "ok capacity: 2 crates x 2 cells = 4u; burst orders <= 4u preserved (conservative constructed capacity, no kg/vendor claim)",
+    "ok negative oversize: 321x220x160 exceeds cell 220x320 plan at yaw90 -> REJECTED",
+    "ok negative over-height: 320x220x161 exceeds cell 160 height -> REJECTED",
+    "ok negative unsupported-cost: cost-2 unit has no single-cell grant -> REJECTED",
+    "ok negative 8-largest-SKU: 8x P05 needs 8 cells, only 4 fixed -> REJECTED",
+    "ok negative overhang: crate X -252.6..352.6 vs deck +/-310 -> REJECTED",
+    "ok negative frame: crate max z 552.6 enters measured frame zone >= 435.08 -> REJECTED",
+    "CARGO-FIT-C2: PASS deck rays + support + docks/gap + profile + canonical 12-SKU/6-order/4u + 6 negatives"
+  ]
+}

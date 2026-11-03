@@ -1,0 +1,66 @@
+{
+  "browser": "desktop",
+  "channel": "msedge",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "speed": "1x",
+  "simClockMs": 7034,
+  "window": {
+    "startPerfNowMs": 3780.4000000059605,
+    "endPerfNowMs": 10755.40000000596,
+    "wallSeconds": 6.975,
+    "startSimClockMs": 0,
+    "endSimClockMs": 6894
+  },
+  "start": {
+    "renders": 6,
+    "renderCpuTotalMs": 392.1000000089407,
+    "rafCallbacks": 0,
+    "engineAdvances": 0,
+    "advanceMsTotal": 0,
+    "snapshots": 0,
+    "simClockMs": 0,
+    "perfNowMs": 3780.4000000059605
+  },
+  "end": {
+    "renders": 153,
+    "renderCpuTotalMs": 1020.1999999135733,
+    "rafCallbacks": 516,
+    "engineAdvances": 515,
+    "advanceMsTotal": 69.00000002980232,
+    "snapshots": 148,
+    "simClockMs": 6894,
+    "perfNowMs": 10755.40000000596
+  },
+  "delta": {
+    "wallSeconds": 6.975,
+    "renders": 147,
+    "renderCpuTotalMs": 628.0999999046326,
+    "avgRenderCpuMs": 4.272789114997501,
+    "activeRenderFps": 21.075268817204304,
+    "rafCallbacks": 516,
+    "engineAdvances": 515,
+    "advanceMsTotal": 69.00000002980232,
+    "avgAdvanceMs": 0.13398058258214043,
+    "snapshots": 148
+  },
+  "lifetimeReference": {
+    "renders": 157,
+    "avgRenderCpuMs": 6.59,
+    "maxRenderCpuMsLifetime": 295.1,
+    "renderSpanSeconds": 9.8,
+    "rafCallbacks": 530,
+    "engineAdvances": 529,
+    "avgAdvanceMs": 0.13,
+    "maxAdvanceMsLifetime": 47.7,
+    "snapshots": 151,
+    "wallSeconds": 7
+  },
+  "renderer": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "assetGlbCount": 8,
+  "assetGlbBytes": 69390832,
+  "consoleErrors": [],
+  "note": "Active-window deltas only: start/end counters and page performance.now bracket >=5s of ACTIVE 1x playback (load/static draws excluded; start/end ship above so arithmetic checks offline). Actual WebGL renders, rAF callbacks, engine advances, snapshots, render-CPU cost, GPU renderer string, and asset payload stay separate. Maxima are renderer-lifetime values (labeled), never window maxima by subtraction; no window-maximum claim is made. Render CPU is main-thread JS/WebGL-call cost, not GPU time. No 60fps/mobile/GPU-time claim is made."
+}

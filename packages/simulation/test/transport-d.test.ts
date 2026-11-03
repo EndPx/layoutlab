@@ -4,15 +4,18 @@ import { describe, expect, test } from "vitest";
 import {
   createServiceStation,
   createTransportNav,
+  footprintRadiusMm,
   parseOperationsScenario,
   stationaryVsStationaryConflict,
 } from "../src/index.js";
 
-// Acceptance D: main canonical fixture after the M3a geometry correction.
+// Acceptance D: main canonical fixture after the M3a geometry correction,
+// recalibrated by cargo-C2 to the centered 680x1220+100 profile (r799).
 // PACK-1/PACK-2 each construct with 1 physical lane; all service/queue/
-// parking positions clear pairwise under the 600mm radius; every canonical
+// parking positions clear pairwise under the 799mm radius; every canonical
 // approach/service/queue/parking point is navigable and reachable; the old
-// 600mm queue pitch is durably rejected as overlapping.
+// 600mm-queue-pitch overlap stays a durable historical negative; the
+// superseded 1500mm-pair fact lives in git history and the C2 review doc.
 const FIXTURE = "../../fixtures/operations/main-warehouse.json";
 const HISTORICAL_SHA = "31e8b3429183abf8636b47c5b00f2c0b81dd0d8a4e0fac42c3faf9e303320b4e";
 
@@ -39,8 +42,13 @@ describe("M3a main fixture correction (acceptance D)", () => {
     ).toThrow(/exceeds 1 service position/);
   });
 
-  test("all service/queue/parking positions clear pairwise (>=1200, actual min 1500)", () => {
+  test("all service/queue/parking positions clear pairwise (cargo-c2 r799 discs, actual min 1615.55)", () => {
     const { fx } = loadMain();
+    // Cargo-C2 model: every unit shares the centered 680x1220+100 profile
+    // (r799) and capacity 4; radii come from the fixture, never literals.
+    const radii = new Map(fx.mobileUnits.map((u) => [u.id, footprintRadiusMm(u.footprintMm)]));
+    expect(new Set(radii.values())).toEqual(new Set([799]));
+    expect(new Set(fx.mobileUnits.map((u) => u.loadCapacityUnits))).toEqual(new Set([4]));
     const pts: { name: string; x: number; z: number }[] = [];
     for (const r of fx.resources) {
       for (const s of r.servicePositions) pts.push({ name: `service-${s.id}`, x: s.x, z: s.z });
@@ -61,15 +69,15 @@ describe("M3a main fixture correction (acceptance D)", () => {
           min = d;
           pair = [a.name, b.name];
         }
-        // 600+600=1200: touching counts as conflict, so require >1200.
+        // 799+799=1598: touching counts as conflict, so require >1598.
         expect(
-          stationaryVsStationaryConflict({ x: a.x, z: a.z }, 600, { x: b.x, z: b.z }, 600),
+          stationaryVsStationaryConflict({ x: a.x, z: a.z }, 799, { x: b.x, z: b.z }, 799),
           `${a.name} vs ${b.name} overlap`,
         ).toBe(false);
       }
     }
-    expect(min).toBe(1500);
-    expect(pair.sort()).toEqual(["queue-RCV-Q1", "service-RCV-S1"].sort());
+    expect(min).toBe(1615.5494421403514);
+    expect(pair.sort()).toEqual(["service-DSP-S1", "service-PACK2-S1"].sort());
   });
 
   test("every canonical point is navigable and every parking reaches every goal", () => {

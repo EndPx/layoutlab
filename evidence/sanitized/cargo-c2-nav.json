@@ -1,0 +1,28 @@
+{
+  "capturedAt": "2026-11-03T05:46:04.725Z",
+  "model": "cargo-c2-centered680x1220",
+  "fixtures": {
+    "parent": {
+      "path": "fixtures/operations/main-warehouse.json",
+      "bytes": 23520,
+      "sha256": "c6e4f208835e31de2554850fa618953bb6f9a1b03c360b137c784bd5112660cb"
+    },
+    "burst": {
+      "path": "fixtures/operations/picking-packing-burst.json",
+      "bytes": 31113,
+      "sha256": "9eda552bd8f2da8378c84dccf5440d8264869af3013065ae6e34ecb4529cdbf7"
+    }
+  },
+  "packet": {
+    "path": "assets/cargo/carry-luggage-platform-a01.json",
+    "sha256": "2047d6a6895921c2e064ef20a481968a56e9b273e606dd4caeb02acd88d889e6"
+  },
+  "command": "node scripts/warehouse-environment-nav.mjs",
+  "exitCode": 0,
+  "stdout": [
+    "profile: centered 680x1220+100 r799 from fixture == carry packet",
+    "cart: normalized actual X -335.7..335.7 in +/-340, Z -609.5..609.5 in +/-610",
+    "parked: 6 actual normalized cart rects (671.5x1219.1mm) disjoint from racks/obstacles/each other",
+    "ENV-NAV-C2: PASS 228/228 parking->goal routes under actual r799 disc occupancy (worst detour 2.11x); analytic disc clearance re-verified per segment"
+  ]
+}
