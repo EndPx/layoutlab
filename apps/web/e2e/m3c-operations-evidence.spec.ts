@@ -187,7 +187,7 @@ test.describe("operations evidence", () => {
     await page.getByTestId("ops-speed-16").click();
     await page.getByTestId("ops-run").click();
     await expect(page.getByTestId("ops-state-badge")).toContainText("STAGE COMPLETE", { timeout: 600_000 });
-    await expect(page.getByTestId("ops-complete-note")).toContainText("6 orders READY_FOR_DISPATCH");
+    await expect(page.getByTestId("ops-complete-note")).toContainText("6 orders SHIPPED");
     await ensurePaused(page);
     const endClock = await opsClockMs(page);
     console.log(`evidence recording completes at exact clock ${endClock}ms (${channelTag})`);

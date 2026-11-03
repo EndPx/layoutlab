@@ -70,7 +70,7 @@ function stateBadge(
   completion: { stage: string } | null,
 ): { label: string; cls: string } {
   if (engineError) return { label: "ENGINE ERROR", cls: "invalid" };
-  if (completion?.stage === "SUPPORTED_STAGE_COMPLETE") return { label: "STAGE COMPLETE · READY_FOR_DISPATCH", cls: "valid" };
+  if (completion?.stage === "SUPPORTED_STAGE_COMPLETE") return { label: "COMPLETE · SHIPPED", cls: "valid" };
   if (completion?.stage === "BLOCKED") return { label: "BLOCKED", cls: "warn" };
   if (completion?.stage === "WINDOW_ENDED") return { label: "WINDOW ENDED", cls: "warn" };
   if (playing) return { label: "RUNNING", cls: "valid" };
@@ -403,7 +403,7 @@ export function OperationsPanel(props: { run: OpsRunState; onResetRun: () => voi
         </div>
         <span className="hint">SYNTHETIC picking-to-packing burst: {c.orders} orders · {pickerCount} pickers + {putawayCount} putaway · {packingText}. A model was not used in this run; engine-running is not LIVE inference.</span>
         {completion?.stage === "SUPPORTED_STAGE_COMPLETE" && (
-          <span className="hint" data-testid="ops-complete-note">Stage complete: all {snap?.counts.readyForDispatch} orders READY_FOR_DISPATCH · shipped {snap?.counts.shipped} · unshipped backlog {snap?.counts.backlog}. Dispatch ships in a later milestone.</span>
+          <span className="hint" data-testid="ops-complete-note">Complete: all {snap?.counts.shipped} orders SHIPPED · unshipped backlog {snap?.counts.backlog} · stage backlog {snap?.counts.stageBacklog}.</span>
         )}
         {completion?.stage === "BLOCKED" && (
           <span className="hint" role="alert" data-testid="ops-blocked-note">⚠ Blocked: {diagnostic ?? "see inspector and timeline"} · orders and inventory preserved · no teleporting or task deletion.</span>
@@ -416,7 +416,7 @@ export function OperationsPanel(props: { run: OpsRunState; onResetRun: () => voi
       <div className="metrics ops-metrics" data-testid="ops-metrics" aria-label="Operations metrics">
         <div className="metric"><div><p className="metric-label">Arrived orders</p><p className="metric-value" data-testid="ops-m-arrived">{snap ? `${snap.counts.arrived}/${snap.counts.selected}` : "—"}</p><p className="metric-caption">Scheduled burst arrivals so far</p></div></div>
         <div className="metric"><div><p className="metric-label">Ready for dispatch</p><p className="metric-value" data-testid="ops-m-ready">{snap?.counts.readyForDispatch ?? "—"}</p><p className="metric-caption">Packed {snap?.counts.packed ?? "—"} · stage backlog {snap?.counts.stageBacklog ?? "—"}</p></div></div>
-        <div className="metric"><div><p className="metric-label">Shipped / backlog</p><p className="metric-value" data-testid="ops-m-backlog">{snap?.counts.shipped ?? "—"} / {snap?.counts.backlog ?? "—"}</p><p className="metric-caption">Unshipped backlog = arrived − shipped (this slice never ships)</p></div></div>
+        <div className="metric"><div><p className="metric-label">Shipped / backlog</p><p className="metric-value" data-testid="ops-m-backlog">{snap?.counts.shipped ?? "—"} / {snap?.counts.backlog ?? "—"}</p><p className="metric-caption">Unshipped backlog = arrived − shipped</p></div></div>
         <div className="metric"><div><p className="metric-label">Active agents</p><p className="metric-value" data-testid="ops-m-agents">{snap ? `${activeAgents}/${snap.units.length}` : "—"}</p><p className="metric-caption">On task or wheels engaged (true idle excluded)</p></div></div>
         <div className="metric"><div><p className="metric-label">Packing queue</p><p className="metric-value" data-testid="ops-m-queue">{snap ? `${queuedJobs.length} jobs · ${arrivedUnits} arrived` : "—"}</p><p className="metric-caption">Jobs placed (some still travelling) · units physically at a station</p></div></div>
       </div>

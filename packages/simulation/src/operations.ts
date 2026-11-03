@@ -22,9 +22,12 @@
 // packing in ONE trip. An order no eligible picker can carry is rejected
 // upfront with UNSUPPORTED_SINGLE_TRIP_REQUIRED and retained in the backlog;
 // split-trip pickup stays an explicit v3-backlog item, never a partial drop.
-// No dispatch/inbound/putaway completion is claimed: packed goods are finite
-// per-resource output staging, never SHIPPED. Full output holds the resource
-// with stock safe (M2b output-held), it never spills into an unbounded bucket.
+// Dispatch ships only through a configured dispatch resource: packed goods
+// wait in finite per-resource output staging until the dispatch-service
+// completion moves them to dispatched stock and frees the staging. With no
+// dispatch resource, READY_FOR_DISPATCH stays terminal. No inbound/putaway
+// completion is claimed. Full output holds the resource with stock safe
+// (M2b output-held), it never spills into an unbounded bucket.
 import { z } from "zod";
 import { EVENT_PRIORITY } from "./priorities.js";
 import {
@@ -92,7 +95,8 @@ export type OrderLifecycleState =
   | "PICKING"
   | "WAITING_FOR_PACKING"
   | "PACKING"
-  | "READY_FOR_DISPATCH";
+  | "READY_FOR_DISPATCH"
+  | "SHIPPED";
 
 export type OperationsOrderDiagnostic = {
   code: string;
@@ -109,6 +113,7 @@ export type OperationsOrderView = {
   reservation: { productId: string; locationId: string; quantity: number }[];
   unitId: string | null;
   packingResourceId: string | null;
+  dispatchResourceId: string | null;
   queueSlotId: string | null;
   waitReason: string | null;
   diagnostic: OperationsOrderDiagnostic | null;
@@ -308,10 +313,13 @@ type OrderRuntime = {
   legsDone: number;
   unitId: string | null;
   packingResourceId: string | null;
+  dispatchResourceId: string | null;
   jobId: string | null;
   queueSlotId: string | null;
   queueRequestMs: number | null;
   jobEnqueued: boolean;
+  dispatchJobId: string | null;
+  dispatchEnqueued: boolean;
   unloadCommitted: boolean;
   packed: boolean;
   totalCostUnits: number;
@@ -444,6 +452,20 @@ export function createOperationsController(opts: {
     unitRadius.set(u.id, footprintRadiusMm(u.footprintMm));
   }
   const packingConfigById = new Map(packingConfigs.map((r) => [r.id, r]));
+  // Dispatch is optional: with no dispatch resource, packed orders honestly
+  // remain READY_FOR_DISPATCH. With one, the same single-lane discipline as
+  // packing applies (split lanes into separate stations instead).
+  const dispatchConfigs = scenario.resources.filter((r) => r.kind === "dispatch");
+  for (const cfg of dispatchConfigs) {
+    if (cfg.servicePositions.length > 1 || cfg.serviceCapacity > 1) {
+      throw new Error(
+        `unsupported capability [UNSUPPORTED_MULTILANE]: dispatch is single-lane-per-station; ` +
+          `resource ${cfg.id} advertises ${cfg.servicePositions.length} service position(s) / capacity ${cfg.serviceCapacity}; ` +
+          `split lanes into separate single-lane stations or await per-position admission`,
+      );
+    }
+  }
+  const dispatchConfigById = new Map(dispatchConfigs.map((r) => [r.id, r]));
 
   const runMode =
     scenario.policies.run.mode === "finite-cohort"
@@ -481,6 +503,7 @@ export function createOperationsController(opts: {
     orders: Map<string, OrderRuntime>;
     units: Map<string, UnitRuntime>;
     resources: Map<string, ResourceRuntime>;
+    dispatchStations: Map<string, ServiceStation>;
     timeline: OperationsTimelineEntry[];
     waits: OperationsWaitRecord[];
     trajectories: RetainedTrajectory[];
@@ -537,10 +560,13 @@ export function createOperationsController(opts: {
         legsDone: 0,
         unitId: null,
         packingResourceId: null,
+        dispatchResourceId: null,
         jobId: null,
         queueSlotId: null,
         queueRequestMs: null,
         jobEnqueued: false,
+        dispatchJobId: null,
+        dispatchEnqueued: false,
         unloadCommitted: false,
         packed: false,
         totalCostUnits: orderCostOf(lines),
@@ -580,6 +606,9 @@ export function createOperationsController(opts: {
       orders,
       units,
       resources,
+      dispatchStations: new Map(
+        dispatchConfigs.map((cfg) => [cfg.id, createServiceStation(cfg)]),
+      ),
       timeline: [],
       waits: [],
       trajectories: [],
@@ -1065,6 +1094,7 @@ export function createOperationsController(opts: {
           tryPackCommit(rt, now);
         }
       }
+      tryAdvanceDispatch(now);
       // Idle units with no assignable work leave the service position
       // and return to parking; they never wander, and units already home
       // stay put. Departure is two-phase: a unit standing on a service
@@ -1670,6 +1700,163 @@ export function createOperationsController(opts: {
       requestDispatch(now);
     };
 
+    // Dispatch: packed orders queue FIFO on the configured dispatch lane(s)
+    // and ship only at dispatch-service completion. Packed stock stays in
+    // finite packing output staging until the ship commit frees it. With no
+    // dispatch resource configured, READY_FOR_DISPATCH remains terminal.
+    const tryAdvanceDispatch = (now: number): void => {
+      if (S.dispatchStations.size === 0) return;
+      const ready = [...S.orders.values()]
+        .filter((o) => o.created && o.state === "READY_FOR_DISPATCH" && o.packed)
+        .sort(
+          (a, b) =>
+            (a.timestamps.READY_FOR_DISPATCH ?? 0) -
+              (b.timestamps.READY_FOR_DISPATCH ?? 0) || a.idx - b.idx,
+        );
+      for (const rt of ready) {
+        if (!rt.dispatchEnqueued) {
+          let bestId: string | null = null;
+          let bestLoad = Number.POSITIVE_INFINITY;
+          for (const [id, station] of S.dispatchStations) {
+            const load = station
+              .snapshot()
+              .jobs.filter(
+                (j) => j.state === "queued" || j.state === "in-service",
+              ).length;
+            if (load < bestLoad || (load === bestLoad && (bestId === null || id < bestId))) {
+              bestId = id;
+              bestLoad = load;
+            }
+          }
+          if (bestId === null) return;
+          const station = S.dispatchStations.get(bestId) as ServiceStation;
+          const jobId = `dsp-job-${rt.idx}`;
+          const enq = station.enqueue({ jobId, enqueueTimeMs: now });
+          if (enq.status === "waiting-outside") {
+            rt.waitReason = "DISPATCH_QUEUE_FULL";
+            openWait(
+              null,
+              rt.orderId,
+              "DISPATCH_QUEUE_FULL",
+              `dispatch queues full; packed output retained at ${rt.packingResourceId}`,
+              now,
+            );
+            continue;
+          }
+          rt.dispatchEnqueued = true;
+          rt.dispatchJobId = jobId;
+          rt.dispatchResourceId = bestId;
+          record(now, "DISPATCH_QUEUED", rt.orderId, null, `queued on ${bestId}`);
+        }
+        const station = S.dispatchStations.get(
+          rt.dispatchResourceId as string,
+        ) as ServiceStation;
+        const job = station
+          .snapshot()
+          .jobs.find((j) => j.jobId === rt.dispatchJobId);
+        if (!job || job.state !== "queued") continue;
+        const head = station
+          .snapshot()
+          .jobs.filter((j) => j.state === "queued")
+          .sort(
+            (a, b) =>
+              a.enqueueTimeMs - b.enqueueTimeMs ||
+              (a.jobId < b.jobId ? -1 : 1),
+          )[0];
+        if (head?.jobId !== rt.dispatchJobId) {
+          rt.waitReason = "DISPATCH_QUEUED_BEHIND_HEAD";
+          continue;
+        }
+        const started = station.tryStart({
+          jobId: rt.dispatchJobId as string,
+          timeMs: now,
+          inputReady: true,
+        });
+        if (started.status === "waiting") {
+          rt.waitReason = `DISPATCH_WAIT_${started.reason}`;
+          continue;
+        }
+        rt.waitReason = null;
+        closeWaitsFor(null, rt.orderId, now);
+        record(
+          now,
+          "DISPATCH_STARTED",
+          rt.orderId,
+          null,
+          `${rt.dispatchJobId} at ${rt.dispatchResourceId} position ${started.positionId}`,
+        );
+        const cfg = dispatchConfigById.get(rt.dispatchResourceId as string);
+        const at = now + (cfg?.serviceDurationMs ?? 0);
+        if (at > MAX_TIME_MS) {
+          diagnose(
+            rt,
+            "TIME_BOUND_EXCEEDED",
+            `dispatch service for ${rt.orderId} exceeds the ${MAX_TIME_MS}ms horizon bound; packed output retained`,
+            true,
+            now,
+          );
+          continue;
+        }
+        S.kernel.schedule({
+          id: `ops-dispatch-done-${rt.idx}`,
+          timeMs: at,
+          priority: EVENT_PRIORITY.COMPLETION,
+          kind: "DISPATCH_COMPLETED",
+          data: { orderIdx: rt.idx },
+        });
+      }
+    };
+
+    const onDispatchCompleted = (event: KernelEventView, now: number): void => {
+      const data = event.data as { orderIdx?: unknown } | null;
+      const orderIdx = typeof data?.orderIdx === "number" ? data.orderIdx : null;
+      if (orderIdx === null) return;
+      const spec = scenario.orderSchedule[orderIdx];
+      const rt = spec ? S.orders.get(spec.id) : undefined;
+      if (!rt || !rt.created) {
+        record(now, "STALE_IGNORED", null, null, "dispatch completion for unknown order; no mutation");
+        return;
+      }
+      const station = rt.dispatchResourceId
+        ? S.dispatchStations.get(rt.dispatchResourceId)
+        : undefined;
+      const job = station
+        ?.snapshot()
+        .jobs.find((j) => j.jobId === rt.dispatchJobId);
+      if (
+        rt.state !== "READY_FOR_DISPATCH" ||
+        !rt.packed ||
+        !station ||
+        !job ||
+        job.state !== "in-service"
+      ) {
+        record(now, "STALE_IGNORED", rt.orderId, null, "unexpected dispatch completion; no mutation");
+        return;
+      }
+      station.completeService({
+        jobId: rt.dispatchJobId as string,
+        timeMs: now,
+        outputBlocked: false,
+      });
+      S.store.dispatchOrder({
+        eventId: `inv-dispatch-${rt.idx}`,
+        timeMs: now,
+        orderId: rt.orderId,
+      });
+      // Free the finite packing output this order occupied.
+      if (rt.packingResourceId) {
+        const res = S.resources.get(rt.packingResourceId);
+        if (res && res.packedOutput.has(rt.orderId)) {
+          res.packedOutput.delete(rt.orderId);
+          res.outputUsed -= rt.totalCostUnits;
+        }
+      }
+      rt.waitReason = null;
+      closeWaitsFor(null, rt.orderId, now);
+      transition(rt, "SHIPPED", now, null, `dispatched via ${rt.dispatchResourceId}; goods left the warehouse`);
+      requestDispatch(now);
+    };
+
     const onMovementCompleted = (unitId: string, now: number): void => {
       const unit = S.units.get(unitId);
       if (!unit) return;
@@ -1874,6 +2061,9 @@ export function createOperationsController(opts: {
         case "PACK_COMPLETED":
           onPackCompleted(event, now);
           break;
+        case "DISPATCH_COMPLETED":
+          onDispatchCompleted(event, now);
+          break;
         default:
           break;
       }
@@ -1937,7 +2127,8 @@ export function createOperationsController(opts: {
     transport: TransportSnapshot,
   ): string | null => {
     if (!rt.created || rt.diagnostic?.terminal) return null;
-    if (rt.state === "READY_FOR_DISPATCH") return null;
+    if (rt.state === "READY_FOR_DISPATCH") return rt.waitReason;
+    if (rt.state === "SHIPPED") return null;
     if (rt.state === "CREATED") return "DISPATCH_PENDING";
     if (rt.state === "WAITING_FOR_STOCK") return "WAITING_FOR_STOCK";
     if (rt.state === "READY_FOR_PICKING") {
@@ -2128,6 +2319,7 @@ export function createOperationsController(opts: {
         reservation: reservationOf(rt.orderId),
         unitId: rt.unitId,
         packingResourceId: rt.packingResourceId,
+        dispatchResourceId: rt.dispatchResourceId,
         queueSlotId: rt.queueSlotId,
         waitReason: orderWaitReason(S, rt, transport),
         diagnostic: rt.diagnostic ? { ...rt.diagnostic } : null,
@@ -2198,6 +2390,7 @@ export function createOperationsController(opts: {
     const arrived = orders.filter((o) => o.state !== "NOT_ARRIVED").length;
     const packedCount = [...S.orders.values()].filter((o) => o.packed).length;
     const ready = orders.filter((o) => o.state === "READY_FOR_DISPATCH").length;
+    const shippedCount = orders.filter((o) => o.state === "SHIPPED").length;
     return freezeValue({
       scenarioId: scenario.id,
       seed: scenario.seed,
@@ -2232,9 +2425,9 @@ export function createOperationsController(opts: {
         arrived,
         packed: packedCount,
         readyForDispatch: ready,
-        shipped: 0,
-        backlog: arrived,
-        stageBacklog: arrived - ready,
+        shipped: shippedCount,
+        backlog: arrived - shippedCount,
+        stageBacklog: arrived - ready - shippedCount,
       },
       checks: {
         conservation: S.store.checkInvariants(),
@@ -2255,36 +2448,44 @@ export function createOperationsController(opts: {
         code: (o.diagnostic as OperationsOrderDiagnostic).code,
         message: (o.diagnostic as OperationsOrderDiagnostic).message,
       }));
-    // backlog = arrived - shipped (unshipped); stageBacklog = arrived - ready.
-    // M3b never ships, so backlog counts every arrived order even at stage
-    // completion: SUPPORTED_STAGE_COMPLETE stays honest, never all-shipped.
+    const shipped = all.filter((o) => o.state === "SHIPPED").length;
+    // backlog = arrived - shipped (unshipped); stageBacklog counts only the
+    // picking/packing stage (arrived - ready - shipped).
+    const done = ready + shipped;
     if (runMode === "finite-cohort") {
-      if (all.length > 0 && ready === all.length) {
+      const hasDispatch = S.dispatchStations.size > 0;
+      if (
+        all.length > 0 &&
+        (hasDispatch ? shipped === all.length : done === all.length)
+      ) {
         return {
           stage: "SUPPORTED_STAGE_COMPLETE",
           ready,
           selected: all.length,
-          shipped: 0,
-          backlog: all.length,
+          shipped,
+          backlog: all.length - shipped,
           stageBacklog: 0,
-          note: "all selected orders READY_FOR_DISPATCH; packed goods are finite output staging, nothing SHIPPED in M3b",
+          note:
+            shipped === all.length
+              ? "all selected orders SHIPPED through the configured dispatch lane(s)"
+              : "all selected orders READY_FOR_DISPATCH; no dispatch resource configured, nothing SHIPPED",
         };
       }
       if (
         reasons.length > 0 &&
         created === all.length &&
-        ready + reasons.length === all.length
+        done + reasons.length === all.length
       ) {
         return {
           stage: "BLOCKED",
           ready,
           selected: all.length,
           created,
-          backlog: created,
-          stageBacklog: created - ready,
-          shipped: 0,
+          backlog: created - shipped,
+          stageBacklog: created - done,
+          shipped,
           detail:
-            "every selected order is ready or terminally blocked; state retained, no partial fulfillment",
+            "every selected order is ready/shipped or terminally blocked; state retained, no partial fulfillment",
           reasons,
         };
       }
@@ -2320,13 +2521,13 @@ export function createOperationsController(opts: {
           ready,
           selected: all.length,
           created,
-          backlog: created,
-          stageBacklog: created - ready,
-          shipped: 0,
+          backlog: created - shipped,
+          stageBacklog: created - done,
+          shipped,
           detail:
             `stuck with no scheduled release: ${stuck.detail}; ` +
             `${created}/${all.length} arrived, ${ready} ready for dispatch, ` +
-            `${created} unshipped backlog, ${created - ready} stage backlog; ` +
+            `${created - shipped} unshipped backlog, ${created - done} stage backlog; ` +
             `orders/state preserved, no teleport or task deletion`,
           reasons: stuckReasons,
         };
@@ -2336,10 +2537,10 @@ export function createOperationsController(opts: {
         ready,
         selected: all.length,
         created,
-        backlog: created,
-        stageBacklog: created - ready,
-        shipped: 0,
-        detail: `${created}/${all.length} arrived, ${ready} ready for dispatch, ${created} unshipped backlog, ${created - ready} stage backlog`,
+        backlog: created - shipped,
+        stageBacklog: created - done,
+        shipped,
+        detail: `${created}/${all.length} arrived, ${ready} ready for dispatch, ${created - shipped} unshipped backlog, ${created - done} stage backlog`,
         reasons,
       };
     }
@@ -2353,9 +2554,9 @@ export function createOperationsController(opts: {
         ready,
         selected: all.length,
         created,
-        backlog: created,
-        stageBacklog: created - ready,
-        shipped: 0,
+        backlog: created - shipped,
+        stageBacklog: created - done,
+        shipped,
         detail:
           `fixed window ended at ${horizon}ms with active/pending work and partial motion retained; ` +
           `this is not shipping completion`,
@@ -2367,10 +2568,10 @@ export function createOperationsController(opts: {
       ready,
       selected: all.length,
       created,
-      backlog: created,
-      stageBacklog: created - ready,
-      shipped: 0,
-      detail: `${created}/${all.length} arrived, ${ready} ready for dispatch, ${created} unshipped backlog, ${created - ready} stage backlog`,
+      backlog: created - shipped,
+      stageBacklog: created - done,
+      shipped,
+      detail: `${created}/${all.length} arrived, ${ready} ready for dispatch, ${created - shipped} unshipped backlog, ${created - done} stage backlog`,
       reasons,
     };
   };
@@ -2388,7 +2589,7 @@ export function createOperationsController(opts: {
     // operations progress. The unit-level waits stay visible in the
     // snapshot; the global diagnostic answers whether WORK is blocked.
     const allReady = [...S.orders.values()].every(
-      (o) => o.state === "READY_FOR_DISPATCH",
+      (o) => o.state === "READY_FOR_DISPATCH" || o.state === "SHIPPED",
     );
     if (allReady) return null;
     const t = S.domain.getDiagnostic();
@@ -2401,6 +2602,7 @@ export function createOperationsController(opts: {
       "MOVEMENT_COMPLETED",
       "HANDLING_COMPLETED",
       "PACK_COMPLETED",
+      "DISPATCH_COMPLETED",
       "ORDER_ARRIVAL",
       "OPERATIONS_DISPATCH",
     ].some((k) => pendingKinds.has(k));

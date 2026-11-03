@@ -309,8 +309,8 @@ test.describe("operations playback", () => {
     await expect.poll(() => opsClockMs(page), { timeout: 300_000 }).toBeGreaterThanOrEqual(20_000);
     await page.getByTestId("ops-speed-16").click();
     await expect(page.getByTestId("ops-state-badge")).toContainText("STAGE COMPLETE", { timeout: 600_000 });
-    await expect(page.getByTestId("ops-complete-note")).toContainText("6 orders READY_FOR_DISPATCH");
-    await expect(page.getByTestId("ops-complete-note")).toContainText("shipped 0");
+    await expect(page.getByTestId("ops-complete-note")).toContainText("6 orders SHIPPED");
+    await expect(page.getByTestId("ops-complete-note")).toContainText("backlog 0");
     await ensurePaused(page);
     const endClock = await opsClockMs(page);
     expect(await opsSignature(page)).toBe(headlessSignature(endClock));

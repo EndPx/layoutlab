@@ -643,6 +643,70 @@ describe("M3b config and capability gates", () => {
   });
 });
 
+describe("M3c dispatch: packed orders ship through DSP-1", () => {
+  test("six burst orders ship end-to-end with dispatched stock conserved", () => {
+    const scenario = parseOperationsScenario(
+      JSON.parse(readFileSync(BURST_FIXTURE, "utf8")),
+    );
+    const runconfig = JSON.parse(readFileSync(BURST_RUNCONFIG, "utf8"));
+    const c = createOperationsController({
+      scenario,
+      executionConfig: runconfig.executionConfig,
+    });
+    const CAP = 3_600_000;
+    let status = c.getCompletionStatus();
+    let guard = 0;
+    while (status.stage === "IN_PROGRESS" && guard < 120) {
+      c.advanceTo(Math.min(c.getClockMs() + 60_000, CAP));
+      status = c.getCompletionStatus();
+      guard += 1;
+    }
+    expect(status.stage).toBe("SUPPORTED_STAGE_COMPLETE");
+    expect(status).toMatchObject({ shipped: 6, backlog: 0, stageBacklog: 0 });
+    const s = c.snapshot();
+    expect(s.orders.map((o) => o.state)).toEqual([
+      "SHIPPED",
+      "SHIPPED",
+      "SHIPPED",
+      "SHIPPED",
+      "SHIPPED",
+      "SHIPPED",
+    ]);
+    expect(s.counts).toMatchObject({
+      selected: 6,
+      arrived: 6,
+      packed: 6,
+      readyForDispatch: 0,
+      shipped: 6,
+      backlog: 0,
+      stageBacklog: 0,
+    });
+    expect(s.checks).toEqual({ conservation: [], capacity: [], safety: [] });
+    // Dispatched bucket holds exactly the ordered quantities per order.
+    for (const o of s.orders) {
+      for (const line of o.lines) {
+        const row = s.inventory.dispatched.find(
+          (d) => d.orderId === o.orderId && d.productId === line.productId,
+        );
+        expect(row?.quantity).toBe(line.quantity);
+      }
+      expect(o.timestamps.READY_FOR_DISPATCH).toBeTypeOf("number");
+      expect(o.timestamps.SHIPPED).toBeGreaterThan(
+        o.timestamps.READY_FOR_DISPATCH as number,
+      );
+    }
+    // Single dispatch lane (serviceCapacity 1, 60000ms): SHIPPED times are
+    // strictly ordered with at least one service duration between neighbors.
+    const shippedTimes = s.orders
+      .map((o) => o.timestamps.SHIPPED as number)
+      .sort((a, b) => a - b);
+    for (let i = 1; i < shippedTimes.length; i++) {
+      expect(shippedTimes[i]! - shippedTimes[i - 1]!).toBeGreaterThanOrEqual(60_000);
+    }
+    expect(s.timeline.some((t) => t.kind === "SHIPPED")).toBe(true);
+  });
+});
+
 describe("M3b gate 1: main-geometry picking/packing burst", () => {
   test(
     "six burst orders reach READY_FOR_DISPATCH with waits and clean checks",
@@ -664,23 +728,23 @@ describe("M3b gate 1: main-geometry picking/packing burst", () => {
         guard += 1;
       }
       expect(status.stage).toBe("SUPPORTED_STAGE_COMPLETE");
-      expect(status).toMatchObject({ ready: 6, selected: 6, shipped: 0 });
+      expect(status).toMatchObject({ selected: 6, shipped: 6, backlog: 0 });
       const s = c.snapshot();
       expect(s.orders.map((o) => o.state)).toEqual([
-        "READY_FOR_DISPATCH",
-        "READY_FOR_DISPATCH",
-        "READY_FOR_DISPATCH",
-        "READY_FOR_DISPATCH",
-        "READY_FOR_DISPATCH",
-        "READY_FOR_DISPATCH",
+        "SHIPPED",
+        "SHIPPED",
+        "SHIPPED",
+        "SHIPPED",
+        "SHIPPED",
+        "SHIPPED",
       ]);
       expect(s.counts).toMatchObject({
         selected: 6,
         arrived: 6,
         packed: 6,
-        readyForDispatch: 6,
-        shipped: 0,
-        backlog: 6,
+        readyForDispatch: 0,
+        shipped: 6,
+        backlog: 0,
         stageBacklog: 0,
       });
       // Computed-from-state checks, never pass cards.
@@ -752,9 +816,13 @@ describe("M3b gate 1: main-geometry picking/packing burst", () => {
         const serviceArrival = before("SERVICE_ARRIVED", o.orderId);
         expect(unload).toBeGreaterThanOrEqual(serviceArrival);
       }
-      // No dispatch stage: nothing shipped, no SHIPPED claim anywhere.
-      expect(s.inventory.dispatched).toEqual([]);
-      expect(s.timeline.some((t) => t.kind === "SHIPPED")).toBe(false);
+      // Dispatch shipped every order: dispatched stock is attributed per
+      // order and every order passed through READY_FOR_DISPATCH first.
+      expect(s.inventory.dispatched.length).toBeGreaterThanOrEqual(6);
+      expect(s.timeline.some((t) => t.kind === "SHIPPED")).toBe(true);
+      for (const o of s.orders) {
+        expect(o.timestamps.READY_FOR_DISPATCH).toBeTypeOf("number");
+      }
       expect(c.getDiagnostic()).toBeNull();
     },
     120000,
