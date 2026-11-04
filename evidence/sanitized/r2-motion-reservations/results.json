@@ -97,7 +97,7 @@
             "mode": "forward"
           }
         ],
-        "version": "layoutlab.motion-draft-reservations/2"
+        "version": "layoutlab.motion-draft-reservations/3"
       },
       {
         "worldId": "micro-world",
@@ -148,11 +148,11 @@
             "mode": "forward"
           }
         ],
-        "version": "layoutlab.motion-draft-reservations/2"
+        "version": "layoutlab.motion-draft-reservations/3"
       }
     ],
     "snapshot": {
-      "version": "layoutlab.motion-draft-reservations/2",
+      "version": "layoutlab.motion-draft-reservations/3",
       "world": {
         "id": "micro-world",
         "scene": {
@@ -166,6 +166,360 @@
       },
       "observedNowMs": 0,
       "revision": 4,
+      "events": [
+        {
+          "command": "register",
+          "args": [
+            "A",
+            {
+              "p": {
+                "x": 2000,
+                "z": 5000
+              },
+              "heading": 1.5707963267948966
+            },
+            {
+              "left": 100,
+              "right": 100,
+              "front": 100,
+              "rear": 100,
+              "margin": 0
+            }
+          ]
+        },
+        {
+          "command": "register",
+          "args": [
+            "B",
+            {
+              "p": {
+                "x": 5000,
+                "z": 2000
+              },
+              "heading": 0
+            },
+            {
+              "left": 100,
+              "right": 100,
+              "front": 100,
+              "rear": 100,
+              "margin": 0
+            }
+          ]
+        },
+        {
+          "command": "reserve",
+          "args": [
+            {
+              "worldId": "micro-world",
+              "id": "plan-a",
+              "owner": "A",
+              "targetId": "target-A",
+              "requiredFinalHeading": 1.5707963267948966,
+              "startMs": 1000,
+              "body": {
+                "left": 100,
+                "right": 100,
+                "front": 100,
+                "rear": 100,
+                "margin": 0
+              },
+              "scene": {
+                "room": {
+                  "widthMm": 12000,
+                  "depthMm": 12000
+                },
+                "obstacles": [],
+                "stopped": []
+              },
+              "limits": {
+                "v": 1,
+                "a": 0.001,
+                "d": 0.001,
+                "omega": 0.0015707963267948967,
+                "stopMs": 100,
+                "strideMm": 1201
+              },
+              "actions": [
+                {
+                  "from": {
+                    "p": {
+                      "x": 2000,
+                      "z": 5000
+                    },
+                    "heading": 1.5707963267948966
+                  },
+                  "to": {
+                    "p": {
+                      "x": 8000,
+                      "z": 5000
+                    },
+                    "heading": 1.5707963267948966
+                  },
+                  "mode": "forward"
+                }
+              ],
+              "version": "layoutlab.motion-draft-reservations/3"
+            },
+            2,
+            0
+          ],
+          "result": {
+            "status": "reserved",
+            "owner": "A",
+            "revision": 3,
+            "endEventMs": 8100
+          }
+        },
+        {
+          "command": "reserve",
+          "args": [
+            {
+              "worldId": "micro-world",
+              "id": "plan-b",
+              "owner": "B",
+              "targetId": "target-B",
+              "requiredFinalHeading": 0,
+              "startMs": 1000,
+              "body": {
+                "left": 100,
+                "right": 100,
+                "front": 100,
+                "rear": 100,
+                "margin": 0
+              },
+              "scene": {
+                "room": {
+                  "widthMm": 12000,
+                  "depthMm": 12000
+                },
+                "obstacles": [],
+                "stopped": []
+              },
+              "limits": {
+                "v": 1,
+                "a": 0.001,
+                "d": 0.001,
+                "omega": 0.0015707963267948967,
+                "stopMs": 100,
+                "strideMm": 1201
+              },
+              "actions": [
+                {
+                  "from": {
+                    "p": {
+                      "x": 5000,
+                      "z": 2000
+                    },
+                    "heading": 0
+                  },
+                  "to": {
+                    "p": {
+                      "x": 5000,
+                      "z": 8000
+                    },
+                    "heading": 0
+                  },
+                  "mode": "forward"
+                }
+              ],
+              "version": "layoutlab.motion-draft-reservations/3"
+            },
+            3,
+            0
+          ],
+          "result": {
+            "status": "wait",
+            "owner": "A",
+            "kind": "forward",
+            "retryAt": 8000,
+            "requestedKind": "forward",
+            "revision": 3
+          }
+        },
+        {
+          "command": "reserve",
+          "args": [
+            {
+              "worldId": "micro-world",
+              "id": "plan-b",
+              "owner": "B",
+              "targetId": "target-B",
+              "requiredFinalHeading": 0,
+              "startMs": 8000,
+              "body": {
+                "left": 100,
+                "right": 100,
+                "front": 100,
+                "rear": 100,
+                "margin": 0
+              },
+              "scene": {
+                "room": {
+                  "widthMm": 12000,
+                  "depthMm": 12000
+                },
+                "obstacles": [],
+                "stopped": []
+              },
+              "limits": {
+                "v": 1,
+                "a": 0.001,
+                "d": 0.001,
+                "omega": 0.0015707963267948967,
+                "stopMs": 100,
+                "strideMm": 1201
+              },
+              "actions": [
+                {
+                  "from": {
+                    "p": {
+                      "x": 5000,
+                      "z": 2000
+                    },
+                    "heading": 0
+                  },
+                  "to": {
+                    "p": {
+                      "x": 5000,
+                      "z": 8000
+                    },
+                    "heading": 0
+                  },
+                  "mode": "forward"
+                }
+              ],
+              "version": "layoutlab.motion-draft-reservations/3"
+            },
+            3,
+            0
+          ],
+          "result": {
+            "status": "reserved",
+            "owner": "B",
+            "revision": 4,
+            "endEventMs": 15100
+          }
+        },
+        {
+          "command": "reserve",
+          "args": [
+            {
+              "worldId": "micro-world",
+              "id": "plan-a",
+              "owner": "A",
+              "targetId": "target-A",
+              "requiredFinalHeading": 1.5707963267948966,
+              "startMs": 1000,
+              "body": {
+                "left": 100,
+                "right": 100,
+                "front": 100,
+                "rear": 100,
+                "margin": 0
+              },
+              "scene": {
+                "room": {
+                  "widthMm": 12000,
+                  "depthMm": 12000
+                },
+                "obstacles": [],
+                "stopped": []
+              },
+              "limits": {
+                "v": 1,
+                "a": 0.001,
+                "d": 0.001,
+                "omega": 0.0015707963267948967,
+                "stopMs": 100,
+                "strideMm": 1201
+              },
+              "actions": [
+                {
+                  "from": {
+                    "p": {
+                      "x": 2000,
+                      "z": 5000
+                    },
+                    "heading": 1.5707963267948966
+                  },
+                  "to": {
+                    "p": {
+                      "x": 8000,
+                      "z": 5000
+                    },
+                    "heading": 1.5707963267948966
+                  },
+                  "mode": "forward"
+                }
+              ],
+              "version": "layoutlab.motion-draft-reservations/3"
+            },
+            4,
+            0
+          ],
+          "error": "Error: duplicate/stale/changed initial plan"
+        },
+        {
+          "command": "reserve",
+          "args": [
+            {
+              "worldId": "micro-world",
+              "id": "plan-a",
+              "owner": "A",
+              "targetId": "target-A",
+              "requiredFinalHeading": 1.5707963267948966,
+              "startMs": 1000,
+              "body": {
+                "left": 100,
+                "right": 100,
+                "front": 100,
+                "rear": 100,
+                "margin": 0
+              },
+              "scene": {
+                "room": {
+                  "widthMm": 12000,
+                  "depthMm": 12000
+                },
+                "obstacles": [],
+                "stopped": []
+              },
+              "limits": {
+                "v": 1,
+                "a": 0.001,
+                "d": 0.001,
+                "omega": 0.0015707963267948967,
+                "stopMs": 100,
+                "strideMm": 1201
+              },
+              "actions": [
+                {
+                  "from": {
+                    "p": {
+                      "x": 2000,
+                      "z": 5000
+                    },
+                    "heading": 1.5707963267948966
+                  },
+                  "to": {
+                    "p": {
+                      "x": 8000,
+                      "z": 5000
+                    },
+                    "heading": 1.5707963267948966
+                  },
+                  "mode": "forward"
+                }
+              ],
+              "version": "layoutlab.motion-draft-reservations/3"
+            },
+            0,
+            0
+          ],
+          "error": "Error: stale revision"
+        }
+      ],
       "actors": [
         {
           "owner": "A",
@@ -186,7 +540,7 @@
           "holds": [
             {
               "owner": "A",
-              "kind": "initial",
+              "kind": "stopped",
               "start": 0,
               "end": 1000,
               "box": {
@@ -228,6 +582,23 @@
               "box": {
                 "minX": 7899.9999999,
                 "maxX": 8100.0000001,
+                "minZ": 4899.9999999,
+                "maxZ": 5100.0000001
+              }
+            }
+          ],
+          "history": [],
+          "poseSince": 0,
+          "handled": [],
+          "pendingBase": [
+            {
+              "owner": "A",
+              "kind": "stopped",
+              "start": 0,
+              "end": null,
+              "box": {
+                "minX": 1899.9999999,
+                "maxX": 2100.0000001,
                 "minZ": 4899.9999999,
                 "maxZ": 5100.0000001
               }
@@ -282,7 +653,7 @@
                 "mode": "forward"
               }
             ],
-            "version": "layoutlab.motion-draft-reservations/2"
+            "version": "layoutlab.motion-draft-reservations/3"
           }
         },
         {
@@ -304,7 +675,7 @@
           "holds": [
             {
               "owner": "B",
-              "kind": "initial",
+              "kind": "stopped",
               "start": 0,
               "end": 8000,
               "box": {
@@ -348,6 +719,23 @@
                 "maxX": 5100.0000001,
                 "minZ": 7899.9999999,
                 "maxZ": 8100.0000001
+              }
+            }
+          ],
+          "history": [],
+          "poseSince": 0,
+          "handled": [],
+          "pendingBase": [
+            {
+              "owner": "B",
+              "kind": "stopped",
+              "start": 0,
+              "end": null,
+              "box": {
+                "minX": 4899.9999999,
+                "maxX": 5100.0000001,
+                "minZ": 1899.9999999,
+                "maxZ": 2100.0000001
               }
             }
           ],
@@ -400,7 +788,7 @@
                 "mode": "forward"
               }
             ],
-            "version": "layoutlab.motion-draft-reservations/2"
+            "version": "layoutlab.motion-draft-reservations/3"
           }
         }
       ],
@@ -2171,7 +2559,7 @@
           "mode": "reverse"
         }
       ],
-      "version": "layoutlab.motion-draft-reservations/2",
+      "version": "layoutlab.motion-draft-reservations/3",
       "limits": {
         "v": 1,
         "a": 0.001,

@@ -1,0 +1,11 @@
+{
+  "exactEventReplay": true,
+  "independentArrivalEventsMs": [
+    41853,
+    111895,
+    210772
+  ],
+  "finalObservedMs": 211272,
+  "returnedToCanonicalParking": true,
+  "scope": "one actor with other five parked; 500ms handling holds synthetic, no inventory service proof"
+}

@@ -32,7 +32,7 @@
     },
     "book": {
       "snapshot": {
-        "version": "layoutlab.motion-draft-reservations/2",
+        "version": "layoutlab.motion-draft-reservations/3",
         "world": {
           "id": "shared-world",
           "scene": {
@@ -46,6 +46,186 @@
         },
         "observedNowMs": 2000,
         "revision": 4,
+        "events": [
+          {
+            "command": "register",
+            "args": [
+              "A",
+              {
+                "p": {
+                  "x": 2000,
+                  "z": 5000
+                },
+                "heading": 1.5707963267948966
+              },
+              {
+                "left": 100,
+                "right": 100,
+                "front": 100,
+                "rear": 100,
+                "margin": 0
+              }
+            ]
+          },
+          {
+            "command": "register",
+            "args": [
+              "B",
+              {
+                "p": {
+                  "x": 9000,
+                  "z": 9000
+                },
+                "heading": 1.5707963267948966
+              },
+              {
+                "left": 100,
+                "right": 100,
+                "front": 100,
+                "rear": 100,
+                "margin": 0
+              }
+            ]
+          },
+          {
+            "command": "reserve",
+            "args": [
+              {
+                "id": "a",
+                "worldId": "shared-world",
+                "owner": "A",
+                "targetId": "A-goal",
+                "requiredFinalHeading": 1.5707963267948966,
+                "startMs": 1000,
+                "body": {
+                  "left": 100,
+                  "right": 100,
+                  "front": 100,
+                  "rear": 100,
+                  "margin": 0
+                },
+                "scene": {
+                  "room": {
+                    "widthMm": 12000,
+                    "depthMm": 12000
+                  },
+                  "obstacles": [],
+                  "stopped": []
+                },
+                "actions": [
+                  {
+                    "from": {
+                      "p": {
+                        "x": 2000,
+                        "z": 5000
+                      },
+                      "heading": 1.5707963267948966
+                    },
+                    "to": {
+                      "p": {
+                        "x": 8000,
+                        "z": 5000
+                      },
+                      "heading": 1.5707963267948966
+                    },
+                    "mode": "forward"
+                  }
+                ],
+                "version": "layoutlab.motion-draft-reservations/3",
+                "limits": {
+                  "v": 1,
+                  "a": 0.001,
+                  "d": 0.001,
+                  "omega": 0.0015707963267948967,
+                  "stopMs": 100,
+                  "strideMm": 1201
+                }
+              },
+              2,
+              0
+            ],
+            "result": {
+              "status": "reserved",
+              "owner": "A",
+              "revision": 3,
+              "endEventMs": 8100
+            }
+          },
+          {
+            "command": "reserve",
+            "args": [
+              {
+                "id": "b",
+                "worldId": "shared-world",
+                "owner": "B",
+                "targetId": "B-goal",
+                "requiredFinalHeading": 1.5707963267948966,
+                "startMs": 3000,
+                "body": {
+                  "left": 100,
+                  "right": 100,
+                  "front": 100,
+                  "rear": 100,
+                  "margin": 0
+                },
+                "scene": {
+                  "room": {
+                    "widthMm": 12000,
+                    "depthMm": 12000
+                  },
+                  "obstacles": [],
+                  "stopped": []
+                },
+                "actions": [
+                  {
+                    "from": {
+                      "p": {
+                        "x": 9000,
+                        "z": 9000
+                      },
+                      "heading": 1.5707963267948966
+                    },
+                    "to": {
+                      "p": {
+                        "x": 11000,
+                        "z": 9000
+                      },
+                      "heading": 1.5707963267948966
+                    },
+                    "mode": "forward"
+                  }
+                ],
+                "version": "layoutlab.motion-draft-reservations/3",
+                "limits": {
+                  "v": 1,
+                  "a": 0.001,
+                  "d": 0.001,
+                  "omega": 0.0015707963267948967,
+                  "stopMs": 100,
+                  "strideMm": 1201
+                }
+              },
+              3,
+              2000
+            ],
+            "result": {
+              "status": "reserved",
+              "owner": "B",
+              "revision": 4,
+              "endEventMs": 6100
+            }
+          },
+          {
+            "command": "cancel",
+            "args": [
+              "A",
+              "a",
+              4,
+              0
+            ],
+            "error": "Error: rewound/invalid engine clock"
+          }
+        ],
         "actors": [
           {
             "owner": "A",
@@ -66,7 +246,7 @@
             "holds": [
               {
                 "owner": "A",
-                "kind": "initial",
+                "kind": "stopped",
                 "start": 0,
                 "end": 1000,
                 "box": {
@@ -113,6 +293,23 @@
                 }
               }
             ],
+            "history": [],
+            "poseSince": 0,
+            "handled": [],
+            "pendingBase": [
+              {
+                "owner": "A",
+                "kind": "stopped",
+                "start": 0,
+                "end": null,
+                "box": {
+                  "minX": 1899.9999999,
+                  "maxX": 2100.0000001,
+                  "minZ": 4899.9999999,
+                  "maxZ": 5100.0000001
+                }
+              }
+            ],
             "plan": {
               "id": "a",
               "worldId": "shared-world",
@@ -154,7 +351,7 @@
                   "mode": "forward"
                 }
               ],
-              "version": "layoutlab.motion-draft-reservations/2",
+              "version": "layoutlab.motion-draft-reservations/3",
               "limits": {
                 "v": 1,
                 "a": 0.001,
@@ -184,7 +381,7 @@
             "holds": [
               {
                 "owner": "B",
-                "kind": "initial",
+                "kind": "stopped",
                 "start": 0,
                 "end": 3000,
                 "box": {
@@ -231,6 +428,23 @@
                 }
               }
             ],
+            "history": [],
+            "poseSince": 0,
+            "handled": [],
+            "pendingBase": [
+              {
+                "owner": "B",
+                "kind": "stopped",
+                "start": 0,
+                "end": null,
+                "box": {
+                  "minX": 8899.9999999,
+                  "maxX": 9100.0000001,
+                  "minZ": 8899.9999999,
+                  "maxZ": 9100.0000001
+                }
+              }
+            ],
             "plan": {
               "id": "b",
               "worldId": "shared-world",
@@ -272,7 +486,7 @@
                   "mode": "forward"
                 }
               ],
-              "version": "layoutlab.motion-draft-reservations/2",
+              "version": "layoutlab.motion-draft-reservations/3",
               "limits": {
                 "v": 1,
                 "a": 0.001,
@@ -352,7 +566,7 @@
             "mode": "forward"
           }
         ],
-        "version": "layoutlab.motion-draft-reservations/2",
+        "version": "layoutlab.motion-draft-reservations/3",
         "limits": {
           "v": 1,
           "a": 0.001,
@@ -407,7 +621,7 @@
             "mode": "forward"
           }
         ],
-        "version": "layoutlab.motion-draft-reservations/2",
+        "version": "layoutlab.motion-draft-reservations/3",
         "limits": {
           "v": 1,
           "a": 0.001,
