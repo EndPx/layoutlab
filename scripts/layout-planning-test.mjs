@@ -8,5 +8,5 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const build = spawnSync(process.execPath, [join(root, "scripts/layout-planning-build.mjs")], { stdio: "inherit" });
 if (build.status !== 0) process.exit(build.status ?? 1);
-const tests = spawnSync(process.execPath, ["--test", join(root, "packages/simulation/layout-draft/test/layout-draft.test.mjs")], { stdio: "inherit" });
+const tests = spawnSync(process.execPath, ["--test", join(root, "packages/simulation/layout-draft/test/layout-draft.check.mjs")], { stdio: "inherit" });
 process.exit(tests.status ?? 1);

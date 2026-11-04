@@ -582,8 +582,10 @@ export function OperationsPanel(props: { run: OpsRunState; onResetRun: () => voi
               {(!stats || stats.assets.length === 0) && <li>Asset load in progress…</li>}
             </ul>
             <p>Containers: {scene.containerGlbs.map((g) => `${g.asset.split("/")[1]} ×${g.count}`).join(" · ")}</p>
-            <p>Materials: documented replacement colors baked into each GLB (concrete, rack blue-gray, cardboard tan, crate blue, packing green, cart orange); source MDL/textures unsupported, UVs lost — appearance not claimed retained.</p>
+            <p>Materials (R1): v2 derivatives preserve source material splits + st UVs; box/crate embed their source PNG textures. Cart/floor/rack v2 splits use documented replacement PBR factors (their texture closures are too large or UDIM — see docs/WAREHOUSE_R1_RENDER_REVIEW.md). Walls/entrance/packing tables remain v1 with role PBR replacements. Source MDL (OmniPBR) fidelity is never claimed.</p>
+            {stats?.materialSummary && <p>Loaded material modes: {stats.materialSummary}</p>}
             {stats?.carryFit && <p>Carry fit: {stats.carryFit}</p>}
+            <p>Solid cargo in carts: {stats?.cargoSolid ?? 0} item(s) as sourced carton meshes at exact SKU bounds (empty carts show empty equipment; wireframe bounds appear only on the All diagnostic label layer).</p>
           </section>
           <section>
             <h3>Renderer</h3>

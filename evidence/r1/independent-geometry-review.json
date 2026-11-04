@@ -1,0 +1,113 @@
+{
+  "checkedAt": "2026-11-04T13:54:05.829Z",
+  "reviewer": "Codex",
+  "method": "Independent world-transform expansion and cyclic triangle/winding multiset hash, 1 micrometre coordinate quantization; actual asset and embedded-image byte hashes matched manifests",
+  "realMetaRequests": 0,
+  "assets": [
+    {
+      "asset": "box_cardboard_a01",
+      "geometryAndWindingMatchedAtMicrometrePrecision": true,
+      "hash": "ee54246b0400aec9c0ffb57feed5984d89f6964f918eb81597764373fab780b2",
+      "triangleCount": 554,
+      "bounds": {
+        "min": [
+          -0.34971755743026733,
+          0,
+          -0.2605747878551483
+        ],
+        "max": [
+          0.34971755743026733,
+          0.5099270939826965,
+          0.260576993227005
+        ]
+      },
+      "materials": 1,
+      "embeddedImages": 3,
+      "bytes": 8968104
+    },
+    {
+      "asset": "crate_blue_a01",
+      "geometryAndWindingMatchedAtMicrometrePrecision": true,
+      "hash": "efefb9d1a7645c7c057471996e1baae68c178537027dac6e276b7e8036a0dc9f",
+      "triangleCount": 60744,
+      "bounds": {
+        "min": [
+          -0.30256661772727966,
+          0.00008220756717491895,
+          -0.20256663858890533
+        ],
+        "max": [
+          0.30256661772727966,
+          0.2533016800880432,
+          0.20256663858890533
+        ]
+      },
+      "materials": 1,
+      "embeddedImages": 3,
+      "bytes": 8309796
+    },
+    {
+      "asset": "environment_floor_a01",
+      "geometryAndWindingMatchedAtMicrometrePrecision": true,
+      "hash": "a8b96853a263469bf9a3fad9c470d8ab89c04c37538003eeaf01cb4edf3d196b",
+      "triangleCount": 8738,
+      "bounds": {
+        "min": [
+          -3.000000238418579,
+          1.5133991837501526e-9,
+          -3.000000238418579
+        ],
+        "max": [
+          3.000000238418579,
+          0.10000818967819214,
+          3.000000238418579
+        ]
+      },
+      "materials": 3,
+      "embeddedImages": 0,
+      "bytes": 841720
+    },
+    {
+      "asset": "rack_large_empty_a02",
+      "geometryAndWindingMatchedAtMicrometrePrecision": true,
+      "hash": "ce3da06bd5def4e967efa2d97b4b3b1624cb79fab99a4a7825da8e2c43f84f8d",
+      "triangleCount": 53128,
+      "bounds": {
+        "min": [
+          -1.9999886751174927,
+          0,
+          -1.0332903861999512
+        ],
+        "max": [
+          1.9999890327453613,
+          3.010000705718994,
+          1.033290982246399
+        ]
+      },
+      "materials": 2,
+      "embeddedImages": 0,
+      "bytes": 5102380
+    },
+    {
+      "asset": "cart_luggage_platform_a01",
+      "geometryAndWindingMatchedAtMicrometrePrecision": true,
+      "hash": "35ef3993dca4891c4767928cd5ad6705372749549c43ba86dec8ee10243b1723",
+      "triangleCount": 186990,
+      "bounds": {
+        "min": [
+          -0.33572521805763245,
+          3.681016096379608e-7,
+          -0.6505696773529053
+        ],
+        "max": [
+          0.33572521805763245,
+          0.9525318145751953,
+          0.5685219168663025
+        ]
+      },
+      "materials": 5,
+      "embeddedImages": 0,
+      "bytes": 17965452
+    }
+  ]
+}

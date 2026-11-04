@@ -1,0 +1,21 @@
+{
+  "gpu": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "wallMs": 6098,
+  "start": {
+    "renders": 6,
+    "cpu": 970.7000000029802,
+    "tris": "22526924",
+    "draws": "344"
+  },
+  "end": {
+    "renders": 141,
+    "cpu": 1543.1000000536442,
+    "tris": "22526924",
+    "draws": "344"
+  },
+  "rendersDelta": 135,
+  "cpuDeltaMs": 572.400000050664,
+  "rendersPerSec": 22.1384060347655,
+  "cpuMsPerRender": 4.2400000003752885,
+  "errors": []
+}

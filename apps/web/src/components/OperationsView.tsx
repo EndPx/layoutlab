@@ -11,16 +11,23 @@
 // GLB that fails to load is reported truthfully in the status line and
 // renders nothing: required models are never replaced by silent proxy
 // cubes. Carried loads ride in the packet-driven equipment crates: 2 docks
-// x 2 fixed cells at cargo yaw90, aggregated from the actual ledger;
-// items render as labeled wireframe bounds markers sized from canonical
-// SKU dims (never solid inventory models or whole storage boxes).
+// x 2 fixed cells at cargo yaw90, aggregated from the actual ledger; each
+// item renders as a SOLID sourced carton mesh (box_cardboard_a01 v2
+// geometry) scaled so its AABB equals the declared SKU dims exactly,
+// pooled in one InstancedMesh (never recreated per snapshot). Wireframe
+// bounds survive only as a developer overlay on the diagnostic label
+// layer. Materials: v2 derivatives preserve source splits/UVs (box/crate
+// embed source textures); unrecovered assets keep role PBR replacements —
+// see docs/WAREHOUSE_R1_RENDER_REVIEW.md for the per-asset fidelity table.
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { CSS2DObject, CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import type { OperationsSnapshot } from "@layoutlab/simulation";
-import { allocateCarryCells, carryMarkerPose, pickStopStates, sparseRouteArrowheads, splitRouteAtPose, unitOperationalLabel, visualContainersForQty, type OperationsScene, type OperationsSelection } from "../lib/operations";
+import { allocateCarryCells, pickStopStates, sparseRouteArrowheads, splitRouteAtPose, unitOperationalLabel, visualContainersForQty, type OperationsScene, type OperationsSelection } from "../lib/operations";
+import { cargoFamilyTint, derivativeUrlFor, planCargoTransforms, prepareAssetGroup, type CargoFamily } from "../lib/warehouseRender";
 
 const MM = 0.001;
 const LABEL_GAP_PX = 10;
@@ -36,6 +43,8 @@ export type OpsRenderStats = {
   loadMs: number | null;
   gpu: string | null;
   carryFit: string | null;
+  cargoSolid: number;
+  materialSummary: string | null;
   renders: number;
   renderMsTotal: number;
   renderMsMax: number;
@@ -84,6 +93,17 @@ type ContainerMeshState = {
   items: { locId: string; base: THREE.Matrix4 }[];
 };
 
+// Pooled solid cargo: ONE InstancedMesh of the sourced carton geometry for
+// every cart (capacity = units x packet cells), created once after load.
+// Snapshot updates only rewrite instance matrices — geometry/material are
+// never disposed or recreated on the 40ms presentation cadence.
+type CargoPool = {
+  solid: THREE.InstancedMesh;
+  wire: THREE.InstancedMesh;
+  max: number;
+  cartonSizeM: { x: number; y: number; z: number };
+};
+
 type ViewHandles = {
   mount: HTMLDivElement;
   statusEl: HTMLParagraphElement | null;
@@ -100,6 +120,8 @@ type ViewHandles = {
   carryGroup: THREE.Group;
   cartOf: Map<string, THREE.Group>;
   containerMeshes: ContainerMeshState[];
+  cargoPool: CargoPool | null;
+  assetModes: Map<string, string>;
   carryReady: boolean;
   cartBoundsNote: string | null;
   carryFitNote: string | null;
@@ -123,7 +145,7 @@ export function OperationsView(props: {
   const viewRef = useRef<ViewHandles | null>(null);
   const homeRef = useRef<{ pos: THREE.Vector3; target: THREE.Vector3 } | null>(null);
   const savedCamRef = useRef<{ pos: THREE.Vector3; target: THREE.Vector3 } | null>(null);
-  const statsRef = useRef<OpsRenderStats>({ triangles: 0, drawCalls: 0, geometries: 0, containers: 0, loadMs: null, gpu: null, carryFit: null, renders: 0, renderMsTotal: 0, renderMsMax: 0, renderSpanMs: 0, assets: [] });
+  const statsRef = useRef<OpsRenderStats>({ triangles: 0, drawCalls: 0, geometries: 0, containers: 0, loadMs: null, gpu: null, carryFit: null, cargoSolid: 0, materialSummary: null, renders: 0, renderMsTotal: 0, renderMsMax: 0, renderSpanMs: 0, assets: [] });
   const renderWallFirstRef = useRef<number | null>(null);
   const renderWallLastRef = useRef<number | null>(null);
   const onStatsRef = useRef(onStats);
@@ -201,86 +223,97 @@ export function OperationsView(props: {
     }
     mount.dataset["visibleContainers"] = String(visibleContainers);
 
-    // Carried loads (cargo-C2, packet-driven): each unit's cart carries 2
-    // sourced equipment crates at the unit-frame dock poses (static
-    // children of the cart group, always rendered; empty totes are labeled
-    // empty equipment). Actual ledger lines (u.carried) allocate into the 4
-    // fixed cells in stable SKU/item-ordinal order; each item renders as a
-    // labeled wireframe bounds marker sized from its canonical SKU dims at
-    // cargo yaw90, resting on the crate interior floor. No solid inventory
-    // models, no whole storage boxes, nothing from nowhere: unallocated
-    // overflow or a cell misfit is reported, never drawn as valid. Cart or
-    // crate geometry drift from the packet bounds draws nothing (fail closed).
-    while (v.carryGroup.children.length > 0) {
-      const child = v.carryGroup.children[0]!;
-      v.carryGroup.remove(child);
-      const mesh = child as THREE.Mesh;
-      (mesh.geometry as THREE.BufferGeometry | undefined)?.dispose?.();
-      const mat = mesh.material as THREE.Material | THREE.Material[] | undefined;
-      if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
-      else mat?.dispose?.();
-    }
+    // Carried loads (cargo-C2 packet + R1 solid cargo): each unit's cart
+    // carries 2 sourced equipment crates at the unit-frame dock poses
+    // (static children of the cart group, always rendered; empty totes are
+    // labeled empty equipment). Actual ledger lines (u.carried) allocate
+    // into the 4 fixed cells in stable SKU/item-ordinal order; each item
+    // renders as a SOLID sourced carton mesh scaled to exactly its
+    // canonical SKU dims at cargo yaw90, resting on the crate interior
+    // floor, uploaded into the persistent cargo pool (matrices only — no
+    // geometry/material churn per snapshot). Unknown SKU, cell misfit, or
+    // overflow is reported and never drawn as valid cargo (fail closed
+    // visibly via these notes + diagnostics). Cart/crate geometry drift
+    // from the packet bounds draws nothing.
     const carryNotes: string[] = [];
     const skuDims = new Map(ops.scenario.products.map((p) => [p.id, p.itemDimensionsMm]));
+    let solidCount = 0;
     if (snap) {
-      if (!v.carryReady) {
+      if (!v.carryReady || !v.cargoPool) {
         carryNotes.push(v.cartBoundsNote ?? "carry pending (cart/crate geometry not loaded yet)");
+        if (v.cargoPool) {
+          v.cargoPool.solid.count = 0;
+          v.cargoPool.wire.count = 0;
+        }
       } else {
-        const edgeMat = new THREE.LineBasicMaterial({ color: 0xd97706 });
-        const fillMat = new THREE.MeshBasicMaterial({ color: 0xd97706, transparent: true, opacity: 0.12, depthWrite: false });
-        const docks = ops.carry.docksUnitM;
+        const pool = v.cargoPool;
+        const familyOf = new Map<string, CargoFamily>(
+          ops.scenario.products.map((p) => [p.id, (p.visualAssetRef ?? "").includes("crate_") ? "plastic" : "cardboard"] as [string, CargoFamily]),
+        );
+        const plan = planCargoTransforms({
+          units: snap.units.map((u) => ({
+            unitId: u.unitId,
+            pose: { x: u.pose.x, z: u.pose.z },
+            carried: u.carried.map((l) => ({ productId: l.productId, quantity: l.quantity })),
+          })),
+          docks: ops.carry.docksUnitM,
+          cells: ops.carry.cellsCrateLocalMm,
+          floorTopYMm: ops.carry.crateInteriorMm.floorTopY,
+          cargoYawDeg: ops.carry.cargoYawDeg,
+          skuDims,
+          cartonSizeM: pool.cartonSizeM,
+          familyOf,
+        });
+        const dummy = new THREE.Object3D();
+        const tint = new THREE.Color();
+        plan.items.forEach((it, i) => {
+          dummy.position.set(it.centerM.x, it.centerM.y, it.centerM.z);
+          dummy.rotation.set(0, (it.yawDeg * Math.PI) / 180, 0);
+          dummy.scale.set(it.scale.x, it.scale.y, it.scale.z);
+          dummy.updateMatrix();
+          pool.solid.setMatrixAt(i, dummy.matrix);
+          pool.wire.setMatrixAt(i, dummy.matrix);
+          const [r, g, b] = cargoFamilyTint(it.family);
+          pool.solid.setColorAt(i, tint.setRGB(r, g, b));
+        });
+        solidCount = plan.items.length;
+        pool.solid.count = solidCount;
+        pool.wire.count = solidCount;
+        pool.solid.instanceMatrix.needsUpdate = true;
+        pool.wire.instanceMatrix.needsUpdate = true;
+        if (pool.solid.instanceColor) pool.solid.instanceColor.needsUpdate = true;
+        // Wireframe bounds are a developer overlay only (diagnostic layer).
+        pool.wire.visible = layer === "all";
+        const byUnit = new Map<string, string[]>();
+        for (const it of plan.items) {
+          const dock = ops.carry.docksUnitM[it.crateIndex]!;
+          const parts = byUnit.get(it.unitId) ?? [];
+          parts.push(`${it.productId}#${it.itemOrdinal}@${dock.id}${it.cellId}`);
+          byUnit.set(it.unitId, parts);
+        }
         for (const u of snap.units) {
+          const parts = byUnit.get(u.unitId) ?? [];
           if (u.carried.length === 0) {
             carryNotes.push(`${u.unitId}: empty equipment (2 labeled totes, 0 cells filled)`);
-            continue;
+          } else if (parts.length > 0) {
+            carryNotes.push(`${u.unitId}: ${parts.join("+")}`);
           }
-          const { placements, overflowUnits } = allocateCarryCells(
-            u.carried.map((l) => ({ productId: l.productId, quantity: l.quantity })),
-            docks.length,
-            ops.carry.cellsCrateLocalMm.length,
-            ops.carry.cellsCrateLocalMm.map((c) => c.id),
-          );
-          const parts: string[] = [];
-          for (const pl of placements) {
-            const dims = skuDims.get(pl.productId);
-            const cell = ops.carry.cellsCrateLocalMm.find((c) => c.id === pl.cellId);
-            const dock = docks[pl.crateIndex];
-            if (!dims || !cell || !dock) {
-              carryNotes.push(`${u.unitId} ${pl.productId}#${pl.itemOrdinal}: missing SKU dims/cell/dock, nothing drawn`);
-              continue;
-            }
-            const pose = carryMarkerPose(dims, cell, ops.carry.crateInteriorMm.floorTopY, ops.carry.cargoYawDeg);
-            if (!pose.fitsCell) {
-              carryNotes.push(`${u.unitId} ${pl.productId}#${pl.itemOrdinal}: ${dims.width}x${dims.depth}x${dims.height} overfills cell ${dock.id}${cell.id}, nothing drawn`);
-              continue;
-            }
-            const geo = new THREE.BoxGeometry(dims.width * MM, dims.height * MM, dims.depth * MM);
-            const marker = new THREE.LineSegments(new THREE.EdgesGeometry(geo), edgeMat);
-            const fill = new THREE.Mesh(geo, fillMat);
-            const wx = u.pose.x * MM + (dock.xM + pose.xMm * MM);
-            const wy = dock.yM + pose.yMm * MM;
-            const wz = u.pose.z * MM + (dock.zM + pose.zMm * MM);
-            marker.position.set(wx, wy, wz);
-            marker.rotation.y = (pose.yawDeg * Math.PI) / 180;
-            fill.position.copy(marker.position);
-            fill.rotation.y = marker.rotation.y;
-            v.carryGroup.add(marker);
-            v.carryGroup.add(fill);
-            parts.push(`${pl.productId}#${pl.itemOrdinal}@${dock.id}${cell.id}`);
-          }
-          if (overflowUnits > 0) {
-            carryNotes.push(`${u.unitId}: OVERFLOW +${overflowUnits}u beyond 4 fixed cells (engine capacity breach, extras not drawn)`);
-          }
-          if (parts.length > 0) carryNotes.push(`${u.unitId}: ${parts.join("+")}`);
+        }
+        for (const r of plan.rejected) {
+          carryNotes.push(`${r.unitId} ${r.productId}#${r.itemOrdinal ?? "?"}: ${r.reason}, nothing drawn`);
+        }
+        for (const o of plan.overflow) {
+          carryNotes.push(`${o.unitId}: OVERFLOW +${o.units}u beyond 4 fixed cells (engine capacity breach, extras not drawn)`);
         }
       }
     }
     const fitSummary = !v.carryReady
       ? (v.cartBoundsNote ?? "carry pending (cart/crate geometry not loaded yet)")
-      : `carry ${ops.carry.model}: 2 equipment docks x 2 cells (yaw90), wireframe bounds markers from canonical SKU dims (not solid models)${carryNotes.length > 0 ? `; ${carryNotes.join(" | ")}` : "; no carried loads"}`;
+      : `carry ${ops.carry.model}: 2 equipment docks x 2 cells (yaw90), SOLID sourced carton meshes (generic box_cardboard_a01 geometry scaled to exact declared SKU bounds; wireframe only as diagnostic overlay)${carryNotes.length > 0 ? `; ${carryNotes.join(" | ")}` : "; no carried loads"}`;
     v.carryFitNote = fitSummary;
-    statsRef.current = { ...statsRef.current, carryFit: fitSummary };
+    statsRef.current = { ...statsRef.current, carryFit: fitSummary, cargoSolid: solidCount };
     mount.dataset["carry"] = carryNotes.join(" | ");
+    mount.dataset["solidCargo"] = String(solidCount);
 
     // Route overlay for the selected unit: CURRENT authorized granted plan
     // only, whole polyline kept, completed vs active split at the EXACT
@@ -539,6 +572,18 @@ export function OperationsView(props: {
       statsRef.current = { ...statsRef.current, gpu: gpu || null };
     }
     renderer.localClippingEnabled = true;
+    // R1 grounding: shadow-mapped key light + filmic tone mapping with
+    // explicit sRGB output. Frame cost is measured in diagnostics on the
+    // actual GPU; no frame-rate claim is made from these settings alone.
+    // Software rasterizers get a documented reduced mode (see review §5):
+    // shadows/PMREM off, everything else identical.
+    const softwareGl = /swiftshader|llvmpipe/i.test(statsRef.current.gpu ?? "");
+    mount.dataset["renderQuality"] = softwareGl ? "software-reduced (shadows off, device budget)" : "full (shadows on)";
+    renderer.shadowMap.enabled = !softwareGl;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.06;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     const W = Math.max(240, Math.min(1100, mount.clientWidth || 700));
     const H = W < 520 ? Math.max(300, Math.round((W * 9) / 14)) : Math.min(520, Math.round((W * 9) / 16));
     const size = { w: W, h: H };
@@ -555,7 +600,6 @@ export function OperationsView(props: {
     mount.replaceChildren(renderer.domElement, leaderSvg, labelRenderer.domElement);
 
     const threeScene = new THREE.Scene();
-    threeScene.background = new THREE.Color(0xfbfcfe);
     const roomW = ops.roomMm.width * MM;
     const roomD = ops.roomMm.depth * MM;
     const center = new THREE.Vector3(roomW / 2, 0, roomD / 2);
@@ -583,11 +627,34 @@ export function OperationsView(props: {
     renderer.domElement.setAttribute("aria-label", "3D operations warehouse view. Arrow keys pan the camera.");
     controls.listenToKeyEvents(renderer.domElement);
 
-    threeScene.add(new THREE.HemisphereLight(0xffffff, 0xdfe6f0, 0.95));
-    const key = new THREE.DirectionalLight(0xffffff, 1.15);
-    key.position.set(center.x + 8, 18, center.z + 8);
+    threeScene.background = new THREE.Color(0xe9edf2);
+    // Image-based fill so painted/metal replacement PBR reads as material
+    // instead of near-black under direct light alone (metals carry almost
+    // no diffuse). One-time PMREM from the three RoomEnvironment at modest
+    // intensity; the shadowed key light stays dominant.
+    if (!softwareGl) {
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      threeScene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+      threeScene.environmentIntensity = 0.5;
+      pmrem.dispose();
+    }
+    threeScene.add(new THREE.HemisphereLight(0xffffff, 0xcfd8e4, 0.55));
+    const key = new THREE.DirectionalLight(0xffffff, 1.7);
+    key.position.set(center.x + 10, 20, center.z + 9);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    key.shadow.camera.left = -20;
+    key.shadow.camera.right = 20;
+    key.shadow.camera.top = 20;
+    key.shadow.camera.bottom = -20;
+    key.shadow.camera.near = 1;
+    key.shadow.camera.far = 70;
+    key.shadow.bias = -0.0004;
+    key.shadow.normalBias = 0.03;
+    key.target.position.copy(center);
     threeScene.add(key);
-    const fill = new THREE.DirectionalLight(0xe8f2f2, 0.35);
+    threeScene.add(key.target);
+    const fill = new THREE.DirectionalLight(0xe8f2f2, 0.4);
     fill.position.set(center.x - 10, 10, center.z - 8);
     threeScene.add(fill);
 
@@ -607,6 +674,8 @@ export function OperationsView(props: {
       carryGroup: new THREE.Group(),
       cartOf: new Map(),
       containerMeshes: [],
+      cargoPool: null,
+      assetModes: new Map(),
       carryReady: false,
       cartBoundsNote: null,
       carryFitNote: null,
@@ -710,17 +779,28 @@ export function OperationsView(props: {
       if (cancelled || handles.labels3d.length === 0) return;
       camera.updateMatrixWorld();
       type Item = { l: Label3D; sx: number; sy: number; w: number; h: number };
-      const items: Item[] = handles.labels3d.map((l) => {
+      const items: Item[] = [];
+      for (const l of handles.labels3d) {
         const p = l.anchor.clone().project(camera);
+        const sx = (p.x * 0.5 + 0.5) * size.w;
+        const sy = (-p.y * 0.5 + 0.5) * size.h;
+        // Anchors behind the camera or far off-canvas have no readable
+        // chip: hide instead of clamping into an edge pile.
+        if (p.z > 1 || p.z < -1 || sx < -180 || sx > size.w + 180 || sy < -140 || sy > size.h + 140) {
+          l.chip.style.display = "none";
+          l.leader.style.display = "none";
+          continue;
+        }
+        l.chip.style.display = "";
         const r = l.chip.getBoundingClientRect();
-        return {
+        items.push({
           l,
-          sx: (p.x * 0.5 + 0.5) * size.w,
-          sy: (-p.y * 0.5 + 0.5) * size.h,
+          sx,
+          sy,
           w: (r.width > 0 ? Math.ceil(r.width) : 80) + 4,
           h: (r.height > 0 ? Math.ceil(r.height) : 20) + 4,
-        };
-      });
+        });
+      }
       items.sort((a, b) => a.sy - b.sy || a.sx - b.sx);
       type Rect = { left: number; top: number; right: number; bottom: number };
       const placed: Rect[] = [];
@@ -739,18 +819,17 @@ export function OperationsView(props: {
         const stepY = it.h + LABEL_PAD_PX;
         const stepX = it.w / 2 + 8;
         const cands: [number, number][] = [[it.sx, baseTop]];
-        for (let k = 1; k <= 6; k++) cands.push([it.sx, baseTop - k * stepY]);
-        cands.push([it.sx, baseTop + stepY], [it.sx, baseTop + 2 * stepY]);
+        for (let k = 1; k <= 12; k++) cands.push([it.sx, baseTop - k * stepY]);
+        for (let k = 1; k <= 12; k++) cands.push([it.sx, baseTop + k * stepY]);
         for (const s of [-1, 1]) {
           cands.push([it.sx + s * stepX, baseTop], [it.sx + s * 2 * stepX, baseTop]);
-          for (let k = 1; k <= 3; k++) {
+          for (let k = 1; k <= 8; k++) {
             cands.push([it.sx + s * stepX, baseTop - k * stepY]);
             cands.push([it.sx + s * stepX, baseTop + k * stepY]);
             cands.push([it.sx + s * 2 * stepX, baseTop - k * stepY]);
+            cands.push([it.sx + s * 2 * stepX, baseTop + k * stepY]);
           }
-          cands.push([it.sx + s * 2 * stepX, baseTop + stepY]);
         }
-        for (let k = 3; k <= 6; k++) cands.push([it.sx, baseTop + k * stepY]);
         let best: Rect | null = null;
         for (const [cx, top] of cands) {
           const r = rectAt(cx, top, it.w, it.h);
@@ -836,8 +915,6 @@ export function OperationsView(props: {
       // deltas divide exactly offline; window maxima are never derived
       // from lifetime maxima, so no max dataset is offered here.
       mount.dataset["renderCpuTotal"] = String(statsRef.current.renderMsTotal);
-      labelRenderer.render(threeScene, camera);
-      decollide();
       mount.dataset["cam"] =
         `${round3(controls.target.x)},${round3(controls.target.y)},${round3(controls.target.z)}`;
       mount.dataset["camPos"] =
@@ -913,24 +990,53 @@ export function OperationsView(props: {
 
     void (async () => {
       const loaded = handles.loaded;
+      const maxAniso = renderer.capabilities.getMaxAnisotropy();
       await Promise.all(allUrls.map(async (u) => {
         try {
-          loaded.set(u, await loadGlb(u));
-          assetStatus.set(u, { status: "loaded", detail: "ok" });
+          // Prefer the R1 v2 derivative (source splits/UVs/textures); a
+          // failed derivative falls back to the verified v1 original and
+          // says so in diagnostics — never a silent proxy.
+          const v2 = derivativeUrlFor(u);
+          let usedV2 = false;
+          try {
+            if (v2) {
+              loaded.set(u, await loadGlb(v2));
+              usedV2 = true;
+            } else {
+              loaded.set(u, await loadGlb(u));
+            }
+          } catch {
+            if (!v2) throw new Error("original GLB failed to load");
+            loaded.set(u, await loadGlb(u));
+          }
+          const group = loaded.get(u)!;
+          const prepared = prepareAssetGroup(group, u, maxAniso);
+          handles.assetModes.set(u, usedV2 ? `v2 (${prepared.mode})` : prepared.mode);
+          assetStatus.set(u, {
+            status: "loaded",
+            detail: usedV2 ? "ok (v2 derivative)" : v2 ? "ok (v1 fallback, v2 failed)" : "ok",
+          });
         } catch (e) {
           assetStatus.set(u, { status: "error", detail: e instanceof Error ? e.message.slice(0, 160) : String(e).slice(0, 160) });
         }
         if (!cancelled) reportStatus();
       }));
       if (cancelled) return;
+      statsRef.current = {
+        ...statsRef.current,
+        materialSummary: [...handles.assetModes.entries()]
+          .map(([u, m]) => `${u.split("/").pop()}:${m}`)
+          .join("; "),
+      };
 
       const floorGroup = floorUrl ? loaded.get(floorUrl) : undefined;
       if (floorGroup) {
-        const [entry] = meshesOf(floorGroup);
-        if (entry) {
-          entry.geometry.computeBoundingBox();
-          const topY = entry.geometry.boundingBox?.max.y ?? 0.1;
+        // Whole-group top: v2 splits the tile into per-material meshes, so
+        // no single entry's bounds describe the tile top.
+        const topY = new THREE.Box3().setFromObject(floorGroup).max.y;
+        for (const entry of meshesOf(floorGroup)) {
           const inst = new THREE.InstancedMesh(entry.geometry, entry.material, ops.floorTiles.length);
+          inst.receiveShadow = true;
           ops.floorTiles.forEach((t, i) => placeInstance(inst, i, t.xM, t.topYM - topY, t.zM, 0));
           inst.instanceMatrix.needsUpdate = true;
           threeScene.add(inst);
@@ -938,22 +1044,26 @@ export function OperationsView(props: {
       }
       const rackGroup = rackUrl ? loaded.get(rackUrl) : undefined;
       if (rackGroup) {
-        const [entry] = meshesOf(rackGroup);
-        if (entry) {
+        for (const entry of meshesOf(rackGroup)) {
           const inst = new THREE.InstancedMesh(entry.geometry, entry.material, ops.racks.length);
+          inst.castShadow = true;
+          inst.receiveShadow = true;
           ops.racks.forEach((r, i) =>
             placeInstance(inst, i, r.positionMm.x * MM, 0, r.positionMm.z * MM, 0, r.scale.x, r.scale.y, r.scale.z));
           inst.instanceMatrix.needsUpdate = true;
           threeScene.add(inst);
         }
       }
-      // Shelf containers: one InstancedMesh per asset; per-instance base
-      // matrices are retained so live stock only toggles visibility.
+      // Shelf containers: one InstancedMesh per geometry entry (v2 splits
+      // add entries); per-instance base matrices are retained so live
+      // stock only toggles visibility. Receive-only in the shadow pass:
+      // goods sit inside rack cavities, and casting from every shelf
+      // container is the budget choice documented in the R1 review.
       for (const cg of ops.containerGlbs) {
         const group = loaded.get(cg.glbUrl);
         if (!group) continue;
-        const [entry] = meshesOf(group);
-        if (!entry) continue;
+        const entries = meshesOf(group);
+        if (entries.length === 0) continue;
         const items: { x: number; y: number; z: number; locId: string }[] = [];
         for (const l of ops.locations) {
           for (const c of l.containers) {
@@ -966,18 +1076,21 @@ export function OperationsView(props: {
             });
           }
         }
-        const inst = new THREE.InstancedMesh(entry.geometry, entry.material, Math.max(items.length, 1));
-        inst.count = items.length;
-        items.forEach((p, i) => placeInstance(inst, i, p.x, p.y, p.z, 0));
-        inst.instanceMatrix.needsUpdate = true;
-        threeScene.add(inst);
-        const state: ContainerMeshState = { mesh: inst, items: [] };
-        const m = new THREE.Matrix4();
-        items.forEach((p, i) => {
-          inst.getMatrixAt(i, m);
-          state.items.push({ locId: p.locId, base: m.clone() });
-        });
-        handles.containerMeshes.push(state);
+        for (const entry of entries) {
+          const inst = new THREE.InstancedMesh(entry.geometry, entry.material, Math.max(items.length, 1));
+          inst.count = items.length;
+          inst.receiveShadow = true;
+          items.forEach((p, i) => placeInstance(inst, i, p.x, p.y, p.z, 0));
+          inst.instanceMatrix.needsUpdate = true;
+          threeScene.add(inst);
+          const state: ContainerMeshState = { mesh: inst, items: [] };
+          const m = new THREE.Matrix4();
+          items.forEach((p, i) => {
+            inst.getMatrixAt(i, m);
+            state.items.push({ locId: p.locId, base: m.clone() });
+          });
+          handles.containerMeshes.push(state);
+        }
       }
       const cutaway = new THREE.Plane(new THREE.Vector3(0, -1, 0), 2.5);
       const addShell = (placements: typeof ops.walls): void => {
@@ -992,6 +1105,10 @@ export function OperationsView(props: {
               const mat = (o.material as THREE.Material).clone();
               mat.clippingPlanes = pl.cutawayYM === null ? null : [cutaway];
               o.material = mat;
+              // Shells receive contact shading but never cast: the 32 MB
+              // entrance must not enter the shadow pass or occlude the room.
+              o.receiveShadow = true;
+              o.castShadow = false;
             }
           });
           threeScene.add(clone);
@@ -1005,6 +1122,12 @@ export function OperationsView(props: {
         const clone = group.clone(true);
         clone.position.set(st.centerMm.x * MM, 0, st.centerMm.z * MM);
         clone.rotation.y = (st.yawDeg * Math.PI) / 180;
+        clone.traverse((o) => {
+          if (o instanceof THREE.Mesh) {
+            o.castShadow = true;
+            o.receiveShadow = true;
+          }
+        });
         threeScene.add(clone);
       }
       // One cart assembly per unit at its parking slot; the dynamic update
@@ -1052,9 +1175,60 @@ export function OperationsView(props: {
             tote.rotation.y = (dock.yawDeg * Math.PI) / 180;
             assembly.add(tote);
           }
+          assembly.traverse((o) => {
+            if (o instanceof THREE.Mesh) {
+              o.castShadow = true;
+              o.receiveShadow = true;
+            }
+          });
           assembly.position.set(u.parkingMm.x * MM, 0, u.parkingMm.z * MM);
           threeScene.add(assembly);
           handles.cartOf.set(u.id, assembly);
+        }
+        // Solid cargo pool (once): sourced carton geometry from the
+        // box_cardboard container asset, measured from the loaded geometry
+        // itself; one InstancedMesh sized units x packet capacity. The
+        // wireframe twin shares the matrices and shows only on the
+        // diagnostic label layer.
+        const cartonCg = ops.containerGlbs.find((c) => c.glbUrl.includes("box_cardboard"));
+        const cartonGroup = cartonCg ? loaded.get(cartonCg.glbUrl) : undefined;
+        const cartonEntry = cartonGroup ? meshesOf(cartonGroup)[0] : undefined;
+        if (cartonEntry) {
+          cartonEntry.geometry.computeBoundingBox();
+          const bb = cartonEntry.geometry.boundingBox!;
+          const maxItems = ops.units.length * ops.carry.capacityUnits;
+          const solid = new THREE.InstancedMesh(cartonEntry.geometry, cartonEntry.material, maxItems);
+          solid.castShadow = true;
+          solid.receiveShadow = true;
+          solid.count = 0;
+          solid.frustumCulled = false;
+          // Same sourced carton geometry as the solid twin: the shared
+          // instance matrix then outlines the solid exactly (a unit box
+          // under the carton scale would draw at the wrong size).
+          const wire = new THREE.InstancedMesh(
+            cartonEntry.geometry,
+            new THREE.MeshBasicMaterial({ color: 0xd97706, wireframe: true }),
+            maxItems,
+          );
+          wire.count = 0;
+          wire.visible = false;
+          wire.frustumCulled = false;
+          handles.carryGroup.add(solid);
+          handles.carryGroup.add(wire);
+          handles.cargoPool = {
+            solid,
+            wire,
+            max: maxItems,
+            cartonSizeM: {
+              x: bb.max.x - bb.min.x,
+              y: bb.max.y - bb.min.y,
+              z: bb.max.z - bb.min.z,
+            },
+          };
+          mount.dataset["cargoPool"] = `solid-instances:${maxItems}`;
+        } else {
+          handles.cartBoundsNote = "BLOCKER solid-cargo carton geometry (box_cardboard) unavailable; carried cargo refused, nothing drawn";
+          mount.dataset["cargoPool"] = "refused";
         }
       } else {
         handles.cartBoundsNote = `BLOCKER carry geometry drifted (cart ${cartDrift === Infinity ? "missing" : cartDrift.toFixed(3)}m, crate ${crateDrift === Infinity ? "missing" : crateDrift.toFixed(3)}m vs packet); equipment + markers refused, nothing attached`;
@@ -1126,13 +1300,15 @@ export function OperationsView(props: {
     }
     if (selection.kind === "unit") {
       const p = poseOf(selection.id);
-      return { x: p.x * MM, y: 0.7, z: p.z * MM, dist: 7 };
+      // Close enough that cart cargo reads: at 3.4 m the frame height is
+      // ~2.8 m, still holding the whole 680x1220 cart + loaded totes.
+      return { x: p.x * MM, y: 0.7, z: p.z * MM, dist: 3.4 };
     }
     if (selection.kind === "order") {
       const o = snapshot?.orders.find((x) => x.orderId === selection.id);
       if (o?.unitId) {
         const p = poseOf(o.unitId);
-        return { x: p.x * MM, y: 0.7, z: p.z * MM, dist: 8 };
+        return { x: p.x * MM, y: 0.7, z: p.z * MM, dist: 5 };
       }
       const first = o?.reservation[0] ? ops.locations.find((l) => l.id === o.reservation[0]!.locationId) : undefined;
       if (first) return { x: first.anchorMm.x * MM, y: 0.6, z: first.anchorMm.z * MM, dist: 9 };
@@ -1164,7 +1340,7 @@ export function OperationsView(props: {
     } else {
       const t = inspectTarget();
       if (!t) return;
-      camera.position.set(t.x + t.dist * 0.55, t.y + t.dist * 0.62, t.z + t.dist * 0.55);
+      camera.position.set(t.x + t.dist * 0.5, t.y + t.dist * 0.72, t.z + t.dist * 0.5);
       controls.target.set(t.x, t.y, t.z);
     }
     controls.update();

@@ -1,0 +1,16 @@
+{
+  "note": "R1 replacement PBR factors for source materials whose textures cannot be embedded (UDIM sets or >20MB closures). Keyed by exact source UsdShade material name from the pinned SimReady payloads. These are documented replacements, NOT source MDL fidelity: geometry, UVs (st) and per-face material splits ARE source-preserved by warehouse-usd-to-glb-v2.py; only the surface response is approximated here. Textured materials (box/crate) ignore this file and embed the source PNGs.",
+  "materials": {
+    "opaque__metal__painted_unique_rack_a": { "baseColorFactor": [0.36, 0.47, 0.62, 1], "metallicFactor": 0.35, "roughnessFactor": 0.52, "role": "painted rack steel (v1 fallback hue retained)" },
+    "opaque__metal__unique_rack_a": { "baseColorFactor": [0.6, 0.64, 0.67, 1], "metallicFactor": 0.85, "roughnessFactor": 0.42, "role": "bare rack steel" },
+    "opaque__metal__glossy_a": { "baseColorFactor": [0.56, 0.59, 0.62, 1], "metallicFactor": 0.9, "roughnessFactor": 0.3, "role": "cart glossy metal frame" },
+    "opaque__metal__glossy_a_": { "baseColorFactor": [0.56, 0.59, 0.62, 1], "metallicFactor": 0.9, "roughnessFactor": 0.3, "role": "cart glossy metal (trailing-underscore source variant)" },
+    "opaque__metal__aluminium_brushed_a": { "baseColorFactor": [0.78, 0.8, 0.82, 1], "metallicFactor": 0.9, "roughnessFactor": 0.45, "role": "cart brushed aluminium wheels/hubs" },
+    "opaque__rubber__black_glossy_a": { "baseColorFactor": [0.07, 0.07, 0.08, 1], "metallicFactor": 0.0, "roughnessFactor": 0.5, "role": "cart rubber tires" },
+    "opaque__rubber__black_glossy_standard_a": { "baseColorFactor": [0.09, 0.09, 0.1, 1], "metallicFactor": 0.0, "roughnessFactor": 0.65, "role": "cart rubber (standard variant)" },
+    "opaque__polyester__gray_glossy_shelf_a": { "baseColorFactor": [0.48, 0.5, 0.53, 1], "metallicFactor": 0.0, "roughnessFactor": 0.5, "role": "cart polyester deck shelf" },
+    "m_opaque__concrete__plain_d": { "baseColorFactor": [0.52, 0.53, 0.55, 1], "metallicFactor": 0.0, "roughnessFactor": 0.95, "role": "floor concrete" },
+    "m_opaque__metal__steelStainless_clean_a01": { "baseColorFactor": [0.73, 0.76, 0.78, 1], "metallicFactor": 0.9, "roughnessFactor": 0.35, "role": "floor stainless strips" },
+    "m_opaque__plastic__yellow_a01": { "baseColorFactor": [0.76, 0.6, 0.16, 1], "metallicFactor": 0.0, "roughnessFactor": 0.6, "role": "floor safety-yellow plastic" }
+  }
+}

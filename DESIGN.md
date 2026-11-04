@@ -446,14 +446,18 @@ counting meters, no staged queues-as-activity.
   selected location/rack/agent/station), `Reset overview`. View-only
   orbit/zoom/pan; single render per state change, no auto-motion, honoring
   `prefers-reduced-motion`.
-- Replacement materials (source MDL/textures unsupported, UVs lost in the
-  merged W1 conversion — never claimed retained). Documented per-asset
-  fallback colors: concrete floor gray, wall/entrance concrete pale,
-  rack frame/decks shared blue-gray, cardboard tan, crate blue,
-  packing-station green, cart orange. Frame and decks share one rack
-  material (recorded limit, not a general material project). Lighting is
-  flat hemisphere + key/fill only as needed for slot/aisle readability;
-  no decorative effects.
+- Materials (R1, supersedes the W1 textureless paragraph): sibling v2
+  derivatives preserve source geometry, st UVs, and per-face material
+  splits for floor/rack/cart/box/crate. Box and crate embed their source
+  PNG textures (Albedo/ORM/Normal); floor, rack, and cart use documented
+  replacement PBR factors per source material because their texture
+  closures are oversized or UDIM — source MDL fidelity is never claimed,
+  and the verified v1 GLB stays as a per-asset fallback with role PBR
+  (concrete, painted rack steel, cardboard, plastic, equipment). Lighting:
+  shadow-mapped key light (PCF soft), hemisphere + fill, a modest
+  PMREM RoomEnvironment fill so metals read as material, ACES tone
+  mapping with sRGB output. Frame cost is measured, never claimed as
+  60 fps (see `docs/WAREHOUSE_R1_RENDER_REVIEW.md`).
 - Selection: location/rack/agent/station via list + native `<select>`
   (keyboard-operable); highlight pairs color with text/shape, never
   color alone. Instrumentation (`data-*` anchors/counts/camera/asset
@@ -565,10 +569,14 @@ value, pose, and event is the actual engine snapshot at the shown clock.
   no independent shifts, canonical yaw kept per the holonomic disc
   assumption). Actual ledger lines allocate into the 4 fixed
   220x320x160 cells in stable SKU/item-ordinal order at cargo yaw90;
-  each item renders as a labeled wireframe bounds marker sized from its
-  canonical SKU dims and resting on the crate interior floor — never a
-  solid inventory model, never a whole storage box. Empty totes render
-  as labeled empty equipment. The carry packet is the single source of
+  each item renders as a SOLID sourced generic-carton mesh (R1:
+  box_cardboard_a01 v2 geometry) non-uniformly scaled so its AABB equals
+  its canonical SKU dims exactly, resting on the crate interior floor,
+  pooled in one persistent InstancedMesh (matrices only per snapshot).
+  Wireframe bounds survive only as a developer overlay on the All
+  diagnostic label layer. Unknown SKU, cell misfit, or overflow is
+  reported and never drawn as valid cargo. Empty totes render as labeled
+  empty equipment. The carry packet is the single source of
   bounds/normalization/docks/cells/yaw/profile/capacity; cart or crate
   geometry drift from the packet bounds attaches nothing (fail closed).
   Attachment is visual only, never claimed as physics certification or

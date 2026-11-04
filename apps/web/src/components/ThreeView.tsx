@@ -5,6 +5,7 @@ import { CSS2DObject, CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { Scenario } from "@layoutlab/core";
 import { RACK_GLB_URL, rackScaleFor } from "../lib/rackAsset";
+import { prepareAssetGroup } from "../lib/warehouseRender";
 import type { ProductPlacement, StorageAnchor } from "../lib/storageAnchors";
 import type { RoutePolyline } from "./CenterView";
 
@@ -449,6 +450,8 @@ export function ThreeView(props: {
     void loadRackGlb().then(
       (glb) => {
         if (cancelled) return;
+        // Safe R1 reuse: planner rack keeps verified v1 geometry; only its textureless neutral material upgrades to the shared painted-steel role PBR (no UVs to texture honestly). Planner scenario/state untouched (R3).
+        prepareAssetGroup(glb, RACK_GLB_URL, renderer.capabilities.getMaxAnisotropy());
         for (let i = rackGroup.children.length - 1; i >= 0; i--) {
           const child = rackGroup.children[i]!;
           if (!(child instanceof CSS2DObject)) rackGroup.remove(child);

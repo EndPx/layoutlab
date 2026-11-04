@@ -186,11 +186,19 @@ test.describe("operations evidence", () => {
     await loadOps(page);
     await page.getByTestId("ops-speed-16").click();
     await page.getByTestId("ops-run").click();
-    await expect(page.getByTestId("ops-state-badge")).toContainText("STAGE COMPLETE", { timeout: 600_000 });
+    // Supported-stage completion semantics (app badge since the dispatch
+    // milestone): the stage completes with every order shipped. Exact
+    // shipped/backlog counts are asserted on screen AND proven against
+    // the headless engine stage + signature at the same clock below.
+    await expect(page.getByTestId("ops-state-badge")).toContainText("COMPLETE · SHIPPED", { timeout: 600_000 });
     await expect(page.getByTestId("ops-complete-note")).toContainText("6 orders SHIPPED");
+    await expect(page.getByTestId("ops-complete-note")).toContainText("unshipped backlog 0");
+    await expect(page.getByTestId("ops-complete-note")).toContainText("stage backlog 0");
+    await expect(page.getByTestId("ops-m-backlog")).toContainText("6 / 0");
     await ensurePaused(page);
     const endClock = await opsClockMs(page);
     console.log(`evidence recording completes at exact clock ${endClock}ms (${channelTag})`);
+    expect(headlessFacts(endClock).completion).toBe("SUPPORTED_STAGE_COMPLETE");
     expect(await page.getByTestId("ops-panel").getAttribute("data-ops-signature")).toBe(headlessSignature(endClock));
     expect(errors).toEqual([]);
     // Finalize the recording before copying: the video file is complete

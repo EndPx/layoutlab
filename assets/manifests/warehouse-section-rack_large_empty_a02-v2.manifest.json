@@ -1,0 +1,46 @@
+{
+  "manifestVersion": "layoutlab.asset-manifest/1",
+  "derivativeOf": "assets/manifests/warehouse-section-rack_large_empty_a02.manifest.json",
+  "package": "rack_large_empty_a02",
+  "dataset": "nvidia/simready-assets",
+  "sourceRevision": "653d91e182011f357cf1644013cc94ddf194d349",
+  "rootUsd": "simready_usd/sm_rack_large_empty_a02_01.usd",
+  "license": "CC-BY-4.0",
+  "licenseCopy": "assets/licenses/warehouse-section-rack_large_empty_a02-LICENSE.txt",
+  "converter": "scripts/warehouse-usd-to-glb-v2.py (R1 successor of warehouse-section-usd-to-glb.py; same triangulation/bounds contract)",
+  "materialMode": "splits+uv, replacement factors (UDIM source textures cannot be expressed in glTF; 23,079,906 B at pinned revision, not embedded)",
+  "derivative": {
+    "path": "apps/web/public/assets/warehouse-section/rack_large_empty_a02-v2.glb",
+    "bytes": 5102380,
+    "sha256": "fdf1352088d46aac0b8e71f6d3ba2281d75f7c8a7e9b091d715a481753c75523",
+    "triangles": 53128,
+    "boundsMinM": [
+      -1.9999886751174927,
+      0,
+      -1.0332903861999512
+    ],
+    "boundsMaxM": [
+      1.9999890327453613,
+      3.010000705718994,
+      1.033290982246399
+    ],
+    "materials": [
+      "layoutlab-replacement-opaque__metal__painted_unique_rack_a",
+      "layoutlab-replacement-opaque__metal__unique_rack_a"
+    ],
+    "imagesEmbedded": [],
+    "extensionsUsed": []
+  },
+  "preservedFromSource": [
+    "geometry (triangles/bounds identical to v1, 1mm calibration)",
+    "face-varying st as TEXCOORD_0 (V flipped to glTF)",
+    "per-face material splits (GeomSubset materialBind + mesh binding)",
+    "UsdPreviewSurface texture roles where embedded (Albedo sRGB, ORM G/B = roughness/metallic, Normal)"
+  ],
+  "discardedFeatures": [
+    "UDIM texture set (T_Rack_A1_*.1001-1003.png) not embedded: glTF has no UDIM addressing; UVs are preserved so a future tiled split remains possible",
+    "Per-material PBR factors are documented replacements in scripts/warehouse-r1-materials.json",
+    "MDL OmniPBR not preserved"
+  ],
+  "fallback": "Renderer keeps the verified v1 GLB as fallback: if a v2 derivative fails to load, OperationsView falls back per-asset and reports it in Developer diagnostics (never a silent proxy)."
+}

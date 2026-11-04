@@ -1,0 +1,52 @@
+{
+  "manifestVersion": "layoutlab.r1-textures/1",
+  "dataset": "nvidia/simready-assets",
+  "revision": "653d91e182011f357cf1644013cc94ddf194d349",
+  "license": "CC-BY-4.0",
+  "fetchedAt": "2026-11-04T11:10:17.866Z",
+  "totalBytes": 11389332,
+  "files": [
+    {
+      "package": "box_cardboard_a01",
+      "path": "simready_usd/Textures/T_Cardbox_A1_Albedo_1.png",
+      "bytes": 3577615,
+      "sha256": "db4c149f567a693bb0f4d8d94be73988ea8f0ba6b6e15902295146685baf7250",
+      "role": "albedo-sRGB"
+    },
+    {
+      "package": "box_cardboard_a01",
+      "path": "simready_usd/Textures/T_Cardbox_A1_ORM_1.png",
+      "bytes": 2858551,
+      "sha256": "b44ba9bc781bc4755ef60335da869d3a17b2ed214ec8645c40de81c55da1a7f3",
+      "role": "orm-raw"
+    },
+    {
+      "package": "box_cardboard_a01",
+      "path": "simready_usd/Textures/T_Cardbox_A1_Normal_1.png",
+      "bytes": 2476917,
+      "sha256": "ae67a1b7327bbf244d2141c4b376005b88b3029d8df8ac219610b39f9208e261",
+      "role": "normal-raw"
+    },
+    {
+      "package": "crate_blue_a01",
+      "path": "simready_usd/Textures/T_Plastic_Blue_A_Albedo.png",
+      "bytes": 822814,
+      "sha256": "9a414b0d8551193f129ee80ea61c736a990c130fc19ac256d31dde1749d04e16",
+      "role": "albedo-sRGB"
+    },
+    {
+      "package": "crate_blue_a01",
+      "path": "simready_usd/Textures/T_Plastic_Blue_A_ORM.png",
+      "bytes": 743855,
+      "sha256": "dff7a9ec311c68b779576bbbf7ab1d121fcd784d49d3f1f730a7fe2ac647fbc9",
+      "role": "orm-raw"
+    },
+    {
+      "package": "crate_blue_a01",
+      "path": "simready_usd/Textures/T_Plastic_Blue_A_Normal.png",
+      "bytes": 909580,
+      "sha256": "b276207f782c029f34dfd6034a9c718467e35e5aa6c8ba2dbcba1de25f045559",
+      "role": "normal-raw"
+    }
+  ]
+}

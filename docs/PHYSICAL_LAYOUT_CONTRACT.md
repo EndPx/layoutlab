@@ -9,7 +9,7 @@ surface and are not relabeled as layout optimization by anything here.
 Code: `packages/simulation/layout-draft/src/` (compiled only to
 `packages/simulation/layout-draft/.out/`; the shared simulation `dist` and
 every existing source file are untouched). Tests:
-`packages/simulation/layout-draft/test/layout-draft.test.mjs` (20 tests).
+`packages/simulation/layout-draft/test/layout-draft.check.mjs` (20 tests).
 
 ## 1. Proposal and approved-constraints trust boundary
 

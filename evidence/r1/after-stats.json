@@ -1,0 +1,171 @@
+{
+  "tag": "after",
+  "viewports": {
+    "390": {
+      "overview": {
+        "tris": "22362277",
+        "draws": "335",
+        "renders": "6",
+        "renderCpuTotal": "504.20000000298023",
+        "renderMs": "378.8",
+        "carry": "PA-1: empty equipment (2 labeled totes, 0 cells filled) | PA-2: empty equipment (2 labeled totes, 0 cells filled) | PK-1: empty equipment (2 labeled totes, 0 cells filled) | PK-2: empty equipment (2 labeled totes, 0 cells filled) | PK-3: empty equipment (2 labeled totes, 0 cells filled) | PK-4: empty equipment (2 labeled totes, 0 cells filled)",
+        "carryModel": "cargo-c2-centered680x1220",
+        "labelCount": "18",
+        "labelOverlap": "4",
+        "visibleContainers": "336",
+        "cam": "12,0,9",
+        "camPos": "24,11,22",
+        "camDist": "20.833",
+        "preset": "manual",
+        "selection": "none",
+        "routeShown": "none",
+        "routeArrows": "0"
+      },
+      "overflow": {
+        "scrollW": 390,
+        "clientW": 390
+      }
+    },
+    "768": {
+      "overview": {
+        "tris": "22526924",
+        "draws": "344",
+        "renders": "6",
+        "renderCpuTotal": "659.2999999821186",
+        "renderMs": "528.5",
+        "carry": "PA-1: empty equipment (2 labeled totes, 0 cells filled) | PA-2: empty equipment (2 labeled totes, 0 cells filled) | PK-1: empty equipment (2 labeled totes, 0 cells filled) | PK-2: empty equipment (2 labeled totes, 0 cells filled) | PK-3: empty equipment (2 labeled totes, 0 cells filled) | PK-4: empty equipment (2 labeled totes, 0 cells filled)",
+        "carryModel": "cargo-c2-centered680x1220",
+        "labelCount": "18",
+        "labelOverlap": "0",
+        "visibleContainers": "336",
+        "cam": "12,0,9",
+        "camPos": "24,11,22",
+        "camDist": "20.833",
+        "preset": "manual",
+        "selection": "none",
+        "routeShown": "none",
+        "routeArrows": "0"
+      },
+      "overflow": {
+        "scrollW": 768,
+        "clientW": 768
+      }
+    },
+    "1586": {
+      "before": {
+        "tris": "22526924",
+        "draws": "344",
+        "renders": "6",
+        "renderCpuTotal": "1500.5",
+        "renderMs": "1278.7",
+        "carry": "PA-1: empty equipment (2 labeled totes, 0 cells filled) | PA-2: empty equipment (2 labeled totes, 0 cells filled) | PK-1: empty equipment (2 labeled totes, 0 cells filled) | PK-2: empty equipment (2 labeled totes, 0 cells filled) | PK-3: empty equipment (2 labeled totes, 0 cells filled) | PK-4: empty equipment (2 labeled totes, 0 cells filled)",
+        "carryModel": "cargo-c2-centered680x1220",
+        "labelCount": "18",
+        "labelOverlap": "0",
+        "visibleContainers": "336",
+        "cam": "12,0,9",
+        "camPos": "24,11,22",
+        "camDist": "20.833",
+        "preset": "manual",
+        "selection": "none",
+        "routeShown": "none",
+        "routeArrows": "0"
+      },
+      "top": {
+        "tris": "22539870",
+        "draws": "347",
+        "renders": "9",
+        "renderCpuTotal": "1535.5999999940395",
+        "renderMs": "12.4",
+        "carry": "PA-1: empty equipment (2 labeled totes, 0 cells filled) | PA-2: empty equipment (2 labeled totes, 0 cells filled) | PK-1: empty equipment (2 labeled totes, 0 cells filled) | PK-2: empty equipment (2 labeled totes, 0 cells filled) | PK-3: empty equipment (2 labeled totes, 0 cells filled) | PK-4: empty equipment (2 labeled totes, 0 cells filled)",
+        "carryModel": "cargo-c2-centered680x1220",
+        "labelCount": "18",
+        "labelOverlap": "0",
+        "visibleContainers": "336",
+        "cam": "12,0,9",
+        "camPos": "12,34,9.02",
+        "camDist": "34",
+        "preset": "top",
+        "selection": "none",
+        "routeShown": "none",
+        "routeArrows": "0"
+      },
+      "slot": {
+        "tris": "20437982",
+        "draws": "214",
+        "renders": "16",
+        "renderCpuTotal": "1621.8999999910593",
+        "renderMs": "4.8",
+        "carry": "PA-1: empty equipment (2 labeled totes, 0 cells filled) | PA-2: empty equipment (2 labeled totes, 0 cells filled) | PK-1: empty equipment (2 labeled totes, 0 cells filled) | PK-2: empty equipment (2 labeled totes, 0 cells filled) | PK-3: empty equipment (2 labeled totes, 0 cells filled) | PK-4: empty equipment (2 labeled totes, 0 cells filled)",
+        "carryModel": "cargo-c2-centered680x1220",
+        "labelCount": "8",
+        "labelOverlap": "0",
+        "visibleContainers": "336",
+        "cam": "3,1.05,6",
+        "camPos": "7.95,6.63,10.95",
+        "camDist": "8.952",
+        "preset": "inspect",
+        "selection": "location:L01",
+        "routeShown": "none",
+        "routeArrows": "0"
+      },
+      "emptyCart": {
+        "tris": "19814292",
+        "draws": "187",
+        "renders": "19",
+        "renderCpuTotal": "1638.8999999910593",
+        "renderMs": "3.2",
+        "carry": "PA-1: empty equipment (2 labeled totes, 0 cells filled) | PA-2: empty equipment (2 labeled totes, 0 cells filled) | PK-1: empty equipment (2 labeled totes, 0 cells filled) | PK-2: empty equipment (2 labeled totes, 0 cells filled) | PK-3: empty equipment (2 labeled totes, 0 cells filled) | PK-4: empty equipment (2 labeled totes, 0 cells filled)",
+        "carryModel": "cargo-c2-centered680x1220",
+        "labelCount": "7",
+        "labelOverlap": "0",
+        "visibleContainers": "336",
+        "cam": "3,0.7,1.2",
+        "camPos": "5.75,3.8,3.95",
+        "camDist": "4.973",
+        "preset": "inspect",
+        "selection": "unit:PK-1",
+        "routeShown": "none",
+        "routeArrows": "0"
+      },
+      "loadedCart": {
+        "tris": "19863822",
+        "draws": "180",
+        "renders": "274",
+        "renderCpuTotal": "4087.600000038743",
+        "renderMs": "3.6",
+        "carry": "PA-1: empty equipment (2 labeled totes, 0 cells filled) | PA-2: empty equipment (2 labeled totes, 0 cells filled) | PK-1: P01#1@A0+P01#2@A1 | PK-2: empty equipment (2 labeled totes, 0 cells filled) | PK-3: empty equipment (2 labeled totes, 0 cells filled) | PK-4: empty equipment (2 labeled totes, 0 cells filled)",
+        "carryModel": "cargo-c2-centered680x1220",
+        "labelCount": "12",
+        "labelOverlap": "0",
+        "visibleContainers": "336",
+        "cam": "3,0.7,9.2",
+        "camPos": "5.75,3.8,11.95",
+        "camDist": "4.973",
+        "preset": "inspect",
+        "selection": "unit:PK-1",
+        "routeShown": "none",
+        "routeArrows": "0"
+      }
+    }
+  },
+  "errors": [
+    "console: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.",
+    "console: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.",
+    "console: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.",
+    "console: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render."
+  ],
+  "gpu": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "selectedSlot": "location:L01",
+  "activeWindow": {
+    "wallMs": 15804,
+    "clockMs": 15696,
+    "loadedUnit": "PK-1",
+    "rendersDelta": 252,
+    "cpuDeltaMs": 2434.8000000566244,
+    "tris": "19280992",
+    "draws": "152",
+    "carry": "PA-1: empty equipment (2 labeled totes, 0 cells filled) | PA-2: empty equipment (2 labeled totes, 0 cells filled) | PK-1: P01#1@A0+P01#2@A1 | PK-2: empty equipment (2 labeled totes, 0 cells filled) | PK-3: empty equipment (2 labeled totes, 0 cells filled) | PK-4: empty equipment (2 labeled totes, 0 cells filled)"
+  },
+  "signatureAtPause": "clock=16056\ncounts=6,4,0,0,0,4,4\norders=B-01:PICKING:PK-1:-:-;B-02:PICKING:PK-2:-:-;B-03:PICKING:PK-3:-:-;B-04:PICKING:PK-4:-:-;B-05:NOT_ARRIVED:-:-:-;B-06:NOT_ARRIVED:-:-:-\nunits=PA-1:15000,1200:idle:idle:-:0:-;PA-2:18000,1200:idle:idle:-:0:-;PK-1:3000,9200:idle:picking:P01x2:2:-;PK-2:9000,8800:idle:picking:-:0:-;PK-3:8544,1200:moving:to-pick:-:0:1:9000,1200|8900,1200|8800,1200|8700,1200|8600,1200|8500,1200|8400,1200|8300,1200|8200,1200|8100,1200|8000,1200|7900,1200|7800,1200|7700,1200|7600,1200|7500,1200|7400,1200|7300,1200|7200,1200|7100,1200|7000,1200|6900,1200|6800,1200|6800,1300|6800,1400|6800,1500|6800,1600|6800,1700|6800,1800|6800,1900|6800,2000|6800,2100|6800,2200|6800,2300|6800,2400|6800,2500|6800,2600|6800,2700|6800,2800|6800,2900|6800,3000|6800,3100|6800,3200|6800,3300|6800,3400|6800,3500|6800,3600|6800,3700|6800,3800|6800,3900|6800,4000|6800,4100|6800,4200|6800,4300|6800,4400|6800,4500|6800,4600|6800,4700|6800,4800|6800,4900|6800,5000|6800,5100|6800,5200|6800,5300|6800,5400|6800,5500|6800,5600|6800,5700|6800,5800|6800,5900|6800,6000|6800,6100|6800,6200|6800,6300|6800,6400|6800,6500|6800,6600|6800,6700|6800,6800|6800,6900|6800,7000|6800,7100|6800,7200|6800,7300|6800,7400|6800,7500|6800,7600|6800,7700|6800,7800|6700,7800|6600,7800|6500,7800|6400,7800|6300,7800|6200,7800|6100,7800|6000,7800|5900,7800|5800,7800|5700,7800|5600,7800|5500,7800|5400,7800|5300,7800|5200,7800|5100,7800|5000,7800|5000,7900|5000,8000|5000,8100|5000,8200|5000,8300|5000,8400|5000,8500|5000,8600|5000,8700|5000,8800;PK-4:13056,1200:moving:to-pick:-:0:1:12000,1200|12100,1200|12200,1200|12300,1200|12400,1200|12500,1200|12600,1200|12700,1200|12800,1200|12900,1200|13000,1200|13100,1200|13200,1200|13200,1300|13200,1400|13200,1500|13200,1600|13200,1700|13200,1800|13200,1900|13200,2000|13200,2100|13200,2200|13200,2300|13200,2400|13200,2500|13200,2600|13200,2700|13200,2800|13200,2900|13200,3000|13200,3100|13200,3200|13200,3300|13200,3400|13200,3500|13200,3600|13200,3700|13200,3800|13200,3900|13200,4000|13200,4100|13200,4200|13200,4300|13200,4400|13200,4500|13200,4600|13200,4700|13200,4800|13200,4900|13200,5000|13200,5100|13200,5200|13200,5300|13200,5400|13200,5500|13200,5600|13200,5700|13200,5800|13200,5900|13200,6000|13200,6100|13200,6200|13200,6300|13200,6400|13200,6500|13200,6600|13200,6700|13200,6800|13200,6900|13200,7000|13200,7100|13200,7200|13200,7300|13200,7400|13200,7500|13200,7600|13200,7700|13200,7800|13200,7900|13200,8000|13200,8100|13200,8200|13200,8300|13200,8400|13200,8500|13200,8600|13200,8700|13200,8800|13200,8900|13200,9000|13200,9100|13200,9200|13200,9300|13200,9400|13200,9500|13200,9600|13200,9700|13200,9800|13200,9900|13200,10000|13200,10100|13200,10200|13200,10300|13200,10400|13200,10500|13200,10600|13200,10700|13200,10800|13200,10900|13200,11000|13200,11100|13200,11200|13200,11300|13200,11400|13200,11500|13200,11600|13200,11700|13200,11800|13200,11900|13200,12000|13200,12100|13200,12200|13200,12300|13200,12400|13200,12500|13200,12600|13200,12700|13200,12800|13200,12900|13200,13000|13200,13100|13200,13200|13200,13300|13200,13400|13200,13500|13200,13600|13200,13700|13200,13800|13300,13800|13400,13800|13500,13800|13600,13800|13700,13800|13800,13800|13900,13800|14000,13800|14100,13800|14200,13800|14300,13800|14400,13800|14500,13800|14600,13800|14700,13800|14800,13800|14900,13800|15000,13800|15000,13900|15000,14000|15000,14100\npacking=PACK-1:-::-:0;PACK-2:-::-:0\nstorage=L01:P01:46;L02:P02:36;L03:P07:96;L04:P08:144;L05:P03:72;L06:P04:48;L07:P09:192;L08:P10:96;L09:P05:36;L10:P06:72;L11:P09:192;L12:P10:96;L13:P01:48;L14:P02:36;L15:P07:96;L16:P08:144;L17:P03:72;L18:P04:48;L19:P05:36;L20:P06:72;L21:P11:144;L22:P12:192;L23:P11:144;L24:-:0\npackingStock=\npacked=\nreservations=B-01:P01:2:2:L01x0,P07:1:0:L03x1;B-02:P03:2:0:L05x2,P09:2:0:L07x2;B-03:P02:1:0:L02x1,P05:2:0:L09x2;B-04:P11:2:0:L21x2,P12:1:0:L22x1\ntimeline=24:24:15600:PICK_STARTED:B-01:PK-1\nwaits=PK-3:B-03:TRAFFIC:10000:15600\nchecks=||"
+}
