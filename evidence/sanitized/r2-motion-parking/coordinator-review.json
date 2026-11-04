@@ -1,0 +1,10 @@
+{
+  "expectedDurationMs": 39852.5987298185,
+  "actualDurationMs": 39852.59872981852,
+  "translationSegments": 27,
+  "quarterTurns": 3,
+  "distanceMm": 10800,
+  "endpointMatchesCanonicalL01": true,
+  "finalHeading": 4.71238898038469,
+  "scope": "single moving unit, other five parked; final handling yaw and moving traffic not validated"
+}
