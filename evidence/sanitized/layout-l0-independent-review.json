@@ -1,0 +1,96 @@
+{
+  "realMetaRequests": 0,
+  "tests": [
+    {
+      "case": "candidate attachment values differ",
+      "passed": true,
+      "accepted": false,
+      "codes": [
+        "CANDIDATE_VALUE_MISMATCH"
+      ]
+    },
+    {
+      "case": "unrepaired blocked baseline remains invalid",
+      "passed": true,
+      "accepted": false,
+      "codes": [
+        "CLEARANCE_VIOLATION",
+        "SLOT_UNNAVIGABLE",
+        "ROUTE_UNREACHABLE"
+      ]
+    },
+    {
+      "case": "unmoved dispatch blocked",
+      "passed": true,
+      "accepted": false,
+      "codes": [
+        "CLEARANCE_VIOLATION"
+      ]
+    },
+    {
+      "case": "model cannot self grant",
+      "passed": true,
+      "accepted": false,
+      "codes": [
+        "SCHEMA_INVALID"
+      ]
+    },
+    {
+      "case": "approved lower budget enforced",
+      "passed": true,
+      "accepted": false,
+      "codes": [
+        "MOVE_BUDGET_EXCEEDED"
+      ]
+    },
+    {
+      "case": "clean export recomputes",
+      "passed": true,
+      "accepted": true,
+      "codes": []
+    },
+    {
+      "case": "tampered envelope rejected",
+      "passed": true,
+      "accepted": false,
+      "codes": [
+        "versions: saved {\"operationsEngine\":\"invented\",\"operationsSchema\":\"layoutlab.operations/1\",\"simulation\":\"0.1.0\"} != current {\"operationsEngine\":\"layoutlab.operations-engine/1\",\"operationsSchema\":\"layoutlab.operations/1\",\"simulation\":\"0.1.0\"}",
+        "approvedConstraintsSha256: saved hash != recomputed approved-constraints hash",
+        "versions: saved value differs from recomputed value",
+        "validation: saved value differs from recomputed value",
+        "baselineValid/candidateValid: saved value differs from recomputed value",
+        "measurement: saved value differs from recomputed value",
+        "evaluationScope: saved value differs from recomputed value",
+        "explanation: saved value differs from recomputed value",
+        "baselineReport: saved value differs from recomputed value",
+        "candidateReport: saved value differs from recomputed value",
+        "baselineMetrics: saved value differs from recomputed value",
+        "candidateMetrics: saved value differs from recomputed value",
+        "baselineTermination: saved value differs from recomputed value",
+        "candidateTermination: saved value differs from recomputed value",
+        "delta: saved value differs from recomputed value",
+        "improvement: saved worse != recomputed not-measured"
+      ]
+    },
+    {
+      "case": "station/resource alias rejected",
+      "passed": true
+    }
+  ],
+  "handOracle": {
+    "baselineMs": 28000,
+    "candidateMs": 30000
+  },
+  "remaining": {
+    "sequentialLayoutAsNextBaseline": {
+      "ok": true
+    },
+    "generatedInvalidProposalExportVerifies": {
+      "ok": true,
+      "mismatches": [],
+      "kind": "rejection",
+      "recomputedImprovement": "not-measured",
+      "recomputedCandidateSha256": null
+    }
+  }
+}

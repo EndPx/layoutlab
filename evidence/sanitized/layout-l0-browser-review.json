@@ -1,0 +1,11 @@
+{
+  "checkedAt": "2026-11-04T13:34:58.869Z",
+  "realMetaRequests": 0,
+  "bundler": "existing Vite build API",
+  "browser": "Microsoft Edge",
+  "bundleBytes": 480094,
+  "baseline": 28000,
+  "candidate": 30000,
+  "verified": true,
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0"
+}
