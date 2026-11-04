@@ -129,3 +129,14 @@ describe("M5 canonical input-reference gate", () => {
     expect(validateCanonicalRefs(scenario).ok).toBe(true);
   });
 });
+
+ describe("Gater failure provenance", () => {
+  it("replays declared Gater provenance without asserting authenticated origin", () => {
+    const audit = { ...validAudit(), provider: "gater", providerKind: "gater", generationSettings: { reasoningEffort: "not-specified", maxCompletionTokens: 2000 } };
+    expect(replayFailureRecord(audit)).toMatchObject({ provider: "gater", evaluated: false });
+    for (const patch of [{ provider: "meta" }, { providerKind: "fixture" }, { providerKind: "unknown" }, { realMetaRequests: 1 }, { modelRequestsUsed: -1 }, { modelRequestsUsed: 1.5 }, { modelRequestsUsed: 5 }]) {
+      expect(() => replayFailureRecord({ ...audit, ...patch })).toThrow();
+    }
+    expect(replayFailureRecord({ ...validAudit(), providerKind: "meta", realMetaRequests: 1 }).provider).toBe("meta");
+  });
+});

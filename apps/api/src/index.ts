@@ -3,7 +3,7 @@
 // web build the API still runs and GET / explains the setup step.
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { loadConfig, loadEnvFileInto } from "./config.js";
+import { liveAvailable, loadConfig, loadEnvFileInto } from "./config.js";
 import { createApp, hasWebBuild, WEB_BUILD_GUIDANCE } from "./server.js";
 
 // Server-only root .env (user-filled key/model). Explicit process env wins;
@@ -29,7 +29,8 @@ const server = app.listen(config.port, config.host, () => {
       baseUrl: config.baseUrl,
       modelId: config.modelId,
       providerKind: config.providerKind,
-      liveAvailable: config.apiKeyPresent,
+      liveAvailable: liveAvailable(config).ok,
+      configurationStatus: liveAvailable(config).ok ? "configured-not-tested" : "setup-required",
       web: webBuilt ? "built" : "missing",
       budgets: { maxProposals: config.maxProposals, maxRequests: config.maxRequests, timeoutMs: config.timeoutMs },
       concurrency: config.concurrency,

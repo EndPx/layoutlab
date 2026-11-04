@@ -1,9 +1,9 @@
-// Small replaceable Meta Chat Completions provider over native fetch.
+// Small replaceable Chat Completions provider over native fetch.
 // Automatic retries disabled: exactly one fetch per call; the caller counts
 // the attempt before sending and never retries beyond the run budget.
 import { sanitizeMessage, type ApiConfig } from "./config.js";
 
-export type ChatMessage = { role: "developer" | "user"; content: string };
+export type ChatMessage = { role: "developer" | "system" | "user"; content: string };
 
 export type StructuredCall = {
   schemaName: string;
@@ -14,20 +14,17 @@ export type StructuredCall = {
 
 export type ProviderUsage = { promptTokens: number | null; completionTokens: number | null; totalTokens: number | null };
 
-// Generation settings are fixed by the server (never per-request options):
-// Muse Spark always reasons, so reasoning is kept low for small
-// token-bounded planning (verified: reasoning_effort "low" is supported on
-// Chat Completions, "none" returns HTTP 400 for Spark). Recorded verbatim in
-// run summaries and reports; prompt/config versions travel alongside.
+// Server-owned settings recorded in summaries. Meta and fixtures retain low;
+// Gater sends no reasoning option, so its upstream default remains unknown.
 export const REASONING_EFFORT = "low" as const;
 
 export type GenerationSettings = {
-  reasoningEffort: typeof REASONING_EFFORT;
+  reasoningEffort: typeof REASONING_EFFORT | "not-specified";
   maxCompletionTokens: number;
 };
 
 export function generationSettingsOf(config: ApiConfig): GenerationSettings {
-  return { reasoningEffort: REASONING_EFFORT, maxCompletionTokens: config.maxCompletionTokens };
+  return { reasoningEffort: config.providerKind === "gater" ? "not-specified" : REASONING_EFFORT, maxCompletionTokens: config.maxCompletionTokens };
 }
 
 // Concise sanitized envelope diagnostics. Carried on success AND attached to
@@ -148,18 +145,21 @@ export async function chatCompletionJson(
   fetchImpl: FetchLike = fetch,
 ): Promise<ProviderResult> {
   const started = Date.now();
+  if (config.providerKind === "unsupported") throw new Error("Unsupported model provider.");
+  signal.throwIfAborted();
   const body = {
     model: config.modelId,
     messages: [
-      { role: "developer", content: call.developerInstruction },
+      { role: config.providerKind === "gater" ? "system" : "developer", content: call.developerInstruction },
       { role: "user", content: call.userContent },
     ] satisfies ChatMessage[],
     response_format: {
       type: "json_schema",
       json_schema: { name: call.schemaName, schema: call.schema, strict: true },
     },
-    max_completion_tokens: config.maxCompletionTokens,
-    reasoning_effort: REASONING_EFFORT,
+    ...(config.providerKind === "gater"
+      ? { max_tokens: config.maxCompletionTokens }
+      : { max_completion_tokens: config.maxCompletionTokens, reasoning_effort: REASONING_EFFORT }),
     stream: false,
   };
   const serialized = JSON.stringify(body);
@@ -185,7 +185,12 @@ export async function chatCompletionJson(
       err.code = "ABORTED";
       throw err;
     }
-    throw e;
+    const err = new Error(sanitizeMessage(e instanceof Error ? e.message : String(e), config)) as Error & { code?: string; status?: number };
+    const source = e && typeof e === "object" ? e as Record<string, unknown> : {};
+    // Copy only safe classification fields, never the original cause or key.
+    if (typeof source["code"] === "string" && /^[A-Z][A-Z0-9_]{0,63}$/.test(source["code"]) && !source["code"].includes(config.apiKey || "\0")) err.code = source["code"];
+    if (typeof source["status"] === "number" && Number.isInteger(source["status"]) && source["status"] >= 100 && source["status"] <= 599) err.status = source["status"];
+    throw err;
   }
   // Bounded streaming read: cumulative BYTE cap enforced while reading, so
   // an oversized response cannot balloon memory before the check. The
@@ -204,7 +209,7 @@ export async function chatCompletionJson(
   const durationMs = Date.now() - started;
   if (!res.ok) {
     // Never include headers/key in the error; sanitize at the boundary.
-    const err = new Error(`Meta request failed: HTTP ${res.status} ${text.slice(0, 500)}`) as Error & {
+    const err = new Error(sanitizeMessage(`Model request failed: HTTP ${res.status} ${text.slice(0, 500)}`, config)) as Error & {
       code?: string;
       status?: number;
     };

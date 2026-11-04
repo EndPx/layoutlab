@@ -5,11 +5,11 @@ import { createLayoutInvestigation, approveLayoutInvestigation, cancelLayoutInve
 const fixture = JSON.parse(fs.readFileSync('apps/web/public/evidence/e4a-live-investigation-f24a6a1.json','utf8'));
 const input = {scenario:fixture.input.scenario,executionConfig:fixture.input.executionConfig,question:'Move packing station',mode:'live' as const,consent:true as const,safetyCeilingMs:7200000};
 const approval = {objective:'Corrected objective',constraints:defaultApprovedConstraints(['PACK-1']),allowedRegions:[{entityId:'PACK-1',minXMm:0,minZMm:0,maxXMm:1000,maxZMm:1000}]};
-const report = {schema:'layoutlab.layout-investigation/1',runId:'same',state:'RUNNING',deadlineAt:Date.now()+120000,modelRequestsUsed:1,proposalsUsed:0,interpreted:null,approved:null,input,implementationVersion:'0.1.1',promptVersion:'layoutlab.layout-investigation-prompt/1',error:null};
+const report = {provider:{kind:'gater',model:'glm-5-3-flash'},schema:'layoutlab.layout-investigation/1',runId:'same',state:'RUNNING',deadlineAt:Date.now()+120000,modelRequestsUsed:1,proposalsUsed:0,interpreted:null,approved:null,input,implementationVersion:'0.1.1',promptVersion:'layoutlab.layout-investigation-prompt/1',error:null};
 afterEach(() => vi.unstubAllGlobals());
 describe('layout HTTP adapter', () => {
  it('rejects unknown states, schemas, missing input/version and malformed interpretation', () => {
-  for (const value of [{...report,state:'DONE'},{...report,schema:'other'},{...report,input:null},{...report,implementationVersion:undefined},{...report,interpreted:{}},{...report,state:'AWAITING_APPROVAL'},{...report,interpreted:{...approval,allowedRegions:[null]}}]) expect(() => parseLayoutReport(value)).toThrow();
+  for (const value of [{...report,provider:{kind:'other',model:'glm-5-3-flash'}},{...report,provider:{kind:'gater',model:null}},{...report,state:'DONE'},{...report,schema:'other'},{...report,input:null},{...report,implementationVersion:undefined},{...report,interpreted:{}},{...report,state:'AWAITING_APPROVAL'},{...report,interpreted:{...approval,allowedRegions:[null]}}]) expect(() => parseLayoutReport(value)).toThrow();
  });
  it('preserves full evidence and compares canonical content plus implementation version', () => {
   const full={...report,requests:[{extra:'preserved'}]};expect(parseLayoutReport(full)).toBe(full);

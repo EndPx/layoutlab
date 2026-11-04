@@ -10,7 +10,7 @@ import {
   type OperationsPatch,
   type OperationsScenario,
 } from "@layoutlab/simulation";
-import { ApiError, getStatus, type ApiStatus } from "./api";
+import { ApiError, getStatus, validProviderPair, type ApiStatus } from "./api";
 
 export { ApiError, getStatus };
 export type { ApiStatus };
@@ -148,8 +148,8 @@ export type InvestigationReport = {
     api: string;
     prompt: string;
   };
-  provider: "meta";
-  providerKind: "meta" | "fixture" | "unsupported";
+  provider: "meta" | "gater";
+  providerKind: "meta" | "gater" | "fixture" | "unsupported";
   configuredModel: string;
   returnedModel: string | null;
   realMetaRequests: number;
@@ -166,6 +166,7 @@ export type InvestigationReport = {
 };
 
 export type InvestigationSummary = {
+  provider: "meta" | "gater";
   runId: string;
   investigationId: string;
   state: string;
@@ -173,7 +174,7 @@ export type InvestigationSummary = {
   createdAt: string;
   expiresAt: string;
   completedAt: string | null;
-  providerKind: "meta" | "fixture" | "unsupported";
+  providerKind: "meta" | "gater" | "fixture" | "unsupported";
   realMetaRequests: number;
   configuredModel: string;
   returnedModel: string | null;
@@ -208,14 +209,16 @@ export type Provenance =
   | { kind: "imported"; label: string };
 
 export function provenanceOf(report: InvestigationReport, source: "live" | "recorded" | "imported"): Provenance {
+  if (report.providerKind === "unsupported") return { kind: "imported", label: "Declared unsupported provider / replay" };
   if (source === "live" && report.providerKind === "fixture") {
     return { kind: "fixture", label: "Fixture investigation — fake transport, 0 real Meta requests" };
   }
+  if (report.providerKind === "gater") return { kind: source === "live" ? "live" : "imported", label: source === "live" ? (report.requestCount > 0 && report.returnedModel ? "Gater responses recorded this session (transport origin unverified)" : "Gater configured this session; no confirmed response") : source === "recorded" ? "Recorded declared Gater run / replay" : "Imported declared Gater report / replay" };
   if (source === "live") return { kind: "live", label: "Live investigation (this session)" };
   if (report.providerKind === "fixture") return { kind: "fixture", label: "Fixture report — fake transport, 0 real Meta requests" };
   return {
     kind: source === "recorded" ? "recorded-meta" : "imported",
-    label: source === "recorded" ? "Recorded Meta run / replay" : "Imported report / replay",
+    label: source === "recorded" ? "Recorded Meta run / replay" : "Imported declared Meta report / replay",
   };
 }
 
@@ -284,7 +287,7 @@ export function changedFields(scenario: OperationsScenario, candidate: Candidate
 // recomputation stays on the server verifier — nothing is re-evaluated here)
 
 const REPORT_STATES = new Set(["RUNNING", "COMPLETED", "FAILED", "CANCELLED", "TIMED_OUT"]);
-const PROVIDER_KINDS = new Set(["meta", "fixture", "unsupported"]);
+const PROVIDER_KINDS = new Set(["meta", "gater", "fixture", "unsupported"]);
 const TRACE_KINDS = new Set(["baseline", "proposal", "experiment", "finish", "recommendation"]);
 const isRec = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 const isStr = (v: unknown): v is string => typeof v === "string";
@@ -304,12 +307,14 @@ export function parseInvestigationReport(value: unknown): { report: Investigatio
   if (!isStr(r["state"]) || !REPORT_STATES.has(r["state"])) return bad(`Report state must be one of ${[...REPORT_STATES].join("/")}.`);
   if (r["outcome"] !== null && !isStr(r["outcome"])) return bad("Report outcome must be a string or null.");
   if (r["lastError"] !== null && !isStr(r["lastError"])) return bad("Report lastError must be a string or null.");
-  if (!isStr(r["providerKind"]) || !PROVIDER_KINDS.has(r["providerKind"])) return bad("Report providerKind must be meta, fixture, or unsupported.");
+  if (!isStr(r["providerKind"]) || !PROVIDER_KINDS.has(r["providerKind"])) return bad("Report providerKind must be meta, gater, fixture, or unsupported.");
   if (!isStr(r["configuredModel"]) || r["configuredModel"].length === 0) return bad("Report configuredModel (string) is required.");
   if (r["returnedModel"] !== null && !isStr(r["returnedModel"])) return bad("Report returnedModel must be a string or null.");
   if (!isInt(r["realMetaRequests"]) || !isInt(r["requestCount"]) || !isInt(r["experimentCount"])) {
     return bad("Report realMetaRequests/requestCount/experimentCount must be integers.");
   }
+  if (!(r.provider === "gater" ? r.providerKind === "gater" : r.provider === "meta" && r.providerKind !== "gater")) return bad("Inconsistent provider provenance.");
+  if ((r.requestCount as number) < 0 || (r.realMetaRequests as number) !== (r.providerKind === "meta" ? r.requestCount : 0)) return bad("Invalid provider request accounting.");
   const versions = r["versions"];
   if (!isRec(versions) || ["simulation", "operationsSchema", "operationsEngine", "evaluator", "experimentSchema", "api", "prompt"].some((k) => !isStr(versions[k]))) {
     return bad("Report versions must carry simulation/operationsSchema/operationsEngine/evaluator/experimentSchema/api/prompt strings.");
@@ -450,22 +455,22 @@ export function createInvestigation(input: {
     method: "POST",
     body: JSON.stringify({ ...input, mode: "live", consent: true }),
     signal,
-  }) as Promise<InvestigationSummary>;
+  }) .then(parseInvestigationSummary);
 }
 
 export function getInvestigation(runId: string, signal?: AbortSignal): Promise<InvestigationSummary> {
-  return request(`/api/operations/investigations/${encodeURIComponent(runId)}`, { signal }) as Promise<InvestigationSummary>;
+  return request(`/api/operations/investigations/${encodeURIComponent(runId)}`, { signal }) .then(parseInvestigationSummary);
 }
 
 export function cancelInvestigation(runId: string): Promise<InvestigationSummary> {
   return request(`/api/operations/investigations/${encodeURIComponent(runId)}/cancel`, {
     method: "POST",
     body: "{}",
-  }) as Promise<InvestigationSummary>;
+  }) .then(parseInvestigationSummary);
 }
 
 export function getInvestigationReport(runId: string, signal?: AbortSignal): Promise<InvestigationReport> {
-  return request(`/api/operations/investigations/${encodeURIComponent(runId)}/report`, { signal }) as Promise<InvestigationReport>;
+  return request(`/api/operations/investigations/${encodeURIComponent(runId)}/report`, { signal }) .then(decodeInvestigationReport);
 }
 
 export function verifyInvestigation(report: InvestigationReport, signal?: AbortSignal): Promise<{ ok: boolean; mismatches: string[]; verifierImplementationVersion: string | null }> {
@@ -474,4 +479,26 @@ export function verifyInvestigation(report: InvestigationReport, signal?: AbortS
     body: JSON.stringify({ report }),
     signal,
   }) as Promise<{ ok: boolean; mismatches: string[]; verifierImplementationVersion: string | null }>;
+}
+
+export function decodeInvestigationReport(value: unknown): InvestigationReport {
+  const parsed = parseInvestigationReport(value);
+  if (!parsed.report) throw new Error(parsed.error ?? "Malformed investigation report");
+  return parsed.report;
+}
+export function parseInvestigationSummary(value: unknown): InvestigationSummary {
+  const v = value;
+  const bad = () => { throw new Error("Malformed investigation summary"); };
+  if (!isRec(v) || !validProviderPair(v.provider, v.providerKind) || !["runId", "investigationId", "phase", "createdAt", "expiresAt", "configuredModel"].every(k => isStr(v[k])) || !REPORT_STATES.has(String(v.state)) || !["completedAt", "returnedModel", "outcome", "lastError"].every(k => v[k] === null || isStr(v[k]))) return bad();
+  if (!isInt(v.requestCount) || (v.requestCount as number) < 0 || !isInt(v.experimentCount) || (v.experimentCount as number) < 0 || v.realMetaRequests !== (v.providerKind === "meta" ? v.requestCount : 0) || !isRec(v.limits) || !["maxModelRequests", "maxExperiments", "timeoutMs"].every(k => isInt((v.limits as Record<string, unknown>)[k])) || (v.requestCount as number) > (v.limits.maxModelRequests as number) || (v.experimentCount as number) > (v.limits.maxExperiments as number)) return bad();
+  if (!Array.isArray(v.requests) || !v.requests.every(r => isRec(r) && isInt(r.index) && isStr(r.status) && isNumOrNull(r.durationMs) && (r.usage === null || isRec(r.usage) && ["promptTokens", "completionTokens", "totalTokens"].every(k => isNumOrNull((r.usage as Record<string, unknown>)[k]))))) return bad();
+  if (!Array.isArray(v.trace) || !v.trace.every(r => isRec(r) && isInt(r.seq) && TRACE_KINDS.has(String(r.kind)) && isStr(r.status) && ["shipped", "makespanMs", "totalWaitMs", "backlog"].every(k => isNumOrNull(r[k])))) return bad();
+  for (const key of ["result", "report"]) {
+    if (v[key] !== null) {
+      const report = decodeInvestigationReport(v[key]);
+      if (report.provider !== v.provider || report.providerKind !== v.providerKind || report.requestCount !== v.requestCount || report.realMetaRequests !== v.realMetaRequests || report.runId !== v.runId) return bad();
+    }
+  }
+  if (v.recommendation !== null && (!isRec(v.recommendation) || !isStr(v.recommendation.candidateId) || !isStr(v.recommendation.explanation) || !isRec(v.recommendation.comparisons))) return bad();
+  return v as unknown as InvestigationSummary;
 }

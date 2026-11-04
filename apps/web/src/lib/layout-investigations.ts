@@ -40,6 +40,7 @@ export function parseLayoutReport(value: unknown): LayoutReport {
  if (!object(value)) throw new Error('Malformed layout investigation response');
  const r = value;
  if (r.schema !== 'layoutlab.layout-investigation/1' || typeof r.runId !== 'string' || !r.runId || !['RUNNING','AWAITING_APPROVAL','COMPLETED','FAILED','CANCELLED','TIMED_OUT'].includes(String(r.state)) || !Number.isFinite(r.deadlineAt) || !Number.isSafeInteger(r.modelRequestsUsed) || (r.modelRequestsUsed as number) < 0 || !Number.isSafeInteger(r.proposalsUsed) || (r.proposalsUsed as number) < 0 || typeof r.implementationVersion !== 'string' || typeof r.promptVersion !== 'string' || !(r.error === null || typeof r.error === 'string') || !object(r.input)) throw new Error('Malformed or unknown layout investigation response');
+ if (!object(r.provider) || !['meta','gater','fixture','unsupported'].includes(String(r.provider.kind)) || typeof r.provider.model !== 'string' || !r.provider.model) throw new Error('Malformed layout provider');
  const input = r.input;
  const scenario = parseOperationsScenario(input.scenario);
  parseOperationsExecutionConfig(input.executionConfig);

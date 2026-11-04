@@ -135,7 +135,7 @@ export function WarehouseAssistant(props: {
       const s = await createInvestigation({ scenario, executionConfig, interventionPolicy: draftPolicy as InterventionPolicy, question: holder.question });
       onChange({
         runId: s.runId, summary: s, report: null,
-        provenance: s.providerKind === "fixture" ? { kind: "fixture", label: "Fixture investigation — fake transport, 0 real Meta requests" } : { kind: "live", label: "Live investigation (this session)" },
+        provenance: s.providerKind === "gater" ? { kind: "live", label: "Gater configured this session; awaiting report" } : s.providerKind === "fixture" ? { kind: "fixture", label: "Fixture investigation — fake transport, 0 real Meta requests" } : { kind: "live", label: "Live investigation (this session)" },
         submitted: { question: holder.question, policy: structuredClone(draftPolicy) },
         selectedCandidateId: "baseline",
       });

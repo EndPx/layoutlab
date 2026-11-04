@@ -323,7 +323,7 @@ export type InvestigationReport = {
     api: string;
     prompt: string;
   };
-  provider: "meta";
+  provider: "meta" | "gater";
   providerKind: ApiConfig["providerKind"];
   configuredModel: string;
   returnedModel: string | null;
@@ -879,7 +879,7 @@ export class InvestigationStore {
         api: API_VERSION,
         prompt: INVESTIGATION_PROMPT_VERSION,
       },
-      provider: "meta",
+      provider: this.config.providerKind === "gater" ? "gater" : "meta",
       providerKind: this.config.providerKind,
       configuredModel: this.config.modelId,
       returnedModel: record.returnedModel,
@@ -928,7 +928,7 @@ export class InvestigationStore {
       createdAt: record.createdAt,
       expiresAt: record.expiresAt,
       completedAt: record.completedAt,
-      provider: "meta",
+      provider: this.config.providerKind === "gater" ? "gater" : "meta",
       providerKind: this.config.providerKind,
       realMetaRequests: this.config.providerKind === "meta" ? record.modelRequestsUsed : 0,
       configuredModel: this.config.modelId,
@@ -1031,8 +1031,10 @@ export function verifyInvestigationExport(exported: unknown): {
     bad("completedAt is mandatory for a terminal investigation");
   }
   if (!isStrOrNull(exp.completedAt) || !isStrOrNull(exp.outcome, 200) || !isStrOrNull(exp.lastError, 2000)) bad("completedAt/outcome/lastError have invalid shapes");
-  if (exp.provider !== "meta") bad("provider must be meta");
-  if (exp.providerKind !== "meta" && exp.providerKind !== "fixture" && exp.providerKind !== "unsupported") bad(`providerKind invalid: ${String(exp.providerKind)}`);
+  if (!((exp.provider === "gater" && exp.providerKind === "gater") ||
+    (exp.provider === "meta" && (exp.providerKind === "meta" || exp.providerKind === "fixture" || exp.providerKind === "unsupported")))) {
+    bad(`invalid provider/providerKind pairing: ${String(exp.provider)}/${String(exp.providerKind)}`);
+  }
   if (typeof exp.configuredModel !== "string" || exp.configuredModel.length === 0 || exp.configuredModel.length > 128) bad("configuredModel must be a non-empty string");
   if (!isStrOrNull(exp.returnedModel, 128)) bad("returnedModel must be a string or null");
   if (!Array.isArray(exp.assumptions) || exp.assumptions.some((a) => typeof a !== "string") ||

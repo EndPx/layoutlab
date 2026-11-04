@@ -1,0 +1,53 @@
+{
+  "scope": "LOCAL injected Gater-config transport / zero real external completions; actual HTTP, production evaluator",
+  "consoleErrors": [],
+  "expected413": [],
+  "pageErrors": [],
+  "browser": "msedge",
+  "providerCalls": 4,
+  "realMetaRequests": 0,
+  "invalidFeedback": true,
+  "baselineUnchangedUntilApply": true,
+  "originalClockRestored": true,
+  "manualPreviewHandover": true,
+  "reportCandidateCentre": {
+    "x": 20500,
+    "z": 4000
+  },
+  "viewerCandidateCentre": {
+    "x": 20500,
+    "z": 4000
+  },
+  "reportMetrics": {
+    "completionStage": "SUPPORTED_STAGE_COMPLETE",
+    "shipped": 6,
+    "backlog": 0,
+    "stageBacklog": 0,
+    "totalWaitMs": 623600,
+    "makespanMs": 502400,
+    "lastShippedAtMs": 502400,
+    "stopClockMs": 540000
+  },
+  "invalidBlocked": true,
+  "staleBlocked": true,
+  "tamperRejected": true,
+  "oversizedImportRejected": true,
+  "oversized413": true,
+  "roundtrip": true,
+  "returnOriginal": true,
+  "ledger": {
+    "capMicroUsd": 250000,
+    "reservedMicroUsd": 0,
+    "committedMicroUsd": 250000,
+    "availableMicroUsd": 0,
+    "entries": [
+      {
+        "id": "layout:6fa3459f-64d3-4526-97d2-6ec4ef7d26e6",
+        "reservedMicroUsd": 250000,
+        "committedMicroUsd": 250000,
+        "state": "committed",
+        "createdAtMs": 1793834890194
+      }
+    ]
+  }
+}

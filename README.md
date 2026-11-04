@@ -2,17 +2,24 @@
 
 Test warehouse changes before making them.
 
-LayoutLab helps warehouse planners compare product-to-location assignments
-against picking demand and explicit constraints. A deterministic evaluator
-measures every candidate; proposals come from a clearly labeled stub
-(no inference), a bounded demand heuristic, or the Meta model through the
-native server API with user approval. Racks stay fixed; only assignments
-change.
+LayoutLab is a warehouse planning workspace for inspecting a synthetic operation,
+testing physical layout changes, and comparing reproducible results. Manual edits
+support packing-station and rack translation, rack quarter-turns, and initial agent
+parking. Candidates preserve the original run and use the same workload and
+operating assumptions unless an explicitly permitted experiment changes them.
+The legacy product-assignment planner remains an advanced compatibility workflow.
 
-Status (2026-11-04): the public [web preview](https://layoutlab.endpx.cloud)
-runs release `5cd1655` with the main warehouse scene, engine-driven operations,
-dispatch, inbound/put-away, split trips, and operations report replay. The
-18-trial storage-planning Meta benchmark remains separate, completed evidence.
+Last verified public application release: `fbe5cf6` (2026-11-05), at the
+[web preview](https://layoutlab.endpx.cloud). The public release includes the
+unified workspace and manual layout controls. Human/cart coupling remains isolated
+research and is not integrated operational physics.
+
+Gater `glm-5-3-flash` support is implemented and checked locally with injected
+transport fixtures, including actual HTTP and Microsoft Edge workflows. It is
+not yet deployed or proven against real Gater completions. Meta historical reports
+remain distinguishable and replayable. The user selected configuration and
+fixtures only, with no paid Gater inference. See the
+[provider integration review](docs/GATER_INTEGRATION.md).
 
 The public guard and bounded investigation backend passed independent review.
 One actual Meta investigation tested two service-time alternatives and then
@@ -51,7 +58,7 @@ synthetic view does not yet satisfy that expanded acceptance gate.
 
 ```sh
 npm ci
-npm run build      # core -> api -> web
+npm run build      # core -> simulation -> api -> web
 npm start          # planner + API at http://127.0.0.1:3001/
 ```
 

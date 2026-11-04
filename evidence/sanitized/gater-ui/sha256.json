@@ -1,0 +1,9 @@
+{
+  "actual-http-edge.webm": "c8f21eaf05c4c3fcea3315f1321973af3687a55a946324b422ded44388359401",
+  "desktop-verified-preview.png": "59c31c98db56c88d7e46fe6183453c65a0c5a2b65a3d578152469b1f84a8666a",
+  "http-browser.json": "ff4ef1a4d8a120666b1c046d7226b5416a2976a44701db057dcb087d5fe143e8",
+  "http-report.json": "7dc683a925e9b040115ffada2aacf8c2320d58937c95c4adfa6d4a0d783defda",
+  "malformed-missing.json": "1eede0e1ae4820227bbfd21c02b9e4a52326f75c09c09435d26980ac84f07002",
+  "malformed-unknown.json": "1eede0e1ae4820227bbfd21c02b9e4a52326f75c09c09435d26980ac84f07002",
+  "mobile-390-verified-preview.png": "4f7507027a6b9504f01911254fb332ac27dbfd758a3cbc951bef4234525d07f0"
+}

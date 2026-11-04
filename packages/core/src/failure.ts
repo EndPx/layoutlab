@@ -41,8 +41,8 @@ export const failureEnvelopeSchema = z
     apiVersion: z.string().min(1).max(MAX_ID_LEN),
     coreVersion: z.string().min(1).max(MAX_ID_LEN),
     routePolicy: z.string().min(1).max(MAX_ID_LEN),
-    provider: z.literal("meta"),
-    providerKind: z.enum(["meta", "fixture"]),
+    provider: z.enum(["meta", "gater"]),
+    providerKind: z.enum(["meta", "fixture", "gater"]),
     realMetaRequests: z.number().int().min(0).max(MAX_RUN_REQUESTS),
     modelId: z.string().min(1).max(MAX_ID_LEN),
     promptVersion: z.string().min(1).max(MAX_ID_LEN),
@@ -76,6 +76,8 @@ export const failureEnvelopeSchema = z
     lastError: z.string().max(MAX_TEXT_LEN).nullable(),
     limitations: z.array(z.string().max(MAX_TEXT_LEN)).min(1).max(64),
   })
+  .refine((e) => e.provider === (e.providerKind === "gater" ? "gater" : "meta"), { message: "provider and providerKind disagree" })
+  .refine((e) => e.providerKind !== "gater" || e.realMetaRequests === 0, { message: "Gater audits must report realMetaRequests 0" })
   .refine((e) => e.modelRequestsUsed <= e.budgets.maxRequests, { message: "used requests exceed budget" })
   .refine((e) => e.realMetaRequests <= e.modelRequestsUsed, { message: "real requests exceed used requests" })
   .refine((e) => e.providerKind !== "fixture" || e.realMetaRequests === 0, {
@@ -93,7 +95,7 @@ export type FailureEnvelope = z.infer<typeof failureEnvelopeSchema>;
 export function replayFailureRecord(json: unknown): {
   valid: true;
   evaluated: false;
-  provider: "meta";
+  provider: FailureEnvelope["provider"];
   runId: string;
   state: FailureEnvelope["state"];
   notice: string;
@@ -102,7 +104,7 @@ export function replayFailureRecord(json: unknown): {
   return {
     valid: true,
     evaluated: false,
-    provider: "meta",
+    provider: parsed.provider,
     runId: parsed.runId,
     state: parsed.state,
     notice: FAILURE_NO_EVALUATION,

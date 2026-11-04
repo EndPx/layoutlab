@@ -193,7 +193,7 @@ export function RightPanel(props: {
       {live.providerMode === "live" ? (
         <>
           <p className="notice" data-testid="live-privacy">
-            <strong>Live mode:</strong> your scenario details and planning request are sent to Meta Model
+            <strong>Live mode:</strong> your scenario details and planning request are sent to the configured model
             API to generate alternatives. Synthetic data is used by default.
           </p>
           {isContributor && (
@@ -203,7 +203,7 @@ export function RightPanel(props: {
             </p>
           )}
           <label>
-            Goal (sent to Meta only after consent)
+            Goal (sent to the configured provider only after consent)
             <textarea
               rows={3}
               value={live.requestText}
@@ -218,7 +218,7 @@ export function RightPanel(props: {
               data-testid="live-consent"
               onChange={(e) => onLiveConsent(e.target.checked)}
             />{" "}
-            I consent to sending this scenario and request to Meta Model API.
+            I consent to sending this scenario and request to the configured model provider.
           </label>
           <RequirementsForm
             scenario={scenario}
@@ -235,11 +235,11 @@ export function RightPanel(props: {
               onClick={onInterpret}
               disabled={!scenario || !liveReady || !live.consent || liveRunning}
               title={
-                !liveReady ? "Live server not ready" : !live.consent ? "Consent required before sending to Meta" : "Interpret request (1 model request)"
+                !liveReady ? "Live server not ready" : !live.consent ? "Consent required before sending to the configured provider" : "Interpret request (1 model request)"
               }
               data-testid="btn-interpret"
             >
-              Interpret with Meta (1 request)
+              Interpret with configured model (1 request)
             </button>{" "}
             <button
               type="button"
@@ -265,7 +265,7 @@ export function RightPanel(props: {
           {live.error !== null && <p className="error" role="alert" data-testid="live-error">{live.error}</p>}
           {interpreting && (
             <p data-testid="live-interpreting">
-              Interpreting with Meta… this first request is cancellable by run ID.
+              Interpreting with configured model… this first request is cancellable by run ID.
             </p>
           )}
           {interpreted && (
@@ -443,7 +443,7 @@ export function RightPanel(props: {
               data-testid="provider-live"
               onChange={() => onProviderMode("live")}
             />{" "}
-            Live (Meta model via server)
+            Server model (explicit consent required)
           </label>
         </fieldset>
         {live.providerMode === "live" ? (
@@ -460,17 +460,17 @@ export function RightPanel(props: {
                       {live.apiStatus.budgets.maxProposals}p/{live.apiStatus.budgets.maxRequests}r/
                       {live.apiStatus.budgets.timeoutMs}ms. Not live inference.</>
                   ) : live.run !== null && live.run.realMetaRequests > 0 ? (
-                    <>✓ Meta ready — USED by this run: <span className="mono">{live.apiStatus.modelId}</span> via{" "}
+                    <>✓ Server configured — USED by this run: <span className="mono">{live.apiStatus.modelId}</span> via{" "}
                       <span className="mono">{live.apiStatus.baseUrl}</span> ·{" "}
                       <span className="mono">{live.apiStatus.providerKind}</span> · budgets{" "}
                       {live.apiStatus.budgets.maxProposals}p/{live.apiStatus.budgets.maxRequests}r/
                       {live.apiStatus.budgets.timeoutMs}ms · {live.run.realMetaRequests} real Meta requests this run.</>
                   ) : (
-                    <>✓ Meta ready — configured, not used: <span className="mono">{live.apiStatus.modelId}</span> via{" "}
+                    <>✓ Server configured — configured, not used: <span className="mono">{live.apiStatus.modelId}</span> via{" "}
                       <span className="mono">{live.apiStatus.baseUrl}</span> ·{" "}
                       <span className="mono">{live.apiStatus.providerKind}</span> · budgets{" "}
                       {live.apiStatus.budgets.maxProposals}p/{live.apiStatus.budgets.maxRequests}r/
-                      {live.apiStatus.budgets.timeoutMs}ms. No completed Meta requests yet.</>
+                      {live.apiStatus.budgets.timeoutMs}ms. No confirmed provider completion yet.</>
                   )
                 ) : (
                   <>× Live unavailable: {live.apiStatus.reason ?? "setup required"}. Stub still works.</>

@@ -750,7 +750,7 @@ export function App(): React.JSX.Element {
   const interpretLive = async (): Promise<void> => {
     if (!scenario || liveBusy !== null) return;
     if (!liveConsent) {
-      setLiveError("Consent is required before sending anything to Meta.");
+      setLiveError("Consent is required before sending anything to the configured provider.");
       return;
     }
     const seq = ++liveSeq.current;
@@ -761,7 +761,7 @@ export function App(): React.JSX.Element {
     const sent = scenario;
     const frozen = freezeScenario(sent);
     const fingerprint = settingsFingerprint(frozen);
-    setLiveBusy("Interpreting request with Meta (1 model request)…");
+    setLiveBusy("Interpreting request with configured provider (1 model request)…");
     setLiveError(null);
     setApplyMessage(null);
     try {
@@ -1062,10 +1062,10 @@ export function App(): React.JSX.Element {
   }, [liveRun, liveBaseline, liveBaselineFingerprint]);
 
   const comparisonRun = mode === "LIVE" ? liveComparison : stubRun;
-  const comparisonProvider = mode === "LIVE" ? "live" : "stub";
+  const comparisonProvider = mode === "LIVE" ? (liveRun?.providerKind ?? "server") : "stub";
   // Exact method labels: server-provided for live, core-derived for stub.
   const comparisonLabels: Record<string, string> = useMemo(() => {
-    if (mode === "LIVE" && liveRun?.methodLabels) return { ...liveRun.methodLabels };
+    if (mode === "LIVE" && liveRun?.methodLabels) return Object.fromEntries(Object.entries(liveRun.methodLabels).map(([key, label]) => [key, liveRun.providerKind === "gater" ? label.replace(/^meta-/, "model-") : label]));
     const labels: Record<string, string> = { baseline: methodLabelFor("baseline") };
     for (const p of comparisonRun.proposals) {
       if (p.candidate) labels[p.name] = methodLabelFor(p.name);
@@ -1270,7 +1270,7 @@ export function App(): React.JSX.Element {
   // requests ran. LIVE mode with zero requests of any kind is
   // unreachable (a successful generation implies requests) and falls
   // back to MANUAL: nothing actually ran.
-  const modeBadge = mode === "LIVE" ? (liveUsed ? "LIVE" : fixtureActive ? "FIXTURE" : "MANUAL") : mode;
+  const modeBadge = mode === "LIVE" ? (liveUsed ? "LIVE" : fixtureActive ? "FIXTURE" : liveRun?.providerKind === "gater" ? "GATER" : "MANUAL") : mode;
 
   // Whether the live scene moved on from the run baseline (revision/identity/
   // settings). The orange route always follows the live scene; the label and

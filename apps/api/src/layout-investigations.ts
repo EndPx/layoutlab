@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
 import { MAIN_WAREHOUSE_ATTACHMENTS, buildStationAttachmentMap, canonicalStringify, contentSha256, defaultApprovedConstraints, parseOperationsScenario, parseOperationsExecutionConfig, runLayoutComparison, validateLayoutCandidate, SIMULATION_VERSION, type LayoutComparisonResult, type OperationsScenario, type OperationsExecutionConfig, type StationAttachment } from "@layoutlab/simulation";
-import { liveAvailable, sanitizeMessage, type ApiConfig } from "./config.js";
+import { liveAvailable, sanitizeMessage, type ApiConfig, type ProviderKind } from "./config.js";
 import { chatCompletionJson, type FetchLike, type ProviderDiagnostics } from "./provider.js";
 import { parseLayoutAction, parseLayoutInterpretation, type LayoutInterpretation } from "./layout-investigation-contract.js";
 
@@ -65,7 +65,7 @@ type State = "RUNNING" | "AWAITING_APPROVAL" | "COMPLETED" | "FAILED" | "CANCELL
 type RequestRow = { index: number; phase: "interpretation" | "proposal"; status: "dispatched" | "success" | "failed" | "aborted"; diagnostics: ProviderDiagnostics | null; output: unknown; error: string | null };
 type ProposalRow = { requestIndex: number; candidateId: string; hypothesis: string; proposal: unknown; evaluation: Evaluation };
 type Recommendation = { candidateId: string; source: "model" | "deterministic-fallback" };
-export type LayoutInvestigationReport = { schema: typeof LAYOUT_INVESTIGATION_SCHEMA; promptVersion: string; implementationVersion: string; runId: string; createdAt: number; deadlineAt: number; state: State; input: LayoutInvestigationInput; inputSha256: string; attachments: StationAttachment[]; interpreted: LayoutInterpretation | null; approved: LayoutInterpretation | null; baseline: LayoutComparisonResult | null; requests: RequestRow[]; proposals: ProposalRow[]; rejectedActions: { requestIndex: number; reason: string }[]; recommendation: Recommendation | null; modelRequestsUsed: number; proposalsUsed: number; limits: { requests: number; proposals: number; tokens: number; timeoutMs: number }; budget: { claimId: string | null; dispatched: number }; provider: { kind: string; model: string }; error: string | null };
+export type LayoutInvestigationReport = { schema: typeof LAYOUT_INVESTIGATION_SCHEMA; promptVersion: string; implementationVersion: string; runId: string; createdAt: number; deadlineAt: number; state: State; input: LayoutInvestigationInput; inputSha256: string; attachments: StationAttachment[]; interpreted: LayoutInterpretation | null; approved: LayoutInterpretation | null; baseline: LayoutComparisonResult | null; requests: RequestRow[]; proposals: ProposalRow[]; rejectedActions: { requestIndex: number; reason: string }[]; recommendation: Recommendation | null; modelRequestsUsed: number; proposalsUsed: number; limits: { requests: number; proposals: number; tokens: number; timeoutMs: number }; budget: { claimId: string | null; dispatched: number }; provider: { kind: ProviderKind; model: string }; error: string | null };
 export type LayoutInvestigationRecord = { report: LayoutInvestigationReport; controller: AbortController; timer: ReturnType<typeof setTimeout> | null; task: Promise<void> | null; started: boolean };
 const rejectionReason = (e: unknown) => sanitizeMessage(e instanceof Error ? e.message : "invalid action", { apiKey: "" } as ApiConfig).slice(0, 500);
 const closed = (s: State) => s !== "RUNNING" && s !== "AWAITING_APPROVAL";
@@ -209,7 +209,7 @@ export async function verifyLayoutInvestigationExport(value: unknown): Promise<{
     check(Number.isSafeInteger(r.proposalsUsed)&&r.proposalsUsed>=0&&r.proposals.length<=3,"proposal totals");
     check(r.rejectedActions.length<=4&&r.rejectedActions.length<=r.requests.length,"rejection links");
     check(exactKeys(r.budget,["claimId","dispatched"])&&(r.budget.claimId===null||typeof r.budget.claimId==="string"),"budget envelope");
-    check(exactKeys(r.provider,["kind","model"])&&typeof r.provider.model==="string"&&["meta","fixture","unsupported"].includes(r.provider.kind),"provider envelope");
+    check(exactKeys(r.provider,["kind","model"])&&typeof r.provider.model==="string"&&["meta","gater","fixture","unsupported"].includes(r.provider.kind),"provider envelope");
     check(r.error===null||typeof r.error==="string","error shape");
     check(r.recommendation===null||(exactKeys(r.recommendation,["candidateId","source"])&&typeof r.recommendation.candidateId==="string"&&["model","deterministic-fallback"].includes(r.recommendation.source)),"recommendation links");
     check(Array.isArray(r.requests)&&r.requests.length===r.modelRequestsUsed&&r.modelRequestsUsed<=r.limits.requests,"request totals");

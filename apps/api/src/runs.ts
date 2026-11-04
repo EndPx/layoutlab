@@ -29,10 +29,12 @@ import {
   type CandidateResult,
   type FailureEnvelope,
   type HeuristicResult,
-  type MethodLabel,
+  type MethodLabel as CoreMethodLabel,
   type PlanningRequirements,
   type Scenario,
 } from "@layoutlab/core";
+
+type MethodLabel = CoreMethodLabel | "gater-first" | "gater-feedback";
 
 export { FAILURE_NO_EVALUATION, M5_FAILURE_VERSION, replayFailureRecord };
 export type { FailureEnvelope };
@@ -166,7 +168,7 @@ export type RunRecord = {
   usageTotals: ProviderUsage | null;
   usageIncomplete: boolean;
   durationsMs: number[];
-  provider: "meta";
+  provider: "meta" | "gater";
   modelId: string;
   promptVersion: string;
   controller: AbortController;
@@ -199,7 +201,7 @@ export type RunSummary = {
   lastError: string | null;
   usageTotals: ProviderUsage | null;
   usageIncomplete: boolean;
-  provider: "meta";
+  provider: "meta" | "gater";
   providerKind: ProviderKind;
   realMetaRequests: number;
   modelId: string;
@@ -216,7 +218,7 @@ export type M3ReportEnvelope = {
   coreVersion: string;
   reportVersion: string;
   routePolicy: string;
-  provider: "meta";
+  provider: "meta" | "gater";
   providerKind: ProviderKind;
   realMetaRequests: number;
   modelId: string;
@@ -520,7 +522,11 @@ function methodLabelsOf(record: RunRecord): Record<string, MethodLabel> {
   const labels: Record<string, MethodLabel> = { baseline: "current" };
   if (record.heuristic?.candidate) labels[HEURISTIC_NAME] = methodLabelFor(HEURISTIC_NAME);
   for (const a of record.attempts) {
-    if (a.candidate) labels[a.name] = methodLabelFor(a.name);
+    if (a.candidate) {
+      const label = methodLabelFor(a.name);
+      labels[a.name] = record.provider === "gater" && label === "meta-first" ? "gater-first"
+        : record.provider === "gater" && label === "meta-feedback" ? "gater-feedback" : label;
+    }
   }
   return labels;
 }
@@ -575,7 +581,7 @@ export function toSummary(record: RunRecord, config: ApiConfig): RunSummary {
     lastError: record.lastError,
     usageTotals: record.usageTotals ? { ...record.usageTotals } : null,
     usageIncomplete: record.usageIncomplete,
-    provider: "meta",
+    provider: config.providerKind === "gater" ? "gater" : "meta",
     providerKind: config.providerKind,
     realMetaRequests: realRequests(record, config),
     modelId: record.modelId,
@@ -735,7 +741,7 @@ export class RunStore {
       usageTotals: null,
       usageIncomplete: false,
       durationsMs: [],
-      provider: "meta",
+      provider: this.config.providerKind === "gater" ? "gater" : "meta",
       modelId: this.config.modelId,
       promptVersion: PROMPT_VERSION,
       controller: new AbortController(),
@@ -1249,7 +1255,7 @@ export class RunStore {
       coreVersion: CORE_VERSION,
       reportVersion: REPORT_VERSION,
       routePolicy: ROUTE_POLICY_ID,
-      provider: "meta",
+      provider: this.config.providerKind === "gater" ? "gater" : "meta",
       providerKind: this.config.providerKind,
       realMetaRequests: realRequests(record, this.config),
       modelId: record.modelId,
@@ -1312,7 +1318,7 @@ export class RunStore {
       throw err;
     }
     const providerKind = this.config.providerKind;
-    if (providerKind !== "meta" && providerKind !== "fixture") {
+    if (providerKind !== "meta" && providerKind !== "fixture" && providerKind !== "gater") {
       // Unreachable via HTTP (liveAvailable refuses unsupported configs
       // before any run exists), but never mislabel the transport.
       const err = new Error("Unsupported provider configuration; no failure audit available.") as Error & {
@@ -1328,7 +1334,7 @@ export class RunStore {
       apiVersion: API_VERSION,
       coreVersion: CORE_VERSION,
       routePolicy: ROUTE_POLICY_ID,
-      provider: "meta",
+      provider: this.config.providerKind === "gater" ? "gater" : "meta",
       providerKind,
       realMetaRequests: realRequests(record, this.config),
       modelId: record.modelId,

@@ -172,7 +172,7 @@ export type OperationsProposalResult = {
   patch: OperationsPatch;
   model: string;
   responseId: string | null;
-  provider: "meta";
+  provider: "meta" | "gater";
   providerKind: ApiConfig["providerKind"];
   finishReason: string | null;
   durationMs: number;
@@ -219,7 +219,7 @@ export async function proposePatch(input: {
       patch: normalizeOperationsProviderPatch(result.parsed),
       model: result.model,
       responseId: result.responseId,
-      provider: "meta",
+      provider: input.config.providerKind === "gater" ? "gater" : "meta",
       providerKind: input.config.providerKind,
       finishReason: result.finishReason,
       durationMs: result.durationMs,

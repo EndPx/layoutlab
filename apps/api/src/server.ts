@@ -279,7 +279,7 @@ export function createApp(opts: {
       operationsImplementationVersion: CURRENT_IMPLEMENTATION_VERSION,
       budgets: { maxProposals: config.maxProposals, maxRequests: config.maxRequests, timeoutMs: config.timeoutMs },
       concurrency: config.concurrency,
-      provider: "meta",
+      provider: config.providerKind === "gater" ? "gater" : "meta",
       providerKind: config.providerKind,
       // Exact non-secret server settings: the benchmark live fingerprint
       // checks these against the frozen protocol before every trial, because
@@ -298,7 +298,7 @@ export function createApp(opts: {
     try {
       const live = liveAvailable(config);
       if (!live.ok) {
-        res.status(503).json({ status: "setup_required", reason: live.reason, provider: "meta" });
+        res.status(503).json({ status: "setup_required", reason: live.reason, provider: config.providerKind === "gater" ? "gater" : "meta" });
         return;
       }
       const parsed = createRunBody.safeParse(req.body);
@@ -490,7 +490,7 @@ export function createApp(opts: {
       if (budgetGuard) {
         const live = liveAvailable(config);
         if (!live.ok) {
-          res.status(503).json({ status: "setup_required", reason: live.reason, provider: "meta" });
+          res.status(503).json({ status: "setup_required", reason: live.reason, provider: config.providerKind === "gater" ? "gater" : "meta" });
           return;
         }
         if (observation.length === 0 || observation.length > 4000) {
@@ -615,7 +615,7 @@ export function createApp(opts: {
     try {
       const live = liveAvailable(config);
       if (!live.ok) {
-        res.status(503).json({ status: "setup_required", reason: live.reason, provider: "meta" });
+        res.status(503).json({ status: "setup_required", reason: live.reason, provider: config.providerKind === "gater" ? "gater" : "meta" });
         return;
       }
       // Strict local preflight BEFORE the durable claim: malformed input

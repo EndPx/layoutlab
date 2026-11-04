@@ -91,6 +91,11 @@ describe("changed fields and import validation", () => {
       comparison: null, recommendation: null, assumptions: [], limitations: [],
     };
     expect(parseInvestigationReport(structuredClone(good)).error).toBeNull();
+    const gater = { ...structuredClone(good), provider: "gater", providerKind: "gater", configuredModel: "glm-5-3-flash" };
+    expect(parseInvestigationReport(gater).error).toBeNull();
+    for (const invalid of [{...gater, provider:"meta"}, {...gater, providerKind:"other"}, {...gater, realMetaRequests:1}, {...gater, limits:null}, {...gater, requests:[null]}]) expect(parseInvestigationReport(invalid).error).not.toBeNull();
+    expect(provenanceOf(gater as unknown as InvestigationReport, "imported").label).toContain("declared Gater");
+
     const noCreated = structuredClone(good) as Record<string, unknown>;
     delete noCreated["createdAt"];
     expect(parseInvestigationReport(noCreated).error).toContain("createdAt");

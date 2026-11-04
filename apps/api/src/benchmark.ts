@@ -724,6 +724,9 @@ export async function runTrial(
   }
   if (failure.status === 200) {
     const envelope = failure.json as unknown as M5FailureEnvelope;
+    if (envelope.provider !== "meta" || envelope.providerKind === "gater") {
+      return markAmbiguous("Gater failure audits are excluded from the frozen Meta benchmark");
+    }
     base.failureRecord = envelope;
     base.failure = { state: envelope.state, lastError: envelope.lastError };
     base.providerKind = envelope.providerKind;

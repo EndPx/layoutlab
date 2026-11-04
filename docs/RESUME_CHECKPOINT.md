@@ -1,3 +1,7 @@
+# Current coordinator checkpoint - 2026-11-05
+
+Gater GLM local integration is accepted for CONFIGURATION AND FIXTURES ONLY; see GATER_INTEGRATION.md. User explicitly excluded paid Gater inference. Private .env.gater.local stays ignored/server-side. Public application last verified fbe5cf6; no Gater deployment/env switch or budget refill. Existing human runtime/coupling drafts and unrelated evidence remain untouched. Video v3 now uses original ElevenLabs Audiobooks Albary/Eleven v4 WAV paragraphs (1801 existing credits used), with final energetic render still pending. This checkpoint supersedes older capability/status notes below.
+
 # Current delivery checkpoint
 
 ## Latest public initial-parking release — 2026-11-05

@@ -10,7 +10,7 @@ export const BRIEF_MAX_TIMEOUT_MS = 120000;
 export const DEFAULT_BASE_URL = "https://api.meta.ai/v1";
 export const DEFAULT_MODEL_ID = "muse-spark-1.3";
 
-export type ProviderKind = "meta" | "fixture" | "unsupported";
+export type ProviderKind = "meta" | "gater" | "fixture" | "unsupported";
 
 export type ApiConfig = {
   baseUrl: string;
@@ -50,8 +50,8 @@ function clampInt(raw: string | undefined, fallback: number, min: number, max: n
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
-  const baseUrl = (env["META_API_BASE_URL"] ?? DEFAULT_BASE_URL).trim() || DEFAULT_BASE_URL;
-  const modelId = (env["META_MODEL_ID"] ?? DEFAULT_MODEL_ID).trim() || DEFAULT_MODEL_ID;
+  const baseUrl = (env["MODEL_API_BASE_URL"] ?? env["META_API_BASE_URL"] ?? DEFAULT_BASE_URL).trim() || DEFAULT_BASE_URL;
+  const modelId = (env["MODEL_ID"] ?? env["META_MODEL_ID"] ?? DEFAULT_MODEL_ID).trim() || DEFAULT_MODEL_ID;
   const apiKey = env["MODEL_API_KEY"] ?? "";
   // Brief caps win regardless of env overrides (upper clamp only; lower is allowed).
   const maxProposals = clampInt(env["MAX_PROPOSALS_PER_RUN"], 3, 0, BRIEF_MAX_PROPOSALS);
@@ -97,8 +97,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
   };
 }
 
-// Server-owned transport classification. Only the official Meta base URL
-// may claim Meta inference; loopback is the local fake transport (fixture
+// Server-owned transport classification. Official Meta and Gater URLs
+// select their respective transports; loopback is the local fake transport (fixture
 // evidence, realMetaRequests 0); anything else is unsupported and refused
 // inference (no false Meta claims for unrelated remote endpoints).
 export const OFFICIAL_META_BASE = "https://api.meta.ai/v1";
@@ -110,9 +110,12 @@ export function deriveProviderKind(baseUrl: string): ProviderKind {
   } catch {
     return "unsupported";
   }
+  if (url.username || url.password || url.search || url.hash) return "unsupported";
+  if (url.protocol !== "http:" && url.protocol !== "https:") return "unsupported";
   const host = url.hostname.toLowerCase();
   if (host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]") return "fixture";
-  if (url.protocol === "https:" && host === "api.meta.ai" && (url.pathname === "/v1" || url.pathname === "/v1/")) {
+  if (url.protocol === "https:" && !url.port && host === "api.gater.ai.id" && url.pathname === "/v1") return "gater";
+  if (url.protocol === "https:" && !url.port && host === "api.meta.ai" && (url.pathname === "/v1" || url.pathname === "/v1/")) {
     return "meta";
   }
   return "unsupported";
@@ -159,12 +162,12 @@ export function loadEnvFileInto(target: NodeJS.ProcessEnv, filePath: string): vo
 
 export function liveAvailable(config: ApiConfig): { ok: boolean; reason: string | null } {
   if (!config.apiKeyPresent) return { ok: false, reason: "MODEL_API_KEY is not configured on the server." };
-  if (!config.baseUrl) return { ok: false, reason: "META_API_BASE_URL is empty." };
-  if (!config.modelId) return { ok: false, reason: "META_MODEL_ID is empty." };
+  if (!config.baseUrl) return { ok: false, reason: "MODEL_API_BASE_URL is empty." };
+  if (!config.modelId) return { ok: false, reason: "MODEL_ID is empty." };
   if (config.providerKind === "unsupported") {
     return {
       ok: false,
-      reason: `Unsupported META_API_BASE_URL (expected ${OFFICIAL_META_BASE} or a loopback fixture URL).`,
+      reason: `Unsupported MODEL_API_BASE_URL (expected ${OFFICIAL_META_BASE}, https://api.gater.ai.id/v1 or a loopback fixture URL).`,
     };
   }
   return { ok: true, reason: null };

@@ -1,0 +1,9 @@
+{
+  "scope": "LOCAL malformed response only; zero real external completions",
+  "statusRejected": true,
+  "reportRejected": true,
+  "noSuccessProvenance": true,
+  "applyAbsent": true,
+  "providerCalls": 0,
+  "errors": []
+}

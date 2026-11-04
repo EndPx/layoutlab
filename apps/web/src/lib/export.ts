@@ -12,6 +12,7 @@ import {
   type PlanningRequirements,
   type Scenario,
 } from "@layoutlab/core";
+import { validGenerationSettings } from "./api";
 import { webAssetRefs, type WebAssetRef } from "./rackAsset";
 
 export const M2_ENVELOPE_VERSION = "layoutlab.m2export/1";
@@ -311,7 +312,7 @@ export function replayEnvelope(json: unknown): {
 export function replayM3Envelope(json: unknown): {
   matchesSaved: boolean;
   mismatches: string[];
-  provider: "meta";
+  provider: "meta" | "gater";
   runId: string;
   modelId: string;
 } {
@@ -320,7 +321,7 @@ export function replayM3Envelope(json: unknown): {
   if (e["envelopeVersion"] !== M3_ENVELOPE_VERSION) {
     throw new Error(`Unsupported envelope version (expected ${M3_ENVELOPE_VERSION}).`);
   }
-  if (e["provider"] !== "meta") throw new Error("M3 envelope provider must be 'meta'.");
+  if (e["provider"] !== "meta" && e["provider"] !== "gater") throw new Error("M3 envelope provider must be meta or gater.");
   if (typeof e["runId"] !== "string" || e["runId"].length < 1 || e["runId"].length > MAX_ID_LEN) {
     throw new Error("Envelope runId must be a nonempty id.");
   }
@@ -360,15 +361,17 @@ export function replayM3Envelope(json: unknown): {
     throw new Error("M3 used counts cannot exceed budgets.");
   }
   // Explicit transport provenance: fixture runs made zero real Meta requests.
-  if (e["providerKind"] !== "meta" && e["providerKind"] !== "fixture") {
-    throw new Error("M3 envelope must declare providerKind 'meta' or 'fixture'.");
+  if (e["providerKind"] !== "meta" && e["providerKind"] !== "fixture" && e["providerKind"] !== "gater") {
+    throw new Error("M3 envelope must declare providerKind meta, gater, or fixture.");
   }
+  if ((e.provider === "gater") !== (e.providerKind === "gater")) throw new Error("Inconsistent M3 provider pairing.");
+  if ((e.providerKind === "gater" || e.generationSettings !== undefined) && !validGenerationSettings(e.generationSettings, e.providerKind)) throw new Error("Malformed M3 generation settings.");
   const real = e["realMetaRequests"];
   if (typeof real !== "number" || !Number.isInteger(real) || real < 0 || real > (used as number)) {
     throw new Error("M3 realMetaRequests must be an integer within used requests.");
   }
-  if (e["providerKind"] === "fixture" && real !== 0) {
-    throw new Error("M3 fixture envelopes must report realMetaRequests 0.");
+  if ((e["providerKind"] === "fixture" || e["providerKind"] === "gater") && real !== 0) {
+    throw new Error("M3 fixture/Gater envelopes must report realMetaRequests 0.");
   }
   if (e["providerKind"] === "meta" && real !== used) {
     throw new Error("M3 meta envelopes must account every request as a real Meta request.");
@@ -412,11 +415,20 @@ export function replayM3Envelope(json: unknown): {
       throw new Error("M3 null heuristic block cannot accompany a heuristic candidate.");
     }
   }
-  checkMethodLabels(
-    e["methodLabels"],
-    m3Names.filter((n): n is string => typeof n === "string"),
-    "M3 methodLabels",
-  );
+  if (e["methodLabels"] !== undefined) {
+    const expected = labelsFor(m3Names.filter((n): n is string => typeof n === "string").map(name => ({ name })));
+    if (e["provider"] === "gater") {
+      for (const name of Object.keys(expected)) {
+        if (expected[name] === "meta-first") expected[name] = "gater-first";
+        if (expected[name] === "meta-feedback") expected[name] = "gater-feedback";
+      }
+    }
+    const actual = e["methodLabels"] as Record<string, unknown> | null;
+    if (!actual || typeof actual !== "object" || Object.keys(actual).length !== Object.keys(expected).length ||
+        Object.entries(expected).some(([name, label]) => actual[name] !== label)) {
+      throw new Error("M3 methodLabels must match exact provider method labels.");
+    }
+  }
   checkAssetRefs(e["assetRefs"], "M3 assetRefs");
   const m3Budgets = e["candidateBudgets"] as Record<string, Record<string, unknown>> | undefined;
   if (m3Budgets !== undefined) {
@@ -453,7 +465,7 @@ export function replayM3Envelope(json: unknown): {
   return {
     matchesSaved: replayed.matchesSaved,
     mismatches: replayed.mismatches,
-    provider: "meta",
+    provider: e["provider"] as "meta" | "gater",
     runId: e["runId"] as string,
     modelId: e["modelId"] as string,
   };
@@ -462,7 +474,7 @@ export function replayM3Envelope(json: unknown): {
 export type FailureReplay = {
   valid: true;
   evaluated: false;
-  provider: "meta";
+  provider: "meta" | "gater";
   runId: string;
   state: FailureEnvelope["state"];
   notice: string;
