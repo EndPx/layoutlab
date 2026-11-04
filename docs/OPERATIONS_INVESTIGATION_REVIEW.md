@@ -233,3 +233,19 @@ Evidence: `evidence/sanitized/e4a-independent-review.json`.
 The bounded backend is accepted for deployment and one coordinator-controlled
 live smoke within remaining public allowance. UI and AI-quality evaluation
 remain separate open gates. No paid calls occurred in the offline review.
+
+
+## Actual public Meta investigation (2026-11-04)
+
+Backend f24a6a1 was deployed; ledger bytes were preserved. Investigation
+fd2247b1-8335-4575-a55b-1f579cc3717b completed with actual Contributor Meta:
+three requests, two experiments, final model recommendation exp-2. Baseline
+502400ms; packingDurationMs30000 gives442400ms; dispatchDurationMs30000 gives
+397100ms, a server-computed20.959395% modeled makespan reduction in this
+synthetic scenario. All six orders shipped in each valid run. The full
+investigation report reran offline with no mismatches. See
+`evidence/sanitized/e4a-live-investigation-f24a6a1.json` and its verification
+sibling. This closes the backend live integration gate only. It does not
+prove useful AI selection relative to a fixed strategy or complete the UI.
+The public allowance now hasUS$0.25 remaining after retaining thisUS$0.25
+claim; token usage and conservative claims are distinct, no invoice retrieved.

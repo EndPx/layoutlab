@@ -5,7 +5,30 @@ Hostinger VPS, restricted password/Basic Auth access, and US$1 total for the
 initial public Live Meta test, separate from the completed US$1.50 benchmark.
 The public allowance must persist without automatic replenishment.
 
-## E3 release (2026-11-04, latest)
+## E4a backend release and real investigation (2026-11-04, latest)
+
+Active release `/opt/layoutlab/releases/f24a6a1` includes the bounded
+investigation backend. Native build passed and ledger bytes were unchanged
+on upgrade. One public investigation then completed with actual Meta:
+`fd2247b1-8335-4575-a55b-1f579cc3717b`, model muse-spark-1.3-contributor,
+three model requests, two experiments, model recommendation exp-2.
+
+On the declared synthetic six-order workload: baseline502400ms; packing
+service30000ms candidate442400ms; dispatch service30000ms candidate397100ms.
+The latter was recommended; shipped remained6, modeled total wait remained
+614900ms. The105300ms makespan difference is20.959395% of baseline.
+Local offline investigation verification passed without mismatches.
+This is a successful integration smoke, not an AI superiority benchmark.
+
+Reported usage:2589 input and2485 output tokens. At Contributor rates checked
+2026-11-04 the token estimate isUS$0.0007559, not an invoice. The fullUS$0.25
+claim was committed, leavingUS$0.25 available of theUS$1 allowance. Prior
+failed/successful one-shot claims remain intact; nothing was refunded/reset.
+Evidence: `e4a-deployment-f24a6a1.json`, `e4a-live-investigation-f24a6a1.json`,
+`e4a-live-verification-f24a6a1.json` under `evidence/sanitized/`.
+The new UI integration is still pending; legacy planner/operations stay usable.
+
+## Earlier E3 release (2026-11-04)
 
 Active release `/opt/layoutlab/releases/0109f02` adds the reviewed controlled
 comparison/report contract. Native build passed; ledger bytes remained

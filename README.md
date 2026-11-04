@@ -10,27 +10,30 @@ native server API with user approval. Racks stay fixed; only assignments
 change.
 
 Status (2026-11-04): the restricted [web preview](https://layoutlab.endpx.cloud)
-runs release `0109f02` with the main warehouse scene, engine-driven operations,
+runs release `f24a6a1` with the main warehouse scene, engine-driven operations,
 dispatch, inbound/put-away, split trips, and operations report replay. The
 18-trial storage-planning Meta benchmark remains separate, completed evidence.
 
-The public budget guard passed independent review and 128 API tests; the
-subsequent strict-schema fix passed 133 API tests. A real operations proposal
-succeeded through the public domain with `muse-spark-1.3-contributor` and
-recorded response ID/token usage. Public inference is enabled behind Basic
-Auth and the persistent US$1 cap. After one failed schema request and one
-successful smoke, US$0.50 is conservatively committed and US$0.50 available;
-these allowance amounts are not invoices. See
-[deployment evidence](docs/PUBLIC_DEPLOYMENT.md).
+The public guard and bounded investigation backend passed independent review.
+One actual Meta investigation tested two service-time alternatives and then
+recommended a measured candidate using three model requests. The complete
+report reruns offline without mismatches. Its synthetic six-order baseline
+was 502.4s; the selected dispatch assumption produced 397.1s (20.959395%
+modeled makespan reduction). This is one integration run, not evidence of
+real warehouse savings or AI superiority over a fixed search strategy.
+See [investigation evidence](docs/OPERATIONS_INVESTIGATION_REVIEW.md).
+
+Public inference is password-restricted with a persistent US$1 allowance.
+The ledger now has US$0.75 conservatively committed and US$0.25 available;
+these claims are not invoices. [Deployment evidence](docs/PUBLIC_DEPLOYMENT.md)
+keeps earlier failures and later successful runs visible.
 
 The [v3 brief](docs/IMPLEMENTATION_BRIEF_V3.md) and
-[Experimenter delivery plan](docs/EXPERIMENTER_DELIVERY_PLAN.md) define the
-remaining work. Controlled comparisons now enforce explicit intervention permissions, retain
-invalid and incomplete candidates, and export reports that rerun offline.
-The public comparison API passed independent replay. The one-shot Meta
-proposal works, while its bounded investigation loop, run-linked
-recommendations, UI integration and AI evaluation remain in progress. No full-simulator or operational-savings claim follows from the
-storage-planning benchmark.
+[delivery plan](docs/EXPERIMENTER_DELIVERY_PLAN.md) define the remaining work.
+Controlled comparisons enforce explicit permissions, retain invalid/incomplete
+candidates, and export replayable reports. The bounded Meta backend now uses
+engine feedback and run-linked recommendations. The user-facing Experiments
+workflow and equal-budget AI contribution evaluation remain in progress.
 
 ## Native start (Node 24.18 tested, no Docker)
 

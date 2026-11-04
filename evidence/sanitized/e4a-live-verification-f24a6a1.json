@@ -1,0 +1,85 @@
+{
+  "checkedAt": "2026-11-04T09:29:54.244Z",
+  "appCommit": "f24a6a1",
+  "runId": "fd2247b1-8335-4575-a55b-1f579cc3717b",
+  "state": "COMPLETED",
+  "outcome": "model-recommendation",
+  "providerKind": "meta",
+  "model": "muse-spark-1.3-contributor",
+  "requestCount": 3,
+  "experimentCount": 2,
+  "verification": {
+    "ok": true,
+    "mismatches": []
+  },
+  "tokens": {
+    "input": 2589,
+    "output": 2485,
+    "complete": true
+  },
+  "estimatedTokenCostUsd": 0.0007559000000000001,
+  "costNote": "Usage-derived estimate at verified Contributor rates, not invoice. Full conservative allowance charge is separate.",
+  "budgetBefore": {
+    "guard": "active",
+    "capUsd": 1,
+    "reservedUsd": 0,
+    "committedUsd": 0.5,
+    "availableUsd": 0.5,
+    "entries": 2,
+    "accounting": "reservedUsd is a held conservative bound; committedUsd is that bound charged after dispatch. Neither is an invoice or a confirmed provider price."
+  },
+  "budgetAfter": {
+    "guard": "active",
+    "capUsd": 1,
+    "reservedUsd": 0,
+    "committedUsd": 0.75,
+    "availableUsd": 0.25,
+    "entries": 3,
+    "accounting": "reservedUsd is a held conservative bound; committedUsd is that bound charged after dispatch. Neither is an invoice or a confirmed provider price."
+  },
+  "recommendation": {
+    "candidateId": "exp-2",
+    "source": "model",
+    "modelSelectedCandidateId": "exp-2",
+    "deterministicBestCandidateId": "exp-2",
+    "baselineCandidateId": "baseline",
+    "improvedOverBaseline": true,
+    "comparisons": {
+      "baselineCandidateId": "baseline",
+      "candidateId": "exp-2",
+      "shippedDelta": 0,
+      "makespanDeltaMs": -105300,
+      "makespanImprovementPercent": 20.959395,
+      "totalWaitDeltaMs": 0,
+      "totalWaitImprovementPercent": 0
+    },
+    "explanation": "Server-computed contrast in this synthetic scenario only: candidate exp-2 vs baseline baseline under declared patch {\"dispatchDurationMs\":30000}: shipped 6 vs 6 (delta 0), makespanMs 397100 vs 502400 (delta -105300 ms, improvement 20.959395%), totalWaitMs 614900 vs 614900 (delta 0 ms). The candidate ranks ahead of the baseline under the deterministic E3 ranking for this bounded contrast. This is a bounded contrast for the declared intervention in a synthetic scenario, not causal proof, not a global optimum, and not real warehouse savings."
+  },
+  "candidates": [
+    {
+      "id": "baseline",
+      "patch": {},
+      "status": "valid-complete",
+      "makespanMs": 502400,
+      "shipped": 6
+    },
+    {
+      "id": "exp-1",
+      "patch": {
+        "packingDurationMs": 30000
+      },
+      "status": "valid-complete",
+      "makespanMs": 442400,
+      "shipped": 6
+    },
+    {
+      "id": "exp-2",
+      "patch": {
+        "dispatchDurationMs": 30000
+      },
+      "status": "valid-complete",
+      "makespanMs": 397100,
+      "shipped": 6
+    }
+  ]
+}
