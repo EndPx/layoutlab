@@ -1,0 +1,821 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/manual-rack.spec.ts",
+      "e2e/manual-layout.spec.ts",
+      "e2e/unified-workspace.spec.ts",
+      "e2e/layout-preview-revocation.spec.ts"
+    ],
+    "configFile": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\playwright.config.ts",
+    "rootDir": "D:/Belajar/Hackacton/Hackacton yang masih jalan/LayoutLab Muse/apps/web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/Belajar/Hackacton/Hackacton yang masih jalan/LayoutLab Muse/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "D:/Belajar/Hackacton/Hackacton yang masih jalan/LayoutLab Muse/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "D:/Belajar/Hackacton/Hackacton yang masih jalan/LayoutLab Muse/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "D:/Belajar/Hackacton/Hackacton yang masih jalan/LayoutLab Muse/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\e2e",
+        "snapshotDir": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5173",
+          "trace": "retain-on-failure",
+          "video": "on",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium",
+          "channel": "msedge"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile",
+        "testDir": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\e2e",
+        "snapshotDir": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5173",
+          "trace": "retain-on-failure",
+          "video": "on",
+          "userAgent": "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Mobile Safari/537.36",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "screen": {
+            "width": 393,
+            "height": 851
+          },
+          "deviceScaleFactor": 2.75,
+          "isMobile": true,
+          "hasTouch": true,
+          "defaultBrowserType": "chromium",
+          "channel": "msedge"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "./playwright-report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://127.0.0.1:5173",
+      "reuseExistingServer": true,
+      "timeout": 60000
+    }
+  },
+  "suites": [
+    {
+      "title": "layout-preview-revocation.spec.ts",
+      "file": "layout-preview-revocation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "MOCK delay only: explicit discard revokes pending HTTP preview",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14593,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T20:11:45.229Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\layout-preview-revocation--1e59b-evokes-pending-HTTP-preview-desktop\\video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "64af28b060de931e8bb8-a1fcfc5edf519020c3e9",
+          "file": "layout-preview-revocation.spec.ts",
+          "line": 18,
+          "column": 55
+        },
+        {
+          "title": "MOCK delay only: explicit discard revokes pending local resolver preview",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 21524,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T20:12:00.191Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\layout-preview-revocation--393d7-ding-local-resolver-preview-desktop\\video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "64af28b060de931e8bb8-ab844e159b036303c04b",
+          "file": "layout-preview-revocation.spec.ts",
+          "line": 18,
+          "column": 55
+        },
+        {
+          "title": "MOCK HTTP delay only: manual editing revokes pending assistant preview without scene overwrite",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11684,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T20:12:21.737Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\layout-preview-revocation--12cd5-iew-without-scene-overwrite-desktop\\video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "64af28b060de931e8bb8-bf35e9075e1dcb77f57f",
+          "file": "layout-preview-revocation.spec.ts",
+          "line": 31,
+          "column": 1
+        },
+        {
+          "title": "import size is checked before file.text and imported Meta provenance is declared",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5641,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T20:12:33.444Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\layout-preview-revocation--6a14e-Meta-provenance-is-declared-desktop\\video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "64af28b060de931e8bb8-1fb73b4535a1fdf52e13",
+          "file": "layout-preview-revocation.spec.ts",
+          "line": 37,
+          "column": 1
+        },
+        {
+          "title": "MOCK delay only: explicit discard revokes pending HTTP preview",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14083,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T20:13:47.720Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\layout-preview-revocation--1e59b-evokes-pending-HTTP-preview-mobile\\video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "64af28b060de931e8bb8-390ee850d755c5834458",
+          "file": "layout-preview-revocation.spec.ts",
+          "line": 18,
+          "column": 55
+        },
+        {
+          "title": "MOCK delay only: explicit discard revokes pending local resolver preview",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 25416,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T20:14:02.129Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\layout-preview-revocation--393d7-ding-local-resolver-preview-mobile\\video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "64af28b060de931e8bb8-4dcce3d76bdddcc2a39b",
+          "file": "layout-preview-revocation.spec.ts",
+          "line": 18,
+          "column": 55
+        },
+        {
+          "title": "MOCK HTTP delay only: manual editing revokes pending assistant preview without scene overwrite",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11826,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T20:14:27.566Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\layout-preview-revocation--12cd5-iew-without-scene-overwrite-mobile\\video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "64af28b060de931e8bb8-e76d8f73e980fb3ff07f",
+          "file": "layout-preview-revocation.spec.ts",
+          "line": 31,
+          "column": 1
+        },
+        {
+          "title": "import size is checked before file.text and imported Meta provenance is declared",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5656,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T20:14:39.412Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\layout-preview-revocation--6a14e-Meta-provenance-is-declared-mobile\\video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "64af28b060de931e8bb8-f916ee5e4e91540bf85a",
+          "file": "layout-preview-revocation.spec.ts",
+          "line": 37,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "manual-layout.spec.ts",
+      "file": "manual-layout.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "manual station layout uses real engine, rejects overlap, snaps, undoes and replays",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 36767,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T20:12:39.130Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\manual-layout-manual-stati-de19d-ap-snaps-undoes-and-replays-desktop\\video-1.webm"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\manual-layout-manual-stati-de19d-ap-snaps-undoes-and-replays-desktop\\video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ddeeafd9311060f02669-2208b0d23c65f2c6d743",
+          "file": "manual-layout.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "manual station layout uses real engine, rejects overlap, snaps, undoes and replays",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 40341,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T20:14:45.104Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\manual-layout-manual-stati-de19d-ap-snaps-undoes-and-replays-mobile\\video-1.webm"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\manual-layout-manual-stati-de19d-ap-snaps-undoes-and-replays-mobile\\video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ddeeafd9311060f02669-477d48ed4296433bc4ef",
+          "file": "manual-layout.spec.ts",
+          "line": 4,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "manual-rack.spec.ts",
+      "file": "manual-rack.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "rack engine and viewer continuity",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 20150,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m5000\u001b[39m\nReceived: \u001b[31m3000\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m5000\u001b[39m\nReceived: \u001b[31m3000\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n    at D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\e2e\\manual-rack.spec.ts:21:236",
+                    "location": {
+                      "file": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\e2e\\manual-rack.spec.ts",
+                      "column": 236,
+                      "line": 21
+                    },
+                    "snippet": "  19 |  expect(slot.quantity).toBe(originalLocations.find((l:{id:string})=>l.id==='L01').quantity);expect(slot.containers).toEqual(originalLocations.find((l:{id:string})=>l.id==='L01').containers);\n  20 |  expect(slot.anchorMm).toEqual({x:3000,y:450,z:5000});expect(slot.approachMm).toEqual({x:3000,z:7800});expect(await p.getAttribute('data-current-layout-racks')).toBe(original);await expect(page.getByTestId('ws-run')).toBeDisabled();\n> 21 |  await val('R1');await expect.poll(async()=>{const canvas=page.getByTestId('ops-canvas');const transforms=JSON.parse(await canvas.getAttribute('data-rack-transforms')??'[]');return transforms.find((r:{id:string})=>r.id==='R1')?.zMm;}).toBe(5000);await page.screenshot({path:resolve(dir,info.project.name+'-preview.png'),fullPage:true});await measure();\n     |                                                                                                                                                                                                                                            ^\n  22 |  await b('Recompute layout export').click();await expect(e).toContainText('Verified exact geometry',{timeout:120000});\n  23 |  const download=page.waitForEvent('download');await b('Export exact layout results').click();await(await download).saveAs(resolve(dir,info.project.name+'-rack.json'));\n  24 |  await page.screenshot({path:resolve(dir,info.project.name+'-results.png'),fullPage:true});"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\e2e\\manual-rack.spec.ts",
+                        "column": 236,
+                        "line": 21
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m5000\u001b[39m\nReceived: \u001b[31m3000\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n  19 |  expect(slot.quantity).toBe(originalLocations.find((l:{id:string})=>l.id==='L01').quantity);expect(slot.containers).toEqual(originalLocations.find((l:{id:string})=>l.id==='L01').containers);\n  20 |  expect(slot.anchorMm).toEqual({x:3000,y:450,z:5000});expect(slot.approachMm).toEqual({x:3000,z:7800});expect(await p.getAttribute('data-current-layout-racks')).toBe(original);await expect(page.getByTestId('ws-run')).toBeDisabled();\n> 21 |  await val('R1');await expect.poll(async()=>{const canvas=page.getByTestId('ops-canvas');const transforms=JSON.parse(await canvas.getAttribute('data-rack-transforms')??'[]');return transforms.find((r:{id:string})=>r.id==='R1')?.zMm;}).toBe(5000);await page.screenshot({path:resolve(dir,info.project.name+'-preview.png'),fullPage:true});await measure();\n     |                                                                                                                                                                                                                                            ^\n  22 |  await b('Recompute layout export').click();await expect(e).toContainText('Verified exact geometry',{timeout:120000});\n  23 |  const download=page.waitForEvent('download');await b('Export exact layout results').click();await(await download).saveAs(resolve(dir,info.project.name+'-rack.json'));\n  24 |  await page.screenshot({path:resolve(dir,info.project.name+'-results.png'),fullPage:true});\n    at D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\e2e\\manual-rack.spec.ts:21:236"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T20:13:15.940Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\manual-rack-rack-engine-and-viewer-continuity-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\manual-rack-rack-engine-and-viewer-continuity-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\manual-rack-rack-engine-and-viewer-continuity-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\e2e\\manual-rack.spec.ts",
+                    "column": 236,
+                    "line": 21
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d64ca9f2b6abf3b03e52-b59783e9ac33d9832529",
+          "file": "manual-rack.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "rack engine and viewer continuity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 75174,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T20:15:25.497Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\manual-rack-rack-engine-and-viewer-continuity-mobile\\video-1.webm"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\manual-rack-rack-engine-and-viewer-continuity-mobile\\video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d64ca9f2b6abf3b03e52-c5288619ab636dabb632",
+          "file": "manual-rack.spec.ts",
+          "line": 4,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "unified-workspace.spec.ts",
+      "file": "unified-workspace.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "one warehouse through run, inspect, results and scenario change",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7735,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T20:13:38.690Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\unified-workspace-one-ware-debbd-results-and-scenario-change-desktop\\video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "afa49328af5a27a98259-287dce0353fad9a2e180",
+          "file": "unified-workspace.spec.ts",
+          "line": 7,
+          "column": 1
+        },
+        {
+          "title": "one warehouse through run, inspect, results and scenario change",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8606,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T20:16:40.709Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\test-results\\unified-workspace-one-ware-debbd-results-and-scenario-change-mobile\\video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "afa49328af5a27a98259-fd99236806bd3e964251",
+          "file": "unified-workspace.spec.ts",
+          "line": 7,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-04T20:11:44.490Z",
+    "duration": 305378.138,
+    "expected": 13,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "browser": "msedge",
+  "actualRackInstanceZMm": 5000,
+  "ownedAnchorsAndApproachesDeltaMm": -1000,
+  "storageYAndQuantityUnchanged": true,
+  "otherLocationsUnchanged": true,
+  "baselineUnchanged": true,
+  "exportRecomputed": true,
+  "baseline": {
+    "completionStage": "SUPPORTED_STAGE_COMPLETE",
+    "shipped": 6,
+    "backlog": 0,
+    "stageBacklog": 0,
+    "totalWaitMs": 614900,
+    "makespanMs": 502400,
+    "lastShippedAtMs": 502400,
+    "stopClockMs": 540000
+  },
+  "candidate": {
+    "completionStage": "SUPPORTED_STAGE_COMPLETE",
+    "shipped": 6,
+    "backlog": 0,
+    "stageBacklog": 0,
+    "totalWaitMs": 605800,
+    "makespanMs": 501600,
+    "lastShippedAtMs": 501600,
+    "stopClockMs": 540000
+  },
+  "delta": {
+    "shipped": 0,
+    "backlog": 0,
+    "stageBacklog": 0,
+    "totalWaitMs": -9100,
+    "makespanMs": -800,
+    "lastShippedAtMs": -800,
+    "stopClockMs": 0
+  },
+  "classification": "improved",
+  "realMetaRequests": 0
+}

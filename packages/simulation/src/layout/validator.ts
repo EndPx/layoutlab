@@ -335,4 +335,3 @@ export async function validateLayoutCandidate(input: {
   const candidateGeo = candidate ? geometryAccessIssuesFor(candidate) : null;
   return finish(structural, candidate, candidateGeo);
 }
-

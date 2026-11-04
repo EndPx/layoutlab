@@ -71,7 +71,7 @@ stay readable at 1586px and usable at 390px.
   Metric/nav shadows: none; separation is border + wash only. No gradients,
   no glass, no decorative animation.
 
-## 2. Layout (fixed rack geometry; UI never edits racks)
+## 2. Layout (canonical geometry; validated draft edits)
 
 Desktop ≥1024px (primary comparison 1586×1007, also 1440):
 page grid `nav / headline / metrics / workspace / comparison / footer`.
@@ -830,3 +830,15 @@ Assignment/traffic optimization and layout editing are not advertised in
 this workspace; only supported hypothetical service-time changes are
 offered. No POST spends on mount, playback, selection, reset, scenario
 change, replay, export or verify.
+
+
+## L3b manual rack translation extension
+
+The existing console tokens and controls remain the contract. Physical layout
+adds an accessible Rack selector alongside the station selector, canonical integer
+mm fields, 100mm snapping, and the existing Validate / Test / Apply / Discard
+sequence. An orange dashed original footprint and teal candidate footprint accompany
+the sourced rack model; labels, cargo anchors and approaches use the same candidate
+scene. Invalid previews name proven blocker IDs and disable Test/Apply. Rotation
+and initial-agent placement remain explicit later gates; Muse remains station-only.
+The document owns scrolling at desktop and 390px, using existing wrapping actions.

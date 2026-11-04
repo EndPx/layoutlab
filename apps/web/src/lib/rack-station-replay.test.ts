@@ -1,0 +1,20 @@
+import { expect, test } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { applyRackTranslation, buildRackAttachmentMap, buildStationAttachmentMap, contentSha256, runLayoutComparison, verifyLayoutComparison, defaultApprovedConstraints } from '@layoutlab/simulation';
+import { loadBurstOperationsScene, resolveLayoutAttachments } from './operations';
+import { resolveMeasuredLayout, layoutRows } from './layout-results';
+import type { LayoutReport } from './layout-investigations';
+test('station L2 recorded resolution preserves an applied rack parent', async () => {
+ const original=loadBurstOperationsScene().scenario;
+ const parent=applyRackTranslation(original,{kind:'RACK_TRANSLATION',proposalId:'rack-parent',entityId:'R1',parent:{scenarioId:original.id,scenarioContentSha256:'0'.repeat(64),schemaVersion:original.schemaVersion,engineVersion:original.engineVersion},target:{mode:'DELTA_MM',deltaMm:{dx:0,dz:-1000}}},buildRackAttachmentMap(original)).scenario;
+ const attachments=resolveLayoutAttachments(parent);
+ const proposal={kind:'PACKING_STATION_TRANSLATION' as const,proposalId:'station-after-rack',entityId:'PACK-1',parent:{scenarioId:parent.id,scenarioContentSha256:await contentSha256(parent),schemaVersion:parent.schemaVersion,engineVersion:parent.engineVersion},target:{mode:'ABSOLUTE_CENTER_MM' as const,centerMm:{x:20500,z:4000}}};
+ const config={pickDurationMsPerItem:2000,unloadDurationMsPerItem:1500}; const approved=defaultApprovedConstraints(['PACK-1']);
+ const comparison=await runLayoutComparison({baselineScenario:parent,proposal,attachments:[...buildStationAttachmentMap(parent,attachments).values()],approvedConstraints:approved,executionConfig:config,safetyCeilingMs:7200000});
+ expect((await verifyLayoutComparison(comparison)).ok).toBe(true);
+ const saved=JSON.parse(readFileSync('apps/web/public/evidence/layout-investigation-fixture.json','utf8')) as LayoutReport;
+ saved.input.scenario=parent;saved.input.executionConfig=config;saved.approved!.constraints=approved;
+ const row=layoutRows(saved)[1];row.proposal=proposal;row.evaluation={...row.evaluation,validation:comparison.validation,regionIssues:[],comparison};
+ const resolved=await resolveMeasuredLayout(saved,row.candidateId);
+ expect(resolved.scene.racks[0].positionMm).toEqual({x:4000,z:5000});expect(resolved.scene.stations.find(s=>s.id==='PACK-1')!.centerMm.z).toBe(4000);
+},120000);

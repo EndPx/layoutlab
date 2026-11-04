@@ -1,0 +1,52 @@
+{
+  "method": "Local production verifier; no model/API calls",
+  "checks": [
+    {
+      "file": "desktop-rack.json",
+      "exitCode": 0,
+      "result": {
+        "ok": true
+      }
+    },
+    {
+      "file": "mobile-rack.json",
+      "exitCode": 0,
+      "result": {
+        "ok": true
+      }
+    },
+    {
+      "file": "desktop-main-rack.json",
+      "exitCode": 0,
+      "result": {
+        "ok": true
+      }
+    },
+    {
+      "file": "mobile-main-rack.json",
+      "exitCode": 0,
+      "result": {
+        "ok": true
+      }
+    },
+    {
+      "file": "tampered",
+      "expectedExitCode": 1,
+      "exitCode": 1,
+      "result": {
+        "ok": false
+      }
+    },
+    {
+      "file": "unsupported",
+      "expectedExitCode": 1,
+      "exitCode": 1,
+      "result": {
+        "ok": false,
+        "mismatches": [
+          "Unsupported layout schema: unknown-layout/99"
+        ]
+      }
+    }
+  ]
+}

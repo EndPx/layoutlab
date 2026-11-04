@@ -1103,6 +1103,8 @@ export function OperationsView(props: {
           ops.racks.forEach((r, i) =>
             placeInstance(inst, i, r.positionMm.x * MM, 0, r.positionMm.z * MM, 0, r.scale.x, r.scale.y, r.scale.z));
           inst.instanceMatrix.needsUpdate = true;
+          const matrix = new THREE.Matrix4();
+          mount.dataset['rackTransforms'] = JSON.stringify(ops.racks.map((rack, i) => { inst.getMatrixAt(i, matrix); return { id: rack.id, xMm: Math.round(matrix.elements[12] / MM), zMm: Math.round(matrix.elements[14] / MM) }; }));
           threeScene.add(inst);
         }
       }
@@ -1176,7 +1178,9 @@ export function OperationsView(props: {
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         const ghost = new THREE.Line(geometry, new THREE.LineDashedMaterial({ color: 0xd9730d, dashSize: 0.15, gapSize: 0.1 }));
         ghost.computeLineDistances(); threeScene.add(ghost);
-        const moved = ops.stations.find(s => s.id === ops.layoutGhost?.stationId);
+        const station = ops.stations.find(s => s.id === ops.layoutGhost?.stationId);
+        const rack = ops.racks.find(s => s.id === ops.layoutGhost?.stationId);
+        const moved = station ?? (rack ? { centerMm: rack.positionMm } : undefined);
         if (moved) {
           const dx = (moved.centerMm.x - ops.layoutGhost.centreMm.x) * MM;
           const dz = (moved.centerMm.z - ops.layoutGhost.centreMm.z) * MM;

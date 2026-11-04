@@ -57,7 +57,7 @@ export function WarehouseWorkspace(props: {
   const [assistantPreview, setAssistantPreview] = useState(false);
   const [layoutPreview, setLayoutPreview] = useState<OperationsScene | null>(null);
   const [layoutEpoch, setLayoutEpoch] = useState(0);
-  const [layoutHistory, setLayoutHistory] = useState<import("@layoutlab/simulation").LayoutComparisonResult[]>([]);
+  const [layoutHistory, setLayoutHistory] = useState<import("../lib/manual-layout").ManualLayoutReport[]>([]);
   const [layoutEditing, setLayoutEditing] = useState(false);
   const originalContext = useRef<CurrentContext | null>(null);
   const [inspect, setInspect] = useState<InspectContext | null>(null);
@@ -317,7 +317,7 @@ export function WarehouseWorkspace(props: {
         </div>
 
         <div className="ws-workspace">
-          <div className="panel ws-viewport" data-testid="ws-viewport-panel" data-layout-centres={JSON.stringify((layoutPreview ?? displayedScene)?.stations.map(s=>({id:s.id,centerMm:s.centerMm})))} data-current-layout-centres={JSON.stringify(currentOk?.scene.stations.map(s=>({id:s.id,centerMm:s.centerMm})))}>
+          <div className="panel ws-viewport" data-testid="ws-viewport-panel" data-layout-centres={JSON.stringify((layoutPreview ?? displayedScene)?.stations.map(s=>({id:s.id,centerMm:s.centerMm})))} data-layout-racks={JSON.stringify((layoutPreview ?? displayedScene)?.racks)} data-layout-locations={JSON.stringify((layoutPreview ?? displayedScene)?.locations)} data-current-layout-racks={JSON.stringify(currentOk?.scene.racks)} data-current-layout-centres={JSON.stringify(currentOk?.scene.stations.map(s=>({id:s.id,centerMm:s.centerMm})))}>
             <div className="warehouse-head"><h2>Warehouse</h2><span className="proxy-ribbon">{layoutEditing || assistantPreview ? "Proposed initial layout (paused)" : inspect ? inspect.label : "Current · live engine"}</span></div>
             <OperationsView scene={layoutPreview ?? displayedScene} snapshot={layoutEditing || assistantPreview ? null : snapshot} selection={selection} labelLayer={labelLayer} onStats={setStats} onSelectionChange={(sel) => { setSelection(sel); if (sel) setAssistantFocus(false); }} />
             <p className="hint">Click a worker, slot, rack or station in the warehouse to inspect it. Click empty ground to return to the assistant. Top / Overview / Inspect views are in the viewer controls.</p>
@@ -362,7 +362,7 @@ export function WarehouseWorkspace(props: {
         </div>
 
         <div className="panel ws-results" data-testid="ws-results">
-          <details><summary>Layout test history ({layoutHistory.length})</summary>{layoutHistory.map((r,i) => <p key={i}>Previous evidence {i+1}: {r.commonInputs.scenario.id}, {r.improvement}; input {r.parentIdentity.scenarioContentSha256}.<button onClick={() => { const url=URL.createObjectURL(new Blob([JSON.stringify(r,null,2)],{type:"application/json"})); const a=document.createElement("a"); a.href=url; a.download=`layout-test-${i+1}.json`; a.click(); URL.revokeObjectURL(url); }}>Export history {i+1}</button></p>)}</details>
+          <details><summary>Layout test history ({layoutHistory.length})</summary>{layoutHistory.map((r,i) => <p key={i}>Previous evidence {i+1}: {r.commonInputs.scenario.id}, {r.improvement}; {r.schema}; input {r.schema === "layoutlab.rack-comparison/1" ? r.parentHash : r.parentIdentity.scenarioContentSha256}.<button onClick={() => { const url=URL.createObjectURL(new Blob([JSON.stringify(r,null,2)],{type:"application/json"})); const a=document.createElement("a"); a.href=url; a.download=`layout-test-${i+1}.json`; a.click(); URL.revokeObjectURL(url); }}>Export history {i+1}</button></p>)}</details>
           <h2>Service-duration results</h2>
           {!report && !comparison && <p className="hint">No test results yet. Run the warehouse, then test a supported change in the assistant. Results stay here — the warehouse above never changes pages.</p>}
           {holder.provenance && report && <p className="hint" data-testid="ws-results-provenance"><strong>{holder.provenance.label}</strong> · run <span className="mono">{report.runId}</span> · {report.providerKind === "meta" ? `${report.realMetaRequests} historical Meta requests (not new inference)` : "0 real Meta requests"} · {stale ? "previous results for another warehouse input" : report.versions.simulation !== implVersion ? `recorded on engine ${report.versions.simulation} (current ${implVersion}); inspection replays the recorded engine` : "matches the current warehouse input"}</p>}

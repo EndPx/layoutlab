@@ -1,4 +1,4 @@
-import { MAIN_WAREHOUSE_ATTACHMENTS, buildStationAttachmentMap, type StationAttachment } from "@layoutlab/simulation";
+import { MAIN_WAREHOUSE_ATTACHMENTS, buildStationAttachmentMap, buildRackAttachmentMap, applyRackTranslation, canonicalStringify, type StationAttachment } from "@layoutlab/simulation";
 // Operations scene-input boundary: the typed bridge between the canonical
 // operations fixture and the warehouse renderer.
 //
@@ -910,11 +910,29 @@ export function resolveLayoutAttachments(scenario: OperationsScenario): StationA
     const resource = normalized.resources.find(r => r.id === a.resourceId)!;
     resource.servicePositions = structuredClone(a.servicePositions); resource.queueSlots = structuredClone(a.queueSlots);
   }
-  assertDerivedFixtureCompatible(parseOperationsScenario(fixtureJson),normalized);
+  const canonical = parseOperationsScenario(fixtureJson);
+  const rackMap = buildRackAttachmentMap(canonical);
+  for (const rack of scenario.geometry.racks) {
+    const original = rackMap.get(rack.id);
+    if (!original) throw new Error(`Unsupported rack ${rack.id}`);
+    const expected = applyRackTranslation(canonical, { kind: 'RACK_TRANSLATION', proposalId: 'scene-rigid-check', entityId: rack.id, parent: { scenarioId: canonical.id, scenarioContentSha256: '0'.repeat(64), schemaVersion: canonical.schemaVersion, engineVersion: canonical.engineVersion }, target: { mode: 'ABSOLUTE_CENTER_MM', centerMm: rack.positionMm } }, rackMap).viewerPlacement;
+    const actual = buildRackAttachmentMap(scenario).get(rack.id);
+    if (canonicalStringify(expected) !== canonicalStringify(actual)) throw new Error(`Rack ${rack.id}: non-rigid racks/owned anchor/approach geometry rejected`);
+    normalized.geometry.racks[normalized.geometry.racks.findIndex(r => r.id === rack.id)] = structuredClone(original.rack);
+    for (const slot of original.slots) {
+      const row = normalized.locations.find(l => l.id === slot.id)!;
+      row.storageAnchorMm = structuredClone(slot.storageAnchorMm); row.approachPointMm = structuredClone(slot.approachPointMm);
+    }
+  }
+  assertDerivedFixtureCompatible(canonical,normalized);
   return resolved;
 }
-export function buildLayoutScene(bundle: import("@layoutlab/simulation").CandidateBundle): OperationsScene {
+export function buildLayoutScene(bundle: import("@layoutlab/simulation").CandidateBundle | ReturnType<typeof applyRackTranslation>): OperationsScene {
   const scene = buildSceneForScenario(bundle.scenario);
-  scene.layoutGhost = bundle.attachmentsBefore;
+  const before = bundle.attachmentsBefore;
+  if ('rackId' in before) {
+    const r = before.rack;
+    scene.layoutGhost = { stationId: r.id, centreMm: { ...r.positionMm }, obstacleRectMm: { minXMm: r.positionMm.x-r.dimensionsMm.width/2, maxXMm: r.positionMm.x+r.dimensionsMm.width/2, minZMm: r.positionMm.z-r.dimensionsMm.depth/2, maxZMm: r.positionMm.z+r.dimensionsMm.depth/2 } };
+  } else scene.layoutGhost = before;
   return scene;
 }
