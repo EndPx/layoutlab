@@ -232,3 +232,7 @@ shipped experience is the six-order picking/packing stage
 (`READY_FOR_DISPATCH`, 0 shipped); dispatch/shipping, inbound/put-away
 and the Meta Experimenter remain unimplemented, and public Live Meta
 stays disabled pending its separate budget-guard gate.
+
+## L1 public release — 2026-11-05
+
+Release267af5a replaces5cd1655 on the existing native LayoutLab service. Unified workspace, versioned replay and manual packing-station layout editing are live. Public Edge tested baseline -> snap station Z4039 to4000 -> validate -> real local engine compare -> export -> independent offline recompute -> Apply -> Reset -> Return to original. Candidate was worse and displayed honestly. No page errors, no POST requests, and public budget response remained identical (available0). Native build passed and persisted ledger bytes were unchanged. See evidence/sanitized/l1-public/review.json and comparison-edge.png. This does not prove new Meta inference access; no model request was sent. Rack rotation, initial-agent placement, model-generated physical layout proposals and human integration are not completed by this release.
