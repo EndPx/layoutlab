@@ -1,0 +1,7 @@
+{
+  "scope": "MOCK HTTP verification response race; production local candidate resolver",
+  "clearedInitially": true,
+  "previewReturnedAfterExplicitDiscard": false,
+  "applyEnabledAfterDiscard": false,
+  "realMetaRequests": 0
+}

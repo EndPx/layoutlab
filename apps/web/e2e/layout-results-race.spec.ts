@@ -1,0 +1,10 @@
+import {test,expect} from '@playwright/test';
+import {readFileSync} from 'node:fs';
+test('MOCK verifier race only: context change discards delayed full-report verification',async({page})=>{
+ const report=JSON.parse(readFileSync('public/evidence/layout-investigation-fixture.json','utf8'));
+ let release:(()=>void)|undefined,verifies=0;const posts:string[]=[];page.on('request',r=>{if(r.method()==='POST')posts.push(new URL(r.url()).pathname);});
+ await page.route('**/api/status',r=>r.fulfill({json:{liveAvailable:false}}));await page.route('**/api/budget',r=>r.fulfill({json:{guard:'active',availableUsd:0,perRunReservationUsd:0.25}}));
+ await page.route('**/api/operations/layout-investigations/verify',async r=>{verifies++;await new Promise<void>(resolve=>release=resolve);await r.fulfill({json:{ok:true,mismatches:[]}}).catch(()=>{});});
+ await page.goto('/');await page.getByTestId('assistant-action').selectOption('layout');await page.getByTestId('layout-recorded').click();await expect(page.getByTestId('layout-source')).toContainText('Recorded FIXTURE');await page.getByTestId('layout-result-select').selectOption(report.proposals[1].candidateId);await page.getByTestId('layout-preview').click();await expect.poll(()=>!!release).toBe(true);await page.getByTestId('ws-scenario').selectOption('full');release!();await expect(page.getByTestId('layout-result-apply')).toBeDisabled();await expect(page.getByTestId('layout-preview-notice')).toHaveCount(0);expect(verifies).toBe(1);expect(posts).toEqual(['/api/operations/layout-investigations/verify']);
+ let releaseLoad:(()=>void)|undefined;await page.route('**/evidence/layout-investigation-fixture.json',async r=>{await new Promise<void>(resolve=>releaseLoad=resolve);await r.fulfill({status:404,body:'obsolete load failure'});});await page.getByTestId('layout-recorded').click();await expect.poll(()=>!!releaseLoad).toBe(true);await page.getByTestId('ws-scenario').selectOption('burst');releaseLoad!();await expect(page.getByTestId('layout-results').getByRole('alert')).toHaveCount(0);await expect(page.getByTestId('layout-result-apply')).toBeDisabled();
+});

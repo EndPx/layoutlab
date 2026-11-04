@@ -26,6 +26,7 @@ import { canonicalIdentity, replayVersion, friendlyCandidateStatus, completionLa
 import { OperationsView, type LabelLayer, type OpsRenderStats } from "./OperationsView";
 import { fmtClock, selectionDetail } from "./OperationsPanel";
 import { LayoutEditor } from "./LayoutEditor";
+import { useLayoutResults } from "./LayoutResults";
 import { useLayoutAssistant } from "./LayoutAssistant";
 import { WarehouseAssistant } from "./WarehouseAssistant";
 import type { ExperimentsHolder } from "./ExperimentsPanel";
@@ -53,6 +54,7 @@ export function WarehouseWorkspace(props: {
   const [current, setCurrent] = useState<CurrentContext | { error: string }>(() => {
     try { return buildBurstContext(); } catch (e) { return { error: e instanceof Error ? e.message : String(e) }; }
   });
+  const [assistantPreview, setAssistantPreview] = useState(false);
   const [layoutPreview, setLayoutPreview] = useState<OperationsScene | null>(null);
   const [layoutEpoch, setLayoutEpoch] = useState(0);
   const [layoutHistory, setLayoutHistory] = useState<import("@layoutlab/simulation").LayoutComparisonResult[]>([]);
@@ -81,6 +83,11 @@ export function WarehouseWorkspace(props: {
   const activeExec = currentOk?.executionConfig ?? null;
   const implVersion = currentOk?.implementationVersion ?? currentImplementationVersion();
   const layoutHolder = useLayoutAssistant({scenario: activeScenario, executionConfig: activeExec, implementationVersion: implVersion});
+  const layoutResults = useLayoutResults({contextRevision:layoutEpoch,assistant:layoutHolder,scenario:activeScenario,executionConfig:activeExec,implementationVersion:implVersion,
+    onPreview:scene=>{setLayoutPreview(scene);setAssistantPreview(!!scene);if(scene){setPlaying(false);setInspect(null);}},
+    onApply:(scene,comparison)=>{if(!currentOk||!activeExec)return;if(!originalContext.current)originalContext.current=currentOk;setLayoutHistory(h=>[...h,comparison]);setPlaying(false);setInspect(null);setSelection(null);setLayoutEditing(false);setAssistantPreview(false);setLayoutPreview(null);setLayoutEpoch(e=>e+1);setCurrent({...currentOk,scene:{...scene,layoutGhost:undefined},controller:createControllerForVersioned(scene.scenario,activeExec,implVersion)});},
+    onLoadInput:report=>{try{const scene=buildSceneForScenario(report.input.scenario);const controller=createControllerForVersioned(scene.scenario,report.input.executionConfig,report.implementationVersion);if(currentOk&&!originalContext.current)originalContext.current=currentOk;layoutHolder.adoptReportContext();setPlaying(false);setInspect(null);setSelection(null);setLayoutEditing(false);setAssistantPreview(false);setLayoutPreview(null);setLayoutEpoch(e=>e+1);setCurrent({key:'recorded',label:'Layout report input',implementationVersion:report.implementationVersion,scene,controller,executionConfig:report.input.executionConfig});}catch(e){setEngineError(String(e));}}
+  });
 
   // Sync presented snapshot whenever the displayed controller changes
   // (scenario switch, candidate inspection, return to current, reset).
@@ -148,7 +155,7 @@ export function WarehouseWorkspace(props: {
 
   const switchScenario = (key: string): void => {
     originalContext.current = null;
-    setLayoutEditing(false); setLayoutPreview(null); setLayoutEpoch(e => e+1);
+    setAssistantPreview(false); setLayoutEditing(false); setLayoutPreview(null); setLayoutEpoch(e => e+1);
     setPlaying(false); setInspect(null); setInspectError(null); setSelection(null); setAssistantFocus(false);
     try {
       setCurrent(key === "full" ? buildFullContext() : buildBurstContext());
@@ -156,7 +163,7 @@ export function WarehouseWorkspace(props: {
   };
 
   const resetCurrent = (): void => {
-    setLayoutEditing(false); setLayoutPreview(null); setLayoutEpoch(e => e+1);
+    setAssistantPreview(false); setLayoutEditing(false); setLayoutPreview(null); setLayoutEpoch(e => e+1);
     setPlaying(false); setSelection(null);
     if (inspect) {
       // Reset replays the inspected option from its own inputs.
@@ -199,7 +206,7 @@ export function WarehouseWorkspace(props: {
     try {
       const scene = buildSceneForScenario(report.input.scenario);
       const controller = createControllerForVersioned(report.input.scenario, report.input.executionConfig, replayVersion(report));
-      setLayoutEditing(false); setLayoutPreview(null); setLayoutEpoch(e => e+1);
+      setAssistantPreview(false); setLayoutEditing(false); setLayoutPreview(null); setLayoutEpoch(e => e+1);
       setInspect(null); setSelection(null); setPlaying(false);
       setCurrent({ implementationVersion: replayVersion(report), key: "recorded", label: `Recorded scenario — ${report.input.scenario.id}`, scene, controller, executionConfig: report.input.executionConfig });
     } catch (e) { setInspectError(`Recorded scenario unavailable: ${e instanceof Error ? e.message : String(e)}`); }
@@ -298,10 +305,10 @@ export function WarehouseWorkspace(props: {
         <div className="ws-controls" role="group" aria-label="Warehouse playback controls" data-testid="ws-controls">
           {playing
             ? <button type="button" className="primary" data-testid="ws-pause" onClick={() => setPlaying(false)}>⏸ Pause</button>
-            : <button type="button" className="primary" data-testid="ws-run" onClick={() => { if (layoutEditing) return; setEngineError(null); setPlaying(true); }} disabled={engineError !== null || layoutEditing}>▶ Run warehouse</button>}
+            : <button type="button" className="primary" data-testid="ws-run" onClick={() => { if (layoutEditing || assistantPreview) return; setEngineError(null); setPlaying(true); }} disabled={engineError !== null || layoutEditing || assistantPreview}>▶ Run warehouse</button>}
           {originalContext.current && <button data-testid="layout-return-original" onClick={() => { if (!originalContext.current) return; setPlaying(false); setInspect(null); setLayoutEditing(false); setLayoutPreview(null); setCurrent(originalContext.current); originalContext.current = null; setLayoutEpoch(e => e+1); }}>Return to original run</button>}
           <button type="button" data-testid="ws-reset" onClick={resetCurrent}>↺ Reset</button>
-          <button type="button" data-testid="ws-step" disabled={playing || layoutEditing} onClick={stepOnce} title="Advance exactly one engine event">Step event</button>
+          <button type="button" data-testid="ws-step" disabled={playing || layoutEditing || assistantPreview} onClick={stepOnce} title="Advance exactly one engine event">Step event</button>
           <div className="segmented" role="group" aria-label="Playback speed">
             {([1, 4, 16] as Speed[]).map((s) => <button key={s} type="button" aria-pressed={speed === s} className={speed === s ? "on" : ""} data-testid={`ws-speed-${s}`} onClick={() => setSpeed(s)}>{s}x</button>)}
           </div>
@@ -310,14 +317,14 @@ export function WarehouseWorkspace(props: {
         </div>
 
         <div className="ws-workspace">
-          <div className="panel ws-viewport" data-testid="ws-viewport-panel">
-            <div className="warehouse-head"><h2>Warehouse</h2><span className="proxy-ribbon">{layoutEditing ? "Proposed initial layout (paused)" : inspect ? inspect.label : "Current · live engine"}</span></div>
-            <OperationsView scene={layoutPreview ?? displayedScene} snapshot={layoutEditing ? null : snapshot} selection={selection} labelLayer={labelLayer} onStats={setStats} onSelectionChange={(sel) => { setSelection(sel); if (sel) setAssistantFocus(false); }} />
+          <div className="panel ws-viewport" data-testid="ws-viewport-panel" data-layout-centres={JSON.stringify((layoutPreview ?? displayedScene)?.stations.map(s=>({id:s.id,centerMm:s.centerMm})))} data-current-layout-centres={JSON.stringify(currentOk?.scene.stations.map(s=>({id:s.id,centerMm:s.centerMm})))}>
+            <div className="warehouse-head"><h2>Warehouse</h2><span className="proxy-ribbon">{layoutEditing || assistantPreview ? "Proposed initial layout (paused)" : inspect ? inspect.label : "Current · live engine"}</span></div>
+            <OperationsView scene={layoutPreview ?? displayedScene} snapshot={layoutEditing || assistantPreview ? null : snapshot} selection={selection} labelLayer={labelLayer} onStats={setStats} onSelectionChange={(sel) => { setSelection(sel); if (sel) setAssistantFocus(false); }} />
             <p className="hint">Click a worker, slot, rack or station in the warehouse to inspect it. Click empty ground to return to the assistant. Top / Overview / Inspect views are in the viewer controls.</p>
           </div>
           <div className="panel ws-side" data-testid="ws-side">
             <LayoutEditor key={layoutEpoch} scene={currentOk.scene} executionConfig={activeExec} implementationVersion={implVersion} selection={selection} onResult={r => setLayoutHistory(h => [...h, r])}
-              onEditing={editing => { setLayoutEditing(editing); setPlaying(false); setInspect(null); }} onPreview={setLayoutPreview}
+              onEditing={editing => { if(editing)layoutResults.clearPreview(); setLayoutEditing(editing); setPlaying(false); setInspect(null); }} onPreview={setLayoutPreview}
               onApply={scene => { if (!originalContext.current) originalContext.current = currentOk; setLayoutEditing(false); setLayoutEpoch(e => e+1); setPlaying(false); setInspect(null); setCurrent({ ...currentOk, scene: { ...scene, layoutGhost: undefined }, controller: createControllerForVersioned(scene.scenario, activeExec, implVersion) }); }} />
             {layoutEditing ? null : selection ? (
               <div data-testid="ws-inspector">
@@ -340,7 +347,7 @@ export function WarehouseWorkspace(props: {
               </div>
             ) : (
               <div data-testid="ws-assistant-wrap" data-focus={assistantFocus ? "true" : "false"}>
-                <WarehouseAssistant holder={holder} onChange={onChange} scenario={activeScenario} executionConfig={activeExec} layoutHolder={layoutHolder} loadError={null} />
+                <WarehouseAssistant holder={holder} onChange={onChange} scenario={activeScenario} executionConfig={activeExec} layoutHolder={layoutHolder} layoutResults={layoutResults} loadError={null} />
                 <label>Inspect without clicking (fallback)
                   <select data-testid="ws-select-assistant" value="" onChange={(e) => { const v = e.target.value; if (!v) return; const [kind, id] = v.split(":"); if ((kind === "location" || kind === "rack" || kind === "unit" || kind === "resource" || kind === "order") && id) setSelection({ kind, id }); }}>
                     <option value="">Choose a worker, slot, rack, station or order…</option>
@@ -356,7 +363,7 @@ export function WarehouseWorkspace(props: {
 
         <div className="panel ws-results" data-testid="ws-results">
           <details><summary>Layout test history ({layoutHistory.length})</summary>{layoutHistory.map((r,i) => <p key={i}>Previous evidence {i+1}: {r.commonInputs.scenario.id}, {r.improvement}; input {r.parentIdentity.scenarioContentSha256}.<button onClick={() => { const url=URL.createObjectURL(new Blob([JSON.stringify(r,null,2)],{type:"application/json"})); const a=document.createElement("a"); a.href=url; a.download=`layout-test-${i+1}.json`; a.click(); URL.revokeObjectURL(url); }}>Export history {i+1}</button></p>)}</details>
-          <h2>Current vs proposed</h2>
+          <h2>Service-duration results</h2>
           {!report && !comparison && <p className="hint">No test results yet. Run the warehouse, then test a supported change in the assistant. Results stay here — the warehouse above never changes pages.</p>}
           {holder.provenance && report && <p className="hint" data-testid="ws-results-provenance"><strong>{holder.provenance.label}</strong> · run <span className="mono">{report.runId}</span> · {report.providerKind === "meta" ? `${report.realMetaRequests} historical Meta requests (not new inference)` : "0 real Meta requests"} · {stale ? "previous results for another warehouse input" : report.versions.simulation !== implVersion ? `recorded on engine ${report.versions.simulation} (current ${implVersion}); inspection replays the recorded engine` : "matches the current warehouse input"}</p>}
           {candidates.length > 0 && (

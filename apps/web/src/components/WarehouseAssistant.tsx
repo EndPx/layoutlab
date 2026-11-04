@@ -3,6 +3,7 @@
 // actual progress. Only Start can spend; polling/replay/verify never POST a
 // new run. Raw patches/schemas/budgets/request metadata live under
 // Technical details, never as the primary story.
+import { LayoutResults, type LayoutResultsHolder } from "./LayoutResults";
 import { LayoutAssistant, type LayoutAssistantHolder } from "./LayoutAssistant";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { InterventionPolicy, OperationsScenario } from "@layoutlab/simulation";
@@ -43,6 +44,7 @@ export function WarehouseAssistant(props: {
   executionConfig: { pickDurationMsPerItem: number; unloadDurationMsPerItem: number } | null;
   loadError: string | null;
   layoutHolder: LayoutAssistantHolder;
+  layoutResults: LayoutResultsHolder;
 }): React.JSX.Element {
   const { action, setAction } = props.layoutHolder;
   const { holder, onChange, scenario, executionConfig } = props;
@@ -209,7 +211,7 @@ export function WarehouseAssistant(props: {
   return (
     <>
     <label>Supported action<select data-testid="assistant-action" value={action} onChange={e => setAction(e.target.value)}><option value="service">Hypothetical service-duration testing</option><option value="layout">Packing-station layout testing</option></select></label>
-    <div hidden={action !== "layout"}><LayoutAssistant holder={props.layoutHolder} /></div>
+    <div hidden={action !== "layout"}><LayoutAssistant holder={props.layoutHolder} /><LayoutResults holder={props.layoutResults} /></div>
     <div hidden={action !== "service"}>
     <div data-testid="ws-assistant">
       <h2>Warehouse assistant</h2>
