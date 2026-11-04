@@ -1,9 +1,27 @@
-# Restricted public deployment
+# Public deployment and restricted live inference
 
 Target: `https://layoutlab.endpx.cloud`. The user authorized the existing
 Hostinger VPS, restricted password/Basic Auth access, and US$1 total for the
 initial public Live Meta test, separate from the completed US$1.50 benchmark.
 The public allowance must persist without automatic replenishment.
+
+## Anonymous website access (2026-11-04)
+
+The user approved opening the website, simulation, recorded evidence and
+verification to anonymous visitors. Only live inference routes require the
+existing judge credentials. The root URL redirects to `?mode=operations`.
+Nginx protects `/api/runs/*`, `/api/operations/proposals*` and investigation
+routes, with the exact `/api/operations/investigations/verify` endpoint public.
+`/live-access?mode=experiments` provides the protected browser sign-in entry.
+The model key remains on the server; Basic Auth is stripped before proxying.
+
+Verified anonymous UI/status/budget200, protected routes401, authenticated
+unlock200 and unknown run404, private source paths404, ledger unchanged.
+Evidence: `evidence/sanitized/public-access-split.json`. No model calls were
+made by this access change; available conservative allowance stayedUS$0.25.
+Only this Nginx site changed, with a private backup and passing nginx -t.
+The Experiments UI sign-in guidance is being integrated before its release.
+Share live credentials only in judge-private access notes, not public copy.
 
 ## E4a backend release and real investigation (2026-11-04, latest)
 

@@ -9,7 +9,7 @@ measures every candidate; proposals come from a clearly labeled stub
 native server API with user approval. Racks stay fixed; only assignments
 change.
 
-Status (2026-11-04): the restricted [web preview](https://layoutlab.endpx.cloud)
+Status (2026-11-04): the public [web preview](https://layoutlab.endpx.cloud)
 runs release `f24a6a1` with the main warehouse scene, engine-driven operations,
 dispatch, inbound/put-away, split trips, and operations report replay. The
 18-trial storage-planning Meta benchmark remains separate, completed evidence.
@@ -34,6 +34,17 @@ Controlled comparisons enforce explicit permissions, retain invalid/incomplete
 candidates, and export replayable reports. The bounded Meta backend now uses
 engine feedback and run-linked recommendations. The user-facing Experiments
 workflow and equal-budget AI contribution evaluation remain in progress.
+
+The website, sample simulation and recorded evidence are open without login.
+The root URL opens Operations. Only routes that start or manage live Meta
+inference require judge access; use the private credentials supplied by the
+project owner. Never publish the password in a public submission description.
+
+The current realism work is tracked in
+[warehouse requirements](docs/WAREHOUSE_REALISM_REQUIREMENTS.md): human
+workers, solid visible cargo, better source-material rendering, physical
+movement and shared planning/operations inputs. The current cart-based
+synthetic view does not yet satisfy that expanded acceptance gate.
 
 ## Native start (Node 24.18 tested, no Docker)
 

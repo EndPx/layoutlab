@@ -1,0 +1,46 @@
+{
+  "checkedAt": "2026-11-04T10:09:23.342Z",
+  "anonymousChecks": [
+    {
+      "path": "/?mode=operations",
+      "status": 200
+    },
+    {
+      "path": "/api/status",
+      "status": 200
+    },
+    {
+      "path": "/api/budget",
+      "status": 200
+    },
+    {
+      "path": "/api/runs/not-a-run",
+      "status": 401
+    },
+    {
+      "path": "/api/operations/investigations/not-a-run",
+      "status": 401
+    },
+    {
+      "path": "/api/operations/proposals",
+      "status": 401
+    },
+    {
+      "path": "/live-access?mode=experiments",
+      "status": 401
+    },
+    {
+      "path": "/.env",
+      "status": 404
+    },
+    {
+      "path": "/.git/config",
+      "status": 404
+    }
+  ],
+  "authenticatedUnlockStatus": 200,
+  "authenticatedUnknownRunStatus": 404,
+  "budgetUnchanged": true,
+  "realMetaRequests": 0,
+  "availableUsd": 0.25
+}
