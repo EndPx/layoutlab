@@ -219,3 +219,94 @@ endpoints remain L2b2; L2c workspace/UI and full L2 acceptance remain pending.
 No paid calls, ledger refill, commit, push or deployment occurred.
 
 Coordinator L2b1 review accepted2026-11-05: source-level admission lock precedes async create, claim is mapped before start, waiting approval preserves ownership, cancellation settlement waits for task unwind. Three focused HTTP tests cover the stated first slice only. L2b2 still must prove approved continuation with same claim at available0, all existing paid-route conflicts, automatic timeout settlement, guard loss, report/verify/tamper, and deployment auth mapping. No public release authorization from this slice alone.
+
+## L2b2 approval and replay HTTP contract — 2026-11-05
+
+All paths share `/api/operations/layout-investigations`. Create, poll and cancel
+remain as documented above. New endpoints:
+
+- `POST /:id/approve`: strict `{approval: LayoutInterpretation}`. Approval includes
+  objective, constraints and allowedRegions using the L2a interpretation schema;
+  corrected fields become the sole approved authority. Returns202 with the full
+  `layoutlab.layout-investigation/1` record in RUNNING. Unknown ID returns404;
+  malformed envelope/authority returns400; wrong/closed/expired phase returns409
+  NOT_AWAITING_APPROVAL; unavailable held ledger returns503. No new reservation,
+  deadline or counter reset occurs. Existing inference-start rate limit applies.
+- `GET /:id/report`:200 with a cloned L2a report (same shape as poll), including
+  input, interpreted/approved authority, baseline, request/proposal evidence,
+  recommendation, limits, budget counters and version fields. Unknown ID404.
+- `POST /verify`: strict `{report: LayoutInvestigationReport}`;200 with
+  `{ok:boolean,mismatches:string[]}`. Invalid replay evidence returns ok:false;
+  malformed envelope returns400. This endpoint is keyless, never calls a model,
+  never reads/mutates the budget and uses the approved asynchronous L2a verifier
+  and production engine. Safe-route rate limiting applies. All bodies remain
+  bounded at1MB (413 above bound); the encoded fixture report measuredapproximately 273,246
+  bytes and a full three-proposal envelope measuredapproximately 500,730 bytes. No cap increase
+  was necessary for these maximum-count fixture exports.
+
+Errors use `{code,message}` with sanitized bounded messages; inference setup
+failure retains `{status:"setup_required",reason}`. Polling is never required
+for terminal budget settlement. Phase task assignment precedes execution, so
+approval completion/cancellation waits for the current task before releasing
+shared ownership. The fixture provider label is loopback-fake-meta, report schema
+layoutlab.layout-investigation/1 and prompt layoutlab.layout-investigation-prompt/1.
+
+Deployment auth gate remains coordinator-owned. Required Nginx plan: an exact
+`location = /api/operations/layout-investigations/verify` is public with
+`auth_basic off` and the established loopback proxy settings; a prefix
+`location ^~ /api/operations/layout-investigations` inherits/enables the existing
+Basic auth credentials and the same proxy settings, including stripping the
+Authorization header before proxying as in the deployed convention. The protected prefix covers
+create, poll, approve, cancel and report, while the exact verify location wins
+Nginx matching. Keep the1MB request body limit on both. These are required future
+configuration changes, not evidence that current public Nginx protects new
+paths; no VPS change or deployment occurred. L2c workspace/UI remains pending
+and full L2 is incomplete.
+
+L2b2 final verification:
+
+- `npx tsc -p apps/api/tsconfig.build.json`: passed.
+- `npx vitest run apps/api/test/layout-http-admission.test.ts apps/api/test/layout-investigations-review.test.ts --maxWorkers=1 --testTimeout=120000`:
+  2 files,14 tests passed in205.91s (8 HTTP cases and6 accepted L2a regressions).
+- HTTP cases cover corrected approval at available0, exact manual comparison,
+  invalid-feedback revision, report/keyless replay and geometry/totals tampering,
+  missing guard before approval, deadline settlement checked directly in ledger
+  without polling, pre-dispatch release, in-flight cancellation ownership until
+  unwind, legacy create/approve, service and one-shot competition in both
+  directions, malformed admission and repeated approval refusal.
+- Earlier expanded run caught service admission consulting the ledger before
+  layout ownership (402 rather than429 at zero allowance). The layout-busy
+  check now runs before reservation; the final combined run includes this fix.
+- `git diff --check`: passed. No root/shared-engine build or paid calls.
+
+Sanitized replay/size evidence: `evidence/sanitized/l2b/http-replay.json`.
+
+
+## L2b verifier admission hardening ? 2026-11-05
+
+Report verification now refuses malformed envelopes, illegal declared limits,
+request/proposal hard-cap violations, counter mismatches, invalid request
+sequences and duplicate proposal/rejection links before production-engine replay.
+The admission gate preserves pending/cancelled lifecycle evidence and the L2a
+rejection derivation; replay still uses the same evaluator. Version, fixed-input,
+canonical attachment and interpreted/approved authority checks also precede
+baseline recomputation. No HTTP/public configuration or UI behavior changed.
+
+`apps/api/test/layout-verifier-admission.test.ts` spies on the real simulation
+exports: malformed/over-limit cases must call neither runLayoutComparison nor
+validateLayoutCandidate, while the unmodified saved fixture recomputes exactly.
+HTTP test JSON typing was corrected locally for API-wide typechecking; no HTTP
+test behavior changed. Byte sizes above are approximate because serialized
+request-duration fields can vary by a byte between fixture runs.
+
+Hardening validation: direct `npx tsc -p apps/api/tsconfig.build.json`,
+`npm run typecheck --workspace @layoutlab/api` and `git diff --check` passed.
+The targeted admission plus accepted review suites passed8 tests in114.50s;
+after final metadata gate cleanup, admission-only rerun passed2 tests in22.17s.
+Commands used `npx vitest run` with `--maxWorkers=1 --testTimeout=120000` and
+only `layout-verifier-admission.test.ts` / `layout-investigations-review.test.ts`.
+API dist was refreshed on final source. No paid calls, commit, push or deployment.
+
+## Coordinator acceptance — L2b local API, 2026-11-05
+
+HTTP/source review accepted: one-claim approval lifecycle, current-phase task settlement and cross-route admission are implemented with focused fixture evidence. Independent keyless HTTP verification returned200/ok with zero provider calls and strict extra-envelope400. Coordinator reran the early-admission test (1 test containing10 malformed cases; clean replay test intentionally skipped in that rerun), proving no comparison/validation calls on bad caps/envelopes/links. Clean production replay is covered by the recorded worker checks. L2b is ready for L2c integration, not public deployment. Protected Nginx prefix/exact public verify exception and complete UI fixture acceptance remain required. Payload sizing evidence covers measured synthetic fixture envelopes only, not arbitrary future workloads. Runtime provider stays Meta; no new inference authorization.

@@ -1,0 +1,26 @@
+{
+  "provider": "loopback-fake-meta",
+  "schema": "layoutlab.layout-investigation/1",
+  "promptVersion": "layoutlab.layout-investigation-prompt/1",
+  "implementationVersion": "0.1.1",
+  "reportBytes": 273246,
+  "maxThreeProposalEnvelopeBytes": 500730,
+  "verifyLimitBytes": 1048576,
+  "providerCalls": 4,
+  "paidCalls": 0,
+  "state": "COMPLETED",
+  "finalTests": {
+    "files": 2,
+    "passed": 14,
+    "httpCases": 8,
+    "acceptedL2aRegressions": 6,
+    "durationSeconds": 205.91,
+    "command": "npx vitest run apps/api/test/layout-http-admission.test.ts apps/api/test/layout-investigations-review.test.ts --maxWorkers=1 --testTimeout=120000"
+  },
+  "apiCompilation": "passed",
+  "deployed": false,
+  "pending": [
+    "coordinator Nginx auth gate",
+    "L2c workspace UI"
+  ]
+}

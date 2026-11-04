@@ -1,0 +1,9 @@
+{
+  "httpStatus": 200,
+  "verification": {
+    "ok": true,
+    "mismatches": []
+  },
+  "unknownEnvelopeFieldStatus": 400,
+  "providerCalls": 0
+}

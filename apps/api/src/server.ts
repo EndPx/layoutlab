@@ -1,4 +1,4 @@
-import { LayoutInvestigationStore, parseLayoutInvestigationInput } from "./layout-investigations.js";
+import { LayoutInvestigationStore, parseLayoutInvestigationInput, parseLayoutApproval, verifyLayoutInvestigationExport } from "./layout-investigations.js";
 // Express app factory for M3 (+M6B same-origin production). Same-origin only
 // (no CORS wildcard); the Vite dev server proxies /api to this loopback API
 // in development, while `npm start` serves the built web from this same app.
@@ -565,6 +565,38 @@ export function createApp(opts: {
       next(e);
     } finally { if (admitted) layoutAdmissionPending = false; }
   });
+  app.post("/api/operations/layout-investigations/verify", async (req, res, next) => {
+    const parsed = z.strictObject({ report: z.unknown() }).safeParse(req.body);
+    if (!parsed.success) { res.status(400).json({ code: "BAD_REQUEST", message: "Body must be { report }." }); return; }
+    try { res.json(await verifyLayoutInvestigationExport(parsed.data.report)); }
+    catch (e) { next(e); }
+  });
+  app.get("/api/operations/layout-investigations/:id/report", (req, res) => {
+    const record = layouts.get(req.params.id);
+    if (!record) { res.status(404).json({ code: "UNKNOWN_INVESTIGATION", message: "Unknown layout investigation." }); return; }
+    res.json(layouts.buildReport(record));
+  });
+  app.post("/api/operations/layout-investigations/:id/approve", (req, res, next) => {
+    try {
+      const parsed = z.strictObject({ approval: z.unknown() }).safeParse(req.body);
+      if (!parsed.success) { res.status(400).json({ code: "BAD_REQUEST", message: "Body must be { approval }." }); return; }
+      const record = layouts.get(req.params.id);
+      if (!record) { res.status(404).json({ code: "UNKNOWN_INVESTIGATION", message: "Unknown layout investigation." }); return; }
+      if (record.report.state !== "AWAITING_APPROVAL" || Date.now() >= record.report.deadlineAt) {
+        res.status(409).json({ code: "NOT_AWAITING_APPROVAL", message: "Layout investigation is not awaiting approval." }); return;
+      }
+      let approval;
+      try { approval = parseLayoutApproval(parsed.data.approval, record.report.input); }
+      catch { res.status(400).json({ code: "BAD_REQUEST", message: "Invalid layout approval." }); return; }
+      if (budgetGuard) {
+        const claim = layoutClaims.get(record.report.runId);
+        if (!claim) throw new BudgetGuardError("BUDGET_GUARD_UNAVAILABLE", 503, "Missing layout reservation");
+        budgetGuard.assertReservation(claim, config.publicBudgetPerRunUsd);
+      }
+      layouts.approve(record.report.runId, approval, fetchImpl);
+      res.status(202).json(layouts.toSummary(record));
+    } catch (e) { next(e); }
+  });
   app.get("/api/operations/layout-investigations/:id", (req, res) => {
     const record = layouts.get(req.params.id);
     if (!record) { res.status(404).json({ code: "UNKNOWN_INVESTIGATION", message: "Unknown layout investigation." }); return; }
@@ -589,6 +621,7 @@ export function createApp(opts: {
       // Strict local preflight BEFORE the durable claim: malformed input
       // spends nothing, calls nothing, and reserves nothing.
       const input = parseInvestigationInput(req.body);
+      if (layoutBusy()) { res.status(429).json({ code: "CONCURRENCY_LIMIT", message: "Server is busy." }); return; }
       let reservationId: string | null = null;
       if (budgetGuard) {
         reservationId = `investigation:${randomUUID()}`;

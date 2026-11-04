@@ -109,7 +109,7 @@ export class LayoutInvestigationStore {
     this.hooks.onTerminal?.(r);
   }
   private launch(r: LayoutInvestigationRecord, work: () => Promise<void>) {
-    r.task = work().catch(e => { if (this.alive(r)) this.finish(r, "FAILED", sanitizeMessage(e instanceof Error ? e.message : "failed", this.config).slice(0,500)); });
+    r.task = Promise.resolve().then(work).catch(e => { if (this.alive(r)) this.finish(r, "FAILED", sanitizeMessage(e instanceof Error ? e.message : "failed", this.config).slice(0,500)); });
   }
   start(r: LayoutInvestigationRecord, fetchImpl: FetchLike = fetch) {
     if (r.started || r.report.state !== "RUNNING") throw new Error("RUN_CLOSED"); r.started = true;
@@ -203,6 +203,46 @@ export async function verifyLayoutInvestigationExport(value: unknown): Promise<{
     check(exactKeys(r.limits,["requests","proposals","tokens","timeoutMs"]),"limits envelope");
     for(const [n,max] of [[r.limits.requests,4],[r.limits.proposals,3],[r.limits.tokens,2000],[r.limits.timeoutMs,120000]])check(Number.isSafeInteger(n)&&n!>=0&&n!<=max!,"limit bound");
     check(r.limits.tokens>0&&r.limits.timeoutMs>0,"positive limits");
+    // Bound all report-controlled loops and links before any simulator replay.
+    if (!Array.isArray(r.requests) || !Array.isArray(r.proposals) || !Array.isArray(r.rejectedActions)) throw new Error("report arrays");
+    check(Number.isSafeInteger(r.modelRequestsUsed)&&r.modelRequestsUsed>=0&&r.requests.length<=4,"request totals");
+    check(Number.isSafeInteger(r.proposalsUsed)&&r.proposalsUsed>=0&&r.proposals.length<=3,"proposal totals");
+    check(r.rejectedActions.length<=4&&r.rejectedActions.length<=r.requests.length,"rejection links");
+    check(exactKeys(r.budget,["claimId","dispatched"])&&(r.budget.claimId===null||typeof r.budget.claimId==="string"),"budget envelope");
+    check(exactKeys(r.provider,["kind","model"])&&typeof r.provider.model==="string"&&["meta","fixture","unsupported"].includes(r.provider.kind),"provider envelope");
+    check(r.error===null||typeof r.error==="string","error shape");
+    check(r.recommendation===null||(exactKeys(r.recommendation,["candidateId","source"])&&typeof r.recommendation.candidateId==="string"&&["model","deterministic-fallback"].includes(r.recommendation.source)),"recommendation links");
+    check(Array.isArray(r.requests)&&r.requests.length===r.modelRequestsUsed&&r.modelRequestsUsed<=r.limits.requests,"request totals");
+    check(r.budget.dispatched===r.modelRequestsUsed,"dispatched totals");
+    check(Array.isArray(r.proposals)&&r.proposals.length===r.proposalsUsed&&r.proposalsUsed<=r.limits.proposals,"proposal totals");
+    check(r.requests.length===0||r.baseline!==null,"baseline evidence required before dispatch"); check(r.requests.length<2||r.approved!==null,"approval required before subsequent dispatch"); check(r.approved===null||r.interpreted!==null,"interpretation required before approval");
+    check(r.interpreted===null || (r.requests[0]?.phase==="interpretation" && r.requests[0]?.status==="success"),"interpretation requires successful dispatch evidence");
+    check(r.modelRequestsUsed===r.requests.length&&r.budget.dispatched===r.requests.length&&r.proposalsUsed===r.proposals.length,"counter identities");
+    if(mismatches.length)return {ok:false,mismatches};
+    for(const [i,row] of r.requests.entries()) {
+      check(exactKeys(row,["index","phase","status","diagnostics","output","error"]),"request envelope");
+      check(row.index===i+1&&row.phase===(i===0?"interpretation":"proposal"),"request sequence");
+      check(["dispatched","success","failed","aborted"].includes(row.status),"request status"); check(row.diagnostics===null||diagnosticsSchema.safeParse(row.diagnostics).success,"provider diagnostics"); check(row.error===null||typeof row.error==="string","request error");
+    }
+    for(const row of r.requests) if(row.status!=="success") {
+      check(row.index===r.requests.length,"unsettled or failed request must be last");
+      if(row.status==="dispatched")check(["RUNNING","CANCELLED","TIMED_OUT"].includes(r.state),"dispatched request lifecycle");
+      if(row.status==="failed")check(["FAILED","CANCELLED","TIMED_OUT"].includes(r.state),"failed request lifecycle");
+      if(row.status==="aborted")check(["CANCELLED","TIMED_OUT"].includes(r.state),"aborted request lifecycle");
+    }
+    const proposalLinks = new Set<number>();
+    for(const [i,p] of r.proposals.entries()) {
+      check(exactKeys(p,["requestIndex","candidateId","hypothesis","proposal","evaluation"]),"proposal envelope");
+      check(!proposalLinks.has(p.requestIndex)&&p.candidateId===`${r.runId}:candidate-${i+1}`&&r.requests.some(q=>q.index===p.requestIndex&&q.phase==="proposal"&&q.status==="success"),"proposal identity");
+      proposalLinks.add(p.requestIndex);
+      check(typeof p.hypothesis==="string"&&exactKeys(p.evaluation,["validation","regionIssues","comparison"])&&Array.isArray(p.evaluation.regionIssues),"proposal envelope");
+    }
+    const rejectionLinks = new Set<number>();
+    for(const row of r.rejectedActions) {
+      check(exactKeys(row,["requestIndex","reason"])&&typeof row.reason==="string"&&row.reason.length<=500&&r.requests.some(q=>q.index===row.requestIndex&&q.phase==="proposal"&&q.status==="success"),"rejection links");
+      check(!rejectionLinks.has(row.requestIndex),"exact derived rejection evidence");rejectionLinks.add(row.requestIndex);
+    }
+    if(mismatches.length)return {ok:false,mismatches};
     const input=parseLayoutInvestigationInput(r.input);
     equal(await contentSha256(input),r.inputSha256,"fixed input hash");
     const attachments=resolveInvestigationAttachments(input.scenario);
@@ -216,28 +256,18 @@ export async function verifyLayoutInvestigationExport(value: unknown): Promise<{
     check(r.modelRequestsUsed===r.requests.length&&r.budget.dispatched===r.requests.length&&r.proposalsUsed===r.proposals.length,"counter identities");
     if(mismatches.length)return {ok:false,mismatches};
     equal(attachments,r.attachments,"canonical attachments");
-    check(exactKeys(r.budget,["claimId","dispatched"])&&(r.budget.claimId===null||typeof r.budget.claimId==="string"),"budget envelope");
-    check(exactKeys(r.provider,["kind","model"])&&typeof r.provider.model==="string"&&["meta","fixture","unsupported"].includes(r.provider.kind),"provider envelope");
-    check(r.error===null||typeof r.error==="string","error shape");
+    if(r.interpreted)equal(parseLayoutApproval(r.interpreted,input),r.interpreted,"interpretation");
+    if(r.approved)equal(parseLayoutApproval(r.approved,input),r.approved,"approval");
+    if(mismatches.length)return {ok:false,mismatches};
     if(r.baseline) {
       const first=attachments[0]!,s=input.scenario;
       const baseline=await runLayoutComparison({baselineScenario:s,executionConfig:input.executionConfig,attachments,approvedConstraints:defaultApprovedConstraints(attachments.map(a=>a.stationId)),safetyCeilingMs:input.safetyCeilingMs,proposal:{kind:"PACKING_STATION_TRANSLATION",proposalId:"baseline",parent:{scenarioId:s.id,scenarioContentSha256:await contentSha256(s),schemaVersion:s.schemaVersion,engineVersion:s.engineVersion},entityId:first.stationId,target:{mode:"ABSOLUTE_CENTER_MM",centerMm:first.centreMm}}});
       equal(baseline,r.baseline,"baseline recomputation");
     }
-    if(r.interpreted)equal(parseLayoutApproval(r.interpreted,input),r.interpreted,"interpretation");
-    if(r.approved)equal(parseLayoutApproval(r.approved,input),r.approved,"approval");
-    check(Array.isArray(r.requests)&&r.requests.length===r.modelRequestsUsed&&r.modelRequestsUsed<=r.limits.requests,"request totals");
-    check(r.budget.dispatched===r.modelRequestsUsed,"dispatched totals");
-    check(Array.isArray(r.proposals)&&r.proposals.length===r.proposalsUsed&&r.proposalsUsed<=r.limits.proposals,"proposal totals");
-    check(r.requests.length===0||r.baseline!==null,"baseline evidence required before dispatch"); check(r.requests.length<2||r.approved!==null,"approval required before subsequent dispatch"); check(r.approved===null||r.interpreted!==null,"interpretation required before approval");
-    check(r.interpreted===null || (r.requests[0]?.phase==="interpretation" && r.requests[0]?.status==="success"),"interpretation requires successful dispatch evidence");
     const seen=new Set<number>();
     const derivedRejections: LayoutInvestigationReport["rejectedActions"] = [];
     let finish: Recommendation|null=null;
     for(const [i,row] of r.requests.entries()) {
-      check(exactKeys(row,["index","phase","status","diagnostics","output","error"]),"request envelope");
-      check(row.index===i+1&&row.phase===(i===0?"interpretation":"proposal"),"request sequence");
-      check(["dispatched","success","failed","aborted"].includes(row.status),"request status"); check(row.diagnostics===null||diagnosticsSchema.safeParse(row.diagnostics).success,"provider diagnostics"); check(row.error===null||typeof row.error==="string","request error");
       if(row.status!=="success") {
         check(row.index===r.requests.length,"unsettled or failed request must be last");
         if(row.status==="dispatched")check(["RUNNING","CANCELLED","TIMED_OUT"].includes(r.state),"dispatched request lifecycle");
