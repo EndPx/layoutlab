@@ -26,6 +26,7 @@ import { canonicalIdentity, replayVersion, friendlyCandidateStatus, completionLa
 import { OperationsView, type LabelLayer, type OpsRenderStats } from "./OperationsView";
 import { fmtClock, selectionDetail } from "./OperationsPanel";
 import { LayoutEditor } from "./LayoutEditor";
+import { useLayoutAssistant } from "./LayoutAssistant";
 import { WarehouseAssistant } from "./WarehouseAssistant";
 import type { ExperimentsHolder } from "./ExperimentsPanel";
 
@@ -79,6 +80,7 @@ export function WarehouseWorkspace(props: {
   const activeScenario = currentOk?.scene.scenario ?? null;
   const activeExec = currentOk?.executionConfig ?? null;
   const implVersion = currentOk?.implementationVersion ?? currentImplementationVersion();
+  const layoutHolder = useLayoutAssistant({scenario: activeScenario, executionConfig: activeExec, implementationVersion: implVersion});
 
   // Sync presented snapshot whenever the displayed controller changes
   // (scenario switch, candidate inspection, return to current, reset).
@@ -338,7 +340,7 @@ export function WarehouseWorkspace(props: {
               </div>
             ) : (
               <div data-testid="ws-assistant-wrap" data-focus={assistantFocus ? "true" : "false"}>
-                <WarehouseAssistant holder={holder} onChange={onChange} scenario={activeScenario} executionConfig={activeExec} loadError={null} />
+                <WarehouseAssistant holder={holder} onChange={onChange} scenario={activeScenario} executionConfig={activeExec} layoutHolder={layoutHolder} loadError={null} />
                 <label>Inspect without clicking (fallback)
                   <select data-testid="ws-select-assistant" value="" onChange={(e) => { const v = e.target.value; if (!v) return; const [kind, id] = v.split(":"); if ((kind === "location" || kind === "rack" || kind === "unit" || kind === "resource" || kind === "order") && id) setSelection({ kind, id }); }}>
                     <option value="">Choose a worker, slot, rack, station or order…</option>

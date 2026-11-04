@@ -3,6 +3,7 @@
 // actual progress. Only Start can spend; polling/replay/verify never POST a
 // new run. Raw patches/schemas/budgets/request metadata live under
 // Technical details, never as the primary story.
+import { LayoutAssistant, type LayoutAssistantHolder } from "./LayoutAssistant";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { InterventionPolicy, OperationsScenario } from "@layoutlab/simulation";
 import {
@@ -41,7 +42,9 @@ export function WarehouseAssistant(props: {
   scenario: OperationsScenario | null;
   executionConfig: { pickDurationMsPerItem: number; unloadDurationMsPerItem: number } | null;
   loadError: string | null;
+  layoutHolder: LayoutAssistantHolder;
 }): React.JSX.Element {
+  const { action, setAction } = props.layoutHolder;
   const { holder, onChange, scenario, executionConfig } = props;
   const [status, setStatus] = useState<ApiStatus | null>(null);
   const [budget, setBudget] = useState<BudgetInfo | null>(null);
@@ -204,6 +207,10 @@ export function WarehouseAssistant(props: {
   const limits = report?.limits ?? summary?.limits ?? { maxModelRequests: 4, maxExperiments: 3, timeoutMs: 120000 };
 
   return (
+    <>
+    <label>Supported action<select data-testid="assistant-action" value={action} onChange={e => setAction(e.target.value)}><option value="service">Hypothetical service-duration testing</option><option value="layout">Packing-station layout testing</option></select></label>
+    <div hidden={action !== "layout"}><LayoutAssistant holder={props.layoutHolder} /></div>
+    <div hidden={action !== "service"}>
     <div data-testid="ws-assistant">
       <h2>Warehouse assistant</h2>
       <p className="hint">Run this warehouse, explore what slows it down, and test changes. Ask a question, choose which changes LayoutLab may test, then start deliberately — starting inference spends from the capped public allowance.</p>
@@ -276,5 +283,6 @@ export function WarehouseAssistant(props: {
         <p className="hint mono">Server operations implementation: {status?.operationsImplementationVersion ?? "unavailable"} ? Trace entries: {trace.length} · submitted policy: {holder.submitted ? JSON.stringify(holder.submitted.policy) : "none"} · provider config, raw patches, schemas/versions, budgets and request metadata stay here or in Settings, not in the main story.</p>
       </details>
     </div>
+    </div></>
   );
 }

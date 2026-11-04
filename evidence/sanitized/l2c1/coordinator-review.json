@@ -1,0 +1,12 @@
+{
+  "scope": "MOCK response UI review only",
+  "submittedSafetyCeilingMs": 7200000,
+  "expectedManualCeilingMs": 7200000,
+  "beforeInspector": "AWAITING_APPROVAL · Requests 1 · Proposals 0",
+  "runStatusCountAfterInspector": 1,
+  "cancelButtonCountAfterInspector": 1,
+  "posts": [
+    "/api/operations/layout-investigations"
+  ],
+  "realMetaRequests": 0
+}
