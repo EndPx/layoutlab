@@ -1,94 +1,30 @@
-# Current delivery checkpoint
+﻿# Current delivery checkpoint
 
-2026-11-03 priority: [EXPERIMENTER_DELIVERY_PLAN.md](EXPERIMENTER_DELIVERY_PLAN.md).
-Muse has delivered the main-app static environment; Codex independently
-checked 8 asset hashes/buffers and 336 container placements. Header-state
-isolation is corrected (10 focused browser checks); Codex reviewed the fix
-and the full root build passed. The STATIC environment is accepted, not the
-connected operations milestone. Latest supplied visual references are mapped
-in UI_REFERENCE_V3.md; apply them during bounded engine/UI integration.
-M2b stock/reservation/finite-resource state is now accepted after148 simulation
-tests and9 independent built-export assertion groups, including fixes for
-cumulative order fulfillment, receiving attribution and historical lane reuse.
-See V3_M2B_INDEPENDENT_REVIEW.md. UI
-connection and operations report replay remain unimplemented; do not infer
-operations from the scene or the headless primitives. Public deployment is
-still R1. M3a navigation/traffic-admitted transport is now accepted after207
-simulation tests and7 independent built-export assertion groups. Canonical
-packing capacities are1 per station;20 service/queue/parking points have
-minimum1500mm spacing. Current fixture SHA ce33a9c5a77300f998c05c5452ed1c04eb9a6bd38d5e0c0eace5fb64d6edadef;
-old static screenshots/hashes remain historical. See V3_M3A_INDEPENDENT_REVIEW.md.
-M3b connected headless picking/packing is now accepted after231 tests and8
-independent built-export assertion groups. One kernel owns arrivals,
-transport, handling and packing. The6-order burst reaches READY_FOR_DISPATCH,
-shipped0/backlog6/stageBacklog0; no shipping claim. See V3_M3B_INDEPENDENT_REVIEW.md.
-M3c binds the engine to the main Operations UI; cargo C2 (full-size cart/crates,
-engine-carried loads) is integrated and independently reviewed. Publication
-patch (sparse 1.75m arrowheads, true active-window render deltas) verified:
-simulation 237, core 111, API 84, web unit 22, typecheck and root build pass.
-Committed and pushed as 67ddd74 and installed on the VPS as release
-/opt/layoutlab/releases/67ddd74 (previous R1 release d039fa9 retained for
-rollback); public HTTPS checks pass (anonymous 401, authenticated 200,
-setup_required, cargo GLB served, private paths 404).
-Dispatch/shipping now ships packed orders through DSP-1 (commit 2e08925,
-deployed as /opt/layoutlab/releases/2e08925; 67ddd74 retained for rollback):
-6/6 SHIPPED, backlog 0, dispatched stock conserved (simulation 238/238).
-Inbound/put-away now runs end-to-end (receiving acceptance into finite
-staging, put-away units store into canonical locations, stock-short orders
-reserve after storage), oversize orders complete via split trips, and
-operations reports export as layoutlab.operations-report/1 with independent
-recomputation (simulation 240/240). The main 28+12 fixture ships orders and
-drains deliveries concurrently in its fixed window; full-window drain is
-fixture-calibration work, not an engine gate. Operations UI does not yet
-render deliveries (engine snapshots expose them).
-Controlled experiments, bounded Meta patch proposals, and the durable US$1
-public budget guard are implemented (simulation 242, API 90; deployed as release 3093591 with the guard active at US$1, $0 spent): candidates rank
-deterministically with recomputable reports, invalid patches are rejected
-before any run, proposals refuse without a server key, and the guard
-reserves durably and fail-closes on corrupt state. Operations UI lists
-inbound deliveries. Public Live Meta still needs a server key plus explicit
-spend authorization; the guard alone does not enable it.
+Verified on 2026-11-04 after inspecting actual Git and VPS state:
 
-Current scope authority is the user-supplied [Implementation Brief v3](IMPLEMENTATION_BRIEF_V3.md),
-which explicitly expands the target to a configured warehouse operations
-simulation. [V3_IMPLEMENTATION_PLAN.md](V3_IMPLEMENTATION_PLAN.md) records
-the inspected reuse map, changed assumptions, headless-engine contracts and
-v3-M0–M8 backlog. Runtime input schemas and the event/clock kernel are accepted
-at M2a; inventory/resource/movement domain behavior remains to be implemented.
-The existing planner/report/evidence stays
-intact; v2 gates below do not prove inventory/queue/traffic simulation.
-The representative original-catalog W1 warehouse section is accepted for six
-selected models and one static synthetic fixture after independent source,
-fit3D, swept-path and converter regressions plus a fresh external Edge proof.
-It is isolated and not deployed; documented material/triangulation limits
-remain. See WAREHOUSE_SECTION_INVESTIGATION.md and w1-independent-review.json.
-v3-M2a runtime contracts and the headless event/clock kernel are now
-accepted in `packages/simulation` after109 tests, a built-bundle smoke and
-independent travel/order plus restore/payload/sequence/home-assignment
-counterexamples (see V3_M2A_KERNEL_REVIEW.md and
-evidence/sanitized/v3-m2a-independent-review.json); inventory, lifecycle, traffic, renderer, and
-Meta work remain future milestones, and whole-simulator coding has not
-been dispatched as one task. The
-next implementation priority is the coherent warehouse in the MAIN interface,
-then the complete engine-owned first operations slice, per
-V3_FULL_EXPERIENCE_NEXT.md. The
-latest user permits browser Orca for SimReady Central asset discovery and
-downloads, including needed dependencies after inspection, and now also for
-application testing, rendering and performance. External Microsoft Edge
-remains allowed; identify the actual browser and method in each new proof.
-Do not silently reduce v3 to
-decorative playback or reuse the exhausted benchmark allowance for new calls.
+- Local main is ad9e739, clean before the current review notes. Latest application commit3093591 is installed at /opt/layoutlab/releases/3093591; layoutlab.service is active.
+- Public URL: https://layoutlab.endpx.cloud (existing Basic Auth). GET /api/status on the VPS returns setup_required/liveAvailable:false because no server model key is configured.
+- Code now includes dispatch/SHIPPED (2e08925), inbound/put-away, split trips and operations report replay (2f53ebf), plus a controlled-experiment API, one-shot Meta patch proposal and initial budget guard (3093591). These are beyond the earlier R1/static-only checkpoint. Do not redeploy or rebuild completed milestones from stale history.
+- Current GET /api/budget reports active, cap US$1, reserved/committed0, available1, entries0. This is a status response, not proof of a sound guard.
+- Independent offline review found missing-file allowance reinitialization and negative-ledger-entry acceptance. Source inspection also found refunds after ambiguous provider failures and no total-allowance guard on legacy /api/runs. Public key/inference activation must wait for the bounded correction and independent verification.
+- User already authorized US$1 TOTAL for initial restricted public Meta use. Do not ask for that authorization again; never refill automatically or reuse the completed US$1.50 benchmark allowance.
 
-The user resumed delivery on 2026-11-02. The paused M6A interface work is now accepted after coordinator review and a fresh full browser run: 76 passed, zero failed or skipped. Core 110 and API 68 tests, typecheck and build passed during the implementation gate.
+Next delivery sequence:
+1. Harden and independently verify the global budget guard across every paid path, using offline fake transport only.
+2. Complete the actual Experimenter workflow: frozen baseline, explicit allowed changes, bounded experiment loop, retained failures, evidence-linked recommendations and full report/metric recomputation. Current API only proposes one patch; it is not yet proof of this closed loop. A no-new-workers question must prohibit staffing patches server-side. Do not expose unsupported policy actions.
+3. Install the app key server-side through the existing protected deployment workflow only after the guard gate, then one bounded live smoke within the existing US$1 total allowance.
+4. Compare AI experiment selection with a fixed strategy at equal experiment budgets, preserve failures and no-improvement results, verify the deployed flow in Edge/Orca, record the demo and align claims/docs.
 
-The final interface uses actual evaluator state, the integrated NVIDIA rack mesh and canonical coordinates. Independent checks cover 1586/1440/768/390 pixels, frozen historical comparisons, real route lengths, delivered GLB hash, and actual label rectangles on the sample and 12-location benchmark. See [VISUAL_IMPLEMENTATION.md](VISUAL_IMPLEMENTATION.md), [MILESTONES.md](MILESTONES.md) and the sanitized M6 evidence.
+Working rules: Codex plans/co-ordinates/reviews; one Muse coding worker through Orca; Ponytail; no overlapping edits; native processes, no Docker/PostgreSQL. Push and deployment are authorized. Runtime keys remain private/server-side. Original SimReady source assets and provenance stay intact. User allows Edge and Orca for application/render/performance tests.
 
-Native production start and startup/demo documentation are implemented. Code/HTTP/browser gates and a fresh committed Windows checkout passed, including build-first typecheck, 110 core and 75 API tests, keyless setup_required, module-relative serving, frozen hashes and built-browser flows. All authorized local implementation/verification is complete. Codex coordinated/reviewed; Muse performed application coding through Orca.
+Historical milestones and evidence remain in Git history and the specific review documents (V3_M2B/M3A/M3B/M3C, cargo C1/C2, EVALUATION, EVIDENCE_BASE). The previous checkpoint accumulated contradictory historical present-tense statements; use this verified header as current state, not the former R1/unimplemented wording.
 
-The E1 source/claims/recomputation audit is accepted; see EVIDENCE_BASE and EVIDENCE_AUDIT. The actual six-scenario, three-trial Meta benchmark is now complete: 18 runs, 72 real requests, 18 replayable reports and all 54 attempts retained (38 valid, 16 unparseable/length-terminated). Independent BFS/constraints/arithmetic matched 71 valid assignments. Meta selected in two runs, heuristic in 13, baseline in three; counts include ties. Estimated usage US$0.0260881, no invoice retrieved, under the US$1.50 authorization's US$1.1955456 conservative reservation. See EVALUATION.md for exact boundaries and phased sources: first three original runs reconciled on their existing IDs, 15 initially refused zero-upstream slots run once after the reviewed d391d00 runner fix. Original partial snapshot and infrastructure refusals remain archived.
+## Guard review continuation (2026-11-04)
 
-R1 storage anchors is accepted after diff, built-browser and screenshot review: products inside rack frames at declared synthetic anchors; picking approaches unchanged; valid sample restored/evaluated (A L1/F L8). Four independent frame-selection/None/camera/mobile-overlay findings were corrected and rechecked. Implementer verification: 14 anchor units, 49 desktop + 49 mobile browser tests, 11 built-preview R1 checks; coordinator assertions and frozen hashes passed. See STORAGE_ANCHORS_REVIEW.md and evidence/sanitized/r1-independent-review.json. Insufficient benchmark rack geometry retains honest no-pose warnings, not invented positions. Next is R2 evaluator path playback and distinct picking/relocation modes. Broader three-day enhancements remain a separate backlog after these MVP gates.
+Muse delivered first correction on ctx_c0cb9d1968b7 (120 API tests reported passing). Codex independent compiled-build review confirms the missing-ledger refill and negative-entry bugs are fixed, but found a remaining phase-transition bypass: removing the ledger after interpretation and before approval still returns HTTP 200 COMPLETED and performs three additional fixture provider calls. A positive 1e-12 USD reservation also incorrectly rounds to zero and is accepted. Evidence: .coordination/review-guard-v2.mjs and .coordination/guard-independent-v2-review.json (zero real Meta calls).
 
-The restricted public R1 preview is now deployed and verified at https://layoutlab.endpx.cloud: DNS A76.13.179.205/TTL300 added through external Edge hPanel, authoritative/VPS resolution confirmed, valid TLS issued, whole-origin Basic Auth verified (anonymous401/authenticated200), external Edge156 visible-window flows at1440/390 passed sample/stub/GLB/export checks with zero page errors/overflow/model calls. Release remains d039fa9 on native layoutlab.service port127.0.0.1:4301. Credentials stay private. Public Live Meta is still setup_required: no VPS key, durable US$1 allowance guard/smoke pending, allowance unused. See PUBLIC_DEPLOYMENT.md and evidence/sanitized/deploy-r1-public-verification.json. The subsequent user priority is original-catalog W1 static warehouse section before full environment/playback. R2 remains uncommitted/deferred with a documented density regression and is not deployed. Fixture, historical smoke, actual benchmark, asset experiments and public rollout remain distinct evidence categories.
+Revision dispatched to the same Muse via follow-up ctx_ee43dfce01ff, task_5f73bc297076, terminal term_cf96c0965996bfe4f0dd20f17b5c9a18. Require durable reservation validation before every upstream dispatch, including approval/feedback, while allowing an intact last reservation at zero available. Tiny positive amounts must be refused without mutation. Scope includes API runs/provider only as needed; no UI/engine edits, paid calls, deployment, key installation, commit or push by worker. Guard milestone remains unaccepted; public activation awaits independent recheck.
 
-The original paused-session handoff was archived privately before this checkpoint was updated. Preserve local environment secrets; never commit the application key.
+## Guard correction accepted (2026-11-04)
+
+Follow-up ctx_ee43dfce01ff completed. Codex independently verified approval after ledger loss now refuses 503 with zero extra calls; last held reservation completes four requests at zero available; missing/corrupt/released claims between proposals prevent the next dispatch; tiny amount refusal preserves bytes; migration preserves prior expenditure. Evidence: evidence/sanitized/public-budget-independent-review.json. Full API suite rerun: 128/128 pass. Official Contributor rates rechecked and conservative four-request allowance US$0.0664192 is below the US$0.25 persisted claim. No live calls yet. Next: commit/push, deploy with explicit v1 migration preserving US$1 cap/history, install key privately and perform one bounded live smoke under existing public authorization.

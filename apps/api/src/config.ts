@@ -34,6 +34,9 @@ export type ApiConfig = {
   // Public budget guard (v3-M8): durable allowance for future public Live
   // Meta. Empty state file disables reservation enforcement locally; the
   // public deployment sets both values and stays fail-closed.
+  // publicBudgetPerRunUsd is a conservative allowance bound committed in
+  // full per bounded run/proposal - NOT an estimated or confirmed price
+  // (see docs/PUBLIC_BUDGET_GUARD_REVIEW.md for the activation preflight).
   publicBudgetUsd: number;
   publicBudgetPerRunUsd: number;
   budgetStateFile: string;

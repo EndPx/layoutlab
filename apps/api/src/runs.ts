@@ -588,7 +588,12 @@ export class RunStore {
   readonly runs = new Map<string, RunRecord>();
   activeInference = 0;
 
-  constructor(private readonly config: ApiConfig) {}
+  constructor(
+    private readonly config: ApiConfig,
+    // Revalidated immediately before EVERY upstream dispatch (no await
+    // between the check and the fetch invocation). Throwing refuses it.
+    private readonly beforeDispatch?: (record: RunRecord) => void,
+  ) {}
 
   get(id: string): RunRecord | undefined {
     return this.runs.get(id);
@@ -786,6 +791,16 @@ export class RunStore {
       } catch (e) {
         record.state = "FAILED";
         record.lastError = sanitizeMessage(e instanceof Error ? e.message : "Context bound exceeded.", this.config);
+        record.completedAt = new Date().toISOString();
+        return;
+      }
+      try {
+        this.beforeDispatch?.(record);
+      } catch (e) {
+        const err = e as CodedError;
+        record.state = "FAILED";
+        record.lastError = sanitizeMessage(err instanceof Error ? err.message : "Budget guard unavailable.", this.config);
+        record.interpretDiagnostics = diagOf(null, err.code ?? "BUDGET_GUARD_UNAVAILABLE");
         record.completedAt = new Date().toISOString();
         return;
       }
@@ -1005,6 +1020,17 @@ export class RunStore {
         const userContent = buildProposalUserContent(summary, approved, record.baseline, feedback, attemptIndex);
         // Count before sending; never reset when continuing after approval or error.
         setPhase(record, "REQUESTING_PROPOSAL");
+        try {
+          this.beforeDispatch?.(record);
+        } catch (e) {
+          // No further dispatch. The run fails; the caller preserves the
+          // held/charged claim (never releases it after prior dispatch).
+          record.state = "FAILED";
+          record.lastError = sanitizeMessage(e instanceof Error ? e.message : "Budget guard unavailable.", this.config);
+          record.completedAt = new Date().toISOString();
+          this.finishReportFields(record);
+          throw e;
+        }
         record.modelRequestsUsed++;
         record.proposalsUsed++;
         const started = Date.now();

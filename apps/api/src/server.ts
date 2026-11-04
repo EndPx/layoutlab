@@ -4,15 +4,16 @@
 // All errors are sanitized.
 import { CORE_VERSION, ROUTE_POLICY_ID } from "@layoutlab/core";
 import express, { type Request, type Response } from "express";
+import { randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 import { API_VERSION, liveAvailable, loadConfig, sanitizeMessage, type ApiConfig } from "./config.js";
 import { PROMPT_VERSION } from "./prompts.js";
-import { createBudgetGuard, type BudgetGuard } from "./budget-guard.js";
+import { createBudgetGuard, BudgetGuardError, type BudgetGuard } from "./budget-guard.js";
 import { proposePatch, runExperiment, validatePatch } from "./operations-api.js";
 import { generationSettingsOf, type FetchLike } from "./provider.js";
-import { RunStore, toSummary } from "./runs.js";
+import { RunStore, toSummary, type RunRecord } from "./runs.js";
 
 const createRunBody = z.strictObject({
   scenario: z.unknown(),
@@ -91,12 +92,58 @@ export function createApp(opts: {
 } = {}): { app: express.Express; store: RunStore; config: ApiConfig; webBuilt: boolean } {
   const config = opts.config ?? loadConfig();
   const fetchImpl = opts.fetchImpl ?? fetch;
-  const store = new RunStore(config);
   const budgetGuard: BudgetGuard | null =
     opts.budgetGuard ??
     (config.budgetStateFile !== ""
       ? createBudgetGuard({ filePath: config.budgetStateFile, capUsd: config.publicBudgetUsd })
       : null);
+  // Legacy runs hold ONE reservation for interpretation + approval proposals.
+  // The map only locates the claim; authorization is the persisted entry,
+  // revalidated from disk before every dispatch (see assertRunDispatch).
+  const runReservations = new Map<string, string>();
+  const assertRunDispatch = (record: RunRecord): void => {
+    if (!budgetGuard) return;
+    const reservationId = runReservations.get(record.id);
+    if (!reservationId) {
+      throw new BudgetGuardError("BUDGET_GUARD_UNAVAILABLE", 503, "run has no budget reservation; refusing inference");
+    }
+    budgetGuard.assertReservation(reservationId, config.publicBudgetPerRunUsd);
+  };
+  const store = new RunStore(config, assertRunDispatch);
+  const settleRunReservation = (runId: string): void => {
+    if (!budgetGuard) return;
+    const reservationId = runReservations.get(runId);
+    if (!reservationId) return;
+    const record = store.get(runId);
+    if (!record) return;
+    const terminalState =
+      record.state === "COMPLETED" || record.state === "FAILED" ||
+      record.state === "CANCELLED" || record.state === "TIMED_OUT";
+    if (!terminalState) return;
+    try {
+      // Zero counted attempts = verifiably no provider dispatch: release.
+      // Any counted attempt (incl. ambiguous timeout) commits the bound.
+      if (record.modelRequestsUsed === 0) budgetGuard.release(reservationId);
+      else budgetGuard.commit(reservationId);
+      runReservations.delete(runId);
+    } catch {
+      try {
+        const entry = budgetGuard.snapshot().entries.find((e) => e.id === reservationId);
+        if (entry && entry.state !== "reserved") runReservations.delete(runId);
+      } catch {
+        // Guard unavailable: the reserved claim stays counted, never refunded.
+      }
+    }
+  };
+  const budgetUsable = (): { ok: boolean; reason: string | null } => {
+    if (!budgetGuard) return { ok: true, reason: null };
+    try {
+      budgetGuard.snapshot();
+      return { ok: true, reason: null };
+    } catch {
+      return { ok: false, reason: "Public budget guard unavailable; refusing to spend." };
+    }
+  };
   const app = express();
   if (opts.trustProxy === true) app.set("trust proxy", 1);
   app.disable("x-powered-by");
@@ -127,9 +174,14 @@ export function createApp(opts: {
   });
 
   app.get("/api/status", (_req: Request, res: Response) => {
-    const live = liveAvailable(config);
+    const baseLive = liveAvailable(config);
+    const budget = budgetUsable();
+    const live = baseLive.ok && budget.ok
+      ? baseLive
+      : { ok: false, reason: baseLive.ok ? budget.reason : baseLive.reason };
     res.json({
       liveAvailable: live.ok,
+      budgetGuard: !budgetGuard ? "not_configured" : budget.ok ? "active" : "unavailable",
       reason: live.reason,
       status: live.ok ? "ready" : "setup_required",
       baseUrl: config.baseUrl,
@@ -170,11 +222,29 @@ export function createApp(opts: {
         });
         return;
       }
+      // Guard first: ONE durable reservation covers the whole bounded run
+      // (interpretation + approval proposals) before any upstream call.
+      // Local validation failures inside createRun release it again because
+      // no provider attempt has been counted at that point.
+      let reservationId: string | null = null;
+      if (budgetGuard) {
+        reservationId = `run:${randomUUID()}`;
+        budgetGuard.reserve(reservationId, config.publicBudgetPerRunUsd);
+      }
+      let record;
+      try {
+        record = store.createRun(parsed.data.scenario, parsed.data.requestText);
+      } catch (e) {
+        if (budgetGuard && reservationId) {
+          try { budgetGuard.release(reservationId); } catch { /* claim stays counted */ }
+        }
+        throw e;
+      }
+      if (reservationId) runReservations.set(record.id, reservationId);
       // Prompt ID: the run exists (INTERPRETING) before inference finishes,
       // so the first request is cancellable by ID. Same ID, request count,
       // and deadline continue across approval. The 202 snapshot is taken
       // before the background task counts its attempt (deterministic 0).
-      const record = store.createRun(parsed.data.scenario, parsed.data.requestText);
       const snapshot = toSummary(record, config);
       store.startInterpretation(record, fetchImpl);
       res.status(202).json(snapshot);
@@ -190,6 +260,7 @@ export function createApp(opts: {
         res.status(404).json({ code: "UNKNOWN_RUN", message: "Unknown run id." });
         return;
       }
+      settleRunReservation(record.id);
       res.json(toSummary(record, config));
     } catch (e) {
       next(e);
@@ -203,7 +274,23 @@ export function createApp(opts: {
         res.status(400).json({ code: "BAD_REQUEST", message: "Body must be { requirements }." });
         return;
       }
-      const record = await store.approveRun(req.params["id"] as string, parsed.data.requirements, fetchImpl);
+      const runId = req.params["id"] as string;
+      // Approval spends only against the run's persisted reservation,
+      // revalidated from disk here and again before each proposal dispatch.
+      // Refusal here leaves the run AWAITING_APPROVAL and the claim held,
+      // so restoring the ledger allows the same approval to proceed.
+      if (budgetGuard) {
+        const existing = store.get(runId);
+        if (existing && existing.state === "AWAITING_APPROVAL") assertRunDispatch(existing);
+      }
+      let record;
+      try {
+        record = await store.approveRun(runId, parsed.data.requirements, fetchImpl);
+      } catch (e) {
+        settleRunReservation(runId);
+        throw e;
+      }
+      settleRunReservation(runId);
       res.json(toSummary(record, config));
     } catch (e) {
       next(e);
@@ -213,6 +300,7 @@ export function createApp(opts: {
   app.post("/api/runs/:id/cancel", (req: Request, res: Response, next: (e: unknown) => void) => {
     try {
       const record = store.cancel(req.params["id"] as string);
+      settleRunReservation(record.id);
       res.json(toSummary(record, config));
     } catch (e) {
       next(e);
@@ -253,6 +341,8 @@ export function createApp(opts: {
         committedUsd: snap.committedMicroUsd / 1_000_000,
         availableUsd: snap.availableMicroUsd / 1_000_000,
         entries: snap.entries.length,
+        accounting:
+          "reservedUsd is a held conservative bound; committedUsd is that bound charged after dispatch. Neither is an invoice or a confirmed provider price.",
       });
     } catch (e) {
       next(e);
@@ -283,23 +373,45 @@ export function createApp(opts: {
         res.status(400).json({ code: "BAD_REQUEST", message: "Body must be { observation: string }." });
         return;
       }
-      // Fail-closed: when the public guard is configured, a durable
-      // reservation must land before any model call; guard errors stop here.
+      // Fail-closed: local preflight (key/shape/length) runs BEFORE the
+      // durable reservation, so it consumes no allowance and no provider
+      // call. Once proposePatch is invoked the request may have reached
+      // the provider: success, provider errors, timeouts and invalid model
+      // output all commit the conservative bound - never a refund.
       let reservationId: string | null = null;
       if (budgetGuard) {
-        reservationId = `proposal-${Date.now()}-${Math.floor(Math.random() * 1e9)}`;
+        const live = liveAvailable(config);
+        if (!live.ok) {
+          res.status(503).json({ status: "setup_required", reason: live.reason, provider: "meta" });
+          return;
+        }
+        if (observation.length === 0 || observation.length > 4000) {
+          res.status(400).json({ code: "BAD_REQUEST", message: "observation must be 1..4000 characters" });
+          return;
+        }
+        reservationId = `proposal:${randomUUID()}`;
         budgetGuard.reserve(reservationId, config.publicBudgetPerRunUsd);
       }
       try {
-        const result = await proposePatch({ config, fetchImpl, observation });
+        const result = await proposePatch({
+          config,
+          fetchImpl,
+          observation,
+          ...(budgetGuard && reservationId
+            ? { beforeDispatch: () => budgetGuard.assertReservation(reservationId, config.publicBudgetPerRunUsd) }
+            : {}),
+        });
         if (budgetGuard && reservationId) budgetGuard.commit(reservationId);
         res.json(result);
       } catch (e) {
+        // A guard refusal means no dispatch happened: preserve the claim
+        // exactly as persisted, never commit or release it here.
+        if (e instanceof BudgetGuardError) throw e;
         if (budgetGuard && reservationId) {
           try {
-            budgetGuard.release(reservationId);
+            budgetGuard.commit(reservationId);
           } catch {
-            // Release failure leaves the reservation visible for audit.
+            // Commit failure leaves the reservation counted for audit.
           }
         }
         throw e;

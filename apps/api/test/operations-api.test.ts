@@ -5,7 +5,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { createBudgetGuard } from "../src/budget-guard.js";
+import { createBudgetGuard, initializeBudgetLedger } from "../src/budget-guard.js";
 import { loadConfig, type ApiConfig } from "../src/config.js";
 import { createApp } from "../src/server.js";
 import { startFakeMeta, type FakeMeta } from "./fake-meta.js";
@@ -16,7 +16,7 @@ afterEach(async () => {
 });
 
 async function startApi(config: ApiConfig, budgetGuard?: ReturnType<typeof createBudgetGuard>) {
-  const { app } = createApp({ config, budgetGuard });
+  const { app } = createApp({ config, ...(budgetGuard ? { budgetGuard } : {}) });
   const server = await new Promise<import("node:http").Server>((resolve) => {
     const s = app.listen(0, "127.0.0.1", () => resolve(s));
   });
@@ -85,6 +85,7 @@ describe("public budget guard", () => {
   it("reserves, commits, releases, and refuses overspend durably", () => {
     const dir = mkdtempSync(join(tmpdir(), "layoutlab-budget-"));
     const file = join(dir, "budget.json");
+    initializeBudgetLedger({ filePath: file, capUsd: 1 });
     const guard = createBudgetGuard({ filePath: file, capUsd: 1 });
     guard.reserve("r1", 0.25);
     expect(guard.snapshot().availableMicroUsd).toBe(750_000);
@@ -101,6 +102,7 @@ describe("public budget guard", () => {
   it("fails closed on corrupt state", () => {
     const dir = mkdtempSync(join(tmpdir(), "layoutlab-budget-"));
     const file = join(dir, "budget.json");
+    initializeBudgetLedger({ filePath: file, capUsd: 1 });
     const guard = createBudgetGuard({ filePath: file, capUsd: 1 });
     guard.reserve("r1", 0.1);
     writeFileSync(file, "{not json", "utf8");

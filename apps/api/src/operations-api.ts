@@ -111,6 +111,9 @@ export async function proposePatch(input: {
   fetchImpl: FetchLike;
   observation: string;
   signal?: AbortSignal;
+  // Revalidated immediately before the upstream dispatch (no await
+  // between this check and the fetch invocation). Throwing refuses it.
+  beforeDispatch?: () => void;
 }): Promise<{ patch: OperationsPatch; model: string; responseId: string | null }> {
   const live = liveAvailable(input.config);
   if (!live.ok) {
@@ -119,6 +122,7 @@ export async function proposePatch(input: {
   if (input.observation.length === 0 || input.observation.length > 4000) {
     throw apiError("BAD_REQUEST", 400, "observation must be 1..4000 characters");
   }
+  input.beforeDispatch?.();
   const result = await chatCompletionJson(
     input.config,
     {

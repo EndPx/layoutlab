@@ -1,0 +1,40 @@
+{
+  "checkedAt": "2026-11-04T07:52:12.201Z",
+  "scope": "Codex independent tests of compiled API, temporary ledgers, fake provider only",
+  "realMetaRequests": 0,
+  "results": [
+    {
+      "case": "last-reservation-at-zero",
+      "passed": true,
+      "fixtureProviderCalls": 4,
+      "httpStatus": 200
+    },
+    {
+      "case": "ledger-loss-between-proposals",
+      "passed": true,
+      "fixtureProviderCalls": 2,
+      "httpStatus": 503
+    },
+    {
+      "case": "ledger-corruption-between-proposals",
+      "passed": true,
+      "fixtureProviderCalls": 2,
+      "httpStatus": 503
+    },
+    {
+      "case": "released-claim-between-proposals",
+      "passed": true,
+      "fixtureProviderCalls": 2,
+      "httpStatus": 503
+    },
+    {
+      "case": "tiny-positive-refused-without-mutation",
+      "passed": true
+    },
+    {
+      "case": "migration-keeps-prior-spend",
+      "passed": true,
+      "availableUsd": 0.25
+    }
+  ]
+}
