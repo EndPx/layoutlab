@@ -1,0 +1,32 @@
+{
+  "realMetaRequests": 0,
+  "scope": "Independent execution of private hardened build; not merged",
+  "counts": {
+    "selected": 28,
+    "excluded": 0,
+    "arrived": 28,
+    "packed": 28,
+    "readyForDispatch": 0,
+    "shipped": 28,
+    "backlog": 0,
+    "stageBacklog": 0
+  },
+  "checks": {
+    "conservation": [],
+    "capacity": [],
+    "safety": []
+  },
+  "reportRecomputed": true,
+  "inventoryConservedAllProducts": true,
+  "burstReportIdentical": true,
+  "motionCount": 247,
+  "remainingDeliveryStates": [
+    "RECEIVING"
+  ],
+  "openWaits": [
+    {
+      "reason": "RECEIVING_STAGING_FULL",
+      "unitId": null
+    }
+  ]
+}

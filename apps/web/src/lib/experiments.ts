@@ -468,10 +468,10 @@ export function getInvestigationReport(runId: string, signal?: AbortSignal): Pro
   return request(`/api/operations/investigations/${encodeURIComponent(runId)}/report`, { signal }) as Promise<InvestigationReport>;
 }
 
-export function verifyInvestigation(report: InvestigationReport, signal?: AbortSignal): Promise<{ ok: boolean; mismatches: string[] }> {
+export function verifyInvestigation(report: InvestigationReport, signal?: AbortSignal): Promise<{ ok: boolean; mismatches: string[]; verifierImplementationVersion: string | null }> {
   return request("/api/operations/investigations/verify", {
     method: "POST",
     body: JSON.stringify({ report }),
     signal,
-  }) as Promise<{ ok: boolean; mismatches: string[] }>;
+  }) as Promise<{ ok: boolean; mismatches: string[]; verifierImplementationVersion: string | null }>;
 }

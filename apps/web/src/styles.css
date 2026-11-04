@@ -411,3 +411,28 @@ details.ops-diagnostics summary { cursor: pointer; font-size: 13px; font-weight:
   .ops-controls button { min-height: 44px; }
   .ops-controls .segmented button { min-height: 44px; }
 }
+
+/* Unified warehouse workspace: viewer ~72% + contextual panel ~28%. */
+.ws-scenario-label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.ws-scenario-label select { max-width: 340px; }
+.ws-settings-drop { min-width: 300px; }
+.ws-intro h1 { font-size: 22px; margin: 0; letter-spacing: -0.01em; }
+.ws-intro p { margin: 2px 0 0; color: var(--muted); }
+.ws-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.ws-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; }
+.ws-workspace { display: grid; grid-template-columns: minmax(0, 72fr) minmax(280px, 28fr); gap: 12px; align-items: start; }
+.ws-workspace > * { min-width: 0; min-height: 0; }
+.ws-side select { width: 100%; margin: 4px 0 8px; }
+.ws-side textarea { width: 100%; }
+.ws-results { display: flex; flex-direction: column; gap: 8px; }
+.ws-tech { font-size: 12px; }
+@media (max-width: 1023px) {
+  .ws-workspace { grid-template-columns: 1fr; }
+  .ws-viewport { order: -1; }
+  .ws-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .ws-metrics { grid-template-columns: 1fr; }
+  .ws-controls button { min-height: 44px; }
+  .ws-side button, .ws-results button { min-height: 44px; }
+}

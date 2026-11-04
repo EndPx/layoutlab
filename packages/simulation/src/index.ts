@@ -186,6 +186,21 @@ export type {
   OperationsExperimentVerification,
   OperationsPatch,
 } from "./experiments.js";
+export {
+  ARCHIVED_IMPLEMENTATION_VERSION,
+  CURRENT_IMPLEMENTATION_VERSION,
+  SUPPORTED_IMPLEMENTATION_VERSIONS,
+  UnsupportedImplementationVersionError,
+  createOperationsControllerForVersion,
+  isSupportedImplementationVersion,
+  recomputeOperationsReportForVersion,
+  verifyOperationsExperimentForVersion,
+} from "./runtime-selector.js";
+export type {
+  ImplementationVersion,
+  OperationsExperimentVerificationForVersion,
+  OperationsReportVerificationForVersion,
+} from "./runtime-selector.js";
 export { createTransportController, createTransportDomain } from "./transport.js";
 export type {
   CancelResult,

@@ -803,6 +803,41 @@ export function burstScenarioAndConfig(): {
   return { scenario, executionConfig };
 }
 
+// Versioned inspection (R3c contract): recorded/candidate runs replay on
+// their recorded implementation, never silently on the latest engine. The
+// factory is wired by name so this module still typechecks before R3c's
+// compiled export lands; a missing factory or unknown version fails closed.
+import * as simulationNs from "@layoutlab/simulation";
+export function currentImplementationVersion(): string {
+  const ns = simulationNs as unknown as Record<string, unknown>;
+  return typeof ns["CURRENT_IMPLEMENTATION_VERSION"] === "string"
+    ? (ns["CURRENT_IMPLEMENTATION_VERSION"] as string)
+    : typeof ns["SIMULATION_VERSION"] === "string"
+      ? (ns["SIMULATION_VERSION"] as string)
+      : "unknown";
+}
+export function createControllerForVersioned(
+  scenario: OperationsScenario,
+  executionConfig: { pickDurationMsPerItem: number; unloadDurationMsPerItem: number },
+  implementationVersion: string,
+): OperationsController {
+  const ns = simulationNs as unknown as Record<string, unknown>;
+  const factory = ns["createOperationsControllerForVersion"];
+  if (typeof factory === "function") {
+    return (factory as (opts: unknown, v: string) => OperationsController)(
+      { scenario, executionConfig },
+      implementationVersion,
+    );
+  }
+  const current = currentImplementationVersion();
+  if (implementationVersion !== current) {
+    throw new Error(
+      `Unsupported implementation version ${implementationVersion}: recorded inspection needs engine ${implementationVersion}, current engine is ${current}, and no versioned runtime is available yet. Nothing was replayed on the wrong engine.`,
+    );
+  }
+  return createOperationsController({ scenario, executionConfig });
+}
+
 export function burstHandlingDurations(): { pickDurationMsPerItem: number; unloadDurationMsPerItem: number } {
   const runconfig = burstRunconfigJson as { executionConfig: unknown };
   return parseOperationsExecutionConfig(runconfig.executionConfig);

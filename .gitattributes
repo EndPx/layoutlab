@@ -7,3 +7,6 @@ assets/** -text
 fixtures/benchmark/*.json -text
 # Operations inputs/proofs also record raw hashes; keep them stable on checkout.
 fixtures/operations/**/*.json -text
+
+# Immutable archived runtime has a raw-byte SHA; preserve it on every platform.
+packages/simulation/archive/0.1.0/runtime.mjs -text

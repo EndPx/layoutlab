@@ -137,8 +137,11 @@ export function OperationsView(props: {
   selection: OperationsSelection;
   labelLayer: LabelLayer;
   onStats: (stats: OpsRenderStats) => void;
+  onSelectionChange?: (selection: OperationsSelection) => void;
 }): React.JSX.Element {
-  const { scene: ops, snapshot, selection, labelLayer, onStats } = props;
+  const { scene: ops, snapshot, selection, labelLayer, onStats, onSelectionChange } = props;
+  const onSelectionChangeRef = useRef(onSelectionChange);
+  onSelectionChangeRef.current = onSelectionChange;
   const [preset, setPreset] = useState<"overview" | "top" | "inspect" | null>(null);
   const mountRef = useRef<HTMLDivElement | null>(null);
   const statusRef = useRef<HTMLParagraphElement | null>(null);
@@ -626,6 +629,52 @@ export function OperationsView(props: {
     renderer.domElement.tabIndex = 0;
     renderer.domElement.setAttribute("aria-label", "3D operations warehouse view. Arrow keys pan the camera.");
     controls.listenToKeyEvents(renderer.domElement);
+    // Direct canvas picking: raycast/instance-ID mapping to canonical IDs.
+    // Drag/orbit gestures (moved or long presses) never select; empty
+    // ground/space clears to the assistant. No engine state is touched.
+    const raycaster = new THREE.Raycaster();
+    let downInfo: { x: number; y: number; t: number } | null = null;
+    const resolvePick = (obj: THREE.Object3D, instanceId: number | undefined): OperationsSelection => {
+      let cur: THREE.Object3D | null = obj;
+      while (cur) {
+        const pick = (cur.userData as { pick?: { kind: string; id: string } }).pick;
+        if (pick && (pick.kind === "unit" || pick.kind === "resource")) {
+          return { kind: pick.kind, id: pick.id };
+        }
+        const kind = (cur.userData as { pickKind?: string }).pickKind;
+        const ids = (cur.userData as { pickIds?: string[] }).pickIds;
+        if (kind === "ground") return null;
+        if ((kind === "rack" || kind === "location") && ids && instanceId !== undefined) {
+          const id = ids[instanceId];
+          if (id) return { kind, id };
+        }
+        cur = cur.parent;
+      }
+      return null;
+    };
+    const onDown = (e: PointerEvent): void => { downInfo = { x: e.clientX, y: e.clientY, t: performance.now() }; };
+    const onUp = (e: PointerEvent): void => {
+      const cb = onSelectionChangeRef.current;
+      const d = downInfo;
+      downInfo = null;
+      if (!cb || !d) return;
+      if (Math.hypot(e.clientX - d.x, e.clientY - d.y) > 6 || performance.now() - d.t > 600) return;
+      const rect = renderer.domElement.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+      const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+      raycaster.setFromCamera(ndc, camera);
+      const hits = raycaster.intersectObjects(threeScene.children, true);
+      // First resolvable entity wins; markers/routes/cargo overlays without
+      // canonical IDs never shadow the entity behind them.
+      let picked: OperationsSelection = null;
+      for (const h of hits) {
+        picked = resolvePick(h.object, h.instanceId);
+        if (picked) break;
+      }
+      cb(picked);
+    };
+    renderer.domElement.addEventListener("pointerdown", onDown);
+    renderer.domElement.addEventListener("pointerup", onUp);
 
     threeScene.background = new THREE.Color(0xe9edf2);
     // Image-based fill so painted/metal replacement PBR reads as material
@@ -1036,6 +1085,7 @@ export function OperationsView(props: {
         const topY = new THREE.Box3().setFromObject(floorGroup).max.y;
         for (const entry of meshesOf(floorGroup)) {
           const inst = new THREE.InstancedMesh(entry.geometry, entry.material, ops.floorTiles.length);
+          inst.userData["pickKind"] = "ground";
           inst.receiveShadow = true;
           ops.floorTiles.forEach((t, i) => placeInstance(inst, i, t.xM, t.topYM - topY, t.zM, 0));
           inst.instanceMatrix.needsUpdate = true;
@@ -1046,6 +1096,8 @@ export function OperationsView(props: {
       if (rackGroup) {
         for (const entry of meshesOf(rackGroup)) {
           const inst = new THREE.InstancedMesh(entry.geometry, entry.material, ops.racks.length);
+          inst.userData["pickKind"] = "rack";
+          inst.userData["pickIds"] = ops.racks.map((r) => r.id);
           inst.castShadow = true;
           inst.receiveShadow = true;
           ops.racks.forEach((r, i) =>
@@ -1078,6 +1130,8 @@ export function OperationsView(props: {
         }
         for (const entry of entries) {
           const inst = new THREE.InstancedMesh(entry.geometry, entry.material, Math.max(items.length, 1));
+          inst.userData["pickKind"] = "location";
+          inst.userData["pickIds"] = items.map((p) => p.locId);
           inst.count = items.length;
           inst.receiveShadow = true;
           items.forEach((p, i) => placeInstance(inst, i, p.x, p.y, p.z, 0));
@@ -1120,6 +1174,7 @@ export function OperationsView(props: {
         const group = loaded.get(st.glbUrl);
         if (!group) continue;
         const clone = group.clone(true);
+        clone.userData["pick"] = { kind: "resource", id: st.id };
         clone.position.set(st.centerMm.x * MM, 0, st.centerMm.z * MM);
         clone.rotation.y = (st.yawDeg * Math.PI) / 180;
         clone.traverse((o) => {
@@ -1183,6 +1238,7 @@ export function OperationsView(props: {
           });
           assembly.position.set(u.parkingMm.x * MM, 0, u.parkingMm.z * MM);
           threeScene.add(assembly);
+          assembly.userData["pick"] = { kind: "unit", id: u.id };
           handles.cartOf.set(u.id, assembly);
         }
         // Solid cargo pool (once): sourced carton geometry from the
@@ -1238,6 +1294,7 @@ export function OperationsView(props: {
           const assembly = new THREE.Group();
           assembly.position.set(u.parkingMm.x * MM, 0, u.parkingMm.z * MM);
           threeScene.add(assembly);
+          assembly.userData["pick"] = { kind: "unit", id: u.id };
           handles.cartOf.set(u.id, assembly);
         }
       }
@@ -1256,6 +1313,8 @@ export function OperationsView(props: {
         : savedCamRef.current;
       cancelled = true;
       resizer.disconnect();
+      renderer.domElement.removeEventListener("pointerdown", onDown);
+      renderer.domElement.removeEventListener("pointerup", onUp);
       controls.dispose();
       renderer.dispose();
       labelRenderer.domElement.remove();

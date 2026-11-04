@@ -11,6 +11,7 @@ export type ApiStatus = {
   promptVersion: string;
   apiVersion: string;
   coreVersion: string;
+  operationsImplementationVersion: string;
   budgets: { maxProposals: number; maxRequests: number; timeoutMs: number };
   concurrency: number;
   provider: "meta";

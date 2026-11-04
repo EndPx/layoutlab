@@ -26,8 +26,8 @@ import sampleJson from "../../../fixtures/sample/warehouse-basic.json";
 import { BottomPanel } from "./components/BottomPanel";
 import { LeftPanel } from "./components/LeftPanel";
 import { MetricCards } from "./components/MetricCards";
-import { ExperimentsPanel, initialExperimentsHolder, type ExperimentsHolder } from "./components/ExperimentsPanel";
-import { OperationsPanel } from "./components/OperationsPanel";
+import { initialExperimentsHolder, type ExperimentsHolder } from "./components/ExperimentsPanel";
+import { WarehouseWorkspace } from "./components/WarehouseWorkspace";
 import { RightPanel } from "./components/RightPanel";
 import { WarehousePanel, type ViewMode } from "./components/WarehousePanel";
 import {
@@ -42,13 +42,6 @@ import {
   type RunSummary,
 } from "./lib/api";
 import { buildExportEnvelope, newRunId, replayAnyEnvelope, type M4HeuristicMeta } from "./lib/export";
-import {
-  burstScenarioAndConfig,
-  createBurstController,
-  loadBurstOperationsScene,
-  type OperationsScene,
-} from "./lib/operations";
-import type { OperationsController } from "@layoutlab/simulation";
 import {
   clearPersisted,
   loadPersisted,
@@ -190,12 +183,15 @@ export function App(): React.JSX.Element {
   // between Storage Planning and Operations Simulation never destroys a
   // scenario or model run. Bare URL defaults to Operations Simulation;
   // ?mode=planning / ?mode=experiments select the other modes explicitly.
-  const [appMode, setAppMode] = useState<"planning" | "operations" | "experiments">(() =>
-    typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).get("mode") === "operations"
-      ? "operations"
-      : new URLSearchParams(window.location.search).get("mode") === "experiments" ? "experiments" : new URLSearchParams(window.location.search).get("mode") === "planning" ? "planning" : "operations",
-  );
+  // Unified workspace is the product. Legacy storage planning stays
+  // reachable only through explicit advanced access (?mode=planning&legacy=1
+  // or Settings in the workspace); ?mode=experiments / ?mode=operations are
+  // compatibility aliases to the same workspace (assistant / warehouse).
+  const [view, setView] = useState<"workspace" | "legacy">(() => {
+    if (typeof window === "undefined") return "workspace";
+    const q = new URLSearchParams(window.location.search);
+    return q.get("mode") === "planning" ? "legacy" : "workspace";
+  });
   // Live (Meta) run state. Server owns the run; the browser keeps only the
   // summary plus the local baseline snapshot needed for apply guards. Live
   // runs are session-scoped and never persisted (see save effect below).
@@ -1252,42 +1248,13 @@ export function App(): React.JSX.Element {
   // destroy, rerun, or reset it. Reset replaces the controller only, from
   // the same frozen inputs. Header metadata comes from this same holder,
   // never a hardcoded id.
-  const [opsRun, setOpsRun] = useState<
-    { scene: OperationsScene; controller: OperationsController } | { error: string }
-  >(() => {
-    try {
-      return { scene: loadBurstOperationsScene(), controller: createBurstController() };
-    } catch (e) {
-      return { error: e instanceof Error ? e.message : String(e) };
-    }
-  });
+  // The unified workspace owns the single operations run (see WarehouseWorkspace).
   // Experiments holder lives above the mode switch too: switching away
   // never creates a run, resets spend, or discards inputs/results.
   const [experiments, setExperiments] = useState<ExperimentsHolder>(initialExperimentsHolder);
   const patchExperiments = (patch: Partial<ExperimentsHolder>): void =>
     setExperiments((prev) => ({ ...prev, ...patch }));
-  const experimentsHeader = useMemo((): { ok: true; id: string } | { ok: false } => {
-    try {
-      return { ok: true, id: burstScenarioAndConfig().scenario.id };
-    } catch {
-      return { ok: false };
-    }
-  }, []);
-  const resetOpsRun = (): void => {
-    try {
-      const scene = "error" in opsRun ? loadBurstOperationsScene() : opsRun.scene;
-      setOpsRun({ scene, controller: createBurstController() });
-    } catch (e) {
-      setOpsRun({ error: e instanceof Error ? e.message : String(e) });
-    }
-  };
-  const opsHeader = useMemo(
-    (): { ok: true; id: string; synthetic: boolean } | { ok: false } => {
-      if ("error" in opsRun) return { ok: false };
-      return { ok: true, id: opsRun.scene.scenario.id, synthetic: opsRun.scene.scenario.provenance.category === "synthetic" };
-    },
-    [opsRun],
-  );
+
   const sampleMode = scenario?.provenance.category === "synthetic";
   // Status truth: badges follow the ACTIVE run provenance, never stale
   // state. Live-used ONLY when the official Meta transport ran real
@@ -1347,6 +1314,16 @@ export function App(): React.JSX.Element {
     }
   };
 
+  if (view === "workspace") {
+    return (
+      <WarehouseWorkspace
+        holder={experiments}
+        onChange={patchExperiments}
+        onOpenLegacy={() => setView("legacy")}
+      />
+    );
+  }
+
   return (
     <div className="app">
       <header className="topbar">
@@ -1355,37 +1332,12 @@ export function App(): React.JSX.Element {
           <strong>LayoutLab</strong>
         </span>
         <nav className="crumbs" aria-label="Breadcrumb">
-          {appMode === "operations" ? "Warehouse operations › " : appMode === "experiments" ? "Warehouse experiments › " : "Warehouse storage planner › "}
+          Legacy storage planner (compatibility) ›{" "}
           <span className="mono" data-testid="scenario-label">
-            {appMode === "experiments"
-              ? (experimentsHeader.ok ? experimentsHeader.id : "experiments unavailable")
-              : appMode === "operations"
-              ? (opsHeader.ok ? opsHeader.id : "operations unavailable")
-              : scenario ? `${scenario.id} · rev ${scenario.revision}` : "no scenario"}
+            {scenario ? `${scenario.id} · rev ${scenario.revision}` : "no scenario"}
           </span>
         </nav>
-        <div className="segmented" role="group" aria-label="Main mode">
-          <button
-            type="button"
-            aria-pressed={appMode === "planning"}
-            className={appMode === "planning" ? "on" : ""}
-            onClick={() => setAppMode("planning")}
-            data-testid="mode-planning"
-          >
-            Storage Planning
-          </button>
-          <button
-            type="button"
-            aria-pressed={appMode === "operations"}
-            className={appMode === "operations" ? "on" : ""}
-            onClick={() => setAppMode("operations")}
-            data-testid="mode-operations"
-          >
-            Operations Simulation
-          </button>
-          <button type="button" aria-pressed={appMode === "experiments"} className={appMode === "experiments" ? "on" : ""} onClick={() => setAppMode("experiments")} data-testid="mode-experiments">Experiments</button>
-        </div>
-        {appMode === "planning" ? (
+        <button type="button" data-testid="ws-back-workspace" onClick={() => setView("workspace")}>← Back to warehouse</button>
         <>
         {sampleMode && <span className="badge sample" data-testid="sample-badge">Sample mode</span>}
         <span
@@ -1406,17 +1358,7 @@ export function App(): React.JSX.Element {
         {liveUsed && <span className="badge live-used" data-testid="live-used-badge">LIVE-USED</span>}
         {fixtureActive && <span className="badge fixture" data-testid="fixture-badge">FIXTURE</span>}
         </>
-        ) : appMode === "experiments" ? (
-          <span className="badge sample" data-testid="exp-sample-badge">SYNTHETIC SAMPLE · EXPERIMENTS</span>
-        ) : opsHeader.ok ? (
-          <span className="badge sample" data-testid="ops-sample-badge">
-            {opsHeader.synthetic ? "SYNTHETIC SAMPLE · CONFIGURED" : "CONFIGURED SCENE"}
-          </span>
-        ) : (
-          <span className="badge invalid" data-testid="ops-load-badge">LOAD FAILED</span>
-        )}
         <span className="spacer" />
-        {appMode === "planning" && (
         <>
         <details className="menu" data-testid="scenario-menu">
           <summary data-testid="scenario-menu-toggle">Scenario ▾</summary>
@@ -1455,11 +1397,10 @@ export function App(): React.JSX.Element {
           {exportLabel}
         </button>
         </>
-        )}
       </header>
 
       <div className="page">
-      {appMode === "experiments" ? <ExperimentsPanel holder={experiments} onChange={patchExperiments} /> : appMode === "operations" ? <OperationsPanel run={opsRun} onResetRun={resetOpsRun} /> : (<>
+      <>
       <section className="headline" aria-label="Planner headline">
         <div>
           <h1>A better place for every product.</h1>
@@ -1611,7 +1552,7 @@ export function App(): React.JSX.Element {
         <span>Source assets: NVIDIA SimReady (CC-BY-4.0) · Evaluation: LayoutLab core</span>
         <span className="mono">docs/METHODOLOGY.md</span>
       </footer>
-      </>)}
+      </>
       </div>
     </div>
   );

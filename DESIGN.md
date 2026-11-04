@@ -791,3 +791,42 @@ keyboard-reachable with the §1 focus ring; run status uses
 `aria-live="polite"`; long ids wrap (`overflow-wrap: anywhere`);
 `prefers-reduced-motion` disables transitions. Honest limits from §10–§11
 stand: no Lighthouse/60fps/mobile-3D claim without measurement.
+
+## 13. Unified warehouse workspace (U1)
+
+The three primary Storage Planning / Operations Simulation / Experiments
+tabs are replaced by ONE Operations-based workspace (`WarehouseWorkspace`).
+One active `OperationsScenario` + execution config + implementation version
+is the input identity (Settings shows it); it feeds the viewer, the live
+baseline, assistant submissions, results and exports. Legacy planner data
+(four-rack `warehouse-basic`) never feeds the six-rack P01..P12 warehouse:
+the planner stays behind explicit legacy access (`?mode=planning`, or
+Settings → Advanced) with its own state and reports, and
+`?mode=experiments` / `?mode=operations` are compatibility aliases to the
+same workspace (assistant / warehouse).
+
+Layout: compact header (logo, scenario selector, Sample data, Settings);
+plain-language metric row (scheduled, shipped, remaining including
+not-yet-arrived with arrived backlog separate, elapsed engine time; "Time
+to finish all orders" only for a completed shipped cohort; combined
+waiting time distinct and allowed to exceed elapsed time). The warehouse
+viewer is ~72% with a contextual right panel ~28% (stacked on narrow
+screens). Starts PAUSED with a persistent Run warehouse / Pause / Reset /
+Step and 1x/4x/16x bar; speed is presentation-only. The right panel is
+either the selected-object inspector or the warehouse assistant, never
+both. Direct canvas picking raycasts through instance IDs to canonical
+unit/location/rack/resource IDs (drag/orbit ignored; empty ground, Clear
+selection, or Back to assistant returns to the assistant); the entity
+dropdown remains as an accessible fallback. Results stay below the same
+viewer: Current vs proposed cards with human option names derived from
+actual patches ("Option 2 — Assume dispatch takes 30 seconds per order"),
+an expandable comparison, "What LayoutLab tested", exact-report Export
+and "Verify these results". Recorded/candidate inspection replays the
+report's recorded implementation via the versioned controller factory
+(never the latest engine silently); selecting an option retains the
+Current controller untouched and Return restores it. Scenario changes
+create a new context and keep earlier reports as stale/previous.
+Assignment/traffic optimization and layout editing are not advertised in
+this workspace; only supported hypothetical service-time changes are
+offered. No POST spends on mount, playback, selection, reset, scenario
+change, replay, export or verify.

@@ -70,7 +70,7 @@ export function initialExperimentsHolder(): ExperimentsHolder {
   };
 }
 
-function permissionsFromPolicy(policy: InterventionPolicy): PermissionsDraft {
+export function permissionsFromPolicy(policy: InterventionPolicy): PermissionsDraft {
   const draft = defaultPermissions();
   for (const field of DURATION_FIELDS) {
     if (policy.allowedFields.includes(field)) {

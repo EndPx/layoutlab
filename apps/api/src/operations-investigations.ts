@@ -9,12 +9,14 @@ import {
   OPERATIONS_ENGINE_VERSION,
   OPERATIONS_SCHEMA_VERSION,
   SIMULATION_VERSION,
+  SUPPORTED_IMPLEMENTATION_VERSIONS,
+  isSupportedImplementationVersion,
   parseInterventionPolicy,
   parseOperationsExecutionConfig,
   parseOperationsPatch,
   parseOperationsScenario,
   runOperationsExperiment,
-  verifyOperationsExperiment,
+  verifyOperationsExperimentForVersion,
   type ExperimentCandidateResult,
   type InterventionPolicy,
   type OperationsExecutionConfig,
@@ -947,7 +949,7 @@ export class InvestigationStore {
 
 // --- Offline verification -------------------------------------------------------
 // Strict report-envelope + evidence verification. Reruns the E3 engine only
-// (via verifyOperationsExperiment): this proves the saved measurements and
+// (via verifyOperationsExperimentForVersion): this proves the saved measurements and
 // recommendation arithmetic follow from the embedded synthetic inputs and
 // that the envelope/trace are internally consistent. It does NOT
 // authenticate live inference: provider provenance is recorded metadata.
@@ -991,10 +993,18 @@ function isStrOrNull(v: unknown, max = 2000): boolean {
   return v === null || (typeof v === "string" && v.length <= max);
 }
 
-export function verifyInvestigationExport(exported: unknown): { ok: boolean; mismatches: string[] } {
+export function verifyInvestigationExport(exported: unknown): {
+  ok: boolean;
+  mismatches: string[];
+  // Implementation that actually reran the recorded comparison; null
+  // when no supported recorded implementation could be selected.
+  verifierImplementationVersion: string | null;
+} {
   const mismatches: string[] = [];
   const bad = (m: string): void => { mismatches.push(m); };
-  if (!isRecord(exported)) return { ok: false, mismatches: ["investigation export must be an object"] };
+  let verifierImplementationVersion: string | null = null;
+  let declaredImplementationVersion: string | null = null;
+  if (!isRecord(exported)) return { ok: false, mismatches: ["investigation export must be an object"], verifierImplementationVersion };
   const exp = exported as unknown as InvestigationReport;
   const raw = exported;
 
@@ -1030,12 +1040,14 @@ export function verifyInvestigationExport(exported: unknown): { ok: boolean; mis
     bad("assumptions/limitations must be string arrays");
   }
 
-  // Declared versions must be the current accepted versions, not invented.
+  // Declared versions must be accepted versions, not invented. The
+  // simulation implementation may be any supported recorded version
+  // (archived 0.1.0 or current); the recorded comparison is then rerun
+  // with that implementation, never silently with the latest engine.
   if (!isRecord(raw["versions"]) || !hasExactKeys(raw["versions"], VERSION_KEYS)) {
     bad("versions envelope is missing or has wrong keys");
   } else {
     const wantVersions: Record<string, string> = {
-      simulation: SIMULATION_VERSION,
       operationsSchema: OPERATIONS_SCHEMA_VERSION,
       operationsEngine: OPERATIONS_ENGINE_VERSION,
       evaluator: INVESTIGATION_SCHEMA,
@@ -1043,8 +1055,14 @@ export function verifyInvestigationExport(exported: unknown): { ok: boolean; mis
       api: API_VERSION,
       prompt: INVESTIGATION_PROMPT_VERSION,
     };
-    for (const k of VERSION_KEYS) {
+    for (const k of Object.keys(wantVersions)) {
       if ((raw["versions"] as Record<string, unknown>)[k] !== wantVersions[k]) bad(`versions.${k}: saved ${String((raw["versions"] as Record<string, unknown>)[k])} != current ${wantVersions[k]}`);
+    }
+    const recordedSim = (raw["versions"] as Record<string, unknown>)["simulation"];
+    if (!isSupportedImplementationVersion(recordedSim)) {
+      bad(`versions.simulation: saved ${String(recordedSim)} is not a supported implementation (${SUPPORTED_IMPLEMENTATION_VERSIONS.join(", ")})`);
+    } else {
+      declaredImplementationVersion = recordedSim;
     }
   }
 
@@ -1128,9 +1146,28 @@ export function verifyInvestigationExport(exported: unknown): { ok: boolean; mis
     if (!(exp.state === "FAILED" && exp.requestCount === 0 && Array.isArray(exp.trace) && exp.trace.length === 0 && exp.recommendation === null)) {
       bad("comparison missing: mandatory baseline/comparison evidence is absent");
     }
-    return { ok: mismatches.length === 0, mismatches };
+    return { ok: mismatches.length === 0, mismatches, verifierImplementationVersion };
   }
-  const e3 = verifyOperationsExperiment(comparison);
+  const e3 = verifyOperationsExperimentForVersion(comparison);
+  // Every nested recording must describe the same implementation as the outer export.
+  const checkRecordedVersions = (value: unknown, path: string): void => {
+    if (!isRecord(value)) {
+      if (Array.isArray(value)) value.forEach((item, i) => checkRecordedVersions(item, `${path}[${i}]`));
+      return;
+    }
+    if (isRecord(value.versions) && "simulation" in value.versions &&
+        value.versions.simulation !== declaredImplementationVersion) {
+      bad(`${path}.versions.simulation: mixed recorded implementations (${String(value.versions.simulation)} != ${String(declaredImplementationVersion)})`);
+    }
+    for (const [key, child] of Object.entries(value)) checkRecordedVersions(child, `${path}.${key}`);
+  };
+  checkRecordedVersions(comparison, "comparison");
+  if (e3.verifierImplementationVersion !== declaredImplementationVersion) {
+    bad("comparison: mixed recorded implementations differ from outer versions.simulation");
+  }
+  // Report the implementation that actually performed the comparison replay,
+  // including when inconsistent outer metadata makes verification fail.
+  verifierImplementationVersion = e3.verifierImplementationVersion;
   for (const m of e3.mismatches) bad(`comparison: ${m}`);
   // The COMPLETE parsed input must equal the E3 common inputs actually run.
   if (parsedScenario && canonicalJson(parsedScenario) !== canonicalJson(comparison.commonInputs.scenario)) bad("input scenario differs from comparison commonInputs.scenario (different frozen input than measured)");
@@ -1149,7 +1186,7 @@ export function verifyInvestigationExport(exported: unknown): { ok: boolean; mis
   const trace = Array.isArray(exp.trace) ? exp.trace : null;
   if (!trace) {
     bad("trace must be an array");
-    return { ok: mismatches.length === 0, mismatches };
+    return { ok: mismatches.length === 0, mismatches, verifierImplementationVersion };
   }
   const metricsEqual = (t: InvestigationTraceEntry, c: ExperimentCandidateResult): boolean =>
     t.shipped === c.shipped && t.makespanMs === c.makespanMs && t.totalWaitMs === c.totalWaitMs && t.backlog === c.backlog;
@@ -1308,5 +1345,5 @@ export function verifyInvestigationExport(exported: unknown): { ok: boolean; mis
     if (recommendationEntries.length !== 0) bad("recommendation trace exists without a recommendation");
     if (exp.state === "COMPLETED") bad("completed investigation must carry a recommendation (model or labeled fallback)");
   }
-  return { ok: mismatches.length === 0, mismatches };
+  return { ok: mismatches.length === 0, mismatches, verifierImplementationVersion };
 }

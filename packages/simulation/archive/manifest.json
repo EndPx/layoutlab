@@ -1,0 +1,40 @@
+{
+  "artifact": "layoutlab.simulation-runtime/0.1.0",
+  "implementationVersion": "0.1.0",
+  "operationsSchema": "layoutlab.operations/1",
+  "operationsEngine": "layoutlab.operations-engine/1",
+  "sourceCommit": "a8a88097ac4d5772bd9b334cdc6db7f07d228c5e",
+  "node": "v24.18.0",
+  "buildTool": "vite 8.3.5 (lib mode, rollup, single-file ESM, no minify, no sourcemap)",
+  "buildRecipe": "node packages/simulation/archive/build-archive.mjs",
+  "bundle": {
+    "path": "packages/simulation/archive/0.1.0/runtime.mjs",
+    "bytes": 444122,
+    "sha256": "8540D76D3A7B788C1A321C0F8ED7487B7E88593C53355007715766E54113EEEF"
+  },
+  "sources": {
+    "packages/simulation/src/environment.ts": "099A3D917B32D54B458DE5156C4A460060C51F690786A54A13E3291FBB3491FD",
+    "packages/simulation/src/experiments.ts": "12427075E401BF03B615CAA1B2CF4B915E7CEB23B3F613B616A888791EED4D82",
+    "packages/simulation/src/index.ts": "B2157CC55715B76A488CA16D9AABFDCAE93F43A5DC61AB7C787C59FA51027BC9",
+    "packages/simulation/src/inventory.ts": "359D7339662C43A24A47F14A699B7DDDE29611A1D01B261B05884C2BE93FE661",
+    "packages/simulation/src/kernel.ts": "EFA0B80A81C88F4A67F86CC89726E7227A95DFFC618B99FB9DF57D4D79B91E7D",
+    "packages/simulation/src/navigation.ts": "8747746EB083A5FDEABC004DE6ED11CDF8DBBCC7E2E7941F93CF9019E77A0846",
+    "packages/simulation/src/operations.ts": "6BAE27C229C1EFE983B2BDFA9C1D762A497ED9610BCB04C6CB5B66231E36AFCF",
+    "packages/simulation/src/priorities.ts": "CBEE42035420B7D17C52123683466DB9F50B9FEC91CC451868209F83D6B4DA22",
+    "packages/simulation/src/resources.ts": "6DD751E0A2C4F5D835DFCC771E0952C707109B2D7A31841FA17854A8DBBB8C9C",
+    "packages/simulation/src/schema.ts": "0D23E1B0A587A2EE6032927EFD49494C2F4AAFB35694EC9907CB19A21E07CB35",
+    "packages/simulation/src/traffic.ts": "864886DD1F32910ED66895F24F50D816FCB0E26634681B10F70A6A4E08FCCD40",
+    "packages/simulation/src/transport.ts": "26B716D9262DE90C009EFFB42AE045B785F4E0ACEA72C60D39BB83988238F27C",
+    "packages/simulation/src/travel.ts": "58D935AB64E72A1ADF9E4C46FAFF825B258291DAA0209F271735F6CA6723C09B",
+    "packages/simulation/src/version.ts": "A8AF424BCC6EE3E13F5957ED344CE749F101E8903F776191297516C1E0B5DD15"
+  },
+  "bundledDependencies": [
+    {
+      "name": "zod",
+      "version": "4.6.7",
+      "license": "MIT",
+      "notices": "LICENSES.md"
+    }
+  ],
+  "immutable": "Never overwrite runtime.mjs with newer engine output; verify integrity against bundle.sha256."
+}

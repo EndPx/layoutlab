@@ -1,23 +1,28 @@
-// Entry defaults (E4b follow-up): bare URL opens Operations Simulation;
-// the planner and Experiments stay reachable by explicit mode, with state
-// preserved across switches.
+// Entry defaults (unified workspace): bare URL opens the one warehouse
+// workspace; ?mode=experiments / ?mode=operations are compatibility aliases
+// to the same workspace; legacy storage planning needs explicit access.
 import { expect, test } from "@playwright/test";
 
-test("bare URL defaults to operations; explicit modes preserve planner state", async ({ page }) => {
+test("bare URL opens the unified warehouse; legacy planning is explicit", async ({ page }) => {
+  test.setTimeout(120_000);
   await page.goto("/");
-  await expect(page.getByTestId("mode-operations")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByTestId("ops-panel")).toBeVisible();
+  await expect(page.getByTestId("ws-header")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("mode-planning")).toHaveCount(0);
+  await expect(page.getByTestId("ws-assistant")).toBeVisible();
+  await expect(page.getByTestId("ops-canvas")).toBeVisible({ timeout: 30_000 });
 
-  await page.goto("/?mode=planning");
-  await expect(page.getByTestId("mode-planning")).toHaveAttribute("aria-pressed", "true");
+  // Compatibility aliases land on the same workspace.
+  await page.goto("/?mode=experiments");
+  await expect(page.getByTestId("ws-assistant")).toBeVisible({ timeout: 30_000 });
+  await page.goto("/?mode=operations");
+  await expect(page.getByTestId("ws-viewport-panel")).toBeVisible({ timeout: 30_000 });
+  // The planner's own deep link stays isolated legacy access.
+  await page.goto("/?mode=planning&legacy=1");
   await page.getByTestId("scenario-menu-toggle").click();
   await page.getByTestId("btn-sample").click();
-  await expect(page.getByTestId("scenario-label")).toContainText("warehouse-basic");
-
-  await page.getByTestId("mode-operations").click();
-  await expect(page.getByTestId("ops-panel")).toBeVisible();
-  await page.getByTestId("mode-planning").click();
-  await expect(page.getByTestId("scenario-label")).toContainText("warehouse-basic");
+  await expect(page.getByTestId("scenario-label")).toContainText("warehouse-basic", { timeout: 30_000 });
+  await page.getByTestId("ws-back-workspace").click();
+  await expect(page.getByTestId("ws-header")).toBeVisible({ timeout: 30_000 });
 
   // Brand: generated symbol loads at its declared size; favicon is the PNG.
   const symbol = page.getByTestId("brand-symbol");
@@ -28,8 +33,4 @@ test("bare URL defaults to operations; explicit modes preserve planner state", a
     return link ? { href: link.getAttribute("href"), type: link.type, sizes: link.sizes.value } : null;
   });
   expect(favicon).toEqual({ href: "/brand/layoutlab-symbol-v1.png", type: "image/png", sizes: "1254x1254" });
-
-  await page.goto("/?mode=experiments");
-  await expect(page.getByTestId("mode-experiments")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByTestId("experiments-panel")).toBeVisible();
 });

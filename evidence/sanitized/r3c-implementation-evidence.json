@@ -1,0 +1,579 @@
+{
+ "scope": "R3c integration evidence: pre-patch 0.1.0 dist, archived 0.1.0 runtime, current 0.1.1 dist on canonical fixtures. No provider calls.",
+ "fixtures": {
+  "main-warehouse.json": "C6E4F208835E31DE2554850FA618953BB6F9A1B03C360B137C784BD5112660CB",
+  "picking-packing-burst.json": "9EDA552BD8F2DA8378C84DCCF5440D8264869AF3013065AE6E34ECB4529CDBF7",
+  "picking-packing-burst.runconfig.json": "48FACB5CFD9083240B1FF561D4FB7689B36E63438EEBF9429A3C89B4E727F7A1"
+ },
+ "archive": {
+  "bundleSha256": "8540D76D3A7B788C1A321C0F8ED7487B7E88593C53355007715766E54113EEEF",
+  "manifest": "packages/simulation/archive/manifest.json",
+  "sourceCommit": "a8a88097ac4d5772bd9b334cdc6db7f07d228c5e"
+ },
+ "prePatchDist010": {
+  "implementation": "0.1.0",
+  "fullShift": {
+   "stage": "WINDOW_ENDED",
+   "counts": {
+    "selected": 28,
+    "excluded": 0,
+    "arrived": 28,
+    "packed": 11,
+    "readyForDispatch": 0,
+    "shipped": 11,
+    "backlog": 17,
+    "stageBacklog": 17
+   },
+   "checks": {
+    "conservation": [],
+    "capacity": [],
+    "safety": []
+   },
+   "verificationOk": true,
+   "metrics": {
+    "totalWaitMs": 256400000,
+    "makespanMs": null,
+    "lastShippedAtMs": 12235300
+   },
+   "deliveryStates": {
+    "RECEIVING": 12
+   },
+   "conservationHolds": true,
+   "bucketsByProduct": {
+    "P01": {
+     "receiving": 8,
+     "storage": 95,
+     "carried": 4,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 5,
+     "externalPending": 56,
+     "total": 168
+    },
+    "P02": {
+     "receiving": 0,
+     "storage": 66,
+     "carried": 1,
+     "packing": 4,
+     "packed": 0,
+     "dispatched": 1,
+     "externalPending": 60,
+     "total": 132
+    },
+    "P03": {
+     "receiving": 0,
+     "storage": 136,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 8,
+     "externalPending": 84,
+     "total": 228
+    },
+    "P04": {
+     "receiving": 0,
+     "storage": 91,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 5,
+     "externalPending": 72,
+     "total": 168
+    },
+    "P05": {
+     "receiving": 0,
+     "storage": 67,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 5,
+     "externalPending": 60,
+     "total": 132
+    },
+    "P06": {
+     "receiving": 0,
+     "storage": 134,
+     "carried": 0,
+     "packing": 4,
+     "packed": 0,
+     "dispatched": 6,
+     "externalPending": 84,
+     "total": 228
+    },
+    "P07": {
+     "receiving": 0,
+     "storage": 191,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 1,
+     "externalPending": 72,
+     "total": 264
+    },
+    "P08": {
+     "receiving": 0,
+     "storage": 282,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 6,
+     "externalPending": 84,
+     "total": 372
+    },
+    "P09": {
+     "receiving": 0,
+     "storage": 377,
+     "carried": 4,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 3,
+     "externalPending": 84,
+     "total": 468
+    },
+    "P10": {
+     "receiving": 0,
+     "storage": 187,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 5,
+     "externalPending": 72,
+     "total": 264
+    },
+    "P11": {
+     "receiving": 0,
+     "storage": 285,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 3,
+     "externalPending": 72,
+     "total": 360
+    },
+    "P12": {
+     "receiving": 0,
+     "storage": 186,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 6,
+     "externalPending": 96,
+     "total": 288
+    }
+   },
+   "expectedByProduct": {
+    "P01": 168,
+    "P02": 132,
+    "P03": 228,
+    "P04": 168,
+    "P05": 132,
+    "P06": 228,
+    "P07": 264,
+    "P08": 372,
+    "P09": 468,
+    "P10": 264,
+    "P11": 360,
+    "P12": 288
+   }
+  },
+  "burst": {
+   "stage": "SUPPORTED_STAGE_COMPLETE",
+   "counts": {
+    "selected": 6,
+    "excluded": 0,
+    "arrived": 6,
+    "packed": 6,
+    "readyForDispatch": 0,
+    "shipped": 6,
+    "backlog": 0,
+    "stageBacklog": 0
+   },
+   "verificationOk": true,
+   "metrics": {
+    "totalWaitMs": 614900,
+    "makespanMs": 502400,
+    "lastShippedAtMs": 502400
+   },
+   "stopClockMs": 540000
+  }
+ },
+ "archived010": {
+  "implementation": "0.1.0",
+  "fullShift": {
+   "stage": "WINDOW_ENDED",
+   "counts": {
+    "selected": 28,
+    "excluded": 0,
+    "arrived": 28,
+    "packed": 11,
+    "readyForDispatch": 0,
+    "shipped": 11,
+    "backlog": 17,
+    "stageBacklog": 17
+   },
+   "checks": {
+    "conservation": [],
+    "capacity": [],
+    "safety": []
+   },
+   "verificationOk": true,
+   "metrics": {
+    "totalWaitMs": 256400000,
+    "makespanMs": null,
+    "lastShippedAtMs": 12235300
+   },
+   "deliveryStates": {
+    "RECEIVING": 12
+   },
+   "conservationHolds": true,
+   "bucketsByProduct": {
+    "P01": {
+     "receiving": 8,
+     "storage": 95,
+     "carried": 4,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 5,
+     "externalPending": 56,
+     "total": 168
+    },
+    "P02": {
+     "receiving": 0,
+     "storage": 66,
+     "carried": 1,
+     "packing": 4,
+     "packed": 0,
+     "dispatched": 1,
+     "externalPending": 60,
+     "total": 132
+    },
+    "P03": {
+     "receiving": 0,
+     "storage": 136,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 8,
+     "externalPending": 84,
+     "total": 228
+    },
+    "P04": {
+     "receiving": 0,
+     "storage": 91,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 5,
+     "externalPending": 72,
+     "total": 168
+    },
+    "P05": {
+     "receiving": 0,
+     "storage": 67,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 5,
+     "externalPending": 60,
+     "total": 132
+    },
+    "P06": {
+     "receiving": 0,
+     "storage": 134,
+     "carried": 0,
+     "packing": 4,
+     "packed": 0,
+     "dispatched": 6,
+     "externalPending": 84,
+     "total": 228
+    },
+    "P07": {
+     "receiving": 0,
+     "storage": 191,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 1,
+     "externalPending": 72,
+     "total": 264
+    },
+    "P08": {
+     "receiving": 0,
+     "storage": 282,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 6,
+     "externalPending": 84,
+     "total": 372
+    },
+    "P09": {
+     "receiving": 0,
+     "storage": 377,
+     "carried": 4,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 3,
+     "externalPending": 84,
+     "total": 468
+    },
+    "P10": {
+     "receiving": 0,
+     "storage": 187,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 5,
+     "externalPending": 72,
+     "total": 264
+    },
+    "P11": {
+     "receiving": 0,
+     "storage": 285,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 3,
+     "externalPending": 72,
+     "total": 360
+    },
+    "P12": {
+     "receiving": 0,
+     "storage": 186,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 6,
+     "externalPending": 96,
+     "total": 288
+    }
+   },
+   "expectedByProduct": {
+    "P01": 168,
+    "P02": 132,
+    "P03": 228,
+    "P04": 168,
+    "P05": 132,
+    "P06": 228,
+    "P07": 264,
+    "P08": 372,
+    "P09": 468,
+    "P10": 264,
+    "P11": 360,
+    "P12": 288
+   }
+  },
+  "burst": {
+   "stage": "SUPPORTED_STAGE_COMPLETE",
+   "counts": {
+    "selected": 6,
+    "excluded": 0,
+    "arrived": 6,
+    "packed": 6,
+    "readyForDispatch": 0,
+    "shipped": 6,
+    "backlog": 0,
+    "stageBacklog": 0
+   },
+   "verificationOk": true,
+   "metrics": {
+    "totalWaitMs": 614900,
+    "makespanMs": 502400,
+    "lastShippedAtMs": 502400
+   },
+   "stopClockMs": 540000
+  }
+ },
+ "current011": {
+  "implementation": "0.1.1",
+  "fullShift": {
+   "stage": "WINDOW_ENDED",
+   "counts": {
+    "selected": 28,
+    "excluded": 0,
+    "arrived": 28,
+    "packed": 28,
+    "readyForDispatch": 0,
+    "shipped": 28,
+    "backlog": 0,
+    "stageBacklog": 0
+   },
+   "checks": {
+    "conservation": [],
+    "capacity": [],
+    "safety": []
+   },
+   "verificationOk": true,
+   "metrics": {
+    "totalWaitMs": 29028300,
+    "makespanMs": null,
+    "lastShippedAtMs": 27230600
+   },
+   "deliveryStates": {
+    "RECEIVING": 12
+   },
+   "conservationHolds": true,
+   "bucketsByProduct": {
+    "P01": {
+     "receiving": 8,
+     "storage": 96,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 12,
+     "externalPending": 52,
+     "total": 168
+    },
+    "P02": {
+     "receiving": 0,
+     "storage": 63,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 9,
+     "externalPending": 60,
+     "total": 132
+    },
+    "P03": {
+     "receiving": 0,
+     "storage": 130,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 14,
+     "externalPending": 84,
+     "total": 228
+    },
+    "P04": {
+     "receiving": 0,
+     "storage": 86,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 10,
+     "externalPending": 72,
+     "total": 168
+    },
+    "P05": {
+     "receiving": 0,
+     "storage": 60,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 12,
+     "externalPending": 60,
+     "total": 132
+    },
+    "P06": {
+     "receiving": 0,
+     "storage": 127,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 17,
+     "externalPending": 84,
+     "total": 228
+    },
+    "P07": {
+     "receiving": 0,
+     "storage": 177,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 15,
+     "externalPending": 72,
+     "total": 264
+    },
+    "P08": {
+     "receiving": 0,
+     "storage": 274,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 14,
+     "externalPending": 84,
+     "total": 372
+    },
+    "P09": {
+     "receiving": 0,
+     "storage": 372,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 12,
+     "externalPending": 84,
+     "total": 468
+    },
+    "P10": {
+     "receiving": 0,
+     "storage": 179,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 13,
+     "externalPending": 72,
+     "total": 264
+    },
+    "P11": {
+     "receiving": 0,
+     "storage": 279,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 9,
+     "externalPending": 72,
+     "total": 360
+    },
+    "P12": {
+     "receiving": 0,
+     "storage": 175,
+     "carried": 0,
+     "packing": 0,
+     "packed": 0,
+     "dispatched": 17,
+     "externalPending": 96,
+     "total": 288
+    }
+   },
+   "expectedByProduct": {
+    "P01": 168,
+    "P02": 132,
+    "P03": 228,
+    "P04": 168,
+    "P05": 132,
+    "P06": 228,
+    "P07": 264,
+    "P08": 372,
+    "P09": 468,
+    "P10": 264,
+    "P11": 360,
+    "P12": 288
+   }
+  },
+  "burst": {
+   "stage": "SUPPORTED_STAGE_COMPLETE",
+   "counts": {
+    "selected": 6,
+    "excluded": 0,
+    "arrived": 6,
+    "packed": 6,
+    "readyForDispatch": 0,
+    "shipped": 6,
+    "backlog": 0,
+    "stageBacklog": 0
+   },
+   "verificationOk": true,
+   "metrics": {
+    "totalWaitMs": 614900,
+    "makespanMs": 502400,
+    "lastShippedAtMs": 502400
+   },
+   "stopClockMs": 540000
+  }
+ },
+ "recordedReplay": {
+  "liveMetaInvestigation": "ok, verifierImplementationVersion 0.1.0",
+  "e3PublicComparison": "ok, verifierImplementationVersion 0.1.0",
+  "e3OfflineComparison": "ok, verifierImplementationVersion 0.1.0"
+ }
+}

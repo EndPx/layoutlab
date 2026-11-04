@@ -155,6 +155,7 @@ export type OperationsUnitTaskView =
   | { kind: "to-receive"; deliveryId: string; resourceId: string }
   | { kind: "collecting"; deliveryId: string; resourceId: string; productId: string; quantity: number }
   | { kind: "awaiting-location"; deliveryId: string }
+  | { kind: "yield-to-parking"; deliveryId: string }
   | { kind: "to-store"; deliveryId: string; locationId: string }
   | { kind: "storing"; deliveryId: string; locationId: string }
   | { kind: "to-parking" };
@@ -722,6 +723,7 @@ type UnitTask =
   | { kind: "to-receive"; deliveryId: string; resourceId: string }
   | { kind: "collecting"; deliveryId: string; resourceId: string; productId: string; quantity: number }
   | { kind: "awaiting-location"; deliveryId: string }
+  | { kind: "yield-to-parking"; deliveryId: string }
   | { kind: "to-store"; deliveryId: string; locationId: string }
   | { kind: "storing"; deliveryId: string; locationId: string }
   | { kind: "to-parking" };
@@ -2543,6 +2545,88 @@ export function createOperationsController(opts: {
       return total;
     };
 
+    // Put-away liveness helpers (private r3-liveness hardening).
+    const closePutAwayWait = (unitId: string, endMs: number): void => {
+      for (const w of S.waits) {
+        if (w.endMs === null && w.unitId === unitId && w.reason === "PUTAWAY_NO_LOCATION") {
+          w.endMs = endMs;
+        }
+      }
+    };
+
+    const freeAtLocation = (locationId: string, productId: string): number => {
+      const cfg = scenario.locations.find((l) => l.id === locationId);
+      if (!cfg) return 0;
+      const slot = S.store.snapshot().storage.find((r) => r.locationId === locationId);
+      if (!slot) return 0;
+      if (slot.productId !== null && slot.productId !== productId) return 0;
+      return Math.max(0, cfg.maxQuantity - slot.quantity);
+    };
+
+    // Largest q in 1..desired that one eligible slot can take right now.
+    const placeableQty = (productId: string, desired: number): number => {
+      for (let q = Math.min(desired, Number.MAX_SAFE_INTEGER); q >= 1; q -= 1) {
+        if (q > desired) continue;
+        if (S.store.selectPutAwayLocation(productId, q).status === "selectable") return q;
+      }
+      return 0;
+    };
+
+    const stagedRowsInDeliveryOrder = (
+      dt: DeliveryRuntime,
+      resourceId?: string,
+    ): { deliveryId: string; resourceId: string; productId: string; quantity: number }[] => {
+      const order = new Map(dt.lines.map((l, i) => [l.productId, i] as const));
+      return S.store
+        .snapshot()
+        .receiving.filter(
+          (r) =>
+            r.deliveryId === dt.deliveryId &&
+            r.quantity > 0 &&
+            (resourceId === undefined || r.resourceId === resourceId),
+        )
+        .sort(
+          (a, b) =>
+            (order.get(a.productId) ?? 999) - (order.get(b.productId) ?? 999) ||
+            (a.productId < b.productId ? -1 : 1),
+        );
+    };
+
+    // First placeable staged row of this delivery (declared line order).
+    // Quantities another unit is already collecting for the same staged row
+    // are claimed: they leave staging only at collect completion, so sizing
+    // against the raw staged quantity would double-assign the same items.
+    const choosePlaceableCollect = (
+      dt: DeliveryRuntime,
+      unitId: string,
+      resourceId?: string,
+    ): { resourceId: string; productId: string; quantity: number } | null => {
+      const capacity = unitCapacity.get(unitId) ?? 0;
+      const carried = carriedCostOf(unitId);
+      for (const row of stagedRowsInDeliveryOrder(dt, resourceId)) {
+        let claimed = 0;
+        for (const other of S.units.values()) {
+          if (other.unitId === unitId) continue;
+          if (
+            other.task.kind === "collecting" &&
+            other.task.deliveryId === dt.deliveryId &&
+            other.task.productId === row.productId &&
+            other.task.resourceId === row.resourceId
+          ) {
+            claimed += other.task.quantity;
+          }
+        }
+        const available = row.quantity - claimed;
+        if (available <= 0) continue;
+        const cost = productCost.get(row.productId) ?? 0;
+        const fits = cost > 0 ? Math.floor((capacity - carried) / cost) : available;
+        if (fits <= 0) continue;
+        const qty = placeableQty(row.productId, Math.min(available, fits));
+        if (qty > 0) return { resourceId: row.resourceId, productId: row.productId, quantity: qty };
+      }
+      return null;
+    };
+
     const schedulePutAwayHandling = (
       unitId: string,
       dt: DeliveryRuntime,
@@ -2555,7 +2639,7 @@ export function createOperationsController(opts: {
       if (at > MAX_TIME_MS) return;
       record(now, phase === "collect" ? "PUTAWAY_COLLECT_STARTED" : "PUTAWAY_PLACE_STARTED", null, unitId, `${dt.deliveryId} ${quantity} item(s)${locationId ? ` -> ${locationId}` : ""}`);
       S.kernel.schedule({
-        id: `ops-putaway-${phase}-${dt.idx}-${now}`,
+        id: `ops-putaway-${phase}-${unitId}-${dt.idx}-${now}`,
         timeMs: at,
         priority: EVENT_PRIORITY.COMPLETION,
         kind: "PUTAWAY_COMPLETED",
@@ -2566,24 +2650,54 @@ export function createOperationsController(opts: {
     const tryAdvancePutAway = (now: number): void => {
       // Retry units holding a collected load with no eligible location yet.
       for (const unit of S.units.values()) {
+        if (unit.task.kind === "yield-to-parking") continue;
         if (unit.task.kind !== "awaiting-location") continue;
         const carriedRow = S.store.snapshot().carried.find((c) => c.unitId === unit.unitId);
         const load = carriedRow?.loads.find((l) => l.quantity > 0);
         if (!load) {
+          closePutAwayWait(unit.unitId, now);
           unit.task = { kind: "idle" };
           continue;
         }
-        const sel = S.store.selectPutAwayLocation(load.productId, load.quantity);
-        if (sel.status !== "selectable") continue;
+        const snap = transportUnitById(unit.unitId);
+        if (snap.state !== "idle") continue;
         const dt = S.deliveries.get(unit.task.deliveryId) as DeliveryRuntime;
-        unit.task = { kind: "to-store", deliveryId: dt.deliveryId, locationId: sel.locationId };
+        const fitQty = placeableQty(load.productId, load.quantity);
+        if (fitQty <= 0) {
+          dt.waitReason = "PUTAWAY_NO_LOCATION";
+          openWait(unit.unitId, null, "PUTAWAY_NO_LOCATION", `${load.productId} has no eligible storage location yet`, now);
+          const home = unitParking.get(unit.unitId);
+          if (home && !posesEqual(snap.pose, home)) {
+            const mv = requestUnitMove(unit.unitId, home, now, null, "putaway-blocked-parking");
+            if (mv.status !== "rejected") {
+              unit.task = { kind: "yield-to-parking", deliveryId: dt.deliveryId };
+              closePutAwayWait(unit.unitId, now);
+            }
+          }
+          continue;
+        }
+        const sel = S.store.selectPutAwayLocation(load.productId, fitQty);
+        if (sel.status !== "selectable") continue;
         const dest = locationApproach.get(sel.locationId) as MoveDestination;
-        const pose = transportUnitById(unit.unitId).pose;
-        if (posesEqual(pose, dest)) {
+        closePutAwayWait(unit.unitId, now);
+        dt.waitReason = null;
+        if (posesEqual(snap.pose, dest)) {
+          const placeQty = Math.min(load.quantity, freeAtLocation(sel.locationId, load.productId));
+          if (placeQty <= 0) {
+            dt.waitReason = "PUTAWAY_NO_LOCATION";
+            openWait(unit.unitId, null, "PUTAWAY_NO_LOCATION", `${load.productId} has no eligible storage location yet`, now);
+            continue;
+          }
           unit.task = { kind: "storing", deliveryId: dt.deliveryId, locationId: sel.locationId };
-          schedulePutAwayHandling(unit.unitId, dt, "place", load.quantity, sel.locationId, now);
+          schedulePutAwayHandling(unit.unitId, dt, "place", placeQty, sel.locationId, now);
         } else {
-          requestUnitMove(unit.unitId, dest, now, null, `putaway-store:${sel.locationId}`);
+          const mv = requestUnitMove(unit.unitId, dest, now, null, `putaway-store:${sel.locationId}`);
+          if (mv.status === "rejected") {
+            dt.waitReason = "PUTAWAY_NO_LOCATION";
+            openWait(unit.unitId, null, "PUTAWAY_NO_LOCATION", `${load.productId} has no eligible storage location yet`, now);
+            continue;
+          }
+          unit.task = { kind: "to-store", deliveryId: dt.deliveryId, locationId: sel.locationId };
         }
       }
       for (const unit of S.units.values()) {
@@ -2594,15 +2708,8 @@ export function createOperationsController(opts: {
           .sort((a, b) => a.arrivalTimeMs - b.arrivalTimeMs || a.idx - b.idx);
         const dt = candidates[0];
         if (!dt) return;
-        const stagedRows = S.store.snapshot().receiving.filter((r) => r.deliveryId === dt.deliveryId && r.quantity > 0);
-        const row = stagedRows[0];
-        if (!row) continue;
-        const capacity = unitCapacity.get(unit.unitId) ?? 0;
-        const carried = carriedCostOf(unit.unitId);
-        const cost = productCost.get(row.productId) ?? 0;
-        const fits = cost > 0 ? Math.floor((capacity - carried) / cost) : row.quantity;
-        if (fits <= 0) continue;
-        const qty = Math.min(row.quantity, fits);
+        const chosen = choosePlaceableCollect(dt, unit.unitId);
+        if (!chosen) continue;
         if (dt.state === "PUTAWAY_PENDING") {
           dt.state = "PUTAWAY";
           dt.timestamps.PUTAWAY = now;
@@ -2610,20 +2717,18 @@ export function createOperationsController(opts: {
         // A delivery still in RECEIVING keeps that state until acceptance
         // completes; put-away draining happens concurrently.
         dt.waitReason = null;
-        unit.task = { kind: "to-receive", deliveryId: dt.deliveryId, resourceId: row.resourceId };
-        const dest = S.receivingCoords.get(row.resourceId) as MoveDestination;
+        unit.task = { kind: "to-receive", deliveryId: dt.deliveryId, resourceId: chosen.resourceId };
+        const dest = S.receivingCoords.get(chosen.resourceId) as MoveDestination;
         const pose = transportUnitById(unit.unitId).pose;
         if (posesEqual(pose, dest)) {
-          unit.task = { kind: "collecting", deliveryId: dt.deliveryId, resourceId: row.resourceId, productId: row.productId, quantity: qty };
-          schedulePutAwayHandling(unit.unitId, dt, "collect", qty, null, now);
+          unit.task = { kind: "collecting", deliveryId: dt.deliveryId, resourceId: chosen.resourceId, productId: chosen.productId, quantity: chosen.quantity };
+          schedulePutAwayHandling(unit.unitId, dt, "collect", chosen.quantity, null, now);
         } else {
           const mv = requestUnitMove(unit.unitId, dest, now, null, `putaway-collect:${dt.deliveryId}`);
           if (mv.status === "rejected") {
             unit.task = { kind: "idle" };
           } else {
-            // Remember the intended chunk on the task once arrived; stash via
-            // a collecting task only on arrival recompute (same rule).
-            unit.task = { kind: "to-receive", deliveryId: dt.deliveryId, resourceId: row.resourceId };
+            unit.task = { kind: "to-receive", deliveryId: dt.deliveryId, resourceId: chosen.resourceId };
           }
         }
       }
@@ -2676,10 +2781,26 @@ export function createOperationsController(opts: {
           return;
         }
         const collectedProduct = unit.task.productId;
-        const collectedQty = unit.task.quantity;
+        const taskedQty = unit.task.quantity;
         const collectedResource = unit.task.resourceId;
+        const stagedNow =
+          S.store
+            .snapshot()
+            .receiving.find(
+              (r) =>
+                r.deliveryId === dt.deliveryId &&
+                r.resourceId === collectedResource &&
+                r.productId === collectedProduct,
+            )?.quantity ?? 0;
+        if (stagedNow <= 0) {
+          unit.task = { kind: "idle" };
+          record(now, "STALE_IGNORED", null, unitId, "staged stock already collected by another unit; no mutation");
+          requestDispatch(now);
+          return;
+        }
+        const collectedQty = Math.min(taskedQty, stagedNow);
         S.store.collectPutAway({
-          eventId: `inv-collect-${dt.idx}-${now}`,
+          eventId: `inv-collect-${dt.idx}-${unitId}-${now}`,
           timeMs: now,
           deliveryId: dt.deliveryId,
           resourceId: collectedResource,
@@ -2689,22 +2810,47 @@ export function createOperationsController(opts: {
         });
         record(now, "PUTAWAY_COLLECTED", null, unitId, `${dt.deliveryId} ${collectedProduct}x${collectedQty} collected`);
         finishReceivingIfAccepted(dt, now);
-        const sel = S.store.selectPutAwayLocation(collectedProduct, collectedQty);
+        const fitQty = placeableQty(collectedProduct, collectedQty);
+        if (fitQty <= 0) {
+          unit.task = { kind: "awaiting-location", deliveryId: dt.deliveryId };
+          dt.waitReason = "PUTAWAY_NO_LOCATION";
+          openWait(unitId, null, "PUTAWAY_NO_LOCATION", `${collectedProduct} has no eligible storage location yet`, now);
+          requestDispatch(now);
+          return;
+        }
+        const sel = S.store.selectPutAwayLocation(collectedProduct, fitQty);
         if (sel.status !== "selectable") {
           unit.task = { kind: "awaiting-location", deliveryId: dt.deliveryId };
           dt.waitReason = "PUTAWAY_NO_LOCATION";
           openWait(unitId, null, "PUTAWAY_NO_LOCATION", `${collectedProduct} has no eligible storage location yet`, now);
+          requestDispatch(now);
           return;
         }
-        closeWaitsFor(unitId, null, now);
-        unit.task = { kind: "to-store", deliveryId: dt.deliveryId, locationId: sel.locationId };
+        closePutAwayWait(unitId, now);
+        dt.waitReason = null;
         const dest = locationApproach.get(sel.locationId) as MoveDestination;
         const pose = transportUnitById(unitId).pose;
         if (posesEqual(pose, dest)) {
+          const placeQty = Math.min(collectedQty, freeAtLocation(sel.locationId, collectedProduct));
+          if (placeQty <= 0) {
+            unit.task = { kind: "awaiting-location", deliveryId: dt.deliveryId };
+            dt.waitReason = "PUTAWAY_NO_LOCATION";
+            openWait(unitId, null, "PUTAWAY_NO_LOCATION", `${collectedProduct} has no eligible storage location yet`, now);
+            requestDispatch(now);
+            return;
+          }
           unit.task = { kind: "storing", deliveryId: dt.deliveryId, locationId: sel.locationId };
-          schedulePutAwayHandling(unitId, dt, "place", carriedCostOf(unitId) > 0 ? (S.store.snapshot().carried.find((c) => c.unitId === unitId)?.loads.find((l) => l.quantity > 0)?.quantity ?? 0) : 0, sel.locationId, now);
+          schedulePutAwayHandling(unitId, dt, "place", placeQty, sel.locationId, now);
         } else {
-          requestUnitMove(unitId, dest, now, null, `putaway-store:${sel.locationId}`);
+          const mv = requestUnitMove(unitId, dest, now, null, `putaway-store:${sel.locationId}`);
+          if (mv.status === "rejected") {
+            unit.task = { kind: "awaiting-location", deliveryId: dt.deliveryId };
+            dt.waitReason = "PUTAWAY_NO_LOCATION";
+            openWait(unitId, null, "PUTAWAY_NO_LOCATION", `${collectedProduct} has no eligible storage location yet`, now);
+            requestDispatch(now);
+            return;
+          }
+          unit.task = { kind: "to-store", deliveryId: dt.deliveryId, locationId: sel.locationId };
         }
         return;
       }
@@ -2715,19 +2861,39 @@ export function createOperationsController(opts: {
         return;
       }
       const carriedRow = S.store.snapshot().carried.find((c) => c.unitId === unitId);
-      for (const load of carriedRow?.loads ?? []) {
-        if (load.quantity <= 0) continue;
-        S.store.placePutAway({
-          eventId: `inv-place-${dt.idx}-${load.productId}-${now}`,
-          timeMs: now,
-          deliveryId: dt.deliveryId,
-          unitId,
-          locationId,
-          productId: load.productId,
-          quantity: load.quantity,
-        });
-        record(now, "PUTAWAY_STORED", null, unitId, `${dt.deliveryId} ${load.productId}x${load.quantity} stored at ${locationId}`);
+      if (!carriedRow || carriedRow.loads.every((l) => l.quantity <= 0)) {
+        closePutAwayWait(unitId, now);
+        unit.task = { kind: "idle" };
+        requestDispatch(now);
+        return;
       }
+      let remainder = false;
+      for (const load of carriedRow.loads) {
+        if (load.quantity <= 0) continue;
+        const placeQty = Math.min(load.quantity, Math.max(0, freeAtLocation(locationId, load.productId)));
+        if (placeQty > 0) {
+          S.store.placePutAway({
+            eventId: `inv-place-${dt.idx}-${unitId}-${load.productId}-${locationId}-${now}`,
+            timeMs: now,
+            deliveryId: dt.deliveryId,
+            unitId,
+            locationId,
+            productId: load.productId,
+            quantity: placeQty,
+          });
+          record(now, "PUTAWAY_STORED", null, unitId, `${dt.deliveryId} ${load.productId}x${placeQty} stored at ${locationId}`);
+        }
+        if (placeQty < load.quantity) remainder = true;
+      }
+      if (remainder) {
+        unit.task = { kind: "awaiting-location", deliveryId: dt.deliveryId };
+        dt.waitReason = "PUTAWAY_NO_LOCATION";
+        openWait(unitId, null, "PUTAWAY_NO_LOCATION", `remaining put-away load has no eligible storage location yet`, now);
+        requestDispatch(now);
+        return;
+      }
+      closePutAwayWait(unitId, now);
+      dt.waitReason = null;
       unit.task = { kind: "idle" };
       if (
         deliveryExternalRemaining(dt.deliveryId) === 0 &&
@@ -2754,32 +2920,50 @@ export function createOperationsController(opts: {
         const dt = S.deliveries.get(t.deliveryId);
         const dest = S.receivingCoords.get(t.resourceId);
         if (!dt || !dest || !posesEqual(snap.pose, dest)) return;
-        const stagedRows = S.store.snapshot().receiving.filter((r) => r.deliveryId === dt.deliveryId && r.quantity > 0);
-        const row = stagedRows[0];
-        if (!row) {
-          unit.task = { kind: "idle" };
-          return;
+        const chosen = choosePlaceableCollect(dt, unitId, t.resourceId);
+        if (!chosen) {
+          const home = unitParking.get(unitId) as MoveDestination;
+          if (posesEqual(snap.pose, home)) {
+            unit.task = { kind: "idle" };
+          } else {
+            unit.task = { kind: "to-parking" };
+            const mv = requestUnitMove(unitId, home, now, null, "parking-return");
+            if (mv.status !== "granted" && mv.status !== "waiting") {
+              unit.task = { kind: "idle" };
+            }
+          }
+        } else {
+          unit.task = { kind: "collecting", deliveryId: dt.deliveryId, resourceId: t.resourceId, productId: chosen.productId, quantity: chosen.quantity };
+          record(now, "PUTAWAY_AT_RECEIVING", null, unitId, `at ${t.resourceId} for ${dt.deliveryId}`);
+          schedulePutAwayHandling(unitId, dt, "collect", chosen.quantity, null, now);
         }
-        const capacity = unitCapacity.get(unitId) ?? 0;
-        const cost = productCost.get(row.productId) ?? 0;
-        const fits = cost > 0 ? Math.floor((capacity - carriedCostOf(unitId)) / cost) : row.quantity;
-        if (fits <= 0) {
-          unit.task = { kind: "idle" };
-          return;
-        }
-        const qty = Math.min(row.quantity, fits);
-        unit.task = { kind: "collecting", deliveryId: dt.deliveryId, resourceId: t.resourceId, productId: row.productId, quantity: qty };
-        record(now, "PUTAWAY_AT_RECEIVING", null, unitId, `at ${t.resourceId} for ${dt.deliveryId}`);
-        schedulePutAwayHandling(unitId, dt, "collect", qty, null, now);
+      } else if (t.kind === "yield-to-parking") {
+        const dt = S.deliveries.get(t.deliveryId);
+        const home = unitParking.get(unitId) as MoveDestination;
+        if (!dt || !posesEqual(snap.pose, home)) return;
+        unit.task = { kind: "awaiting-location", deliveryId: dt.deliveryId };
+        record(now, "PUTAWAY_YIELD_PARKED", null, unitId, `parked with load for ${dt.deliveryId}; selection retries`);
       } else if (t.kind === "to-store") {
         const dt = S.deliveries.get(t.deliveryId);
         const dest = locationApproach.get(t.locationId);
         if (!dt || !dest || !posesEqual(snap.pose, dest)) return;
         const carriedRow = S.store.snapshot().carried.find((c) => c.unitId === unitId);
-        const qty = carriedRow?.loads.find((l) => l.quantity > 0)?.quantity ?? 0;
-        unit.task = { kind: "storing", deliveryId: dt.deliveryId, locationId: t.locationId };
-        record(now, "PUTAWAY_AT_LOCATION", null, unitId, `at ${t.locationId} for ${dt.deliveryId}`);
-        schedulePutAwayHandling(unitId, dt, "place", qty, t.locationId, now);
+        const firstLoad = carriedRow?.loads.find((l) => l.quantity > 0);
+        if (!firstLoad) {
+          closePutAwayWait(unitId, now);
+          unit.task = { kind: "idle" };
+        } else {
+          const freeHere = freeAtLocation(t.locationId, firstLoad.productId);
+          if (freeHere <= 0) {
+            unit.task = { kind: "awaiting-location", deliveryId: dt.deliveryId };
+            dt.waitReason = "PUTAWAY_NO_LOCATION";
+            openWait(unitId, null, "PUTAWAY_NO_LOCATION", `${firstLoad.productId} has no eligible storage location yet`, now);
+          } else {
+            unit.task = { kind: "storing", deliveryId: dt.deliveryId, locationId: t.locationId };
+            record(now, "PUTAWAY_AT_LOCATION", null, unitId, `at ${t.locationId} for ${dt.deliveryId}`);
+            schedulePutAwayHandling(unitId, dt, "place", Math.min(firstLoad.quantity, freeHere), t.locationId, now);
+          }
+        }
       } else if (t.kind === "to-pick") {
         const rt = S.orders.get(t.orderId);
         const leg = rt?.legs[t.legIndex];

@@ -3,6 +3,7 @@
 // in development, while `npm start` serves the built web from this same app.
 // All errors are sanitized.
 import { CORE_VERSION, ROUTE_POLICY_ID } from "@layoutlab/core";
+import { CURRENT_IMPLEMENTATION_VERSION } from "@layoutlab/simulation";
 import express, { type Request, type Response } from "express";
 import { randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
@@ -242,6 +243,7 @@ export function createApp(opts: {
       promptVersion: PROMPT_VERSION,
       apiVersion: API_VERSION,
       coreVersion: CORE_VERSION,
+      operationsImplementationVersion: CURRENT_IMPLEMENTATION_VERSION,
       budgets: { maxProposals: config.maxProposals, maxRequests: config.maxRequests, timeoutMs: config.timeoutMs },
       concurrency: config.concurrency,
       provider: "meta",
@@ -591,7 +593,7 @@ export function createApp(opts: {
         return;
       }
       const result = verifyInvestigationExport(report);
-      res.json({ ok: result.ok, mismatches: result.mismatches });
+      res.json(result);
     } catch (e) {
       next(e);
     }

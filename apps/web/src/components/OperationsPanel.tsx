@@ -38,13 +38,13 @@ type PerfCounters = {
 
 const ZERO_PERF: PerfCounters = { frames: 0, advances: 0, advanceMsTotal: 0, advanceMsMax: 0, snapshots: 0, wallMs: 0 };
 
-function fmtClock(ms: number): string {
+export function fmtClock(ms: number): string {
   const m = Math.floor(ms / 60000);
   const s = Math.floor((ms % 60000) / 1000);
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(ms % 1000).padStart(3, "0")}`;
 }
 
-function taskText(task: { kind: string; orderId?: string; legIndex?: number; resourceId?: string; slotId?: string }): string {
+export function taskText(task: { kind: string; orderId?: string; legIndex?: number; resourceId?: string; slotId?: string }): string {
   switch (task.kind) {
     case "idle": return "Idle";
     case "to-pick": return `Moving to pick ${task.orderId} (stop ${(task.legIndex ?? 0) + 1})`;
@@ -58,7 +58,7 @@ function taskText(task: { kind: string; orderId?: string; legIndex?: number; res
     case "awaiting-staging": return `Awaiting staged input at ${task.resourceId}`;
     case "awaiting-service-start": return `Awaiting service start at ${task.resourceId}`;
     case "to-vacate": return `Vacating service to ${task.slotId}`;
-    case "to-parking": return "Returning to parking";
+    case "to-parking": return "Yielding to parking — moving to its declared parking slot to let another worker pass";
     default: return task.kind;
   }
 }
@@ -77,7 +77,7 @@ function stateBadge(
   return started ? { label: "PAUSED", cls: "warn" } : { label: "READY", cls: "badge-info" };
 }
 
-function selectionDetail(
+export function selectionDetail(
   scene: OperationsScene,
   snap: OperationsSnapshot | null,
   selection: NonNullable<OperationsSelection>,

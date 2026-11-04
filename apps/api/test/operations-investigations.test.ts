@@ -237,7 +237,7 @@ describe("bounded investigation loop (feedback-dependent fake Meta)", () => {
     expect(snap.entries[0]?.state).toBe("committed");
     expect(snap.committedMicroUsd).toBe(250000);
     // Offline replay passes; tampering fails.
-    expect(verifyInvestigationExport(report)).toEqual({ ok: true, mismatches: [] });
+    expect(verifyInvestigationExport(report)).toEqual({ ok: true, mismatches: [], verifierImplementationVersion: "0.1.1" });
     const tamperedRec = structuredClone(report) as InvestigationReport;
     (tamperedRec.recommendation as { candidateId: string }).candidateId = "baseline";
     expect(verifyInvestigationExport(tamperedRec).ok).toBe(false);
@@ -303,7 +303,7 @@ describe("bounded investigation loop (feedback-dependent fake Meta)", () => {
     expect(report.recommendation?.candidateId).toBe("baseline");
     // Genuine rejected-then-finished lifecycle verifies: the rejected finish
     // referencing the unknown exp-99 is retained evidence, not a forgery.
-    expect(verifyInvestigationExport(report)).toEqual({ ok: true, mismatches: [] });
+    expect(verifyInvestigationExport(report)).toEqual({ ok: true, mismatches: [], verifierImplementationVersion: "0.1.1" });
   });
 
   it("bounds persisted model-derived diagnostics so malformed output cannot unbound the next prompt", { timeout: 180000 }, async () => {
@@ -404,7 +404,7 @@ describe("strict investigation verifier", () => {
     );
     const done = await pollTerminal(apiUrl, created.json["runId"] as string);
     const report = done["report"] as InvestigationReport;
-    expect(verifyInvestigationExport(report)).toEqual({ ok: true, mismatches: [] });
+    expect(verifyInvestigationExport(report)).toEqual({ ok: true, mismatches: [], verifierImplementationVersion: "0.1.1" });
 
     const rejectCases: [string, (r: InvestigationReport) => void, string][] = [
       ["valid-but-different input stock", (r) => { (r.input.scenario.initialStock[0] as { quantity: number }).quantity -= 1; }, "input scenario differs"],
@@ -436,7 +436,7 @@ describe("strict investigation verifier", () => {
     };
     withRejected.trace = [withRejected.trace[0] as never, rejectedEntry as never, ...withRejected.trace.slice(1)]
       .map((t, i) => ({ ...(t as object), seq: i + 1 })) as InvestigationReport["trace"];
-    expect(verifyInvestigationExport(withRejected)).toEqual({ ok: true, mismatches: [] });
+    expect(verifyInvestigationExport(withRejected)).toEqual({ ok: true, mismatches: [], verifierImplementationVersion: "0.1.1" });
   });
 
   it("verifies a genuinely generated rejected-then-finished report (store-level replay)", { timeout: 180000 }, async () => {
@@ -462,7 +462,7 @@ describe("strict investigation verifier", () => {
     expect(calls).toBe(2);
     const report = store.buildReport(record);
     expect(report.trace.some((t) => t.kind === "finish" && t.status === "rejected" && t.candidateId === "not-a-real-run")).toBe(true);
-    expect(verifyInvestigationExport(report)).toEqual({ ok: true, mismatches: [] });
+    expect(verifyInvestigationExport(report)).toEqual({ ok: true, mismatches: [], verifierImplementationVersion: "0.1.1" });
   });
 });
 
@@ -535,7 +535,7 @@ describe("budget claim lifecycle for investigations", () => {
     // The cancelled report still verifies offline (partial evidence kept).
     const cancelledReport = (await getJson(`${apiUrl}/api/operations/investigations/${id}/report`)) as unknown as InvestigationReport;
     expect(cancelledReport.state).toBe("CANCELLED");
-    expect(verifyInvestigationExport(cancelledReport)).toEqual({ ok: true, mismatches: [] });
+    expect(verifyInvestigationExport(cancelledReport)).toEqual({ ok: true, mismatches: [], verifierImplementationVersion: "0.1.1" });
   });
 
   it("timeout after dispatch never refunds the claim", { timeout: 180000 }, async () => {
@@ -555,7 +555,7 @@ describe("budget claim lifecycle for investigations", () => {
     expect(snap.committedMicroUsd).toBe(250000);
     expect(snap.reservedMicroUsd).toBe(0);
     const timedOutReport = (await getJson(`${apiUrl}/api/operations/investigations/${created.json["runId"]}/report`)) as unknown as InvestigationReport;
-    expect(verifyInvestigationExport(timedOutReport)).toEqual({ ok: true, mismatches: [] });
+    expect(verifyInvestigationExport(timedOutReport)).toEqual({ ok: true, mismatches: [], verifierImplementationVersion: "0.1.1" });
   });
 });
 

@@ -1,0 +1,221 @@
+{
+  "private": {
+    "label": "r3-liveness private build",
+    "stage": {
+      "stage": "SUPPORTED_STAGE_COMPLETE",
+      "ready": 0,
+      "selected": 6,
+      "shipped": 6,
+      "backlog": 0,
+      "stageBacklog": 0,
+      "note": "all selected orders SHIPPED through the configured dispatch lane(s)"
+    },
+    "counts": {
+      "selected": 6,
+      "excluded": 0,
+      "arrived": 6,
+      "packed": 6,
+      "readyForDispatch": 0,
+      "shipped": 6,
+      "backlog": 0,
+      "stageBacklog": 0
+    },
+    "checks": {
+      "conservation": [],
+      "capacity": [],
+      "safety": []
+    },
+    "verificationOk": true,
+    "orders": [
+      {
+        "id": "B-01",
+        "state": "SHIPPED",
+        "timestamps": {
+          "CREATED": 0,
+          "READY_FOR_PICKING": 0,
+          "PICKING": 0,
+          "WAITING_FOR_PACKING": 17600,
+          "PACKING": 57500,
+          "READY_FOR_DISPATCH": 147500,
+          "SHIPPED": 262400
+        }
+      },
+      {
+        "id": "B-02",
+        "state": "SHIPPED",
+        "timestamps": {
+          "CREATED": 5000,
+          "READY_FOR_PICKING": 5000,
+          "PICKING": 5000,
+          "WAITING_FOR_PACKING": 24000,
+          "PACKING": 52400,
+          "READY_FOR_DISPATCH": 142400,
+          "SHIPPED": 202400
+        }
+      },
+      {
+        "id": "B-03",
+        "state": "SHIPPED",
+        "timestamps": {
+          "CREATED": 10000,
+          "READY_FOR_PICKING": 10000,
+          "PICKING": 10000,
+          "WAITING_FOR_PACKING": 52400,
+          "PACKING": 149800,
+          "READY_FOR_DISPATCH": 239800,
+          "SHIPPED": 322400
+        }
+      },
+      {
+        "id": "B-04",
+        "state": "SHIPPED",
+        "timestamps": {
+          "CREATED": 15000,
+          "READY_FOR_PICKING": 15000,
+          "PICKING": 15000,
+          "WAITING_FOR_PACKING": 38900,
+          "PACKING": 155700,
+          "READY_FOR_DISPATCH": 245700,
+          "SHIPPED": 382400
+        }
+      },
+      {
+        "id": "B-05",
+        "state": "SHIPPED",
+        "timestamps": {
+          "CREATED": 20000,
+          "READY_FOR_PICKING": 20000,
+          "PICKING": 52400,
+          "WAITING_FOR_PACKING": 108700,
+          "PACKING": 252200,
+          "READY_FOR_DISPATCH": 342200,
+          "SHIPPED": 502400
+        }
+      },
+      {
+        "id": "B-06",
+        "state": "SHIPPED",
+        "timestamps": {
+          "CREATED": 25000,
+          "READY_FOR_PICKING": 25000,
+          "PICKING": 57500,
+          "WAITING_FOR_PACKING": 115100,
+          "PACKING": 247100,
+          "READY_FOR_DISPATCH": 337100,
+          "SHIPPED": 442400
+        }
+      }
+    ],
+    "clockMs": 540000
+  },
+  "baseline": {
+    "label": "accepted main dist (baseline)",
+    "stage": {
+      "stage": "SUPPORTED_STAGE_COMPLETE",
+      "ready": 0,
+      "selected": 6,
+      "shipped": 6,
+      "backlog": 0,
+      "stageBacklog": 0,
+      "note": "all selected orders SHIPPED through the configured dispatch lane(s)"
+    },
+    "counts": {
+      "selected": 6,
+      "excluded": 0,
+      "arrived": 6,
+      "packed": 6,
+      "readyForDispatch": 0,
+      "shipped": 6,
+      "backlog": 0,
+      "stageBacklog": 0
+    },
+    "checks": {
+      "conservation": [],
+      "capacity": [],
+      "safety": []
+    },
+    "verificationOk": true,
+    "orders": [
+      {
+        "id": "B-01",
+        "state": "SHIPPED",
+        "timestamps": {
+          "CREATED": 0,
+          "READY_FOR_PICKING": 0,
+          "PICKING": 0,
+          "WAITING_FOR_PACKING": 17600,
+          "PACKING": 57500,
+          "READY_FOR_DISPATCH": 147500,
+          "SHIPPED": 262400
+        }
+      },
+      {
+        "id": "B-02",
+        "state": "SHIPPED",
+        "timestamps": {
+          "CREATED": 5000,
+          "READY_FOR_PICKING": 5000,
+          "PICKING": 5000,
+          "WAITING_FOR_PACKING": 24000,
+          "PACKING": 52400,
+          "READY_FOR_DISPATCH": 142400,
+          "SHIPPED": 202400
+        }
+      },
+      {
+        "id": "B-03",
+        "state": "SHIPPED",
+        "timestamps": {
+          "CREATED": 10000,
+          "READY_FOR_PICKING": 10000,
+          "PICKING": 10000,
+          "WAITING_FOR_PACKING": 52400,
+          "PACKING": 149800,
+          "READY_FOR_DISPATCH": 239800,
+          "SHIPPED": 322400
+        }
+      },
+      {
+        "id": "B-04",
+        "state": "SHIPPED",
+        "timestamps": {
+          "CREATED": 15000,
+          "READY_FOR_PICKING": 15000,
+          "PICKING": 15000,
+          "WAITING_FOR_PACKING": 38900,
+          "PACKING": 155700,
+          "READY_FOR_DISPATCH": 245700,
+          "SHIPPED": 382400
+        }
+      },
+      {
+        "id": "B-05",
+        "state": "SHIPPED",
+        "timestamps": {
+          "CREATED": 20000,
+          "READY_FOR_PICKING": 20000,
+          "PICKING": 52400,
+          "WAITING_FOR_PACKING": 108700,
+          "PACKING": 252200,
+          "READY_FOR_DISPATCH": 342200,
+          "SHIPPED": 502400
+        }
+      },
+      {
+        "id": "B-06",
+        "state": "SHIPPED",
+        "timestamps": {
+          "CREATED": 25000,
+          "READY_FOR_PICKING": 25000,
+          "PICKING": 57500,
+          "WAITING_FOR_PACKING": 115100,
+          "PACKING": 247100,
+          "READY_FOR_DISPATCH": 337100,
+          "SHIPPED": 442400
+        }
+      }
+    ],
+    "clockMs": 540000
+  },
+  "matchesBaseline": true
+}
