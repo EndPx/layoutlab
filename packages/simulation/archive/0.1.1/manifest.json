@@ -1,0 +1,209 @@
+{
+  "artifact": "layoutlab.simulation-runtime/0.1.1",
+  "implementationVersion": "0.1.1",
+  "sourceCommit": "fdeb60820ac118522c81713d3c699f1bf629efea",
+  "sourceHeadAtBuild": "fdeb60820ac118522c81713d3c699f1bf629efea",
+  "node": "v24.18.0",
+  "buildTool": {
+    "name": "vite",
+    "version": "8.3.5",
+    "mode": "ES2022 browser single ESM, unminified, core source alias, bundled zod; no selectors"
+  },
+  "dependency": {
+    "name": "zod",
+    "version": "4.6.7",
+    "license": "MIT",
+    "notice": "LICENSES.md"
+  },
+  "bundle": {
+    "path": "packages/simulation/archive/0.1.1/runtime.mjs",
+    "bytes": 530030,
+    "sha256": "9224ce9eb18b88d267bb1eab79767e0f31db2dad6f180d42152cb1df58fd4605"
+  },
+  "sources": {
+    "packages/core/src/failure.ts": {
+      "gitBlob": "bf273480179c33ee3358ae63ac53ee19dbce91b1",
+      "workingBytesSha256": "9e355c4e5b9dccd68b3d1b671c17e60a539c265f16500372321dfa0174149192"
+    },
+    "packages/core/src/geometry.ts": {
+      "gitBlob": "8cbc236ac12bd08f2f7c85d41752a055f186cd51",
+      "workingBytesSha256": "d4eebb65b3379190c7ad502527303bb78bdc8633e4e15ddb390fe9f04e532d0c"
+    },
+    "packages/core/src/heuristic.ts": {
+      "gitBlob": "006af6c51bb8f857c3b68618803831698cc16e92",
+      "workingBytesSha256": "6fbe8be52fd3712d74da50947cf7b3f7fb69703efe861d1a44964b2153eeff40"
+    },
+    "packages/core/src/index.ts": {
+      "gitBlob": "1fd7e1d383ca6de2e49884e04e4a1f8347aaba16",
+      "workingBytesSha256": "39cef6fc631936806df366222d9da29ae1ed21b3e8af9f7234897de793fb30b9"
+    },
+    "packages/core/src/nav.ts": {
+      "gitBlob": "1f6b4f71bbb77c3f3c95e3ddb65dee97f12feed1",
+      "workingBytesSha256": "3c212621cdc2e794a4ba6d5d6a86647d2716b92e3ad116d0adcc263386282c4d"
+    },
+    "packages/core/src/objective.ts": {
+      "gitBlob": "1cc7a042c8fdb0464b1aa576a5518535723dbf92",
+      "workingBytesSha256": "50b838476197153fd2cc5b5c99b6803d06a91003fcb6062dde6fa9f8dc72e94a"
+    },
+    "packages/core/src/report.ts": {
+      "gitBlob": "d203262c3269efe76d908e8c39fb399b53493623",
+      "workingBytesSha256": "0210d016ff894030593cb018fb0cf667705368f70298e3439f1fd7f4a6ec5482"
+    },
+    "packages/core/src/routing.ts": {
+      "gitBlob": "e85fb3574e327049e066eee87c74baac9b777e74",
+      "workingBytesSha256": "e9e546d9f954b580537e4e8c62d5a2c1cca4ca485f2b5ede785a8d5ea1275603"
+    },
+    "packages/core/src/scene.ts": {
+      "gitBlob": "b70d51c5dd04a421571949c3e7a5186ff0531afe",
+      "workingBytesSha256": "06c7a9cc6c0a57ee9586f5932fad1c8aa74504e1722539da16d0502181c5edfc"
+    },
+    "packages/core/src/schema.ts": {
+      "gitBlob": "7d0dc8d85c8cd6030064253a33a6417e495ae930",
+      "workingBytesSha256": "c53fbf6a97d9d75bd0a881464139bdfdf62c7e79de21649bc32ef8976f369054"
+    },
+    "packages/core/src/snapshot.ts": {
+      "gitBlob": "803577a12c018b94ec4e69997a0cb0fc2021b551",
+      "workingBytesSha256": "d137e6120566801bbd2d833c784e1df65c0e9a9ba4e5fd936b44edcbbb2fe9ed"
+    },
+    "packages/core/src/validate.ts": {
+      "gitBlob": "4d124ec6e436ebe3c42744d7dba73e2685da4caa",
+      "workingBytesSha256": "d76bed69b1369213e3f07f47faed61fdf3c7e391fa5236362317e1fa910b5956"
+    },
+    "packages/core/src/version.ts": {
+      "gitBlob": "c4ddea5c2d0a461b2fcc04d7e822a398d1abdc40",
+      "workingBytesSha256": "72f4b05aabb5d3fe59b8aa192f60026e223f2fe5623e99920d926cfbdd36f4ec"
+    },
+    "packages/simulation/src/environment.ts": {
+      "gitBlob": "796998d6c6afa897b83d52e93003fb020ef59821",
+      "workingBytesSha256": "099a3d917b32d54b458de5156c4a460060c51f690786a54a13e3291fbb3491fd"
+    },
+    "packages/simulation/src/experiments.ts": {
+      "gitBlob": "c7108dfcc97ffe29af1664c4bed3d789abceeffa",
+      "workingBytesSha256": "12427075e401bf03b615caa1b2cf4b915e7ceb23b3f613b616a888791eed4d82"
+    },
+    "packages/simulation/src/index.ts": {
+      "gitBlob": "1ce51018c25f7c01ac5ced02d3a541e80d28693e",
+      "workingBytesSha256": "c0e9a642c4546b231ace3e7d874d04eccd183b3dd747e173962a9da0241e4803"
+    },
+    "packages/simulation/src/inventory.ts": {
+      "gitBlob": "c1814b0cb195b1fb141ec3a80c30933b1ee2d594",
+      "workingBytesSha256": "359d7339662c43a24a47f14a699b7ddde29611a1d01b261b05884c2be93fe661"
+    },
+    "packages/simulation/src/kernel.ts": {
+      "gitBlob": "de0c0823df9081a022d3276c89910ad9f44443d9",
+      "workingBytesSha256": "efa0b80a81c88f4a67f86cc89726e7227a95dffc618b99fb9df57d4d79b91e7d"
+    },
+    "packages/simulation/src/layout/agent-placement.test.ts": {
+      "gitBlob": "5d35c210cd6c1bb9ada2c3248a1439ab1ba06301",
+      "workingBytesSha256": "f3087edd3b398cdb252cda11305db74152dc47c59e11cc486ca1b39eca02a217"
+    },
+    "packages/simulation/src/layout/agent-placement.ts": {
+      "gitBlob": "f96b540179c6ef512b385ebcedcb4ead249c1e5e",
+      "workingBytesSha256": "d3ee544170c9232818e568ea19af93b4607699c9beb3e7a12d8046b623d01a30"
+    },
+    "packages/simulation/src/layout/attachments.ts": {
+      "gitBlob": "adda648c923d150b5a7eee4f56f55a49b45a45e2",
+      "workingBytesSha256": "0345f457617631b1619fe03f7262161f0cf984f860338dc108d8c05a3bce7ffe"
+    },
+    "packages/simulation/src/layout/compare.ts": {
+      "gitBlob": "8a2ecd618c4b6195e7c6219e6bdc35e97a6cd965",
+      "workingBytesSha256": "0fde096ff5ad07963ecd836b79991960d7cc87bfef40380372f8d3fc476d3156"
+    },
+    "packages/simulation/src/layout/contract.ts": {
+      "gitBlob": "b5e630c4474f61d83de0d3fd2c92f5fd695bf9fd",
+      "workingBytesSha256": "fe74e91456d5fb2b73cbacee22bcfa419e6426ba9a4d7f3aa42a38f7c7b20951"
+    },
+    "packages/simulation/src/layout/corridor.ts": {
+      "gitBlob": "42b235a982395ae438adeb2a726d3ea6bd78208c",
+      "workingBytesSha256": "5d6e657f8e4ecfae9a9fc9df0e5ba2b57f022098ea2d96c54bc7c76687f14d63"
+    },
+    "packages/simulation/src/layout/hash.ts": {
+      "gitBlob": "998860c23f3e22c86a83fa6545202209d4ed00e5",
+      "workingBytesSha256": "32bdcd213b87e50b4165bc688e2fd2459db741faf50268899962e05d19db8952"
+    },
+    "packages/simulation/src/layout/index.ts": {
+      "gitBlob": "1b768473da63f51f27de28e41dd6e0a8073bc292",
+      "workingBytesSha256": "5462a725d4ccf06f20dce7ca21bea01004c944bcb7b71f522aa759f791424148"
+    },
+    "packages/simulation/src/layout/rack-adversarial.test.ts": {
+      "gitBlob": "027e8da2c86eddb5145d6ffc81b9a62f1bacf4fe",
+      "workingBytesSha256": "e2eec4849a1a362f069edadc20eff2ec0f11cfe1a4490f75245d712e66506372"
+    },
+    "packages/simulation/src/layout/rack-rotation.test.ts": {
+      "gitBlob": "93db51211d3c840fd43215757dc04558126f74dd",
+      "workingBytesSha256": "a456a037924fb3834f74ed97c509f6e85202e6c1824dfba391e65246cb2cbf62"
+    },
+    "packages/simulation/src/layout/rack-rotation.ts": {
+      "gitBlob": "440f9aa1bfb234e31304ab03380818aa60628210",
+      "workingBytesSha256": "5d3b549b33d6a930ebf805f3ff4e0be97e0384f426b98acfe26af8d63a1da7ab"
+    },
+    "packages/simulation/src/layout/rack.test.ts": {
+      "gitBlob": "ab2321c49cf00ea32aca4c3b72ae961d2cce856e",
+      "workingBytesSha256": "5fa58a3fc62e0f89c1cb8237ae22006361fef16e93c815e6fb3ec7b36dacecad"
+    },
+    "packages/simulation/src/layout/rack.ts": {
+      "gitBlob": "d493df6698de88156bd9f64d77df6bbd58b42e08",
+      "workingBytesSha256": "dbb879dfb247bc3861f1dd8cf93b56467dfeab10a306f06a220d8f6f4f1592ac"
+    },
+    "packages/simulation/src/layout/validator.ts": {
+      "gitBlob": "15b6725b57974e4d5726ed912739100b8107a0ef",
+      "workingBytesSha256": "3d2c4993a10bd902281387f60564ff89ec2deeb9c6595241d755998618cdbe45"
+    },
+    "packages/simulation/src/navigation.ts": {
+      "gitBlob": "f44000b16493aa98cd74e2f10e7db4e7a25a0338",
+      "workingBytesSha256": "8747746eb083a5fdeabc004de6ed11cdf8dbbcc7e2e7941f93cf9019e77a0846"
+    },
+    "packages/simulation/src/operations.ts": {
+      "gitBlob": "092b43c7ed24ffe8c49e4441b69308ecdb5d3a69",
+      "workingBytesSha256": "6c653e23a9715f2905632150e7403cd2ca36045372a171d82abeebd365fedc73"
+    },
+    "packages/simulation/src/priorities.ts": {
+      "gitBlob": "e0b055741a56fc95e81a559e74e7916359412c76",
+      "workingBytesSha256": "cbee42035420b7d17c52123683466db9f50b9fec91cc451868209f83d6b4da22"
+    },
+    "packages/simulation/src/resources.ts": {
+      "gitBlob": "033ba5e1115e934685a358b88f0b42bef6476f35",
+      "workingBytesSha256": "6dd751e0a2c4f5d835dfcc771e0952c707109b2d7a31841fa17854a8dbbb8c9c"
+    },
+    "packages/simulation/src/runtime-selector.ts": {
+      "gitBlob": "b3a2f08997abe31fe563474e6162dd7b4ca01a3f",
+      "workingBytesSha256": "84ad818d3cf562fa89487e456b52e0866d96b6a17804f7f73690d04955ac8678"
+    },
+    "packages/simulation/src/schema.ts": {
+      "gitBlob": "0206468ed037b323a3aef7c611ba9d25abadd14c",
+      "workingBytesSha256": "0d23e1b0a587a2ee6032927efd49494c2f4aafb35694ec9907cb19a21e07cb35"
+    },
+    "packages/simulation/src/traffic.ts": {
+      "gitBlob": "ab783894e4c9f712f7ba9daf3560c0fbe3cdbe1c",
+      "workingBytesSha256": "864886dd1f32910ed66895f24f50d816fcb0e26634681b10f70a6a4e08fccd40"
+    },
+    "packages/simulation/src/transport.ts": {
+      "gitBlob": "fcac6d0d1d39846a3b538201ef480a83611af143",
+      "workingBytesSha256": "26b716d9262de90c009effb42ae045b785f4e0acea72c60d39bb83988238f27c"
+    },
+    "packages/simulation/src/travel.ts": {
+      "gitBlob": "f2a988b45c63de106cdbcd0a195114ca74cb7aac",
+      "workingBytesSha256": "58d935ab64e72a1adf9e4c46faff825b258291daa0209f271735f6ca6723c09b"
+    },
+    "packages/simulation/src/version.ts": {
+      "gitBlob": "ade719dd08cab3967667718b4317171feb01616a",
+      "workingBytesSha256": "46ad5d29e44f64b5f6bf1cd73df8893b763fcd7351bc7c05527e1bcec92b2133"
+    }
+  },
+  "recipeHashes": {
+    "packages/simulation/archive/build-archive11.mjs": "2418fe5cc46ce5f7f32204610e49a87692dd1a1e347963861ee019337dc9a47f",
+    "packages/simulation/archive/archive11.vite.config.mjs": "9482e51a0a6ed7086ec1fdc383f1305c2ea10e77593b71d14eced5a9049f482d",
+    "packages/simulation/archive/0.1.1/entry.ts": "ed835860f9af384cd96d6c11d03e087559109d2842fa38ce164f2609dfd7eb02"
+  },
+  "preservedOldArchiveHashes": {
+    "packages/simulation/archive/0.1.0/runtime.d.mts": "f1657ecbf1ec0043ec54de1d41ec3aa07cac956a17eb529841a57c2abeca69fe",
+    "packages/simulation/archive/0.1.0/runtime.mjs": "8540d76d3a7b788c1a321c0f8ed7487b7e88593c53355007715766e54113eeef",
+    "packages/simulation/archive/LICENSES.md": "71af3cb4c0eb287590a89954dee0f2c22646cc3ec9666a0c87d96b60eb0c9ec3",
+    "packages/simulation/archive/archive.vite.config.mjs": "51a1faef99c6be563efefc28bcaf303bb52c034c4e820ca182e37604f4685664",
+    "packages/simulation/archive/build-archive.mjs": "98c8a558828d2f1b26bbbfd4563eeb978333cc39e887195b4c30552ba66e9b88",
+    "packages/simulation/archive/compose-evidence.mjs": "f2c20dff0aaaecf027bd809d6544dd74a2cf6cceab89b9df46f09fb795aff550",
+    "packages/simulation/archive/manifest.json": "e124cac74773392bfd1cf3795a08598acfc25542b9d98ae5cbb2b91f85160ae5",
+    "packages/simulation/archive/verify-runtime.mjs": "fa84589c371c0e549695814c75b4a6fd0ce228ba53f0aab18b87cb3ed5decda8"
+  },
+  "immutable": "Reject overwrite; pin committed source and dependency versions; do not relabel or regenerate from a future implementation."
+}

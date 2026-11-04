@@ -1,0 +1,175 @@
+{
+  "sourceCommit": "fdeb60820ac118522c81713d3c699f1bf629efea",
+  "bundle": {
+    "path": "packages/simulation/archive/0.1.1/runtime.mjs",
+    "bytes": 530030,
+    "sha256": "9224ce9eb18b88d267bb1eab79767e0f31db2dad6f180d42152cb1df58fd4605"
+  },
+  "exports": [
+    "COORDINATE_SYSTEM",
+    "CORRIDOR_BASE_CENTRE_X",
+    "CORRIDOR_EXECUTION_CONFIG",
+    "DECISION_CRITERION",
+    "DEFAULT_OPERATIONS_SAFETY_CEILING_MS",
+    "LAYOUT_COMPARISON_SCHEMA",
+    "LAYOUT_DRAFT_VERSION",
+    "LOCKED_ENTITY_IDS",
+    "LayoutAttachmentError",
+    "MAIN_WAREHOUSE_ATTACHMENTS",
+    "OPERATIONS_ENGINE_VERSION",
+    "OPERATIONS_SCHEMA_VERSION",
+    "SIMULATION_VERSION",
+    "SUPPORTED_KIND",
+    "UNSUPPORTED_KINDS",
+    "applyAgentInitialPlacement",
+    "applyOperationsPatch",
+    "applyPackingStationTranslation",
+    "applyRackQuarterTurn",
+    "applyRackTranslation",
+    "attachmentsFromBindings",
+    "buildCorridorScenario",
+    "buildRackAttachmentMap",
+    "buildStationAttachmentMap",
+    "canonicalStringify",
+    "classifyImprovement",
+    "contentSha256",
+    "corridorAttachment",
+    "createOperationsController",
+    "defaultApprovedConstraints",
+    "defaultConstraints",
+    "diffPaths",
+    "getAtJsonPath",
+    "isAllowedLayoutPath",
+    "operationsRunMetrics",
+    "operationsScenarioSchema",
+    "parseApprovedConstraints",
+    "parseInterventionPolicy",
+    "parseLayoutProposal",
+    "parseOperationsExecutionConfig",
+    "parseOperationsPatch",
+    "parseOperationsScenario",
+    "recomputeOperationsReport",
+    "resolveRackOrientations",
+    "resolveTargetCentre",
+    "rotateRackOffset",
+    "runAgentPlacementComparison",
+    "runLayoutComparison",
+    "runOperationsExperiment",
+    "runOperationsToTermination",
+    "runRackLayoutComparison",
+    "runRackRotationComparison",
+    "sha256Hex",
+    "snapToGridMm",
+    "validateLayoutCandidate",
+    "validateProposalAgainstBaseline",
+    "validateResolvedTransform",
+    "verifyAgentPlacementComparison",
+    "verifyLayoutComparison",
+    "verifyOperationsExperiment",
+    "verifyRackLayoutComparison",
+    "verifyRackRotationComparison",
+    "viewerPlacementFromCandidate"
+  ],
+  "workloads": [
+    {
+      "name": "picking-packing-burst",
+      "semanticReportsEqual": true,
+      "metricsEqual": true,
+      "allInventoryBucketsEqual": true,
+      "metrics": {
+        "totalWaitMs": 614900,
+        "makespanMs": 502400,
+        "lastShippedAtMs": 502400
+      },
+      "counts": {
+        "selected": 6,
+        "excluded": 0,
+        "arrived": 6,
+        "packed": 6,
+        "readyForDispatch": 0,
+        "shipped": 6,
+        "backlog": 0,
+        "stageBacklog": 0
+      },
+      "reportSha256": "9083356cc790ab903e00add34773712490226ae094eb2df573ac87020561e9d0",
+      "inventorySha256": "d60d507b22475bebfb5d9386c23fc77d3ccc07649e14dbb6b76132367dc1fe12",
+      "recomputeBoth": true
+    },
+    {
+      "name": "main-warehouse",
+      "semanticReportsEqual": true,
+      "metricsEqual": true,
+      "allInventoryBucketsEqual": true,
+      "metrics": {
+        "totalWaitMs": 29028300,
+        "makespanMs": null,
+        "lastShippedAtMs": 27230600
+      },
+      "counts": {
+        "selected": 28,
+        "excluded": 0,
+        "arrived": 28,
+        "packed": 28,
+        "readyForDispatch": 0,
+        "shipped": 28,
+        "backlog": 0,
+        "stageBacklog": 0
+      },
+      "reportSha256": "f8b4f84cab6497a429189a64b0c3d853701687068cbc1895cb4cc3c0db6fc17f",
+      "inventorySha256": "80e02cec4d97a634025dd094645b34e793c0c9938cb995bb1bf96daed32f1f3c",
+      "recomputeBoth": true
+    }
+  ],
+  "layouts": [
+    {
+      "kind": "station",
+      "path": "evidence/sanitized/l3b/station-regression/desktop-comparison.json",
+      "verification": {
+        "ok": true,
+        "mismatches": [],
+        "kind": "measured",
+        "recomputedImprovement": "worse",
+        "recomputedCandidateSha256": "95d78c0575d2e6811b4e6d73e0f7a904f3ca061862b77c8674c77ae716082f2a"
+      },
+      "currentEqual": true
+    },
+    {
+      "kind": "rotation",
+      "path": "evidence/sanitized/l3c/main-rotation.json",
+      "verification": true,
+      "currentEqual": true
+    },
+    {
+      "kind": "rack",
+      "generatedReport": "evidence/sanitized/r2-runtime11/rack-report.json",
+      "currentEqual": true,
+      "verification": true,
+      "scope": "1000ms safety ceiling, report replay not operational completion"
+    },
+    {
+      "kind": "agent",
+      "generatedReport": "evidence/sanitized/r2-runtime11/agent-report.json",
+      "currentEqual": true,
+      "verification": true,
+      "scope": "1000ms safety ceiling, report replay not operational completion"
+    }
+  ],
+  "legacy": [
+    {
+      "path": "evidence/sanitized/e3-offline-comparison.json",
+      "recordedVersion": "0.1.0",
+      "oldArchiveOk": true,
+      "archive11RejectsWithoutRelabel": true,
+      "scope": "simulation comparison only; API envelope/provider not invoked"
+    },
+    {
+      "path": "evidence/sanitized/e4a-fixture-investigation.json",
+      "recordedVersion": "0.1.0",
+      "oldArchiveOk": true,
+      "archive11RejectsWithoutRelabel": true,
+      "scope": "simulation comparison only; API envelope/provider not invoked"
+    }
+  ],
+  "integrity": true,
+  "overwriteRefused": true
+}

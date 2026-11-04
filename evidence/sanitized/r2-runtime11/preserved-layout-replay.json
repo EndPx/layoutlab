@@ -1,0 +1,16 @@
+[
+  {
+    "path": "evidence/sanitized/l3b/desktop-main-rack.json",
+    "schema": "layoutlab.rack-comparison/1",
+    "recordedImplementation": "0.1.1",
+    "archiveReexecution": true,
+    "currentReexecution": true
+  },
+  {
+    "path": "evidence/l3d-ui/coordinator-export.json",
+    "schema": "layoutlab.agent-placement-comparison/1",
+    "recordedImplementation": "0.1.1",
+    "archiveReexecution": true,
+    "currentReexecution": true
+  }
+]

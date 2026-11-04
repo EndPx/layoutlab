@@ -10,3 +10,7 @@ fixtures/operations/**/*.json -text
 
 # Immutable archived runtime has a raw-byte SHA; preserve it on every platform.
 packages/simulation/archive/0.1.0/runtime.mjs -text
+# Frozen 0.1.1 evaluator bytes and provenance are hashed without checkout rewriting.
+packages/simulation/archive/0.1.1/** -text
+packages/simulation/archive/build-archive11.mjs -text
+packages/simulation/archive/archive11.vite.config.mjs -text

@@ -1,0 +1,14 @@
+{
+  "experimentCurrentEqualsFrozen": true,
+  "crossVerification": true,
+  "guards": [
+    "source drift refused",
+    "version drift refused"
+  ],
+  "recipeHashesVerified": true,
+  "oldArchiveRawBytesPreserved": true,
+  "standaloneEsmNoExternalImports": true,
+  "noRuntimeSelectorExport": true,
+  "licenseSha256": "e6d19cb3aea998dbf2473daac519f5cd44286127677379e7dcda4e0c7ee4b985",
+  "bundleSha256": "9224ce9eb18b88d267bb1eab79767e0f31db2dad6f180d42152cb1df58fd4605"
+}

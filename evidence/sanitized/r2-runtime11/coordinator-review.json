@@ -1,0 +1,10 @@
+{
+  "bundleSha256": "9224ce9eb18b88d267bb1eab79767e0f31db2dad6f180d42152cb1df58fd4605",
+  "bundleBytes": 530030,
+  "pinnedGitBlobsMatched": 42,
+  "oldArchiveFilesUnchanged": 8,
+  "burstReportAndInventoryExact": true,
+  "activeRuntimeVersion": "0.1.1",
+  "archiveRuntimeVersion": "0.1.1",
+  "realMetaRequests": 0
+}
