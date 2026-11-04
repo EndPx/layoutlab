@@ -31,7 +31,9 @@ Create the finished HORIZONTAL WEBSITE LOGO for LayoutLab using the supplied ima
 
 ## Integration status
 
-Assets saved in the project and handed to the existing Muse frontend owner
-via orchestration message msg_5d9686595780. Header/favicon integration and
-small-size browser review remain part of that active task; generation alone
-does not establish browser legibility or deployment.
+Integrated in application release878a07b and deployed on2026-11-04. The header
+uses the symbol at24x24 beside accessible LayoutLab text; the favicon points
+to the same transparent PNG with its actual raster dimensions. Independent
+public Microsoft Edge checks confirmed header image loading, favicon source
+hash equality, and no layout overflow at1440/390px. Horizontal master remains
+available for larger placements. See evidence/sanitized/e4b-public-review.json.

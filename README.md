@@ -10,7 +10,7 @@ native server API with user approval. Racks stay fixed; only assignments
 change.
 
 Status (2026-11-04): the public [web preview](https://layoutlab.endpx.cloud)
-runs release `f24a6a1` with the main warehouse scene, engine-driven operations,
+runs release `878a07b` with the main warehouse scene, engine-driven operations,
 dispatch, inbound/put-away, split trips, and operations report replay. The
 18-trial storage-planning Meta benchmark remains separate, completed evidence.
 
@@ -32,8 +32,9 @@ The [v3 brief](docs/IMPLEMENTATION_BRIEF_V3.md) and
 [delivery plan](docs/EXPERIMENTER_DELIVERY_PLAN.md) define the remaining work.
 Controlled comparisons enforce explicit permissions, retain invalid/incomplete
 candidates, and export replayable reports. The bounded Meta backend now uses
-engine feedback and run-linked recommendations. The user-facing Experiments
-workflow and equal-budget AI contribution evaluation remain in progress.
+engine feedback and run-linked recommendations. The Experiments UI is now public: recorded replay, candidate inspection,
+export and recomputation passed anonymous Microsoft Edge checks.
+Equal-budget AI contribution evaluation and warehouse realism remain in progress.
 
 The website, sample simulation and recorded evidence are open without login.
 The root URL opens Operations. Only routes that start or manage live Meta

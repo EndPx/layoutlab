@@ -5,6 +5,24 @@ Hostinger VPS, restricted password/Basic Auth access, and US$1 total for the
 initial public Live Meta test, separate from the completed US$1.50 benchmark.
 The public allowance must persist without automatic replenishment.
 
+## Experiments UI and brand release (2026-11-04, current app)
+
+Active release `/opt/layoutlab/releases/878a07b` includes Experiments,
+recorded Meta replay, isolated candidate inspection, export/recompute,
+public-access guidance, Operations as default, and generated logo/favicon.
+Native build passed and ledger bytes were unchanged. Existing Nginx split
+remains in place; website and replay are anonymous, paid routes protected.
+
+Independent visible Microsoft Edge check (fresh profile, no credentials):
+root selects Operations; header/logo loads; favicon bytes match the generated
+source; recorded Meta report loads with explicit replay label; server
+recompute succeeds; exported report verifies locally; no page errors or
+horizontal overflow at1440/390px. Zero paid POSTs attempted and ledger
+unchanged (US$0.25 available). Evidence: `e4b-public-review.json`,
+`e4b-deployment-878a07b.json`, `e4b-public-top-*-edge.png`.
+This release does not yet replace textureless materials or add human workers;
+those remain the subsequent realism milestones.
+
 ## Anonymous website access (2026-11-04)
 
 The user approved opening the website, simulation, recorded evidence and

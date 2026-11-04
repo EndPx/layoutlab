@@ -1,0 +1,29 @@
+{
+  "checkedAt": "2026-11-04T10:57:05.504Z",
+  "commit": "878a07b",
+  "browser": "Microsoft Edge, Playwright channel msedge, visible fresh profile",
+  "anonymous": true,
+  "defaultMode": "operations",
+  "faviconSourceHashMatched": true,
+  "recordedMetaRunId": "fd2247b1-8335-4575-a55b-1f579cc3717b",
+  "serverVerificationText": "✓ Recomputed successfully — saved measurements follow from the embedded inputs (engine-only replay; live inference provenance is recorded metadata, not authenticated proof).",
+  "offlineExportVerification": {
+    "ok": true,
+    "mismatches": []
+  },
+  "desktopOverflow": 0,
+  "mobileOverflow": 0,
+  "pageErrors": [],
+  "attemptedPaidPosts": 0,
+  "budgetUnchanged": true,
+  "budgetAfter": {
+    "guard": "active",
+    "perRunReservationUsd": 0.25,
+    "capUsd": 1,
+    "reservedUsd": 0,
+    "committedUsd": 0.75,
+    "availableUsd": 0.25,
+    "entries": 3,
+    "accounting": "reservedUsd is a held conservative bound; committedUsd is that bound charged after dispatch. Neither is an invoice or a confirmed provider price."
+  }
+}
