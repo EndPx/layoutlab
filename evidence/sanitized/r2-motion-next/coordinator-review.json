@@ -1,0 +1,9 @@
+{
+  "analyticQuarterTurnBounds": true,
+  "betweenEndpointObstacleRejected": true,
+  "narrowCorridorOrientedAccepted": true,
+  "narrowCorridorDiscAccepted": false,
+  "parkingPush350MinZHeading0": -318,
+  "parkingPush350MinZHeadingPi": 489.9999999999999,
+  "scope": "isolated geometry; does not establish full route or traffic feasibility"
+}

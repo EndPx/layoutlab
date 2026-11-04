@@ -1,0 +1,7 @@
+{
+  "file": "admission.json.gz",
+  "uncompressedBytes": 25765350,
+  "compressedBytes": 438906,
+  "uncompressedSha256": "cda055e05d97f27512cf52d334f78a1650e68525d0c2f316f6b4e47b22a54290",
+  "compression": "gzip, lossless, mtime0"
+}

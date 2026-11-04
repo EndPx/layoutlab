@@ -1,0 +1,90 @@
+{
+  "staticNonzero": 666,
+  "parkedNonzero": 96,
+  "examples": [
+    {
+      "profile": "push350",
+      "unit": "PK-1",
+      "target": "PK-1",
+      "initial": 1.5707963267948966,
+      "final": 3.141592653589793,
+      "engineStatus": "ok",
+      "disc": {
+        "accepted": false,
+        "blockers": [
+          "wall"
+        ]
+      },
+      "static": {
+        "accepted": true,
+        "blockers": [],
+        "duration": 999.9999999999999,
+        "phaseCount": 3,
+        "rejections": []
+      },
+      "withParked": {
+        "accepted": true,
+        "blockers": [],
+        "duration": 999.9999999999999,
+        "phaseCount": 3,
+        "rejections": []
+      }
+    },
+    {
+      "profile": "push350",
+      "unit": "PK-1",
+      "target": "PK-1",
+      "initial": 1.5707963267948966,
+      "final": 4.71238898038469,
+      "engineStatus": "ok",
+      "disc": {
+        "accepted": false,
+        "blockers": [
+          "wall"
+        ]
+      },
+      "static": {
+        "accepted": true,
+        "blockers": [],
+        "duration": 1999.9999999999998,
+        "phaseCount": 3,
+        "rejections": []
+      },
+      "withParked": {
+        "accepted": true,
+        "blockers": [],
+        "duration": 1999.9999999999998,
+        "phaseCount": 3,
+        "rejections": []
+      }
+    },
+    {
+      "profile": "push350",
+      "unit": "PK-1",
+      "target": "PK-1",
+      "initial": 3.141592653589793,
+      "final": 1.5707963267948966,
+      "engineStatus": "ok",
+      "disc": {
+        "accepted": false,
+        "blockers": [
+          "wall"
+        ]
+      },
+      "static": {
+        "accepted": true,
+        "blockers": [],
+        "duration": 999.9999999999999,
+        "phaseCount": 3,
+        "rejections": []
+      },
+      "withParked": {
+        "accepted": true,
+        "blockers": [],
+        "duration": 999.9999999999999,
+        "phaseCount": 3,
+        "rejections": []
+      }
+    }
+  ]
+}
