@@ -26,6 +26,7 @@ import sampleJson from "../../../fixtures/sample/warehouse-basic.json";
 import { BottomPanel } from "./components/BottomPanel";
 import { LeftPanel } from "./components/LeftPanel";
 import { MetricCards } from "./components/MetricCards";
+import { ExperimentsPanel, initialExperimentsHolder, type ExperimentsHolder } from "./components/ExperimentsPanel";
 import { OperationsPanel } from "./components/OperationsPanel";
 import { RightPanel } from "./components/RightPanel";
 import { WarehousePanel, type ViewMode } from "./components/WarehousePanel";
@@ -42,6 +43,7 @@ import {
 } from "./lib/api";
 import { buildExportEnvelope, newRunId, replayAnyEnvelope, type M4HeuristicMeta } from "./lib/export";
 import {
+  burstScenarioAndConfig,
   createBurstController,
   loadBurstOperationsScene,
   type OperationsScene,
@@ -186,12 +188,13 @@ export function App(): React.JSX.Element {
   const [mode, setMode] = useState<"MANUAL" | "STUB" | "REPLAY" | "LIVE">("MANUAL");
   // Main product modes. Planner state lives in this component, so switching
   // between Storage Planning and Operations Simulation never destroys a
-  // scenario or model run. ?mode=operations selects the environment on load.
-  const [appMode, setAppMode] = useState<"planning" | "operations">(() =>
+  // scenario or model run. Bare URL defaults to Operations Simulation;
+  // ?mode=planning / ?mode=experiments select the other modes explicitly.
+  const [appMode, setAppMode] = useState<"planning" | "operations" | "experiments">(() =>
     typeof window !== "undefined" &&
     new URLSearchParams(window.location.search).get("mode") === "operations"
       ? "operations"
-      : "planning",
+      : new URLSearchParams(window.location.search).get("mode") === "experiments" ? "experiments" : new URLSearchParams(window.location.search).get("mode") === "planning" ? "planning" : "operations",
   );
   // Live (Meta) run state. Server owns the run; the browser keeps only the
   // summary plus the local baseline snapshot needed for apply guards. Live
@@ -1258,6 +1261,18 @@ export function App(): React.JSX.Element {
       return { error: e instanceof Error ? e.message : String(e) };
     }
   });
+  // Experiments holder lives above the mode switch too: switching away
+  // never creates a run, resets spend, or discards inputs/results.
+  const [experiments, setExperiments] = useState<ExperimentsHolder>(initialExperimentsHolder);
+  const patchExperiments = (patch: Partial<ExperimentsHolder>): void =>
+    setExperiments((prev) => ({ ...prev, ...patch }));
+  const experimentsHeader = useMemo((): { ok: true; id: string } | { ok: false } => {
+    try {
+      return { ok: true, id: burstScenarioAndConfig().scenario.id };
+    } catch {
+      return { ok: false };
+    }
+  }, []);
   const resetOpsRun = (): void => {
     try {
       const scene = "error" in opsRun ? loadBurstOperationsScene() : opsRun.scene;
@@ -1336,13 +1351,15 @@ export function App(): React.JSX.Element {
     <div className="app">
       <header className="topbar">
         <span className="brand" aria-label="LayoutLab">
-          <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><rect x="0" y="0" width="7" height="7" fill="#0b6b6e" /><rect x="9" y="0" width="7" height="7" fill="#0b6b6e" opacity="0.65" /><rect x="0" y="9" width="7" height="7" fill="#0b6b6e" opacity="0.65" /><rect x="9" y="9" width="7" height="7" fill="#0b6b6e" opacity="0.35" /></svg>
+          <img src="/brand/layoutlab-symbol-v1.png" alt="" width="24" height="24" data-testid="brand-symbol" />
           <strong>LayoutLab</strong>
         </span>
         <nav className="crumbs" aria-label="Breadcrumb">
-          {appMode === "operations" ? "Warehouse operations › " : "Warehouse storage planner › "}
+          {appMode === "operations" ? "Warehouse operations › " : appMode === "experiments" ? "Warehouse experiments › " : "Warehouse storage planner › "}
           <span className="mono" data-testid="scenario-label">
-            {appMode === "operations"
+            {appMode === "experiments"
+              ? (experimentsHeader.ok ? experimentsHeader.id : "experiments unavailable")
+              : appMode === "operations"
               ? (opsHeader.ok ? opsHeader.id : "operations unavailable")
               : scenario ? `${scenario.id} · rev ${scenario.revision}` : "no scenario"}
           </span>
@@ -1366,6 +1383,7 @@ export function App(): React.JSX.Element {
           >
             Operations Simulation
           </button>
+          <button type="button" aria-pressed={appMode === "experiments"} className={appMode === "experiments" ? "on" : ""} onClick={() => setAppMode("experiments")} data-testid="mode-experiments">Experiments</button>
         </div>
         {appMode === "planning" ? (
         <>
@@ -1388,6 +1406,8 @@ export function App(): React.JSX.Element {
         {liveUsed && <span className="badge live-used" data-testid="live-used-badge">LIVE-USED</span>}
         {fixtureActive && <span className="badge fixture" data-testid="fixture-badge">FIXTURE</span>}
         </>
+        ) : appMode === "experiments" ? (
+          <span className="badge sample" data-testid="exp-sample-badge">SYNTHETIC SAMPLE · EXPERIMENTS</span>
         ) : opsHeader.ok ? (
           <span className="badge sample" data-testid="ops-sample-badge">
             {opsHeader.synthetic ? "SYNTHETIC SAMPLE · CONFIGURED" : "CONFIGURED SCENE"}
@@ -1439,7 +1459,7 @@ export function App(): React.JSX.Element {
       </header>
 
       <div className="page">
-      {appMode === "operations" ? <OperationsPanel run={opsRun} onResetRun={resetOpsRun} /> : (<>
+      {appMode === "experiments" ? <ExperimentsPanel holder={experiments} onChange={patchExperiments} /> : appMode === "operations" ? <OperationsPanel run={opsRun} onResetRun={resetOpsRun} /> : (<>
       <section className="headline" aria-label="Planner headline">
         <div>
           <h1>A better place for every product.</h1>

@@ -23,7 +23,7 @@ test.describe("M3 live fixture flow", () => {
 
   test("live and stub are distinguishable; consent gates inference", async ({ page }) => {
     const before = fixture?.transportRequests() ?? 0;
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await openDetails(page, "developer-settings");
     await expect(page.getByTestId("provider-stub")).toBeChecked();
@@ -52,7 +52,7 @@ test.describe("M3 live fixture flow", () => {
     });
     const before = fixture?.transportRequests() ?? 0;
 
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await clickOpen(page, "provider-live");
     await expect(page.getByTestId("live-status")).toContainText("Fixture ready", { timeout: 15_000 });
@@ -146,7 +146,7 @@ test.describe("M3 live fixture flow", () => {
   test("open interpreted questions block proposals until resolved", async ({ page }, testInfo) => {
     await fixture?.stop();
     fixture = await startLiveFixture("fixture-muse-shape", "questions");
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await clickOpen(page, "provider-live");
     await expect(page.getByTestId("live-status")).toContainText("Fixture ready", { timeout: 15_000 });
@@ -171,7 +171,7 @@ test.describe("M3 live fixture flow", () => {
   test("failed runs stay inspectable but cannot apply", async ({ page }, testInfo) => {
     await fixture?.stop();
     fixture = await startLiveFixture("fixture-muse-shape", "fail-second");
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await clickOpen(page, "provider-live");
     await expect(page.getByTestId("live-status")).toContainText("Fixture ready", { timeout: 15_000 });
@@ -195,7 +195,7 @@ test.describe("M3 live fixture flow", () => {
     });
     await fixture?.stop();
     fixture = await startLiveFixture("fixture-muse-shape", "slow-interpret");
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await clickOpen(page, "provider-live");
     await expect(page.getByTestId("live-status")).toContainText("Fixture ready", { timeout: 15_000 });
@@ -215,7 +215,7 @@ test.describe("M3 live fixture flow", () => {
   });
 
   test("tampered M3 metadata is rejected before replay", async ({ page }, testInfo) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     const base = {
       envelopeVersion: "layoutlab.m3report/1",
       provider: "meta",
@@ -256,7 +256,7 @@ test.describe("M3 live fixture flow", () => {
   test("contributor model id discloses training-data use", async ({ page }, testInfo) => {
     await fixture?.stop();
     fixture = await startLiveFixture("muse-spark-1.3-contributor");
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await clickOpen(page, "provider-live");
     await expect(page.getByTestId("live-status")).toContainText("muse-spark-1.3-contributor", { timeout: 15_000 });

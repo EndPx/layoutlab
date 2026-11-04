@@ -382,13 +382,14 @@ counting meters, no staged queues-as-activity.
 
 ### 9.1 Mode integration
 
-- One app shell, two main modes: `Storage Planning` (existing planner) and
+- One app shell, three main modes: `Storage Planning` (existing planner) and
   `Operations Simulation` (this scene), switched by a top segmented control
   (`role="group"`, `aria-pressed`, testids `mode-planning` /
   `mode-operations`). Switching modes never mutates planner state: all
   planner hooks stay in `App`, so a scenario/model run survives a view
-  switch and back. A documented `?mode=operations` URL selects the
-  operations mode on load (tests may use it instead of assuming a default).
+  switch and back. The bare URL defaults to Operations Simulation;
+  `?mode=planning` and `?mode=experiments` select the other modes
+  explicitly (tests name their mode instead of assuming a default).
 - The operations layout reuses the console tokens (§1): same paper/surface/
   ink/accent/status palette, same type scale, radius, and disclosure
   patterns. Structure: mode bar → status band (fixture identity + honest
@@ -631,3 +632,154 @@ value, pose, and event is the actual engine snapshot at the shown clock.
   first); 390 single column; no page-level horizontal overflow; primary
   controls >=44px on narrow; keyboard-reachable controls with visible
   focus; status never color-alone.
+
+## 12. Experiments destination (E4b)
+
+Third main mode `Experiments` (`?mode=experiments`), added beside Storage
+Planning and Operations Simulation without mutating either. The mode shell
+is three segmented buttons (`mode-planning` / `mode-operations` /
+`mode-experiments`, `role="group"` + `aria-pressed`). App owns the
+experiments holder above the mode switch, so switching away and back never
+creates a run, resets spend, or discards the active run id, frozen inputs,
+or last report. No empty Compare/Reports/Orders destinations are promoted;
+only working modes ship.
+
+### 12.1 Reference and tokens
+
+Hierarchy follows UI v3 packet 04 (question/permissions column + flexible
+evidence region with baseline/candidate cards, run evidence, hypothesis,
+experiment steps, results table), with 05 (matched-input compare, changed
+fields), 07 (recompute, provenance, limitations), and 08 (ready / invalid /
+blocked / no-improvement) as state references. Pictured numbers, models,
+and unsupported actions (storage assignment, aisle/traffic policy) are
+illustrative only and never shipped as constants or controls. Tokens are
+the existing console tokens (§1): paper `#edf1f6`, surfaces white, ink
+`#12263f`, accent teal `#0b6b6e`, same status colors, Segoe/system font,
+mono data, 6/10px radii, 4/8/12/16/24 spacing. No new font, framework, or
+dependency.
+
+### 12.2 Layout
+
+Desktop ≥1024px (readable at 1440 and 1586): status band (scenario id,
+seed, versions, provenance) → two-column workspace: left question column
+~350px (question textarea, allowed-changes permissions, live consent/
+allowance, Start/Cancel, recorded/import actions) and a flexible evidence
+region (baseline/candidate metric cards, progress + trace, comparison
+table, details drawer, inspection mount, export/verify). The
+question column never forces page overflow; the evidence tables scroll
+inside their panels. 768px: single column, evidence after question.
+390px: single column in order status → question → permissions → evidence;
+primary buttons ≥44px; no page-level horizontal scroll. The document owns
+vertical scroll; only named internals scroll (comparison table, trace,
+timeline inside inspection).
+
+### 12.3 Data truth and formatting
+
+Every value comes from the frozen burst scenario
+(`fixtures/operations/picking-packing-burst.json` + runconfig), the local
+E3 `runOperationsExperiment` baseline, the investigation `report`
+(`comparison`, `trace`, `requests`, `recommendation`), or the server
+`/api/status` + `/api/budget` — never from the mockup. Scenario, workload
+counts, seed, and versions render from actual data. Baseline runs locally
+with zero model requests and shows shipped / backlog / makespan /
+totalWait honestly. `totalWait` is always captioned as the summed engine
+wait intervals (open intervals clipped at the report clock); no traffic
+or packing submetrics are invented. Unavailable metrics render `—` plus a
+reason, never `0`. Durations format as seconds with one decimal
+(`502.4 s`, raw ms in `title`); improvement percents render at one decimal
+in cards/tables with full server precision preserved in details and in
+the exported JSON.
+
+### 12.4 Question and permissions
+
+The planning question is free text (1..2000 chars) and grants nothing.
+Permissions are a separate machine-readable control: checkboxes for the
+three supported service-duration assumptions (`packingDurationMs`,
+`dispatchDurationMs`, `receivingDurationMs`), each unchecked by default
+with inclusive min/max ms inputs validated against the E3 bounds
+1000..300000 and labeled hypothetical assumptions. Staffing
+(`extraPickers`/`extraPutaway`) is shown disabled with the concrete
+reason that current burst geometry cannot support added staff (parking
+clones are infeasible and stay invalid in E3); no storage-assignment or
+traffic-policy controls exist because the engine has no such patch field.
+Question, policy, scenario, and execution config freeze per submitted
+investigation. Editing the draft after a result marks that result as
+from previous inputs; it is never reinterpreted as evidence for the new
+text.
+
+### 12.5 Live lifecycle
+
+Same-origin typed adapter only (`POST` create returns a stable `runId`,
+`GET` poll, `POST` cancel, `GET` report, plus `GET /api/status`,
+`GET /api/budget`, `POST` verify). The browser holds no API key and never
+contacts Meta directly. Starting requires explicit Live selection plus
+Contributor-data consent; only the Start button can spend. Start is
+disabled while a run is active, when the server reports no key /
+unavailable transport, when the budget guard is unavailable, when
+`availableUsd < perRunReservationUsd` (values read from `/api/budget`,
+never hardcoded), when the question is empty, or without consent — each
+with an adjacent reason. HTTP 400/402/429/503 and unknown/stale runs
+surface without automatic resubmission. Polling runs about every 1s with
+an `AbortController`, aborts obsolete polls, and clears its timer on
+unmount; mode switching preserves `App`-owned run state and resumes the
+same `runId`. Cancel keeps the partial trace/report and the truthful
+terminal status. Progress shows phase, request/experiment counts against
+their caps, run ids, hypotheses labeled `model assertion — not measured
+proof`, accepted/rejected actions with reasons, and every candidate
+(invalid, incomplete, and no-improvement included). Model-selected,
+deterministic-best, and fallback recommendation are distinct fields; no
+optimistic success is shown.
+
+### 12.6 Inspection
+
+Selecting a baseline/candidate offers engine inspection that reconstructs
+a separate controller from that candidate's executed report scenario
+(baseline scenario + declared patch, via the candidate `report`) plus the
+frozen execution config, rendered through the existing `OperationsView` /
+`OperationsPanel` behavior (camera presets, selection, Run/Pause/Step/
+Reset/speed, actual engine replay only). It never overwrites the ongoing
+Operations Simulation run, which lives in its own App holder. An invalid
+report or geometry the canonical bindings cannot map disables
+visualization with a reason instead of drawing an unrelated warehouse.
+Duration-only changes appear in changed-fields, never as moved racks.
+Renderer engineering data stays in the collapsed diagnostics. At most one
+heavy 3D canvas is mounted: inspection mounts on demand and unmounts on
+close or candidate change.
+
+### 12.7 Recorded, import, export, verify
+
+The accepted public report (`evidence/sanitized/e4a-live-investigation-f24a6a1.json`,
+run `fd2247b1-…`, model `muse-spark-1.3-contributor`) is copied byte-for-byte
+to `apps/web/public/evidence/` and loaded as `Recorded Meta run / replay`
+with its original run id, model, and date — never presented as new or live
+inference. Arbitrary investigation JSON imports through the same recorded
+path; `providerKind: fixture` reports are labeled `Fixture`. Provenance
+(recorded/imported/live) is stored separately from live configuration.
+Loading, replaying, inspecting, exporting, and verifying make zero paid
+requests. Export downloads the full investigation JSON exactly as held
+(the report object, including partial failed/cancelled evidence), never
+formatted UI totals. Recompute posts the report to the server verifier
+(`verifyInvestigationExport`, engine-only, no key, no ledger mutation)
+and shows the actual pass/mismatches plus the limitation that inference
+provenance is recorded metadata, not authenticated proof; the offline CLI
+command stays visible. No hardcoded PASS card.
+
+Brand: the header uses the generated square symbol
+(`apps/web/public/brand/layoutlab-symbol-v1.png`, 1254×1254) at a fixed
+24×24 beside the live-text `LayoutLab` wordmark (the image is decorative;
+the text carries the name), and the same PNG is the `image/png` favicon at
+its actual size in `apps/web/index.html`. The horizontal lockup
+(`layoutlab-logo-v1.png`, 2172×724) stays a master asset; masters are never
+redrawn or edited. Fixed dimensions prevent layout shift.
+
+### 12.8 States and accessibility
+
+Ready (no run), running (phase + counts), provider unavailable, budget
+exhausted, malformed import, invalid/no-improvement candidates, stale
+draft-after-result, recorded replay, and inspection-unavailable each have
+distinct text + glyph states, never color alone. All controls have
+visible labels; question, permissions, selects, and actions are
+keyboard-reachable with the §1 focus ring; run status uses
+`aria-live="polite"`; long ids wrap (`overflow-wrap: anywhere`);
+`prefers-reduced-motion` disables transitions. Honest limits from §10–§11
+stand: no Lighthouse/60fps/mobile-3D claim without measurement.

@@ -6,7 +6,7 @@ import { clickOpen } from "./helpers/ui";
 
 test.describe("R1 storage anchors", () => {
   test("valid sample renders products inside rack slots", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     // Baseline truth preserved (evaluator-owned, never hardcoded in views).
     await expect(page.getByTestId("baseline-metrics")).toContainText("36.8 m");
@@ -32,7 +32,7 @@ test.describe("R1 storage anchors", () => {
   });
 
   test("selected order reveals only its actual pick approaches", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("view-tab-2d").click();
     // Default order O1 visits sku-a@L1 + sku-c@L3: exactly those approaches.
@@ -50,7 +50,7 @@ test.describe("R1 storage anchors", () => {
   });
 
   test("location selection reveals its approach with exact readout", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("view-tab-2d").click();
     await page.getByTestId("select-location").selectOption("L6");
@@ -68,7 +68,7 @@ test.describe("R1 storage anchors", () => {
   });
 
   test("locate + reassignment moves the stored marker, selection follows", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("view-tab-2d").click();
     await page.getByTestId("locate-sku-b").click();
@@ -84,7 +84,7 @@ test.describe("R1 storage anchors", () => {
   });
 
   test("duplicate assignment renders every occupant, diagnosed, never repaired", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("assign-sku-f").selectOption("L1");
     await expect(page.getByTestId("valid-badge")).toContainText("INVALID");
@@ -100,7 +100,7 @@ test.describe("R1 storage anchors", () => {
   });
 
   test("3D shares the same anchors with boxed products, no label overlap", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     const canvas = page.getByTestId("three-canvas");
     await expect(canvas).toHaveAttribute("data-asset", "simready-glb", { timeout: 30_000 });
@@ -116,7 +116,7 @@ test.describe("R1 storage anchors", () => {
   });
 
   test("product selection follows the displayed frame both directions", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
@@ -159,7 +159,7 @@ test.describe("R1 storage anchors", () => {
   });
 
   test("None clears product selection; order stops still shown", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("view-tab-2d").click();
     await page.getByTestId("locate-sku-b").click();
@@ -186,7 +186,7 @@ test.describe("R1 storage anchors", () => {
   });
 
   test("3D selection preserves pan and zoom; reset returns home", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     const canvas = page.getByTestId("three-canvas");
     await expect(canvas).toHaveAttribute("data-asset", "simready-glb", { timeout: 30_000 });
@@ -218,7 +218,7 @@ test.describe("R1 storage anchors", () => {
   });
 
   test("3D chips avoid UI overlays and stay inside the canvas", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await expect(page.getByTestId("three-canvas")).toHaveAttribute("data-asset", "simready-glb", { timeout: 30_000 });
     for (const width of [1440, 768, 390]) {
@@ -253,7 +253,7 @@ test.describe("R1 storage anchors", () => {
   });
 
   test("keyboard operates locate and location selection, no page overflow", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("locate-sku-a").focus();
     await page.keyboard.press("Enter");

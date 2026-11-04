@@ -50,6 +50,7 @@ p { overflow-wrap: anywhere; }
   flex-wrap: wrap;
 }
 .brand { display: inline-flex; align-items: center; gap: 8px; font-size: 16px; white-space: nowrap; }
+.brand img { display: block; flex: none; border-radius: 4px; }
 .crumbs { font-size: 13px; color: var(--muted); white-space: nowrap; }
 .topbar .spacer { flex: 1; }
 .filebtn {
@@ -376,6 +377,32 @@ details.ops-diagnostics summary { cursor: pointer; font-size: 13px; font-weight:
 [data-testid="ops-timeline"] thead th { position: sticky; top: 0; z-index: 1; }
 [data-testid="ops-timeline"] td { font-size: 12px; }
 [data-testid="ops-queues"] p { margin: 4px 0; }
+
+/* Experiments destination (E4b): ~350px question column + flexible evidence. */
+.exp-workspace { display: grid; grid-template-columns: 350px minmax(0, 1fr); gap: 12px; align-items: start; }
+.exp-workspace > * { min-width: 0; min-height: 0; }
+.exp-controls textarea { width: 100%; }
+.exp-check { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; margin: 6px 0; }
+.exp-check input { margin-top: 2px; flex: none; }
+.exp-perm-row { border-top: 1px solid var(--border); padding: 6px 0; }
+.exp-perm-row:first-of-type { border-top: 0; }
+.exp-range { display: flex; gap: 8px; }
+.exp-range label { flex: 1; font-size: 12px; color: var(--muted); }
+.exp-range input { width: 100%; }
+.exp-evidence { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.exp-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 12px; }
+.exp-card-on { outline: 2px solid var(--accent); outline-offset: -2px; }
+.exp-nums { font-size: 13px; margin: 4px 0; overflow-wrap: anywhere; }
+.exp-trace { margin: 4px 0; padding-left: 22px; font-size: 13px; }
+.exp-trace li { margin-bottom: 4px; overflow-wrap: anywhere; }
+.exp-details h4 { font-size: 13px; margin: 10px 0 4px; }
+@media (max-width: 1023px) {
+  .exp-workspace { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .exp-controls button.primary, .exp-evidence button { min-height: 44px; }
+  .exp-controls .filebtn { min-height: 44px; display: inline-flex; align-items: center; }
+}
 @media (max-width: 1023px) {
   .ops-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

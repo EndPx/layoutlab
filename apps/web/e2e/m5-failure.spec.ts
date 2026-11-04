@@ -26,7 +26,7 @@ test.describe("M5 failure audit flow", () => {
     page.on("console", (m) => {
       if (m.type() === "error") errors.push(`console: ${m.text()}`);
     });
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await clickOpen(page, "provider-live");
     await expect(page.getByTestId("live-status")).toContainText("Fixture ready", { timeout: 15_000 });
@@ -64,7 +64,7 @@ test.describe("M5 failure audit flow", () => {
   });
 
   test("tampered failure audits are rejected before replay", async ({ page }, testInfo) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     const scenario = JSON.parse(
       fs.readFileSync(path.join(process.cwd(), "..", "..", "fixtures", "sample", "warehouse-basic.json"), "utf8"),
     );

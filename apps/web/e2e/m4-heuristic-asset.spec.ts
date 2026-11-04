@@ -17,7 +17,7 @@ test.describe("M4 heuristic comparison + attribution + scene gate", () => {
     page.on("console", (m) => {
       if (m.type() === "error") errors.push(`console: ${m.text()}`);
     });
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
@@ -101,7 +101,7 @@ test.describe("M4 heuristic comparison + attribution + scene gate", () => {
   });
 
   test("invalid scene geometry blocks generation before any search", async ({ page }, testInfo) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     const sample = JSON.parse(
       fs.readFileSync(path.join(process.cwd(), "..", "..", "fixtures", "sample", "warehouse-basic.json"), "utf8"),
     ) as { racks: Record<string, unknown>[] };
@@ -120,7 +120,7 @@ test.describe("M4 heuristic comparison + attribution + scene gate", () => {
   });
 
   test("historical M3 live-smoke report still replays", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     const smoke = path.join(process.cwd(), "..", "..", "evidence", "sanitized", "m3-live-smoke-report.json");
     await page.getByTestId("input-replay").setInputFiles(smoke);
     await expect(page.getByTestId("replay-verdict")).toContainText("matches saved");
@@ -146,7 +146,7 @@ test.describe("M4 live heuristic + Meta attribution (fixture transport)", () => 
     page.on("console", (m) => {
       if (m.type() === "error") errors.push(`console: ${m.text()}`);
     });
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await clickOpen(page, "provider-live");
     await expect(page.getByTestId("live-status")).toContainText("Fixture ready", { timeout: 15_000 });
@@ -225,7 +225,7 @@ test.describe("M4 SimReady GLB racks in the browser", () => {
     page.on("console", (m) => {
       if (m.type() === "error") errors.push(`console: ${m.text()}`);
     });
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
 
     // Actual GLB loaded: 4 rack instances with calibrated bounding box.

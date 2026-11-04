@@ -13,7 +13,7 @@ test.describe("M6A data truth", () => {
     page.on("console", (m) => {
       if (m.type() === "error") errors.push(`console: ${m.text()}`);
     });
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await expect(page.getByTestId("selected-status")).toContainText("No scenario");
     await expect(page.getByTestId("baseline-metrics")).toContainText("N/A");
     await expect(page.getByTestId("metric-reachable")).toContainText("N/A");
@@ -25,7 +25,7 @@ test.describe("M6A data truth", () => {
   });
 
   test("sample load shows actual baseline truth", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await expect(page.getByTestId("baseline-metrics")).toContainText("36.8 m");
     await expect(page.getByTestId("baseline-metrics")).toHaveAttribute("title", "36800 mm");
@@ -41,7 +41,7 @@ test.describe("M6A data truth", () => {
   });
 
   test("manual edits update every value (no constants)", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("assign-sku-b").selectOption("L6");
     await expect(page.getByTestId("scenario-label")).toContainText("rev 1");
@@ -59,7 +59,7 @@ test.describe("M6A data truth", () => {
   });
 
   test("run frame compares against the frozen run baseline, stale is explicit", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
@@ -92,7 +92,7 @@ test.describe("M6A data truth", () => {
   });
 
   test("stepper is data-bound and invalidates approval", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await expect(page.getByTestId("approval-state")).toContainText("approved");
@@ -105,7 +105,7 @@ test.describe("M6A data truth", () => {
   });
 
   test("product filter is local-only and preserves rows", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("product-filter").fill("sku-a");
     expect(await page.getByTestId("product-row-sku-a").count()).toBe(1);
@@ -115,7 +115,7 @@ test.describe("M6A data truth", () => {
     expect(await page.getByTestId("product-row-sku-f").count()).toBe(1);
   });
   test("candidate frame is read-only; toggles never mutate state", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
@@ -135,7 +135,7 @@ test.describe("M6A data truth", () => {
   });
 
   test("2D zoom/reset and keyboard switch work without moving racks", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("view-tab-2d").click();
     const svg = page.getByTestId("svg-2d");
@@ -169,7 +169,7 @@ test.describe("M6A data truth", () => {
   });
 
   test("route coincidence is reported, never invented", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
@@ -191,7 +191,7 @@ test.describe("M6A data truth", () => {
   });
 
   test("apply-selected applies the valid completed candidate", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
@@ -204,7 +204,7 @@ test.describe("M6A data truth", () => {
   test("fixture run is labeled FIXTURE, never LIVE, with no bleed into later runs", async ({ page }) => {
     const fixture = await startLiveFixture("fixture-muse-shape");
     try {
-      await page.goto("/");
+      await page.goto("/?mode=planning");
       await clickOpen(page, "btn-sample");
       await clickOpen(page, "provider-live");
       await expect(page.getByTestId("live-status")).toContainText("Fixture ready", { timeout: 15_000 });
@@ -246,7 +246,7 @@ test.describe("M6A data truth", () => {
     page.on("console", (m) => {
       if (m.type() === "error") errors.push(`console: ${m.text()}`);
     });
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("select-order").selectOption("O2");
     await page.getByTestId("btn-approve").click();
@@ -307,7 +307,7 @@ test.describe("M6A data truth", () => {
   test("fixture transport never reports live-used", async ({ page }) => {
     const fixture = await startLiveFixture("fixture-muse-shape");
     try {
-      await page.goto("/");
+      await page.goto("/?mode=planning");
       await clickOpen(page, "btn-sample");
       await clickOpen(page, "provider-live");
       await expect(page.getByTestId("live-status")).toContainText("Fixture ready", { timeout: 15_000 });

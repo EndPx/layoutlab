@@ -15,6 +15,7 @@ import { proposePatch, runExperiment, validatePatch } from "./operations-api.js"
 import {
   InvestigationStore,
   parseInvestigationInput,
+  verifyInvestigationExport,
   type InvestigationRecord,
 } from "./operations-investigations.js";
 import { generationSettingsOf, type FetchLike } from "./provider.js";
@@ -392,12 +393,17 @@ export function createApp(opts: {
   app.get("/api/budget", (_req: Request, res: Response, next: (e: unknown) => void) => {
     try {
       if (!budgetGuard) {
-        res.json({ guard: "not_configured", publicBudgetUsd: config.publicBudgetUsd });
+        res.json({
+          guard: "not_configured",
+          publicBudgetUsd: config.publicBudgetUsd,
+          perRunReservationUsd: config.publicBudgetPerRunUsd,
+        });
         return;
       }
       const snap = budgetGuard.snapshot();
       res.json({
         guard: "active",
+        perRunReservationUsd: config.publicBudgetPerRunUsd,
         capUsd: snap.capMicroUsd / 1_000_000,
         reservedUsd: snap.reservedMicroUsd / 1_000_000,
         committedUsd: snap.committedMicroUsd / 1_000_000,
@@ -561,6 +567,31 @@ export function createApp(opts: {
       const record = investigations.cancel(req.params["id"] as string);
       settleInvestigationReservation(record.id);
       res.json(investigations.toSummary(record));
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  // Offline recomputation of an exported investigation (E4b): reuses the
+  // strict verifier, reruns the engine only. No key, no provider dispatch,
+  // no budget-ledger touch; safe-limiter rate handling above applies.
+  app.post("/api/operations/investigations/verify", (req: Request, res: Response, next: (e: unknown) => void) => {
+    try {
+      const body = req.body as unknown;
+      const report =
+        body && typeof body === "object" && !Array.isArray(body) && "report" in (body as Record<string, unknown>)
+          ? (body as Record<string, unknown>)["report"]
+          : body;
+      if (!report || typeof report !== "object" || Array.isArray(report)) {
+        res.status(400).json({ code: "BAD_REQUEST", message: "Body must be { report } containing an investigation export object." });
+        return;
+      }
+      if (JSON.stringify(report).length > 1_000_000) {
+        res.status(413).json({ code: "BODY_TOO_LARGE", message: "Investigation export exceeds 1 MB verification bound." });
+        return;
+      }
+      const result = verifyInvestigationExport(report);
+      res.json({ ok: result.ok, mismatches: result.mismatches });
     } catch (e) {
       next(e);
     }

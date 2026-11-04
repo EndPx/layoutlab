@@ -93,3 +93,47 @@ not proof absent. Need actual category/package inspection before source claim.
 
 Follow-up active: ctx_3eda37882ee2 / task_c415e2be0c7e /
 term_ab5449e827351eedbf24ef3b7445fc1c. Same Muse, modelWonder1.0 max.
+
+Brand update: user requested ChatGPT-generated logo for website/favicon.
+Coordinator generated2 transparent RGBA assets with built-in imagegen,
+saved apps/web/public/brand/layoutlab-symbol-v1.png (1254square) and
+layoutlab-logo-v1.png (2172x724), alpha0..255 verified. Prompts/hashes in
+docs/BRAND_ASSETS.md. Commit7eef6a6 contains only brand assets/doc.
+Integration sent to active Muse ctx_3eda37882ee2 via msg_5d9686595780:
+header+PNGfavicon wiring, correct aspect/MIME/actualdimensions and Edge
+small-size review, no duplicate wordmark. No Meta application budget used.
+
+## E4b review and pending source choice (2026-11-04)
+
+Follow-up ctx_3eda37882ee2 delivered entry/access/logo plus read-only realism
+plan. Source index independently refreshed from Central2026-11-04T10:34Z:
+3769 assets, same human-name/category search false positives only. Asked
+user asynchronously whether ONLY human-character sourcing may extend to
+NVIDIA Isaac Sim / clearly licensed external human assets; no answer yet.
+All warehouse/rack/cart/container assets remain required SimReady. Official
+Isaac docs identify male_adult_construction_03 with skeleton; browser reuse
+license/conversion NOT verified, do not integrate without source exception.
+
+E4b final review found actual App.tsx Unicode corruption (12 mojibake markers),
+shallow report import allowing missing UI fields/crash, fixture live flow
+mislabeling, and loading a recorded report could overwrite a running runId.
+Narrow fix dispatched ctx_1b80e5460262 / task_bc560531c235 /
+term_f4edb0626c9565043bddfb09b6fbbabe. Same files, no renderer/engine changes,
+no paid calls. Also clarify realism-plan label packer already exists and
+z-fighting diagnosis is unproven hypothesis. On completion review/publish
+E4b+brand, then start R1 render/solid cargo while human source decision waits.
+Public API remainsf24a6a1; anonymous site/rootOperations is already configured
+at Nginx; last budgetUS$0.25. Active E4b source remains uncommitted.
+
+## Human-source exception approved (2026-11-04)
+
+User answered the pending question: Boleh, khusus karakter manusia.
+Human worker assets may now be sourced from NVIDIA Isaac Sim or another
+clearly licensed source; all warehouse/rack/cart/container models remain
+SimReady. This is permission to investigate and integrate a suitable human
+asset, not a paid purchase/subscription or blanket license acceptance.
+Verify per-asset redistribution/derivative permissions, source revision,
+files, dependencies, dimensions, rig/animation and browser conversion.
+Approval relayed to current Muse ctx_1b80e5460262. Current narrow E4b fixes
+remain first; R1 rendering/cargo and R2 human/kinematics follow as bounded
+milestones. No longer ask for this same source exception.

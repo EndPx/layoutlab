@@ -6,7 +6,7 @@ test.describe("operations environment", () => {
   // needs a generous budget for first load + first frames.
   test.setTimeout(180_000);
   test("mode switch preserves the planner scene", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await page.getByTestId("scenario-menu-toggle").click();
     await page.getByTestId("btn-sample").click();
     await expect(page.getByTestId("scenario-label")).toContainText("warehouse-basic");
@@ -78,7 +78,7 @@ test.describe("operations environment", () => {
 
   test("header is mode-separated: planner controls hide in operations, restore on return", async ({ page }) => {
     // (a) initialize the planner with the sample scenario.
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await page.getByTestId("scenario-menu-toggle").click();
     await page.getByTestId("btn-sample").click();
     await expect(page.getByTestId("scenario-label")).toContainText("warehouse-basic");

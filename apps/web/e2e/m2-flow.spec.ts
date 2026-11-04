@@ -11,7 +11,7 @@ test.describe("M2 manual + stub flow", () => {
       if (m.type() === "error") errors.push(`console: ${m.text()}`);
     });
 
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await expect(page.getByTestId("scenario-label")).toContainText("no scenario");
 
     await clickOpen(page, "btn-sample");
@@ -128,7 +128,7 @@ test.describe("M2 manual + stub flow", () => {
   });
 
   test("stale apply is rejected after a new scene edit", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
@@ -151,7 +151,7 @@ test.describe("M2 manual + stub flow", () => {
   });
 
   test("cancellation prevents apply from an unfinished run", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
@@ -166,7 +166,7 @@ test.describe("M2 manual + stub flow", () => {
   });
 
   test("persistence reload restores revision and approval", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("assign-sku-b").selectOption("L6");
@@ -178,7 +178,7 @@ test.describe("M2 manual + stub flow", () => {
   });
 
   test("constraint change after a run blocks apply until re-run", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
@@ -201,7 +201,7 @@ test.describe("M2 manual + stub flow", () => {
   });
 
   test("stale async run cannot overwrite reset or reload", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();
@@ -219,7 +219,7 @@ test.describe("M2 manual + stub flow", () => {
   });
 
   test("stale async run cannot overwrite a fresh sample load", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await page.getByTestId("btn-approve").click();
     await page.getByTestId("btn-generate").click();

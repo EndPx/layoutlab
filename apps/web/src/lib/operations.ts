@@ -771,6 +771,38 @@ export function createBurstController(): OperationsController {
   return createOperationsController({ scenario, executionConfig });
 }
 
+// Experiments inspection (E4b): build the canonical scene/controller for an
+// ARBITRARY executed scenario (baseline scenario + declared patch). Spatial
+// drift refuses the main-warehouse bindings exactly like the burst check,
+// so an unmapped candidate disables visualization instead of drawing an
+// unrelated warehouse. Service durations are not spatial and stay allowed.
+export function buildSceneForScenario(scenario: OperationsScenario): OperationsScene {
+  const parent = parseOperationsScenario(fixtureJson);
+  assertDerivedFixtureCompatible(parent, scenario);
+  const bd = asBindings(bindingsJson);
+  if (bd.fixtureId !== parent.id) {
+    throw new Error(`bindings target fixture ${bd.fixtureId}, expected parent ${parent.id}`);
+  }
+  return buildSceneFrom(scenario, bd);
+}
+
+export function createControllerForScenario(
+  scenario: OperationsScenario,
+  executionConfig: { pickDurationMsPerItem: number; unloadDurationMsPerItem: number },
+): OperationsController {
+  return createOperationsController({ scenario, executionConfig });
+}
+
+export function burstScenarioAndConfig(): {
+  scenario: OperationsScenario;
+  executionConfig: { pickDurationMsPerItem: number; unloadDurationMsPerItem: number };
+} {
+  const scenario = parseOperationsScenario(burstJson);
+  const runconfig = burstRunconfigJson as { executionConfig: unknown };
+  const executionConfig = parseOperationsExecutionConfig(runconfig.executionConfig);
+  return { scenario, executionConfig };
+}
+
 export function burstHandlingDurations(): { pickDurationMsPerItem: number; unloadDurationMsPerItem: number } {
   const runconfig = burstRunconfigJson as { executionConfig: unknown };
   return parseOperationsExecutionConfig(runconfig.executionConfig);

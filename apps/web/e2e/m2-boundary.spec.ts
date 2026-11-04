@@ -13,7 +13,7 @@ function tmpFile(info: TestInfo, name: string, contents: string): string {
 
 test.describe("M2 trust boundaries", () => {
   test("malformed scenario and replay imports show useful errors", async ({ page }, testInfo) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     const badJson = tmpFile(testInfo, "bad.json", "{not json");
     await page.getByTestId("input-scenario").setInputFiles(badJson);
     await expect(page.getByTestId("scenario-error")).toContainText(/Invalid/i);
@@ -31,7 +31,7 @@ test.describe("M2 trust boundaries", () => {
   });
 
   test("tampered envelope metadata is rejected before replay", async ({ page }, testInfo) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     const download = page.waitForEvent("download", { timeout: 30_000 });
     await page.getByTestId("btn-export").click();
@@ -70,7 +70,7 @@ test.describe("M2 trust boundaries", () => {
   });
 
   test("malicious storage cannot crash the planner", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await page.evaluate(() => {
       localStorage.setItem("layoutlab.m2.v1", "{corrupt");
     });
@@ -106,7 +106,7 @@ test.describe("M2 trust boundaries", () => {
     page.on("console", (m) => {
       if (m.type() === "error") errors.push(`console: ${m.text()}`);
     });
-    await page.goto("/");
+    await page.goto("/?mode=planning");
     await clickOpen(page, "btn-sample");
     await expect(page.getByTestId("view-3d")).toBeVisible();
     await expect(page.getByTestId("three-canvas")).toBeVisible();
