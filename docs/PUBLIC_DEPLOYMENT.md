@@ -244,3 +244,7 @@ Applicationb8d4ec5 is deployed. The existing protected inference regex now also 
 ## L3b manual rack release — 2026-11-05
 
 Application8d6bf4c deployed natively over b8d4ec5; persisted budget ledger bytes unchanged. Independent public Microsoft Edge tested R1 translation, actual rack instance matrix, shelf anchors/approaches and unchanged quantities, baseline/candidate export replay, Apply/Reset/Return original. No POST requests/page exceptions; public budget unchanged. Canonical burst result is fixture-specific:6 shipped both, makespan502400->501600ms, combined wait614900->605800ms. Full-shift2h comparisons remain truncated, not whole8h measurements. Evidence evidence/sanitized/l3-public/coordinator-review.json and rack-results-edge.png. Existing L2 auth split unchanged. No Meta inference. Rotation/agent initial placement/human integration are not part of this release.
+
+## Initial-agent placement public release — 2026-11-05
+
+Applicationd263533 replaces8d6bf4c using native build/service; ledger bytes unchanged and other apps untouched. Independent public Edge advances current run to5seconds, previews PK1 initialparking3000,2200 while its original livepose1200,4400 remains retained, verifies exported comparison, Apply/Reset/Returnoriginal all pass. No POST or pageexception; budget unchanged. Evidence evidence/sanitized/agent-public/coordinator-review.json and restored-edge.png. No live teleport, heading control, human-plus-cart safety or model-agent placement claim. Existing protected inference/public verification split unchanged; no model call.

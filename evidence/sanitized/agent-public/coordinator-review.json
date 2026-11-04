@@ -1,0 +1,61 @@
+{
+  "commit": "d263533",
+  "publicUrl": "https://layoutlab.endpx.cloud",
+  "budgetUnchanged": true,
+  "budget": {
+    "guard": "active",
+    "perRunReservationUsd": 0.25,
+    "capUsd": 1,
+    "reservedUsd": 0,
+    "committedUsd": 1,
+    "availableUsd": 0,
+    "entries": 4,
+    "accounting": "reservedUsd is a held conservative bound; committedUsd is that bound charged after dispatch. Neither is an invoice or a confirmed provider price."
+  },
+  "posts": [],
+  "pageErrors": [],
+  "browser": "msedge",
+  "retainedOriginalClock": "⏱ 00:05.000",
+  "originalLivePoses": [
+    {
+      "id": "PK-1",
+      "xMm": 1200,
+      "zMm": 4400
+    },
+    {
+      "id": "PK-2",
+      "xMm": 6000,
+      "zMm": 1200
+    },
+    {
+      "id": "PK-3",
+      "xMm": 9000,
+      "zMm": 1200
+    },
+    {
+      "id": "PK-4",
+      "xMm": 12000,
+      "zMm": 1200
+    },
+    {
+      "id": "PA-1",
+      "xMm": 15000,
+      "zMm": 1200
+    },
+    {
+      "id": "PA-2",
+      "xMm": 18000,
+      "zMm": 1200
+    }
+  ],
+  "candidateInitialParking": {
+    "x": 3000,
+    "z": 2200
+  },
+  "baselineUntouchedBeforeApply": true,
+  "stepBlocked": true,
+  "exportRecomputed": true,
+  "resetKeepsApplied": true,
+  "originalPoseAndClockRestored": true,
+  "realMetaRequests": 0
+}
