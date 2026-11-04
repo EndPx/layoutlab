@@ -137,3 +137,72 @@ files, dependencies, dimensions, rig/animation and browser conversion.
 Approval relayed to current Muse ctx_1b80e5460262. Current narrow E4b fixes
 remain first; R1 rendering/cargo and R2 human/kinematics follow as bounded
 milestones. No longer ask for this same source exception.
+
+## Parallel Muse work explicitly authorized
+
+User asked for multiple Muse workers and then confirmed "gas bagi jadi
+banyak worker". This supersedes the previous one-worker restriction.
+Total3 coding/research workers, same Muse defaultWonder1.0 max:
+- R1 render/solid cargo: ctx_4bf3e60f998e, task_0017a808f5d4,
+  term_23b7c0c4-b7f5-47b4-bf5c-0ef6ecd753a5. Original R1 ownership unchanged.
+- R2a human asset/rig isolated validation: ctx_e29516a99a09,
+  task_08ae1d052734, term_b1cdbab6-0205-410c-aba0-cb7c6fa79e9f.
+  Spec .coordination/r2-human-parallel-task.txt. Own human-only new assets,
+  prefixed scripts/manifests/licenses/evidence, private r2-human harness,
+  docs/HUMAN_ASSET_REVIEW.md. No main renderer/engine/package edits.
+- R3a full-shift/shared-state diagnosis: ctx_859aabb6b534,
+  task_2c7e26d118e3, term_dd877d43-1774-42ea-830d-626c39a57705.
+  Spec .coordination/r3-shift-parallel-task.txt. Read-only main source;
+  own new diagnosis scripts/evidence, private r3-shift namespace,
+  docs/FULL_SHIFT_DIAGNOSIS.md and SHARED_PLANNING_OPERATIONS_CONTRACT.md.
+No shared dist/root builds by R2/R3 while R1 validates; no overlapping edits.
+No paid application Meta calls, commit/push/deploy by any worker. R1 notified
+of ownership split via msg_fa6164ac94ce. Coordinator reviews each lane before
+merging dependent integration; all source permissions and acceptance gates
+remain intact. No need to re-ask for parallel-worker authorization.
+
+## Unified workspace + physical layout scope (latest user direction)
+
+User approved one Operations-based warehouse workspace and then explicitly
+made direct physical layout editing PRIMARY (supersedes original fixed-rack
+constraint for new work). Main scenario authority is Operations, never merge
+legacy four-rack sku-a outputs with six-rack P01 data. User story uses a
+distributor/e-commerce inbound + outbound flow; orders are data, not people.
+Canonical attachments/stock/workload/config and evidence must remain coherent.
+Read docs/UNIFIED_WORKSPACE_REQUIREMENTS.md and INTERACTIVE_LAYOUT_REQUIREMENTS.md.
+
+Priority vertical slice: manual packing-station move -> validate/test/compare,
+then Muse proposes the same move through the SAME constraints and validator.
+Rack move/rotation and initial agent positions follow; no runtime teleport.
+Keep baseline immutable, same workload/stock/service/seed/staff unless explicitly
+changed. Service-time hypotheticals are not physical layout optimization.
+
+Updated parallel/task graph:
+- R1 ctx_4bf3e60f998e still owns render/cargo, no workspace refactor; notified
+  of upcoming layout transforms and isolated L0 namespace.
+- R2a ctx_e29516a99a09 finished human diagnostic. Report HUMAN_ASSET_REVIEW.md:
+  Quaternius Worker_Male CC0, 23 joints/17 clips, stylized/no textures;
+  combined human+cart needs radius1181..1252 vs current799. Await independent
+  asset/license/animation review; no engine integration accepted. Owned helper
+  node server reportedPID10780 on5196; do not kill without identity check.
+- R3a ctx_859aabb6b534 finished diagnosis, awaiting coordinator review:
+  inbound capacity infeasible plus liveness cascade; private unmerged patch
+  demonstrates outbound28/28, not accepted source changes. Follow-up for new
+  canonical/layout decisions is ctx_59689bc8f700 / task_ef9eeb200476 /
+  term_6b36d67193d99d69bde0d42135d7039c (prompt submitted).
+- NEW active L0 ctx_b12fa0768e59 / task_4fe7e8bd875d /
+  term_d1a66eca-d9d2-4fd0-b430-47134c6699bb. Spec .coordination/l0-layout-foundation-task.txt.
+  Own isolated packages/simulation/layout-draft, layout-planning scripts,
+  private layout-l0 diagnostics and PHYSICAL_LAYOUT_CONTRACT.md/evidence.
+  No existing src/index/schema/dist/UI/fixtures changes or shared builds.
+- QUEUED U1 task_5fdc8ef3826a: unified workspace, depends R1 task_0017a808f5d4
+  and R3a task_2c7e26d118e3. Spec .coordination/u1-unified-workspace-task.txt.
+  Start only after coordinator acceptance including current R3 doc follow-up;
+  docs requirements include latest physical-layout addendum.
+- QUEUED L1 task_67523ad65899: manual packing station editor, depends U1+L0.
+  Spec .coordination/l1-manual-layout-task.txt.
+- QUEUED L2 task_b07635308b1e: Muse packing layout interpretation/approval/
+  proposals through same validator, depends L1. Spec .coordination/l2-muse-layout-task.txt.
+No new paid model calls or changes to public release878a07b/budgetUS$0.25.
+All worker commits/deployment remain coordinator-only. Human and rendering,
+full-shift liveness and wider layout support remain explicit unfinished gates.
