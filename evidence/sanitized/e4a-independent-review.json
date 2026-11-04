@@ -1,0 +1,35 @@
+{
+  "checkedAt": "2026-11-04T09:27:15.862Z",
+  "realMetaRequests": 0,
+  "scope": "Codex independent compiled API concurrency and report review",
+  "concurrency": {
+    "realMetaRequests": 0,
+    "configuredConcurrency": 1,
+    "firstOneShotStillInFlight": true,
+    "investigationCreateStatus": 429,
+    "peakConcurrentFakeProviderCalls": 1,
+    "totalFakeCalls": 1
+  },
+  "cleanExportRecomputed": true,
+  "rejectedTampering": [
+    "input stock differs from measured common inputs",
+    "input execution config differs from comparison",
+    "trace points to non-existent model request",
+    "trace shipped total fabricated",
+    "declared request limit smaller than actual",
+    "outer engine version fabricated",
+    "missing experiment action trace"
+  ],
+  "genuineRejectedThenAcceptedFinishRecomputed": true,
+  "validDifferentInputStockRejected": true,
+  "arithmetic": {
+    "baselineMs": 502400,
+    "candidateMs": 343200,
+    "deltaMs": -159200,
+    "improvementPercent": 31.687898
+  },
+  "limitations": [
+    "Fixture transport validates mechanics, not live model selection quality",
+    "Live invocation and UI investigation flow still pending"
+  ]
+}

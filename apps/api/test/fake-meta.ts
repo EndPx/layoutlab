@@ -90,6 +90,49 @@ export function operationsPatchSchemaError(bodyJson: Record<string, unknown>): s
   return null;
 }
 
+// Inspect the posted operations_investigation_action schema like real Meta
+// strict mode: required must cover every property, patch fields stay
+// integer-or-null with the operations bounds.
+export function investigationActionSchemaError(bodyJson: Record<string, unknown>): string | null {
+  const format = bodyJson["response_format"] as Record<string, unknown> | undefined;
+  if (!format || format["type"] !== "json_schema") return null;
+  const jsonSchema = format["json_schema"] as Record<string, unknown> | undefined;
+  if (!jsonSchema || jsonSchema["name"] !== "operations_investigation_action") return null;
+  const schema = jsonSchema["schema"] as Record<string, unknown> | undefined;
+  if (!schema || typeof schema !== "object") return "operations_investigation_action schema is missing";
+  if (schema["additionalProperties"] !== false) return "operations_investigation_action schema additionalProperties must be false";
+  const properties = schema["properties"] as Record<string, unknown> | undefined;
+  if (!properties || typeof properties !== "object") return "operations_investigation_action schema properties are missing";
+  const expected = ["action", "hypothesis", "extraPickers", "extraPutaway", "packingDurationMs", "dispatchDurationMs", "receivingDurationMs", "candidateId"].sort();
+  if (JSON.stringify(Object.keys(properties).sort()) !== JSON.stringify(expected)) {
+    return `operations_investigation_action schema properties must be exactly ${expected.join(",")}`;
+  }
+  const required = schema["required"];
+  if (!Array.isArray(required)) return `'required' is required to be supplied and to be an array including every key in properties. Missing '${expected[0]}'.`;
+  for (const key of expected) {
+    if (!required.includes(key)) return `'required' is required to be supplied and to be an array including every key in properties. Missing '${key}'.`;
+  }
+  for (const key of Object.keys(OPERATIONS_BOUNDS)) {
+    const prop = properties[key] as Record<string, unknown> | undefined;
+    const typeList = Array.isArray(prop?.["type"]) ? [...(prop["type"] as string[])].sort() : [];
+    if (JSON.stringify(typeList) !== JSON.stringify(["integer", "null"])) return `property ${key} must be integer-or-null`;
+    const bounds = OPERATIONS_BOUNDS[key] as { minimum: number; maximum: number };
+    if (prop?.["minimum"] !== bounds.minimum || prop?.["maximum"] !== bounds.maximum) return `property ${key} bounds must be ${bounds.minimum}..${bounds.maximum}`;
+  }
+  return null;
+}
+
+/** Write one Meta-shaped chat completion envelope from a fake handler. */
+export function respondChatCompletion(
+  res: ServerResponse,
+  model: string,
+  contentJson: unknown,
+  usage: { p: number; c: number; t: number } | null = { p: 10, c: 5, t: 15 },
+): void {
+  res.writeHead(200, { "Content-Type": "application/json" });
+  res.end(chatCompletionBody(model, JSON.stringify(contentJson), usage));
+}
+
 // Operations handler that inspects the posted schema before answering: a
 // nonconforming schema gets the real Meta HTTP 400 envelope, never a canned
 // success. Valid schemas fall through to the scripted entries.

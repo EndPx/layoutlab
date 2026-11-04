@@ -12,6 +12,11 @@ import { API_VERSION, liveAvailable, loadConfig, sanitizeMessage, type ApiConfig
 import { PROMPT_VERSION } from "./prompts.js";
 import { createBudgetGuard, BudgetGuardError, type BudgetGuard } from "./budget-guard.js";
 import { proposePatch, runExperiment, validatePatch } from "./operations-api.js";
+import {
+  InvestigationStore,
+  parseInvestigationInput,
+  type InvestigationRecord,
+} from "./operations-investigations.js";
 import { generationSettingsOf, type FetchLike } from "./provider.js";
 import { RunStore, toSummary, type RunRecord } from "./runs.js";
 
@@ -110,6 +115,52 @@ export function createApp(opts: {
     budgetGuard.assertReservation(reservationId, config.publicBudgetPerRunUsd);
   };
   const store = new RunStore(config, assertRunDispatch);
+  // Shared synchronous paid-inference lease: legacy runs own
+  // RunStore.activeInference during their inference phases, investigations
+  // own their RUNNING lifetime, and the one-shot proposal route owns
+  // oneShotInFlight for its single dispatch. Every paid route checks all
+  // holders synchronously before dispatching, so at the configured
+  // concurrency of 1 the provider-call peak stays 1 across routes.
+  let oneShotInFlight = 0;
+  // E4a investigations hold ONE durable claim for the whole loop (not one
+  // per model request). The map only locates the claim; authorization is
+  // the persisted entry, revalidated before every dispatch.
+  const investigationReservations = new Map<string, string>();
+  const assertInvestigationDispatch = (record: InvestigationRecord): void => {
+    if (!budgetGuard) return;
+    const reservationId = investigationReservations.get(record.id);
+    if (!reservationId) {
+      throw new BudgetGuardError("BUDGET_GUARD_UNAVAILABLE", 503, "investigation has no budget reservation; refusing inference");
+    }
+    budgetGuard.assertReservation(reservationId, config.publicBudgetPerRunUsd);
+  };
+  const investigations = new InvestigationStore(config, {
+    beforeDispatch: assertInvestigationDispatch,
+    isLegacyBusy: () => store.activeInference > 0 || oneShotInFlight > 0,
+  });
+  const paidInferenceBusy = (): boolean =>
+    oneShotInFlight > 0 || store.activeInference > 0 || investigations.hasActive();
+  const settleInvestigationReservation = (investigationId: string): void => {
+    if (!budgetGuard) return;
+    const reservationId = investigationReservations.get(investigationId);
+    if (!reservationId) return;
+    const record = investigations.get(investigationId);
+    if (!record || record.state === "RUNNING") return;
+    try {
+      // Zero dispatched requests = provably no upstream call: release.
+      // Any dispatched request (incl. timeout/cancel/malformed) commits.
+      if (record.modelRequestsUsed === 0) budgetGuard.release(reservationId);
+      else budgetGuard.commit(reservationId);
+      investigationReservations.delete(investigationId);
+    } catch {
+      try {
+        const entry = budgetGuard.snapshot().entries.find((e) => e.id === reservationId);
+        if (entry && entry.state !== "reserved") investigationReservations.delete(investigationId);
+      } catch {
+        // Guard unavailable: the reserved claim stays counted, never refunded.
+      }
+    }
+  };
   const settleRunReservation = (runId: string): void => {
     if (!budgetGuard) return;
     const reservationId = runReservations.get(runId);
@@ -159,6 +210,7 @@ export function createApp(opts: {
       const key = (req.ip ?? "unknown").slice(0, 64);
       const inferenceStart =
         (req.method === "POST" && req.path === "/api/runs") ||
+        (req.method === "POST" && req.path === "/api/operations/investigations") ||
         (req.method === "POST" && req.path.endsWith("/approve"));
       const limiter = inferenceStart ? inferenceLimiter : safeLimiter;
       if (!limiter.take(key, Date.now())) {
@@ -222,6 +274,12 @@ export function createApp(opts: {
         });
         return;
       }
+      // Shared inference concurrency: a running investigation or an
+      // in-flight one-shot proposal holds the slot.
+      if (investigations.hasActive() || oneShotInFlight > 0) {
+        res.status(429).json({ code: "CONCURRENCY_LIMIT", message: "Server is busy (concurrency limit); retry shortly." });
+        return;
+      }
       // Guard first: ONE durable reservation covers the whole bounded run
       // (interpretation + approval proposals) before any upstream call.
       // Local validation failures inside createRun release it again because
@@ -275,6 +333,10 @@ export function createApp(opts: {
         return;
       }
       const runId = req.params["id"] as string;
+      if ((investigations.hasActive() || oneShotInFlight > 0) && store.get(runId)?.state === "AWAITING_APPROVAL") {
+        res.status(429).json({ code: "CONCURRENCY_LIMIT", message: "Server is busy (concurrency limit); retry shortly." });
+        return;
+      }
       // Approval spends only against the run's persisted reservation,
       // revalidated from disk here and again before each proposal dispatch.
       // Refusal here leaves the run AWAITING_APPROVAL and the claim held,
@@ -367,7 +429,12 @@ export function createApp(opts: {
   });
 
   app.post("/api/operations/proposals", async (req: Request, res: Response, next: (e: unknown) => void) => {
+    let oneShotLeaseHeld = false;
     try {
+      if (paidInferenceBusy()) {
+        res.status(429).json({ code: "CONCURRENCY_LIMIT", message: "Server is busy (concurrency limit); retry shortly." });
+        return;
+      }
       const observation = (req.body as { observation?: unknown })?.observation;
       if (typeof observation !== "string") {
         res.status(400).json({ code: "BAD_REQUEST", message: "Body must be { observation: string }." });
@@ -392,6 +459,10 @@ export function createApp(opts: {
         reservationId = `proposal:${randomUUID()}`;
         budgetGuard.reserve(reservationId, config.publicBudgetPerRunUsd);
       }
+      // Own the shared lease synchronously before the single dispatch;
+      // released when proposePatch settles on every outcome below.
+      oneShotInFlight++;
+      oneShotLeaseHeld = true;
       try {
         const result = await proposePatch({
           config,
@@ -416,6 +487,80 @@ export function createApp(opts: {
         }
         throw e;
       }
+      oneShotInFlight--;
+      oneShotLeaseHeld = false;
+    } catch (e) {
+      if (oneShotLeaseHeld) oneShotInFlight--;
+      next(e);
+    }
+  });
+
+  app.post("/api/operations/investigations", (req: Request, res: Response, next: (e: unknown) => void) => {
+    try {
+      const live = liveAvailable(config);
+      if (!live.ok) {
+        res.status(503).json({ status: "setup_required", reason: live.reason, provider: "meta" });
+        return;
+      }
+      // Strict local preflight BEFORE the durable claim: malformed input
+      // spends nothing, calls nothing, and reserves nothing.
+      const input = parseInvestigationInput(req.body);
+      let reservationId: string | null = null;
+      if (budgetGuard) {
+        reservationId = `investigation:${randomUUID()}`;
+        budgetGuard.reserve(reservationId, config.publicBudgetPerRunUsd);
+      }
+      let record;
+      try {
+        record = investigations.create(input, reservationId);
+      } catch (e) {
+        if (budgetGuard && reservationId) {
+          try { budgetGuard.release(reservationId); } catch { /* claim stays counted */ }
+        }
+        throw e;
+      }
+      if (reservationId) investigationReservations.set(record.id, reservationId);
+      const snapshot = investigations.toSummary(record);
+      investigations.start(record, fetchImpl);
+      res.status(202).json(snapshot);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.get("/api/operations/investigations/:id", (req: Request, res: Response, next: (e: unknown) => void) => {
+    try {
+      const record = investigations.get(req.params["id"] as string);
+      if (!record) {
+        res.status(404).json({ code: "UNKNOWN_INVESTIGATION", message: "Unknown investigation id." });
+        return;
+      }
+      settleInvestigationReservation(record.id);
+      res.json(investigations.toSummary(record));
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.get("/api/operations/investigations/:id/report", (req: Request, res: Response, next: (e: unknown) => void) => {
+    try {
+      const record = investigations.get(req.params["id"] as string);
+      if (!record) {
+        res.status(404).json({ code: "UNKNOWN_INVESTIGATION", message: "Unknown investigation id." });
+        return;
+      }
+      settleInvestigationReservation(record.id);
+      res.json(investigations.buildReport(record));
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.post("/api/operations/investigations/:id/cancel", (req: Request, res: Response, next: (e: unknown) => void) => {
+    try {
+      const record = investigations.cancel(req.params["id"] as string);
+      settleInvestigationReservation(record.id);
+      res.json(investigations.toSummary(record));
     } catch (e) {
       next(e);
     }
