@@ -115,7 +115,7 @@ export function classifyImprovement(baseline: RunMetrics, candidate: RunMetrics)
   return "mixed";
 }
 
-function runOne(scenario: OperationsScenario, config: OperationsExecutionConfig, ceiling: number): { report: OperationsReport; metrics: RunMetrics; termination: OperationsTermination } {
+export function runOne(scenario: OperationsScenario, config: OperationsExecutionConfig, ceiling: number): { report: OperationsReport; metrics: RunMetrics; termination: OperationsTermination } {
   const controller = createOperationsController({ scenario: structuredClone(scenario), executionConfig: structuredClone(config) });
   const termination = runOperationsToTermination(controller, ceiling);
   const report = controller.exportReport();
@@ -145,7 +145,7 @@ function runOne(scenario: OperationsScenario, config: OperationsExecutionConfig,
   };
 }
 
-function scopeFor(baseline: OperationsScenario, ceiling: number, baselineTerm: OperationsTermination | null, candidateTerm: OperationsTermination | null): EvaluationScope {
+export function scopeFor(baseline: OperationsScenario, ceiling: number, baselineTerm: OperationsTermination | null, candidateTerm: OperationsTermination | null): EvaluationScope {
   const run = baseline.policies.run;
   const horizonMs = run.mode === "fixed-window" ? run.horizonMs : null;
   const truncated = [baselineTerm, candidateTerm].some((t) =>

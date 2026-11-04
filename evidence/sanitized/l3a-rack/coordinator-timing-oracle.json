@@ -1,0 +1,9 @@
+{
+  "method": "Manhattan corridor oracle: travel2+3+2s becomes3+4+2s; pick4/unload2/pack10/dispatch5 unchanged",
+  "expectedBaselineMs": 28000,
+  "expectedCandidateMs": 30000,
+  "actualBaselineMs": 28000,
+  "actualCandidateMs": 30000,
+  "candidateValid": true,
+  "issues": []
+}

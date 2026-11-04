@@ -84,7 +84,7 @@ function issueKey(i: LayoutIssue): string {
 //   for its own agent profile.
 // The same checks run on baseline and candidate. A blocker entity is named
 // only when rect arithmetic proves the covering pair.
-function geometryAccessIssuesFor(scenario: OperationsScenario): { issues: LayoutIssue[]; routes: RouteCheck[] } {
+export function geometryAccessIssuesFor(scenario: OperationsScenario): { issues: LayoutIssue[]; routes: RouteCheck[] } {
   const issues: LayoutIssue[] = [];
   const routes: RouteCheck[] = [];
   const room = scenario.geometry.room;
@@ -99,6 +99,12 @@ function geometryAccessIssuesFor(scenario: OperationsScenario): { issues: Layout
         code: "OUT_OF_ROOM", severity: "error", entityId: obstacle.id, field: "obstacleRectMm",
         message: `obstacle ${obstacle.id} rect ${rect.minXMm}..${rect.maxXMm} x ${rect.minZMm}..${rect.maxZMm} leaves room 0..${room.widthMm} x 0..${room.depthMm}`,
       });
+    }
+  }
+  for (const rack of scenario.geometry.racks) {
+    const rect = rackRect(rack);
+    if (rect.minXMm < 0 || rect.minZMm < 0 || rect.maxXMm > room.widthMm || rect.maxZMm > room.depthMm) {
+      issues.push({ code: "OUT_OF_ROOM", severity: "error", entityId: rack.id, field: "rackRectMm", message: `rack ${rack.id} footprint leaves room` });
     }
   }
   for (let i = 0; i < physical.length; i += 1) {
@@ -153,6 +159,10 @@ function geometryAccessIssuesFor(scenario: OperationsScenario): { issues: Layout
     }
   }
   for (const location of scenario.locations) {
+    const anchor = location.storageAnchorMm;
+    if (anchor.x < 0 || anchor.z < 0 || anchor.x > room.widthMm || anchor.z > room.depthMm) {
+      issues.push({ code: "OUT_OF_ROOM", severity: "error", entityId: location.id, relatedEntityId: location.rackId, field: "storageAnchorMm", message: `storage anchor ${location.id} leaves room` });
+    }
     checkPoint(location.id, `${location.id}:approach`, location.approachPointMm, scenario.mobileUnits, "CLEARANCE_VIOLATION");
   }
   for (const unit of scenario.mobileUnits) {
@@ -325,3 +335,4 @@ export async function validateLayoutCandidate(input: {
   const candidateGeo = candidate ? geometryAccessIssuesFor(candidate) : null;
   return finish(structural, candidate, candidateGeo);
 }
+

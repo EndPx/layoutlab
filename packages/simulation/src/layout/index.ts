@@ -64,3 +64,6 @@ export {
   buildCorridorScenario,
   corridorAttachment,
 } from "./corridor.js";
+
+export { buildRackAttachmentMap, applyRackTranslation, runRackLayoutComparison, verifyRackLayoutComparison } from './rack.js';
+export type { RackAttachment, RackTranslationProposal, RackComparisonInput, RackLayoutComparison } from './rack.js';
