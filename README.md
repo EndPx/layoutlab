@@ -10,7 +10,7 @@ native server API with user approval. Racks stay fixed; only assignments
 change.
 
 Status (2026-11-04): the restricted [web preview](https://layoutlab.endpx.cloud)
-runs release `f44081a` with the main warehouse scene, engine-driven operations,
+runs release `0109f02` with the main warehouse scene, engine-driven operations,
 dispatch, inbound/put-away, split trips, and operations report replay. The
 18-trial storage-planning Meta benchmark remains separate, completed evidence.
 
@@ -25,10 +25,11 @@ these allowance amounts are not invoices. See
 
 The [v3 brief](docs/IMPLEMENTATION_BRIEF_V3.md) and
 [Experimenter delivery plan](docs/EXPERIMENTER_DELIVERY_PLAN.md) define the
-remaining work. The current controlled-experiment and one-shot proposal API
-is a foundation; a complete bounded AI investigation with enforced allowed
-changes, run-linked recommendations and comparative evaluation is still in
-progress. No full-simulator or operational-savings claim follows from the
+remaining work. Controlled comparisons now enforce explicit intervention permissions, retain
+invalid and incomplete candidates, and export reports that rerun offline.
+The public comparison API passed independent replay. The one-shot Meta
+proposal works, while its bounded investigation loop, run-linked
+recommendations, UI integration and AI evaluation remain in progress. No full-simulator or operational-savings claim follows from the
 storage-planning benchmark.
 
 ## Native start (Node 24.18 tested, no Docker)

@@ -1,0 +1,57 @@
+{
+  "checkedAt": "2026-11-04T08:50:52.971Z",
+  "appCommit": "0109f02",
+  "endpoint": "https://layoutlab.endpx.cloud/api/operations/experiments",
+  "httpStatus": 200,
+  "realMetaRequests": 0,
+  "verification": {
+    "ok": true,
+    "mismatches": [],
+    "recomputedRankedCandidateIds": [
+      "fast-dispatch",
+      "baseline",
+      "slow-dispatch"
+    ],
+    "recomputedSelectedCandidateId": "fast-dispatch"
+  },
+  "budgetUnchanged": true,
+  "budgetAfter": {
+    "guard": "active",
+    "capUsd": 1,
+    "reservedUsd": 0,
+    "committedUsd": 0.5,
+    "availableUsd": 0.5,
+    "entries": 2,
+    "accounting": "reservedUsd is a held conservative bound; committedUsd is that bound charged after dispatch. Neither is an invoice or a confirmed provider price."
+  },
+  "candidates": [
+    {
+      "id": "baseline",
+      "status": "valid-complete",
+      "shipped": 6,
+      "makespanMs": 502400,
+      "totalWaitMs": 614900
+    },
+    {
+      "id": "fast-dispatch",
+      "status": "valid-complete",
+      "shipped": 6,
+      "makespanMs": 343200,
+      "totalWaitMs": 614900
+    },
+    {
+      "id": "slow-dispatch",
+      "status": "valid-complete",
+      "shipped": 6,
+      "makespanMs": 1942400,
+      "totalWaitMs": 3717100
+    },
+    {
+      "id": "more-pickers",
+      "status": "invalid",
+      "shipped": null,
+      "makespanMs": null,
+      "totalWaitMs": null
+    }
+  ]
+}

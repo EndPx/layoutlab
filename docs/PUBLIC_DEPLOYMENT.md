@@ -5,9 +5,22 @@ Hostinger VPS, restricted password/Basic Auth access, and US$1 total for the
 initial public Live Meta test, separate from the completed US$1.50 benchmark.
 The public allowance must persist without automatic replenishment.
 
-## Current release and activation status (2026-11-04)
+## E3 release (2026-11-04, latest)
 
-The active native service runs `/opt/layoutlab/releases/f44081a`, including
+Active release `/opt/layoutlab/releases/0109f02` adds the reviewed controlled
+comparison/report contract. Native build passed; ledger bytes remained
+unchanged. An authenticated public POST to `/api/operations/experiments`
+returned the full report. Local offline replay matched every candidate and
+ranking with no mismatches. Baseline, faster/slower dispatch assumptions and
+a denied staffing candidate were retained. This check made zero model calls;
+US$0.50 conservative allowance remains available as last checked.
+Evidence: `e3-deployment-0109f02.json`, `e3-public-comparison.json`, and
+`e3-public-verification.json` under `evidence/sanitized/`.
+The UI investigation workflow is still pending; this is API/report acceptance.
+
+## Prior schema release and live activation (2026-11-04)
+
+The prior native release `/opt/layoutlab/releases/f44081a` shipped, including
 operations, the reviewed budget guard and the Meta strict-schema fix. Native
 install/build passed. The upgrade preserved ledger bytes exactly; other app
 configurations, DNS, Nginx and Basic Auth were unchanged.
