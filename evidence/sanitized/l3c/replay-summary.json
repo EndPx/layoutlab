@@ -1,0 +1,46 @@
+{
+  "checks": [
+    {
+      "file": "corridor-rotation.json",
+      "ok": true,
+      "measurement": "measured",
+      "improvement": "worse",
+      "scope": {
+        "runMode": "finite-cohort",
+        "horizonMs": null,
+        "arrivalCutoffMs": 0,
+        "safetyCeilingMs": 120000,
+        "ordersInScenario": 1,
+        "baselineStopReason": "stage-complete",
+        "candidateStopReason": "stage-complete",
+        "truncated": false,
+        "fullHorizonEvaluated": true
+      }
+    },
+    {
+      "file": "main-rotation.json",
+      "ok": true,
+      "measurement": "measured",
+      "improvement": "improved",
+      "scope": {
+        "runMode": "fixed-window",
+        "horizonMs": 28800000,
+        "arrivalCutoffMs": null,
+        "safetyCeilingMs": 7200000,
+        "ordersInScenario": 28,
+        "baselineStopReason": "safety-ceiling",
+        "candidateStopReason": "safety-ceiling",
+        "truncated": true,
+        "fullHorizonEvaluated": false
+      }
+    },
+    {
+      "file": "evidence/sanitized/l3b/desktop-rack.json",
+      "ok": true
+    },
+    {
+      "file": "evidence/sanitized/l1-manual/desktop-comparison.json",
+      "ok": true
+    }
+  ]
+}

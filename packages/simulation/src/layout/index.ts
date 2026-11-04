@@ -67,3 +67,9 @@ export {
 
 export { buildRackAttachmentMap, applyRackTranslation, runRackLayoutComparison, verifyRackLayoutComparison } from './rack.js';
 export type { RackAttachment, RackTranslationProposal, RackComparisonInput, RackLayoutComparison } from './rack.js';
+
+export { rotateRackOffset, resolveRackOrientations, applyRackQuarterTurn, runRackRotationComparison, verifyRackRotationComparison } from './rack-rotation.js';
+export type { QuarterTurns, RackQuarterTurnProposal, ApprovedRackRotation, RackRotationInput, RackRotationComparison } from './rack-rotation.js';
+
+export { applyAgentInitialPlacement, runAgentPlacementComparison, verifyAgentPlacementComparison } from './agent-placement.js';
+export type { AgentInitialPlacementProposal, AgentPlacementComparisonInput, AgentPlacementComparison } from './agent-placement.js';

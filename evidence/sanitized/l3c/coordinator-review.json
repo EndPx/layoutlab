@@ -1,0 +1,18 @@
+{
+  "method": "independent rotated-corridor bypass arithmetic under799mm radius: 5600 travel +4000 pick +3000 travel +2000 unload +2000 travel +10000 pack +5000 dispatch",
+  "expectedBaselineMs": 28000,
+  "actualBaselineMs": 28000,
+  "expectedCandidateMs": 31600,
+  "actualCandidateMs": 31600,
+  "mainAnchor": {
+    "x": 4000,
+    "y": 450,
+    "z": 7000
+  },
+  "mainApproach": {
+    "x": 6800,
+    "z": 7000
+  },
+  "corridorExportRecomputed": true,
+  "realMetaRequests": 0
+}

@@ -1,0 +1,1399 @@
+{
+  "schema": "layoutlab.rack-rotation-comparison/1",
+  "versions": {
+    "simulation": "0.1.1",
+    "operationsSchema": "layoutlab.operations/1",
+    "operationsEngine": "layoutlab.operations-engine/1"
+  },
+  "commonInputs": {
+    "scenario": {
+      "schemaVersion": "layoutlab.operations/1",
+      "engineVersion": "layoutlab.operations-engine/1",
+      "id": "l0-corridor-1",
+      "provenance": {
+        "category": "synthetic",
+        "description": "L0 one-order corridor oracle; synthetic, uncalibrated.",
+        "sourceUrls": [],
+        "assumptions": [
+          "synthetic corridor for hand-derived timing only"
+        ],
+        "inventedFields": [
+          "all coordinates, capacities, and schedules"
+        ]
+      },
+      "seed": "l0-corridor-001",
+      "units": {
+        "quantityUnit": "item",
+        "capacityUnit": "handling-unit"
+      },
+      "geometry": {
+        "room": {
+          "widthMm": 14000,
+          "depthMm": 6000
+        },
+        "racks": [
+          {
+            "id": "R1",
+            "positionMm": {
+              "x": 3000,
+              "z": 1500
+            },
+            "dimensionsMm": {
+              "width": 2000,
+              "depth": 1000,
+              "height": 2000
+            }
+          }
+        ],
+        "obstacles": [
+          {
+            "id": "OB-PACK1",
+            "minXMm": 7066,
+            "minZMm": 490,
+            "maxXMm": 8934,
+            "maxZMm": 1710
+          }
+        ]
+      },
+      "products": [
+        {
+          "id": "P-A",
+          "label": "Widget",
+          "itemDimensionsMm": {
+            "width": 200,
+            "depth": 200,
+            "height": 200
+          },
+          "handlingClass": "ambient",
+          "capacityCostUnits": 1
+        }
+      ],
+      "locations": [
+        {
+          "id": "L-A1",
+          "rackId": "R1",
+          "storageAnchorMm": {
+            "x": 3000,
+            "y": 450,
+            "z": 1500
+          },
+          "approachPointMm": {
+            "x": 3000,
+            "z": 3000
+          },
+          "usableDimensionsMm": {
+            "width": 500,
+            "depth": 400,
+            "height": 400
+          },
+          "storageClass": "ambient",
+          "maxQuantity": 100,
+          "restrictions": {
+            "eligibleHandlingClasses": [
+              "ambient"
+            ]
+          }
+        }
+      ],
+      "initialStock": [
+        {
+          "locationId": "L-A1",
+          "productId": "P-A",
+          "quantity": 10
+        }
+      ],
+      "mobileUnits": [
+        {
+          "id": "PK-1",
+          "role": "picker",
+          "footprintMm": {
+            "width": 680,
+            "length": 1220,
+            "margin": 100
+          },
+          "speedMmPerSecond": 1000,
+          "loadCapacityUnits": 10,
+          "eligibleHandlingClasses": [
+            "ambient"
+          ],
+          "parkingSlotMm": {
+            "x": 1000,
+            "z": 3000
+          }
+        }
+      ],
+      "resources": [
+        {
+          "id": "PACK-1",
+          "kind": "packing",
+          "servicePositions": [
+            {
+              "id": "PACK1-S1",
+              "x": 8000,
+              "z": 3000
+            }
+          ],
+          "queueSlots": [
+            {
+              "id": "PACK1-Q1",
+              "x": 6000,
+              "z": 3000
+            }
+          ],
+          "serviceCapacity": 1,
+          "inputStagingCapacity": 10,
+          "outputStagingCapacity": 10,
+          "serviceDurationMs": 10000
+        },
+        {
+          "id": "DSP-1",
+          "kind": "dispatch",
+          "servicePositions": [
+            {
+              "id": "DSP-S1",
+              "x": 12000,
+              "z": 3000
+            }
+          ],
+          "queueSlots": [
+            {
+              "id": "DSP-Q1",
+              "x": 11000,
+              "z": 3000
+            }
+          ],
+          "serviceCapacity": 1,
+          "inputStagingCapacity": 10,
+          "outputStagingCapacity": 10,
+          "serviceDurationMs": 5000
+        }
+      ],
+      "orderSchedule": [
+        {
+          "id": "O-1",
+          "arrivalTimeMs": 0,
+          "lines": [
+            {
+              "productId": "P-A",
+              "quantity": 2
+            }
+          ]
+        }
+      ],
+      "deliverySchedule": [],
+      "policies": {
+        "reservePolicy": "full-order-all-or-none",
+        "run": {
+          "mode": "finite-cohort",
+          "arrivalCutoffMs": 0
+        },
+        "eventLimits": {
+          "maxProcessedEvents": 100000,
+          "maxEventsPerTimestamp": 10000
+        }
+      }
+    },
+    "canonicalScenario": {
+      "schemaVersion": "layoutlab.operations/1",
+      "engineVersion": "layoutlab.operations-engine/1",
+      "id": "l0-corridor-1",
+      "provenance": {
+        "category": "synthetic",
+        "description": "L0 one-order corridor oracle; synthetic, uncalibrated.",
+        "sourceUrls": [],
+        "assumptions": [
+          "synthetic corridor for hand-derived timing only"
+        ],
+        "inventedFields": [
+          "all coordinates, capacities, and schedules"
+        ]
+      },
+      "seed": "l0-corridor-001",
+      "units": {
+        "quantityUnit": "item",
+        "capacityUnit": "handling-unit"
+      },
+      "geometry": {
+        "room": {
+          "widthMm": 14000,
+          "depthMm": 6000
+        },
+        "racks": [
+          {
+            "id": "R1",
+            "positionMm": {
+              "x": 3000,
+              "z": 1500
+            },
+            "dimensionsMm": {
+              "width": 2000,
+              "depth": 1000,
+              "height": 2000
+            }
+          }
+        ],
+        "obstacles": [
+          {
+            "id": "OB-PACK1",
+            "minXMm": 7066,
+            "minZMm": 490,
+            "maxXMm": 8934,
+            "maxZMm": 1710
+          }
+        ]
+      },
+      "products": [
+        {
+          "id": "P-A",
+          "label": "Widget",
+          "itemDimensionsMm": {
+            "width": 200,
+            "depth": 200,
+            "height": 200
+          },
+          "handlingClass": "ambient",
+          "capacityCostUnits": 1
+        }
+      ],
+      "locations": [
+        {
+          "id": "L-A1",
+          "rackId": "R1",
+          "storageAnchorMm": {
+            "x": 3000,
+            "y": 450,
+            "z": 1500
+          },
+          "approachPointMm": {
+            "x": 3000,
+            "z": 3000
+          },
+          "usableDimensionsMm": {
+            "width": 500,
+            "depth": 400,
+            "height": 400
+          },
+          "storageClass": "ambient",
+          "maxQuantity": 100,
+          "restrictions": {
+            "eligibleHandlingClasses": [
+              "ambient"
+            ]
+          }
+        }
+      ],
+      "initialStock": [
+        {
+          "locationId": "L-A1",
+          "productId": "P-A",
+          "quantity": 10
+        }
+      ],
+      "mobileUnits": [
+        {
+          "id": "PK-1",
+          "role": "picker",
+          "footprintMm": {
+            "width": 680,
+            "length": 1220,
+            "margin": 100
+          },
+          "speedMmPerSecond": 1000,
+          "loadCapacityUnits": 10,
+          "eligibleHandlingClasses": [
+            "ambient"
+          ],
+          "parkingSlotMm": {
+            "x": 1000,
+            "z": 3000
+          }
+        }
+      ],
+      "resources": [
+        {
+          "id": "PACK-1",
+          "kind": "packing",
+          "servicePositions": [
+            {
+              "id": "PACK1-S1",
+              "x": 8000,
+              "z": 3000
+            }
+          ],
+          "queueSlots": [
+            {
+              "id": "PACK1-Q1",
+              "x": 6000,
+              "z": 3000
+            }
+          ],
+          "serviceCapacity": 1,
+          "inputStagingCapacity": 10,
+          "outputStagingCapacity": 10,
+          "serviceDurationMs": 10000
+        },
+        {
+          "id": "DSP-1",
+          "kind": "dispatch",
+          "servicePositions": [
+            {
+              "id": "DSP-S1",
+              "x": 12000,
+              "z": 3000
+            }
+          ],
+          "queueSlots": [
+            {
+              "id": "DSP-Q1",
+              "x": 11000,
+              "z": 3000
+            }
+          ],
+          "serviceCapacity": 1,
+          "inputStagingCapacity": 10,
+          "outputStagingCapacity": 10,
+          "serviceDurationMs": 5000
+        }
+      ],
+      "orderSchedule": [
+        {
+          "id": "O-1",
+          "arrivalTimeMs": 0,
+          "lines": [
+            {
+              "productId": "P-A",
+              "quantity": 2
+            }
+          ]
+        }
+      ],
+      "deliverySchedule": [],
+      "policies": {
+        "reservePolicy": "full-order-all-or-none",
+        "run": {
+          "mode": "finite-cohort",
+          "arrivalCutoffMs": 0
+        },
+        "eventLimits": {
+          "maxProcessedEvents": 100000,
+          "maxEventsPerTimestamp": 10000
+        }
+      }
+    },
+    "executionConfig": {
+      "pickDurationMsPerItem": 2000,
+      "unloadDurationMsPerItem": 1000
+    }
+  },
+  "proposal": {
+    "proposalId": "rotation-oracle",
+    "parent": {
+      "scenarioId": "l0-corridor-1",
+      "scenarioContentSha256": "d05463229755b8c0d69bd28d73282332a275bd2e8b8498af88b206b997464d47",
+      "schemaVersion": "layoutlab.operations/1",
+      "engineVersion": "layoutlab.operations-engine/1"
+    },
+    "entityId": "R1",
+    "kind": "RACK_QUARTER_TURN",
+    "quarterTurns": 1
+  },
+  "approvedRotation": {
+    "allowedRackIds": [
+      "R1"
+    ],
+    "lockedRackIds": [],
+    "allowedQuarterTurns": [
+      1,
+      2,
+      3
+    ],
+    "maxRotatedRacks": 1,
+    "maxQuarterTurns": 3
+  },
+  "attachments": [
+    {
+      "rackId": "R1",
+      "rack": {
+        "id": "R1",
+        "positionMm": {
+          "x": 3000,
+          "z": 1500
+        },
+        "dimensionsMm": {
+          "width": 2000,
+          "depth": 1000,
+          "height": 2000
+        }
+      },
+      "slots": [
+        {
+          "id": "L-A1",
+          "rackId": "R1",
+          "storageAnchorMm": {
+            "x": 3000,
+            "y": 450,
+            "z": 1500
+          },
+          "approachPointMm": {
+            "x": 3000,
+            "z": 3000
+          },
+          "usableDimensionsMm": {
+            "width": 500,
+            "depth": 400,
+            "height": 400
+          },
+          "storageClass": "ambient",
+          "maxQuantity": 100,
+          "restrictions": {
+            "eligibleHandlingClasses": [
+              "ambient"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "safetyCeilingMs": 120000,
+  "parentHash": "d05463229755b8c0d69bd28d73282332a275bd2e8b8498af88b206b997464d47",
+  "bundle": {
+    "scenario": {
+      "schemaVersion": "layoutlab.operations/1",
+      "engineVersion": "layoutlab.operations-engine/1",
+      "id": "l0-corridor-1",
+      "provenance": {
+        "category": "synthetic",
+        "description": "L0 one-order corridor oracle; synthetic, uncalibrated.",
+        "sourceUrls": [],
+        "assumptions": [
+          "synthetic corridor for hand-derived timing only"
+        ],
+        "inventedFields": [
+          "all coordinates, capacities, and schedules"
+        ]
+      },
+      "seed": "l0-corridor-001",
+      "units": {
+        "quantityUnit": "item",
+        "capacityUnit": "handling-unit"
+      },
+      "geometry": {
+        "room": {
+          "widthMm": 14000,
+          "depthMm": 6000
+        },
+        "racks": [
+          {
+            "id": "R1",
+            "positionMm": {
+              "x": 3000,
+              "z": 1500
+            },
+            "dimensionsMm": {
+              "width": 1000,
+              "depth": 2000,
+              "height": 2000
+            }
+          }
+        ],
+        "obstacles": [
+          {
+            "id": "OB-PACK1",
+            "minXMm": 7066,
+            "minZMm": 490,
+            "maxXMm": 8934,
+            "maxZMm": 1710
+          }
+        ]
+      },
+      "products": [
+        {
+          "id": "P-A",
+          "label": "Widget",
+          "itemDimensionsMm": {
+            "width": 200,
+            "depth": 200,
+            "height": 200
+          },
+          "handlingClass": "ambient",
+          "capacityCostUnits": 1
+        }
+      ],
+      "locations": [
+        {
+          "id": "L-A1",
+          "rackId": "R1",
+          "storageAnchorMm": {
+            "x": 3000,
+            "y": 450,
+            "z": 1500
+          },
+          "approachPointMm": {
+            "x": 4500,
+            "z": 1500
+          },
+          "usableDimensionsMm": {
+            "width": 500,
+            "depth": 400,
+            "height": 400
+          },
+          "storageClass": "ambient",
+          "maxQuantity": 100,
+          "restrictions": {
+            "eligibleHandlingClasses": [
+              "ambient"
+            ]
+          }
+        }
+      ],
+      "initialStock": [
+        {
+          "locationId": "L-A1",
+          "productId": "P-A",
+          "quantity": 10
+        }
+      ],
+      "mobileUnits": [
+        {
+          "id": "PK-1",
+          "role": "picker",
+          "footprintMm": {
+            "width": 680,
+            "length": 1220,
+            "margin": 100
+          },
+          "speedMmPerSecond": 1000,
+          "loadCapacityUnits": 10,
+          "eligibleHandlingClasses": [
+            "ambient"
+          ],
+          "parkingSlotMm": {
+            "x": 1000,
+            "z": 3000
+          }
+        }
+      ],
+      "resources": [
+        {
+          "id": "PACK-1",
+          "kind": "packing",
+          "servicePositions": [
+            {
+              "id": "PACK1-S1",
+              "x": 8000,
+              "z": 3000
+            }
+          ],
+          "queueSlots": [
+            {
+              "id": "PACK1-Q1",
+              "x": 6000,
+              "z": 3000
+            }
+          ],
+          "serviceCapacity": 1,
+          "inputStagingCapacity": 10,
+          "outputStagingCapacity": 10,
+          "serviceDurationMs": 10000
+        },
+        {
+          "id": "DSP-1",
+          "kind": "dispatch",
+          "servicePositions": [
+            {
+              "id": "DSP-S1",
+              "x": 12000,
+              "z": 3000
+            }
+          ],
+          "queueSlots": [
+            {
+              "id": "DSP-Q1",
+              "x": 11000,
+              "z": 3000
+            }
+          ],
+          "serviceCapacity": 1,
+          "inputStagingCapacity": 10,
+          "outputStagingCapacity": 10,
+          "serviceDurationMs": 5000
+        }
+      ],
+      "orderSchedule": [
+        {
+          "id": "O-1",
+          "arrivalTimeMs": 0,
+          "lines": [
+            {
+              "productId": "P-A",
+              "quantity": 2
+            }
+          ]
+        }
+      ],
+      "deliverySchedule": [],
+      "policies": {
+        "reservePolicy": "full-order-all-or-none",
+        "run": {
+          "mode": "finite-cohort",
+          "arrivalCutoffMs": 0
+        },
+        "eventLimits": {
+          "maxProcessedEvents": 100000,
+          "maxEventsPerTimestamp": 10000
+        }
+      }
+    },
+    "transform": {
+      "entityId": "R1",
+      "quarterTurns": 1,
+      "centerMm": {
+        "x": 3000,
+        "z": 1500
+      }
+    },
+    "attachmentsBefore": {
+      "rackId": "R1",
+      "rack": {
+        "id": "R1",
+        "positionMm": {
+          "x": 3000,
+          "z": 1500
+        },
+        "dimensionsMm": {
+          "width": 2000,
+          "depth": 1000,
+          "height": 2000
+        }
+      },
+      "slots": [
+        {
+          "id": "L-A1",
+          "rackId": "R1",
+          "storageAnchorMm": {
+            "x": 3000,
+            "y": 450,
+            "z": 1500
+          },
+          "approachPointMm": {
+            "x": 3000,
+            "z": 3000
+          },
+          "usableDimensionsMm": {
+            "width": 500,
+            "depth": 400,
+            "height": 400
+          },
+          "storageClass": "ambient",
+          "maxQuantity": 100,
+          "restrictions": {
+            "eligibleHandlingClasses": [
+              "ambient"
+            ]
+          }
+        }
+      ]
+    },
+    "viewerPlacement": {
+      "attachment": {
+        "rackId": "R1",
+        "rack": {
+          "id": "R1",
+          "positionMm": {
+            "x": 3000,
+            "z": 1500
+          },
+          "dimensionsMm": {
+            "width": 1000,
+            "depth": 2000,
+            "height": 2000
+          }
+        },
+        "slots": [
+          {
+            "id": "L-A1",
+            "rackId": "R1",
+            "storageAnchorMm": {
+              "x": 3000,
+              "y": 450,
+              "z": 1500
+            },
+            "approachPointMm": {
+              "x": 4500,
+              "z": 1500
+            },
+            "usableDimensionsMm": {
+              "width": 500,
+              "depth": 400,
+              "height": 400
+            },
+            "storageClass": "ambient",
+            "maxQuantity": 100,
+            "restrictions": {
+              "eligibleHandlingClasses": [
+                "ambient"
+              ]
+            }
+          }
+        ]
+      },
+      "assetFrame": {
+        "rackId": "R1",
+        "centerMm": {
+          "x": 3000,
+          "z": 1500
+        },
+        "quarterTurns": 1,
+        "yawDeg": 90,
+        "convention": "THREE_POSITIVE_Y:(dx,dz)->(dz,-dx)",
+        "intrinsicDimensionsMm": {
+          "width": 2000,
+          "depth": 1000,
+          "height": 2000
+        },
+        "localSlots": [
+          {
+            "id": "L-A1",
+            "rackId": "R1",
+            "storageAnchorMm": {
+              "x": 0,
+              "y": 450,
+              "z": 0
+            },
+            "approachPointMm": {
+              "x": 0,
+              "z": 1500
+            },
+            "usableDimensionsMm": {
+              "width": 500,
+              "depth": 400,
+              "height": 400
+            },
+            "storageClass": "ambient",
+            "maxQuantity": 100,
+            "restrictions": {
+              "eligibleHandlingClasses": [
+                "ambient"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "changedFields": [
+      "/geometry/racks/0/dimensionsMm/depth",
+      "/geometry/racks/0/dimensionsMm/width",
+      "/locations/0/approachPointMm/x",
+      "/locations/0/approachPointMm/z"
+    ]
+  },
+  "validation": {
+    "baselineValid": true,
+    "candidateValid": true,
+    "structural": [],
+    "baseline": {
+      "issues": [],
+      "routes": [
+        {
+          "fromLabel": "PK-1:parking",
+          "toLabel": "L-A1:approach",
+          "status": "ok",
+          "totalDistanceMm": 2000,
+          "reason": null
+        },
+        {
+          "fromLabel": "PK-1:parking",
+          "toLabel": "PACK-1:PACK1-S1",
+          "status": "ok",
+          "totalDistanceMm": 7000,
+          "reason": null
+        },
+        {
+          "fromLabel": "PK-1:parking",
+          "toLabel": "PACK-1:PACK1-Q1",
+          "status": "ok",
+          "totalDistanceMm": 5000,
+          "reason": null
+        }
+      ]
+    },
+    "candidate": {
+      "issues": [],
+      "routes": [
+        {
+          "fromLabel": "PK-1:parking",
+          "toLabel": "L-A1:approach",
+          "status": "ok",
+          "totalDistanceMm": 5600,
+          "reason": null
+        },
+        {
+          "fromLabel": "PK-1:parking",
+          "toLabel": "PACK-1:PACK1-S1",
+          "status": "ok",
+          "totalDistanceMm": 7600,
+          "reason": null
+        },
+        {
+          "fromLabel": "PK-1:parking",
+          "toLabel": "PACK-1:PACK1-Q1",
+          "status": "ok",
+          "totalDistanceMm": 5600,
+          "reason": null
+        }
+      ]
+    }
+  },
+  "measurement": "measured",
+  "baselineRun": {
+    "report": {
+      "schema": "layoutlab.operations-report/1",
+      "scenarioId": "l0-corridor-1",
+      "seed": "l0-corridor-001",
+      "versions": {
+        "simulation": "0.1.1",
+        "operationsSchema": "layoutlab.operations/1",
+        "operationsEngine": "layoutlab.operations-engine/1"
+      },
+      "scenario": {
+        "schemaVersion": "layoutlab.operations/1",
+        "engineVersion": "layoutlab.operations-engine/1",
+        "id": "l0-corridor-1",
+        "provenance": {
+          "category": "synthetic",
+          "description": "L0 one-order corridor oracle; synthetic, uncalibrated.",
+          "sourceUrls": [],
+          "assumptions": [
+            "synthetic corridor for hand-derived timing only"
+          ],
+          "inventedFields": [
+            "all coordinates, capacities, and schedules"
+          ]
+        },
+        "seed": "l0-corridor-001",
+        "units": {
+          "quantityUnit": "item",
+          "capacityUnit": "handling-unit"
+        },
+        "geometry": {
+          "room": {
+            "widthMm": 14000,
+            "depthMm": 6000
+          },
+          "racks": [
+            {
+              "id": "R1",
+              "positionMm": {
+                "x": 3000,
+                "z": 1500
+              },
+              "dimensionsMm": {
+                "width": 2000,
+                "depth": 1000,
+                "height": 2000
+              }
+            }
+          ],
+          "obstacles": [
+            {
+              "id": "OB-PACK1",
+              "minXMm": 7066,
+              "minZMm": 490,
+              "maxXMm": 8934,
+              "maxZMm": 1710
+            }
+          ]
+        },
+        "products": [
+          {
+            "id": "P-A",
+            "label": "Widget",
+            "itemDimensionsMm": {
+              "width": 200,
+              "depth": 200,
+              "height": 200
+            },
+            "handlingClass": "ambient",
+            "capacityCostUnits": 1
+          }
+        ],
+        "locations": [
+          {
+            "id": "L-A1",
+            "rackId": "R1",
+            "storageAnchorMm": {
+              "x": 3000,
+              "y": 450,
+              "z": 1500
+            },
+            "approachPointMm": {
+              "x": 3000,
+              "z": 3000
+            },
+            "usableDimensionsMm": {
+              "width": 500,
+              "depth": 400,
+              "height": 400
+            },
+            "storageClass": "ambient",
+            "maxQuantity": 100,
+            "restrictions": {
+              "eligibleHandlingClasses": [
+                "ambient"
+              ]
+            }
+          }
+        ],
+        "initialStock": [
+          {
+            "locationId": "L-A1",
+            "productId": "P-A",
+            "quantity": 10
+          }
+        ],
+        "mobileUnits": [
+          {
+            "id": "PK-1",
+            "role": "picker",
+            "footprintMm": {
+              "width": 680,
+              "length": 1220,
+              "margin": 100
+            },
+            "speedMmPerSecond": 1000,
+            "loadCapacityUnits": 10,
+            "eligibleHandlingClasses": [
+              "ambient"
+            ],
+            "parkingSlotMm": {
+              "x": 1000,
+              "z": 3000
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "PACK-1",
+            "kind": "packing",
+            "servicePositions": [
+              {
+                "id": "PACK1-S1",
+                "x": 8000,
+                "z": 3000
+              }
+            ],
+            "queueSlots": [
+              {
+                "id": "PACK1-Q1",
+                "x": 6000,
+                "z": 3000
+              }
+            ],
+            "serviceCapacity": 1,
+            "inputStagingCapacity": 10,
+            "outputStagingCapacity": 10,
+            "serviceDurationMs": 10000
+          },
+          {
+            "id": "DSP-1",
+            "kind": "dispatch",
+            "servicePositions": [
+              {
+                "id": "DSP-S1",
+                "x": 12000,
+                "z": 3000
+              }
+            ],
+            "queueSlots": [
+              {
+                "id": "DSP-Q1",
+                "x": 11000,
+                "z": 3000
+              }
+            ],
+            "serviceCapacity": 1,
+            "inputStagingCapacity": 10,
+            "outputStagingCapacity": 10,
+            "serviceDurationMs": 5000
+          }
+        ],
+        "orderSchedule": [
+          {
+            "id": "O-1",
+            "arrivalTimeMs": 0,
+            "lines": [
+              {
+                "productId": "P-A",
+                "quantity": 2
+              }
+            ]
+          }
+        ],
+        "deliverySchedule": [],
+        "policies": {
+          "reservePolicy": "full-order-all-or-none",
+          "run": {
+            "mode": "finite-cohort",
+            "arrivalCutoffMs": 0
+          },
+          "eventLimits": {
+            "maxProcessedEvents": 100000,
+            "maxEventsPerTimestamp": 10000
+          }
+        }
+      },
+      "executionConfig": {
+        "pickDurationMsPerItem": 2000,
+        "unloadDurationMsPerItem": 1000
+      },
+      "completionStage": "SUPPORTED_STAGE_COMPLETE",
+      "counts": {
+        "selected": 1,
+        "excluded": 0,
+        "arrived": 1,
+        "packed": 1,
+        "readyForDispatch": 0,
+        "shipped": 1,
+        "backlog": 0,
+        "stageBacklog": 0
+      },
+      "orders": [
+        {
+          "orderId": "O-1",
+          "state": "SHIPPED",
+          "timestamps": {
+            "CREATED": 0,
+            "READY_FOR_PICKING": 0,
+            "PICKING": 0,
+            "WAITING_FOR_PACKING": 6000,
+            "PACKING": 13000,
+            "READY_FOR_DISPATCH": 23000,
+            "SHIPPED": 28000
+          }
+        }
+      ],
+      "deliveries": [],
+      "checks": {
+        "conservation": [],
+        "capacity": [],
+        "safety": []
+      },
+      "clockMs": 60000,
+      "termination": {
+        "mode": "finite-cohort",
+        "horizonMs": null,
+        "arrivalCutoffMs": 0,
+        "safetyCeilingMs": 120000,
+        "stopClockMs": 60000,
+        "stopReason": "stage-complete"
+      },
+      "totalWaitMs": 0,
+      "makespanMs": 28000,
+      "lastShippedAtMs": 28000
+    },
+    "termination": {
+      "mode": "finite-cohort",
+      "horizonMs": null,
+      "arrivalCutoffMs": 0,
+      "safetyCeilingMs": 120000,
+      "stopClockMs": 60000,
+      "stopReason": "stage-complete"
+    },
+    "metrics": {
+      "completionStage": "SUPPORTED_STAGE_COMPLETE",
+      "shipped": 1,
+      "backlog": 0,
+      "stageBacklog": 0,
+      "totalWaitMs": 0,
+      "makespanMs": 28000,
+      "lastShippedAtMs": 28000,
+      "stopClockMs": 60000
+    }
+  },
+  "candidateRun": {
+    "report": {
+      "schema": "layoutlab.operations-report/1",
+      "scenarioId": "l0-corridor-1",
+      "seed": "l0-corridor-001",
+      "versions": {
+        "simulation": "0.1.1",
+        "operationsSchema": "layoutlab.operations/1",
+        "operationsEngine": "layoutlab.operations-engine/1"
+      },
+      "scenario": {
+        "schemaVersion": "layoutlab.operations/1",
+        "engineVersion": "layoutlab.operations-engine/1",
+        "id": "l0-corridor-1",
+        "provenance": {
+          "category": "synthetic",
+          "description": "L0 one-order corridor oracle; synthetic, uncalibrated.",
+          "sourceUrls": [],
+          "assumptions": [
+            "synthetic corridor for hand-derived timing only"
+          ],
+          "inventedFields": [
+            "all coordinates, capacities, and schedules"
+          ]
+        },
+        "seed": "l0-corridor-001",
+        "units": {
+          "quantityUnit": "item",
+          "capacityUnit": "handling-unit"
+        },
+        "geometry": {
+          "room": {
+            "widthMm": 14000,
+            "depthMm": 6000
+          },
+          "racks": [
+            {
+              "id": "R1",
+              "positionMm": {
+                "x": 3000,
+                "z": 1500
+              },
+              "dimensionsMm": {
+                "width": 1000,
+                "depth": 2000,
+                "height": 2000
+              }
+            }
+          ],
+          "obstacles": [
+            {
+              "id": "OB-PACK1",
+              "minXMm": 7066,
+              "minZMm": 490,
+              "maxXMm": 8934,
+              "maxZMm": 1710
+            }
+          ]
+        },
+        "products": [
+          {
+            "id": "P-A",
+            "label": "Widget",
+            "itemDimensionsMm": {
+              "width": 200,
+              "depth": 200,
+              "height": 200
+            },
+            "handlingClass": "ambient",
+            "capacityCostUnits": 1
+          }
+        ],
+        "locations": [
+          {
+            "id": "L-A1",
+            "rackId": "R1",
+            "storageAnchorMm": {
+              "x": 3000,
+              "y": 450,
+              "z": 1500
+            },
+            "approachPointMm": {
+              "x": 4500,
+              "z": 1500
+            },
+            "usableDimensionsMm": {
+              "width": 500,
+              "depth": 400,
+              "height": 400
+            },
+            "storageClass": "ambient",
+            "maxQuantity": 100,
+            "restrictions": {
+              "eligibleHandlingClasses": [
+                "ambient"
+              ]
+            }
+          }
+        ],
+        "initialStock": [
+          {
+            "locationId": "L-A1",
+            "productId": "P-A",
+            "quantity": 10
+          }
+        ],
+        "mobileUnits": [
+          {
+            "id": "PK-1",
+            "role": "picker",
+            "footprintMm": {
+              "width": 680,
+              "length": 1220,
+              "margin": 100
+            },
+            "speedMmPerSecond": 1000,
+            "loadCapacityUnits": 10,
+            "eligibleHandlingClasses": [
+              "ambient"
+            ],
+            "parkingSlotMm": {
+              "x": 1000,
+              "z": 3000
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "PACK-1",
+            "kind": "packing",
+            "servicePositions": [
+              {
+                "id": "PACK1-S1",
+                "x": 8000,
+                "z": 3000
+              }
+            ],
+            "queueSlots": [
+              {
+                "id": "PACK1-Q1",
+                "x": 6000,
+                "z": 3000
+              }
+            ],
+            "serviceCapacity": 1,
+            "inputStagingCapacity": 10,
+            "outputStagingCapacity": 10,
+            "serviceDurationMs": 10000
+          },
+          {
+            "id": "DSP-1",
+            "kind": "dispatch",
+            "servicePositions": [
+              {
+                "id": "DSP-S1",
+                "x": 12000,
+                "z": 3000
+              }
+            ],
+            "queueSlots": [
+              {
+                "id": "DSP-Q1",
+                "x": 11000,
+                "z": 3000
+              }
+            ],
+            "serviceCapacity": 1,
+            "inputStagingCapacity": 10,
+            "outputStagingCapacity": 10,
+            "serviceDurationMs": 5000
+          }
+        ],
+        "orderSchedule": [
+          {
+            "id": "O-1",
+            "arrivalTimeMs": 0,
+            "lines": [
+              {
+                "productId": "P-A",
+                "quantity": 2
+              }
+            ]
+          }
+        ],
+        "deliverySchedule": [],
+        "policies": {
+          "reservePolicy": "full-order-all-or-none",
+          "run": {
+            "mode": "finite-cohort",
+            "arrivalCutoffMs": 0
+          },
+          "eventLimits": {
+            "maxProcessedEvents": 100000,
+            "maxEventsPerTimestamp": 10000
+          }
+        }
+      },
+      "executionConfig": {
+        "pickDurationMsPerItem": 2000,
+        "unloadDurationMsPerItem": 1000
+      },
+      "completionStage": "SUPPORTED_STAGE_COMPLETE",
+      "counts": {
+        "selected": 1,
+        "excluded": 0,
+        "arrived": 1,
+        "packed": 1,
+        "readyForDispatch": 0,
+        "shipped": 1,
+        "backlog": 0,
+        "stageBacklog": 0
+      },
+      "orders": [
+        {
+          "orderId": "O-1",
+          "state": "SHIPPED",
+          "timestamps": {
+            "CREATED": 0,
+            "READY_FOR_PICKING": 0,
+            "PICKING": 0,
+            "WAITING_FOR_PACKING": 9600,
+            "PACKING": 16600,
+            "READY_FOR_DISPATCH": 26600,
+            "SHIPPED": 31600
+          }
+        }
+      ],
+      "deliveries": [],
+      "checks": {
+        "conservation": [],
+        "capacity": [],
+        "safety": []
+      },
+      "clockMs": 60000,
+      "termination": {
+        "mode": "finite-cohort",
+        "horizonMs": null,
+        "arrivalCutoffMs": 0,
+        "safetyCeilingMs": 120000,
+        "stopClockMs": 60000,
+        "stopReason": "stage-complete"
+      },
+      "totalWaitMs": 0,
+      "makespanMs": 31600,
+      "lastShippedAtMs": 31600
+    },
+    "termination": {
+      "mode": "finite-cohort",
+      "horizonMs": null,
+      "arrivalCutoffMs": 0,
+      "safetyCeilingMs": 120000,
+      "stopClockMs": 60000,
+      "stopReason": "stage-complete"
+    },
+    "metrics": {
+      "completionStage": "SUPPORTED_STAGE_COMPLETE",
+      "shipped": 1,
+      "backlog": 0,
+      "stageBacklog": 0,
+      "totalWaitMs": 0,
+      "makespanMs": 31600,
+      "lastShippedAtMs": 31600,
+      "stopClockMs": 60000
+    }
+  },
+  "delta": {
+    "shipped": 0,
+    "backlog": 0,
+    "stageBacklog": 0,
+    "totalWaitMs": 0,
+    "makespanMs": 3600,
+    "lastShippedAtMs": 3600,
+    "stopClockMs": 0
+  },
+  "evaluationScope": {
+    "runMode": "finite-cohort",
+    "horizonMs": null,
+    "arrivalCutoffMs": 0,
+    "safetyCeilingMs": 120000,
+    "ordersInScenario": 1,
+    "baselineStopReason": "stage-complete",
+    "candidateStopReason": "stage-complete",
+    "truncated": false,
+    "fullHorizonEvaluated": true
+  },
+  "improvement": "worse"
+}
