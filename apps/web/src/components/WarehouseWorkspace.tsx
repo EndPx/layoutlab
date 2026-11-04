@@ -25,6 +25,7 @@ import {
 import { canonicalIdentity, replayVersion, friendlyCandidateStatus, completionLabel, formatClockMs, formatFinishTime, humanOptionName, inputIdentity, isStaleReport, remainingCounts } from "../lib/workspace";
 import { OperationsView, type LabelLayer, type OpsRenderStats } from "./OperationsView";
 import { fmtClock, selectionDetail } from "./OperationsPanel";
+import { LayoutEditor } from "./LayoutEditor";
 import { WarehouseAssistant } from "./WarehouseAssistant";
 import type { ExperimentsHolder } from "./ExperimentsPanel";
 
@@ -51,6 +52,11 @@ export function WarehouseWorkspace(props: {
   const [current, setCurrent] = useState<CurrentContext | { error: string }>(() => {
     try { return buildBurstContext(); } catch (e) { return { error: e instanceof Error ? e.message : String(e) }; }
   });
+  const [layoutPreview, setLayoutPreview] = useState<OperationsScene | null>(null);
+  const [layoutEpoch, setLayoutEpoch] = useState(0);
+  const [layoutHistory, setLayoutHistory] = useState<import("@layoutlab/simulation").LayoutComparisonResult[]>([]);
+  const [layoutEditing, setLayoutEditing] = useState(false);
+  const originalContext = useRef<CurrentContext | null>(null);
   const [inspect, setInspect] = useState<InspectContext | null>(null);
   const [inspectError, setInspectError] = useState<string | null>(null);
   const [selection, setSelection] = useState<OperationsSelection>(null);
@@ -139,6 +145,8 @@ export function WarehouseWorkspace(props: {
   const finishText = formatFinishTime(runMetrics?.makespanMs ?? null);
 
   const switchScenario = (key: string): void => {
+    originalContext.current = null;
+    setLayoutEditing(false); setLayoutPreview(null); setLayoutEpoch(e => e+1);
     setPlaying(false); setInspect(null); setInspectError(null); setSelection(null); setAssistantFocus(false);
     try {
       setCurrent(key === "full" ? buildFullContext() : buildBurstContext());
@@ -146,6 +154,7 @@ export function WarehouseWorkspace(props: {
   };
 
   const resetCurrent = (): void => {
+    setLayoutEditing(false); setLayoutPreview(null); setLayoutEpoch(e => e+1);
     setPlaying(false); setSelection(null);
     if (inspect) {
       // Reset replays the inspected option from its own inputs.
@@ -183,10 +192,12 @@ export function WarehouseWorkspace(props: {
   };
 
   const loadRecordedScenario = (): void => {
+    originalContext.current = null;
     if (!report) return;
     try {
       const scene = buildSceneForScenario(report.input.scenario);
       const controller = createControllerForVersioned(report.input.scenario, report.input.executionConfig, replayVersion(report));
+      setLayoutEditing(false); setLayoutPreview(null); setLayoutEpoch(e => e+1);
       setInspect(null); setSelection(null); setPlaying(false);
       setCurrent({ implementationVersion: replayVersion(report), key: "recorded", label: `Recorded scenario — ${report.input.scenario.id}`, scene, controller, executionConfig: report.input.executionConfig });
     } catch (e) { setInspectError(`Recorded scenario unavailable: ${e instanceof Error ? e.message : String(e)}`); }
@@ -213,7 +224,7 @@ export function WarehouseWorkspace(props: {
   };
 
   const stepOnce = (): void => {
-    if (!displayedController || playing) return;
+    if (!displayedController || playing || layoutEditing) return;
     try {
       displayedController.stepEvent();
       setSnapshot(displayedController.snapshot());
@@ -285,9 +296,10 @@ export function WarehouseWorkspace(props: {
         <div className="ws-controls" role="group" aria-label="Warehouse playback controls" data-testid="ws-controls">
           {playing
             ? <button type="button" className="primary" data-testid="ws-pause" onClick={() => setPlaying(false)}>⏸ Pause</button>
-            : <button type="button" className="primary" data-testid="ws-run" onClick={() => { setEngineError(null); setPlaying(true); }} disabled={engineError !== null}>▶ Run warehouse</button>}
+            : <button type="button" className="primary" data-testid="ws-run" onClick={() => { if (layoutEditing) return; setEngineError(null); setPlaying(true); }} disabled={engineError !== null || layoutEditing}>▶ Run warehouse</button>}
+          {originalContext.current && <button data-testid="layout-return-original" onClick={() => { if (!originalContext.current) return; setPlaying(false); setInspect(null); setLayoutEditing(false); setLayoutPreview(null); setCurrent(originalContext.current); originalContext.current = null; setLayoutEpoch(e => e+1); }}>Return to original run</button>}
           <button type="button" data-testid="ws-reset" onClick={resetCurrent}>↺ Reset</button>
-          <button type="button" data-testid="ws-step" disabled={playing} onClick={stepOnce} title="Advance exactly one engine event">Step event</button>
+          <button type="button" data-testid="ws-step" disabled={playing || layoutEditing} onClick={stepOnce} title="Advance exactly one engine event">Step event</button>
           <div className="segmented" role="group" aria-label="Playback speed">
             {([1, 4, 16] as Speed[]).map((s) => <button key={s} type="button" aria-pressed={speed === s} className={speed === s ? "on" : ""} data-testid={`ws-speed-${s}`} onClick={() => setSpeed(s)}>{s}x</button>)}
           </div>
@@ -297,12 +309,15 @@ export function WarehouseWorkspace(props: {
 
         <div className="ws-workspace">
           <div className="panel ws-viewport" data-testid="ws-viewport-panel">
-            <div className="warehouse-head"><h2>Warehouse</h2><span className="proxy-ribbon">{inspect ? inspect.label : "Current · live engine"}</span></div>
-            <OperationsView scene={displayedScene} snapshot={snapshot} selection={selection} labelLayer={labelLayer} onStats={setStats} onSelectionChange={(sel) => { setSelection(sel); if (sel) setAssistantFocus(false); }} />
+            <div className="warehouse-head"><h2>Warehouse</h2><span className="proxy-ribbon">{layoutEditing ? "Proposed initial layout (paused)" : inspect ? inspect.label : "Current · live engine"}</span></div>
+            <OperationsView scene={layoutPreview ?? displayedScene} snapshot={layoutEditing ? null : snapshot} selection={selection} labelLayer={labelLayer} onStats={setStats} onSelectionChange={(sel) => { setSelection(sel); if (sel) setAssistantFocus(false); }} />
             <p className="hint">Click a worker, slot, rack or station in the warehouse to inspect it. Click empty ground to return to the assistant. Top / Overview / Inspect views are in the viewer controls.</p>
           </div>
           <div className="panel ws-side" data-testid="ws-side">
-            {selection ? (
+            <LayoutEditor key={layoutEpoch} scene={currentOk.scene} executionConfig={activeExec} implementationVersion={implVersion} selection={selection} onResult={r => setLayoutHistory(h => [...h, r])}
+              onEditing={editing => { setLayoutEditing(editing); setPlaying(false); setInspect(null); }} onPreview={setLayoutPreview}
+              onApply={scene => { if (!originalContext.current) originalContext.current = currentOk; setLayoutEditing(false); setLayoutEpoch(e => e+1); setPlaying(false); setInspect(null); setCurrent({ ...currentOk, scene: { ...scene, layoutGhost: undefined }, controller: createControllerForVersioned(scene.scenario, activeExec, implVersion) }); }} />
+            {layoutEditing ? null : selection ? (
               <div data-testid="ws-inspector">
                 <div className="warehouse-head"><h2>Inspector</h2><button type="button" className="mini-btn" data-testid="ws-clear-selection" onClick={() => setSelection(null)}>Clear selection</button></div>
                 <button type="button" className="mini-btn" data-testid="ws-back-assistant" onClick={() => setSelection(null)}>← Back to assistant</button>
@@ -338,6 +353,7 @@ export function WarehouseWorkspace(props: {
         </div>
 
         <div className="panel ws-results" data-testid="ws-results">
+          <details><summary>Layout test history ({layoutHistory.length})</summary>{layoutHistory.map((r,i) => <p key={i}>Previous evidence {i+1}: {r.commonInputs.scenario.id}, {r.improvement}; input {r.parentIdentity.scenarioContentSha256}.<button onClick={() => { const url=URL.createObjectURL(new Blob([JSON.stringify(r,null,2)],{type:"application/json"})); const a=document.createElement("a"); a.href=url; a.download=`layout-test-${i+1}.json`; a.click(); URL.revokeObjectURL(url); }}>Export history {i+1}</button></p>)}</details>
           <h2>Current vs proposed</h2>
           {!report && !comparison && <p className="hint">No test results yet. Run the warehouse, then test a supported change in the assistant. Results stay here — the warehouse above never changes pages.</p>}
           {holder.provenance && report && <p className="hint" data-testid="ws-results-provenance"><strong>{holder.provenance.label}</strong> · run <span className="mono">{report.runId}</span> · {report.providerKind === "meta" ? `${report.realMetaRequests} historical Meta requests (not new inference)` : "0 real Meta requests"} · {stale ? "previous results for another warehouse input" : report.versions.simulation !== implVersion ? `recorded on engine ${report.versions.simulation} (current ${implVersion}); inspection replays the recorded engine` : "matches the current warehouse input"}</p>}
@@ -380,7 +396,7 @@ export function WarehouseWorkspace(props: {
           {!report && <p className="hint">Export and Verify need a test result (live, recorded, or imported). Displayed rounded times always match the exact milliseconds in the export (hover any time to see them).</p>}
           {verifyResult && <div data-testid="ws-verify-result" role="status">{verifyResult.ok ? <p className="okline">✓ Verified — saved measurements follow from the embedded inputs (engine replay only; inference provenance is recorded metadata).</p> : <p className="error">× Verify mismatches: {verifyResult.mismatches.join("; ")}</p>}</div>}
           {verifyError && <p className="error" role="alert">{verifyError}</p>}
-          <details className="ws-tech" data-testid="ws-result-tech"><summary>Technical details</summary><p className="hint mono">Replay implementation: {inspect?.implementationVersion ?? implVersion} ? Verifier implementation: {verifyResult ? (verifyResult.verifierImplementationVersion ?? "unavailable (no verifier selected)") : "not verified"} ? Renderer: {stats ? `${stats.drawCalls} draws · ${(stats.triangles / 1_000_000).toFixed(1)}M tris · ${stats.renders} renders` : "render pending"} · Viewing {displayedLabel} · Input {inputIdentity({ scenarioId: activeScenario!.id, seed: activeScenario!.seed, executionConfig: activeExec, implementationVersion: implVersion })}. Raw candidate statuses: {candidates.map(c => `${c.candidateId}: ${c.status}`).join("; ") || "none"}. Offline verify: node scripts/verify-operations-investigation.mjs &lt;export.json&gt;</p></details>
+          <details className="ws-tech" data-testid="ws-result-tech"><summary>Technical details</summary><p className="hint mono">Replay implementation: {inspect?.implementationVersion ?? implVersion} | Verifier implementation: {verifyResult ? (verifyResult.verifierImplementationVersion ?? "unavailable (no verifier selected)") : "not verified"} | Renderer: {stats ? `${stats.drawCalls} draws · ${(stats.triangles / 1_000_000).toFixed(1)}M tris · ${stats.renders} renders` : "render pending"} · Viewing {displayedLabel} · Input {inputIdentity({ scenarioId: activeScenario!.id, seed: activeScenario!.seed, executionConfig: activeExec, implementationVersion: implVersion })}. Raw candidate statuses: {candidates.map(c => `${c.candidateId}: ${c.status}`).join("; ") || "none"}. Offline verify: node scripts/verify-operations-investigation.mjs &lt;export.json&gt;</p></details>
         </div>
       </div>
     </div>

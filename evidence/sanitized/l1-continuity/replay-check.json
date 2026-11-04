@@ -1,0 +1,19 @@
+{
+  "clean": {
+    "ok": true,
+    "mismatches": [],
+    "kind": "measured",
+    "recomputedImprovement": "mixed",
+    "recomputedCandidateSha256": "9edbc90a534605e28ae32d7a0c984996998fb5c6ab2560f4cb46ebe6a5076e71"
+  },
+  "tamperPreviouslyAppliedStation": {
+    "ok": false,
+    "mismatches": [
+      "candidateScenario: saved value differs from recomputed value",
+      "candidateScenario reconstruction drift at: /resources/1/queueSlots/0/z"
+    ],
+    "kind": "measured",
+    "recomputedImprovement": "mixed",
+    "recomputedCandidateSha256": "9edbc90a534605e28ae32d7a0c984996998fb5c6ab2560f4cb46ebe6a5076e71"
+  }
+}

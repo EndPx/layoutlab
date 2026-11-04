@@ -436,3 +436,8 @@ details.ops-diagnostics summary { cursor: pointer; font-size: 13px; font-weight:
   .ws-controls button { min-height: 44px; }
   .ws-side button, .ws-results button { min-height: 44px; }
 }
+
+/* Layout evidence identities must wrap inside the contextual panel. */
+[data-testid="layout-editor"] .mono { overflow-wrap: anywhere; }
+[data-testid="layout-editor"] table { font-size: 12px; width: 100%; }
+[data-testid="layout-editor"] input { max-width: 100%; }

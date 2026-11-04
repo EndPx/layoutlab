@@ -1,0 +1,13 @@
+{
+  "geometryHandDeltaMm": -1000,
+  "unrelatedScenarioFieldsUnchanged": true,
+  "verified": {
+    "ok": true,
+    "mismatches": [],
+    "kind": "measured",
+    "recomputedImprovement": "worse",
+    "recomputedCandidateSha256": "95d78c0575d2e6811b4e6d73e0f7a904f3ca061862b77c8674c77ae716082f2a"
+  },
+  "staticAttachmentsRejectAppliedScenario": true,
+  "realMetaRequests": 0
+}

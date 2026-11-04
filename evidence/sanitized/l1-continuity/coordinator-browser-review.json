@@ -1,0 +1,10 @@
+{
+  "browser": "msedge",
+  "stepEnabledDuringDraft": false,
+  "before": "⏱ 00:00.000",
+  "after": "⏱ 00:00.000",
+  "sceneReopen": {
+    "ok": true
+  },
+  "realMetaRequests": 0
+}

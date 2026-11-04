@@ -1,3 +1,4 @@
+import { MAIN_WAREHOUSE_ATTACHMENTS, buildStationAttachmentMap, type StationAttachment } from "@layoutlab/simulation";
 // Operations scene-input boundary: the typed bridge between the canonical
 // operations fixture and the warehouse renderer.
 //
@@ -114,6 +115,8 @@ export type SceneCarry = {
 };
 
 export type OperationsScene = {
+  layoutAttachments?: StationAttachment[];
+  layoutGhost?: { stationId: string; centreMm: { x: number; z: number }; obstacleRectMm: { minXMm: number; maxXMm: number; minZMm: number; maxZMm: number } };
   scenario: OperationsScenario;
   roomMm: { width: number; depth: number };
   racks: SceneRack[];
@@ -778,12 +781,15 @@ export function createBurstController(): OperationsController {
 // unrelated warehouse. Service durations are not spatial and stay allowed.
 export function buildSceneForScenario(scenario: OperationsScenario): OperationsScene {
   const parent = parseOperationsScenario(fixtureJson);
-  assertDerivedFixtureCompatible(parent, scenario);
+  const resolved = resolveLayoutAttachments(scenario);
   const bd = asBindings(bindingsJson);
   if (bd.fixtureId !== parent.id) {
     throw new Error(`bindings target fixture ${bd.fixtureId}, expected parent ${parent.id}`);
   }
-  return buildSceneFrom(scenario, bd);
+  const scene = buildSceneFrom(scenario, bd);
+  scene.layoutAttachments = resolved;
+  scene.stations = scene.stations.map(s => ({ ...s, centerMm: { ...(resolved.find(a => a.stationId === s.id)?.centreMm ?? s.centerMm) } }));
+  return scene;
 }
 
 export function createControllerForScenario(
@@ -882,4 +888,33 @@ export function buildOpsSnapshotSignature(snap: OperationsSnapshot): string {
   lines.push(`waits=${snap.waits.map((w) => `${w.unitId ?? "-"}:${w.orderId ?? "-"}:${w.reason}:${w.startMs}:${w.endMs ?? "-"}`).join(";")}`);
   lines.push(`checks=${snap.checks.conservation.join(",")}|${snap.checks.capacity.join(",")}|${snap.checks.safety.join(",")}`);
   return lines.join("\n");
+}
+
+// Reconstruct only rigid canonical station translations; normalize those exact
+// attachments before retaining the existing checks for every unrelated spatial field.
+export function resolveLayoutAttachments(scenario: OperationsScenario): StationAttachment[] {
+  const normalized = structuredClone(scenario);
+  const resolved = MAIN_WAREHOUSE_ATTACHMENTS.map(a => {
+    const obstacle = scenario.geometry.obstacles.find(o => o.id === a.obstacleId);
+    if (!obstacle) throw new Error(`Missing canonical obstacle ${a.obstacleId}`);
+    const x = (obstacle.minXMm + obstacle.maxXMm) / 2;
+    const z = (obstacle.minZMm + obstacle.maxZMm) / 2;
+    const dx = x - a.centreMm.x, dz = z - a.centreMm.z;
+    const slots = (rows: typeof a.servicePositions) => rows.map(p => ({...p,x:p.x+dx,z:p.z+dz}));
+    const r = a.obstacleRectMm;
+    return {...a,centreMm:{x,z},obstacleRectMm:{minXMm:r.minXMm+dx,maxXMm:r.maxXMm+dx,minZMm:r.minZMm+dz,maxZMm:r.maxZMm+dz},servicePositions:slots(a.servicePositions),queueSlots:slots(a.queueSlots)};
+  });
+  buildStationAttachmentMap(scenario, resolved);
+  for (const a of MAIN_WAREHOUSE_ATTACHMENTS) {
+    Object.assign(normalized.geometry.obstacles.find(o => o.id === a.obstacleId)!,a.obstacleRectMm);
+    const resource = normalized.resources.find(r => r.id === a.resourceId)!;
+    resource.servicePositions = structuredClone(a.servicePositions); resource.queueSlots = structuredClone(a.queueSlots);
+  }
+  assertDerivedFixtureCompatible(parseOperationsScenario(fixtureJson),normalized);
+  return resolved;
+}
+export function buildLayoutScene(bundle: import("@layoutlab/simulation").CandidateBundle): OperationsScene {
+  const scene = buildSceneForScenario(bundle.scenario);
+  scene.layoutGhost = bundle.attachmentsBefore;
+  return scene;
 }

@@ -1,0 +1,21 @@
+{
+  "stats": {
+    "startTime": "2026-11-04T17:28:55.634Z",
+    "duration": 60162.66,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "suites": [
+    {
+      "file": "manual-layout.spec.ts",
+      "title": "manual-layout.spec.ts"
+    },
+    {
+      "file": "unified-workspace.spec.ts",
+      "title": "unified-workspace.spec.ts"
+    }
+  ],
+  "scope": "Final desktop manual layout and U1 regression; mobile manual run previously passed with screenshot/export/recording in this folder"
+}

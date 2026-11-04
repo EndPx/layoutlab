@@ -1,0 +1,21 @@
+{
+  "stats": {
+    "startTime": "2026-11-04T17:39:48.664Z",
+    "duration": 65103.706000000006,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "suites": [
+    {
+      "title": "layout-continuity.spec.ts",
+      "file": "layout-continuity.spec.ts"
+    },
+    {
+      "title": "unified-workspace.spec.ts",
+      "file": "unified-workspace.spec.ts"
+    }
+  ],
+  "mobileContinuity": "1/1 passed separately; mobile-continuity.webm and PACK-1/PACK-2-mobile.json"
+}

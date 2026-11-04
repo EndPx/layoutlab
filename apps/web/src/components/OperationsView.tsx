@@ -1170,6 +1170,21 @@ export function OperationsView(props: {
       };
       addShell(ops.walls);
       addShell(ops.entrances);
+      if (ops.layoutGhost) {
+        const r = ops.layoutGhost.obstacleRectMm;
+        const points = [[r.minXMm,r.minZMm],[r.maxXMm,r.minZMm],[r.maxXMm,r.maxZMm],[r.minXMm,r.maxZMm],[r.minXMm,r.minZMm]].map(([x,z]) => new THREE.Vector3(x * MM, 0.04, z * MM));
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const ghost = new THREE.Line(geometry, new THREE.LineDashedMaterial({ color: 0xd9730d, dashSize: 0.15, gapSize: 0.1 }));
+        ghost.computeLineDistances(); threeScene.add(ghost);
+        const moved = ops.stations.find(s => s.id === ops.layoutGhost?.stationId);
+        if (moved) {
+          const dx = (moved.centerMm.x - ops.layoutGhost.centreMm.x) * MM;
+          const dz = (moved.centerMm.z - ops.layoutGhost.centreMm.z) * MM;
+          const proposed = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points.map(p => p.clone().add(new THREE.Vector3(dx, 0, dz)))), new THREE.LineBasicMaterial({ color: 0x0b6b6e }));
+          threeScene.add(proposed);
+        }
+
+      }
       for (const st of ops.stations) {
         const group = loaded.get(st.glbUrl);
         if (!group) continue;

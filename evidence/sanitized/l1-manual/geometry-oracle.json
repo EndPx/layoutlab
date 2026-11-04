@@ -1,0 +1,170 @@
+[
+  {
+    "scenario": "main-warehouse-1",
+    "source": {
+      "stationId": "PACK-1",
+      "resourceId": "PACK-1",
+      "obstacleId": "OB-PACK1",
+      "assetRef": "warehouse-environment/table_packing_heavyduty_c01",
+      "centreMm": {
+        "x": 20500,
+        "z": 5000
+      },
+      "obstacleRectMm": {
+        "minXMm": 19566,
+        "minZMm": 4390,
+        "maxXMm": 21434,
+        "maxZMm": 5610
+      },
+      "servicePositions": [
+        {
+          "id": "PACK1-S1",
+          "x": 20500,
+          "z": 6900
+        }
+      ],
+      "queueSlots": [
+        {
+          "id": "PACK1-Q1",
+          "x": 22500,
+          "z": 6900
+        },
+        {
+          "id": "PACK1-Q2",
+          "x": 22500,
+          "z": 8600
+        },
+        {
+          "id": "PACK1-Q3",
+          "x": 22500,
+          "z": 10300
+        }
+      ]
+    },
+    "candidate": {
+      "stationId": "PACK-1",
+      "resourceId": "PACK-1",
+      "obstacleId": "OB-PACK1",
+      "assetRef": "warehouse-environment/table_packing_heavyduty_c01",
+      "centreMm": {
+        "x": 20500,
+        "z": 4000
+      },
+      "obstacleRectMm": {
+        "minXMm": 19566,
+        "minZMm": 3390,
+        "maxXMm": 21434,
+        "maxZMm": 4610
+      },
+      "servicePositions": [
+        {
+          "id": "PACK1-S1",
+          "x": 20500,
+          "z": 5900
+        }
+      ],
+      "queueSlots": [
+        {
+          "id": "PACK1-Q1",
+          "x": 22500,
+          "z": 5900
+        },
+        {
+          "id": "PACK1-Q2",
+          "x": 22500,
+          "z": 7600
+        },
+        {
+          "id": "PACK1-Q3",
+          "x": 22500,
+          "z": 9300
+        }
+      ]
+    },
+    "baselineUnchanged": true
+  },
+  {
+    "scenario": "picking-packing-burst",
+    "source": {
+      "stationId": "PACK-1",
+      "resourceId": "PACK-1",
+      "obstacleId": "OB-PACK1",
+      "assetRef": "warehouse-environment/table_packing_heavyduty_c01",
+      "centreMm": {
+        "x": 20500,
+        "z": 5000
+      },
+      "obstacleRectMm": {
+        "minXMm": 19566,
+        "minZMm": 4390,
+        "maxXMm": 21434,
+        "maxZMm": 5610
+      },
+      "servicePositions": [
+        {
+          "id": "PACK1-S1",
+          "x": 20500,
+          "z": 6900
+        }
+      ],
+      "queueSlots": [
+        {
+          "id": "PACK1-Q1",
+          "x": 22500,
+          "z": 6900
+        },
+        {
+          "id": "PACK1-Q2",
+          "x": 22500,
+          "z": 8600
+        },
+        {
+          "id": "PACK1-Q3",
+          "x": 22500,
+          "z": 10300
+        }
+      ]
+    },
+    "candidate": {
+      "stationId": "PACK-1",
+      "resourceId": "PACK-1",
+      "obstacleId": "OB-PACK1",
+      "assetRef": "warehouse-environment/table_packing_heavyduty_c01",
+      "centreMm": {
+        "x": 20500,
+        "z": 4000
+      },
+      "obstacleRectMm": {
+        "minXMm": 19566,
+        "minZMm": 3390,
+        "maxXMm": 21434,
+        "maxZMm": 4610
+      },
+      "servicePositions": [
+        {
+          "id": "PACK1-S1",
+          "x": 20500,
+          "z": 5900
+        }
+      ],
+      "queueSlots": [
+        {
+          "id": "PACK1-Q1",
+          "x": 22500,
+          "z": 5900
+        },
+        {
+          "id": "PACK1-Q2",
+          "x": 22500,
+          "z": 7600
+        },
+        {
+          "id": "PACK1-Q3",
+          "x": 22500,
+          "z": 9300
+        }
+      ]
+    },
+    "baselineUnchanged": true
+  }
+]
