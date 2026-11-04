@@ -289,7 +289,7 @@ describe("guarded paid routes (fake transport only)", () => {
   it("proposal success commits the full conservative bound", async () => {
     const fake = await startFakeMeta();
     closers.push(fake.close);
-    fake.setHandler(scriptHandler([{ kind: "ok", contentJson: { extraPickers: 1 } }], FAKE_MODEL));
+    fake.setHandler(scriptHandler([{ kind: "ok", contentJson: { extraPickers: 1, extraPutaway: null, packingDurationMs: null, dispatchDurationMs: null, receivingDurationMs: null } }], FAKE_MODEL));
     const { guard } = newGuardedLedger();
     const apiUrl = await startGuardedApi(fakeConfig(fake), guard);
     const res = await postJson(`${apiUrl}/api/operations/proposals`, { observation: "dispatch is slow" });
@@ -315,7 +315,7 @@ describe("guarded paid routes (fake transport only)", () => {
   it("timeout after the provider received the request never restores allowance", { timeout: 20_000 }, async () => {
     const fake = await startFakeMeta();
     closers.push(fake.close);
-    fake.setHandler(scriptHandler([{ kind: "ok", contentJson: { extraPickers: 1 }, delayMs: 600 }], FAKE_MODEL));
+    fake.setHandler(scriptHandler([{ kind: "ok", contentJson: { extraPickers: 1, extraPutaway: null, packingDurationMs: null, dispatchDurationMs: null, receivingDurationMs: null }, delayMs: 600 }], FAKE_MODEL));
     const { guard } = newGuardedLedger();
     const apiUrl = await startGuardedApi(fakeConfig(fake, { RUN_TIMEOUT_MS: "50" }), guard);
     const res = await postJson(`${apiUrl}/api/operations/proposals`, { observation: "dispatch is slow" });
@@ -339,7 +339,7 @@ describe("guarded paid routes (fake transport only)", () => {
   it("local invalid input and missing key spend nothing and call nothing", async () => {
     const fake = await startFakeMeta();
     closers.push(fake.close);
-    fake.setHandler(scriptHandler([{ kind: "ok", contentJson: { extraPickers: 1 } }], FAKE_MODEL));
+    fake.setHandler(scriptHandler([{ kind: "ok", contentJson: { extraPickers: 1, extraPutaway: null, packingDurationMs: null, dispatchDurationMs: null, receivingDurationMs: null } }], FAKE_MODEL));
     const { guard } = newGuardedLedger();
     const apiUrl = await startGuardedApi(fakeConfig(fake), guard);
     expect((await postJson(`${apiUrl}/api/operations/proposals`, { observation: "" })).status).toBe(400);
@@ -358,7 +358,7 @@ describe("guarded paid routes (fake transport only)", () => {
   it("configured-but-missing ledger blocks every paid route and status lies nowhere", async () => {
     const fake = await startFakeMeta();
     closers.push(fake.close);
-    fake.setHandler(scriptHandler([{ kind: "ok", contentJson: { extraPickers: 1 } }], FAKE_MODEL));
+    fake.setHandler(scriptHandler([{ kind: "ok", contentJson: { extraPickers: 1, extraPutaway: null, packingDurationMs: null, dispatchDurationMs: null, receivingDurationMs: null } }], FAKE_MODEL));
     const missing = tmpLedger();
     const apiUrl = await startGuardedApi(fakeConfig(fake, { BUDGET_STATE_FILE: missing }));
     const status = await getJson(`${apiUrl}/api/status`);

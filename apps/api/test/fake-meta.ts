@@ -37,6 +37,75 @@ function chatCompletionBody(model: string, content: string, usage: Record<string
   });
 }
 
+const OPERATIONS_BOUNDS: Record<string, { minimum: number; maximum: number }> = {
+  extraPickers: { minimum: 0, maximum: 2 },
+  extraPutaway: { minimum: 0, maximum: 2 },
+  packingDurationMs: { minimum: 1000, maximum: 300000 },
+  dispatchDurationMs: { minimum: 1000, maximum: 300000 },
+  receivingDurationMs: { minimum: 1000, maximum: 300000 },
+};
+
+// Inspect the actually-posted operations_patch schema like real Meta strict
+// mode. Returns a Meta-style error message, or null when the wire schema is
+// correct (non-operations schemas are not inspected). This reproduces the
+// 2d24a72 HTTP 400 offline: missing `required` keys are reported by name.
+export function operationsPatchSchemaError(bodyJson: Record<string, unknown>): string | null {
+  const format = bodyJson["response_format"] as Record<string, unknown> | undefined;
+  if (!format || format["type"] !== "json_schema") return null;
+  const jsonSchema = format["json_schema"] as Record<string, unknown> | undefined;
+  if (!jsonSchema || jsonSchema["name"] !== "operations_patch") return null;
+  const schema = jsonSchema["schema"] as Record<string, unknown> | undefined;
+  if (!schema || typeof schema !== "object") return "operations_patch schema is missing";
+  if (schema["type"] !== "object") return "operations_patch schema type must be object";
+  if (schema["additionalProperties"] !== false) return "operations_patch schema additionalProperties must be false";
+  const properties = schema["properties"] as Record<string, unknown> | undefined;
+  if (!properties || typeof properties !== "object") return "operations_patch schema properties are missing";
+  const propKeys = Object.keys(properties).sort();
+  const expected = Object.keys(OPERATIONS_BOUNDS).sort();
+  if (JSON.stringify(propKeys) !== JSON.stringify(expected)) {
+    return `operations_patch schema properties must be exactly ${expected.join(",")}`;
+  }
+  const required = schema["required"];
+  if (!Array.isArray(required)) {
+    return `'required' is required to be supplied and to be an array including every key in properties. Missing '${expected[0]}'.`;
+  }
+  for (const key of expected) {
+    if (!required.includes(key)) {
+      return `'required' is required to be supplied and to be an array including every key in properties. Missing '${key}'.`;
+    }
+  }
+  if (required.length !== expected.length) return "operations_patch schema required must list every property exactly";
+  for (const key of expected) {
+    const prop = properties[key] as Record<string, unknown> | undefined;
+    const types = prop?.["type"];
+    const typeList = Array.isArray(types) ? [...types].sort() : [];
+    if (JSON.stringify(typeList) !== JSON.stringify(["integer", "null"])) {
+      return `operations_patch property ${key} must be integer-or-null`;
+    }
+    const bounds = OPERATIONS_BOUNDS[key] as { minimum: number; maximum: number };
+    if (prop?.["minimum"] !== bounds.minimum || prop?.["maximum"] !== bounds.maximum) {
+      return `operations_patch property ${key} bounds must be ${bounds.minimum}..${bounds.maximum}`;
+    }
+  }
+  return null;
+}
+
+// Operations handler that inspects the posted schema before answering: a
+// nonconforming schema gets the real Meta HTTP 400 envelope, never a canned
+// success. Valid schemas fall through to the scripted entries.
+export function inspectingOperationsHandler(entries: ScriptEntry[], model: string): FakeHandler {
+  const inner = scriptHandler(entries, model);
+  return async (req, res, raw) => {
+    const message = operationsPatchSchemaError(req.bodyJson);
+    if (message !== null) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: { code: null, message, param: "schema", type: "invalid_request_error" } }));
+      return;
+    }
+    await inner(req, res, raw);
+  };
+}
+
 /** Scripted responder: each entry answers one request in order. */
 export type ScriptEntry =
   | { kind: "ok"; contentJson: unknown; usage?: { p: number; c: number; t: number } | null; delayMs?: number }

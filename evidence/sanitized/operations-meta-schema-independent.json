@@ -1,0 +1,14 @@
+{
+  "checkedAt": "2026-11-04T08:05:56.182Z",
+  "realMetaRequests": 0,
+  "scope": "Codex independent compiled API wire inspection",
+  "checks": [
+    "required covers all five properties",
+    "nullable values normalize to omitted fields",
+    "explicit numeric zero preserved",
+    "strict invalid output rejection",
+    "fixture provenance and usage forwarded",
+    "2000 output token cap preserved"
+  ],
+  "passed": true
+}
