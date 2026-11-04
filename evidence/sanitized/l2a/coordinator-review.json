@@ -1,0 +1,17 @@
+{
+  "providerCalls": 0,
+  "cancelledState": "CANCELLED",
+  "baselineAtCancellation": false,
+  "baselineAfterCancellation": false,
+  "terminalReportMutated": false,
+  "cancelledVerification": {
+    "ok": true,
+    "mismatches": []
+  },
+  "forgedRejectionVerification": {
+    "ok": false,
+    "mismatches": [
+      "exact derived rejection evidence"
+    ]
+  }
+}

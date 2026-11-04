@@ -1,0 +1,21 @@
+{
+    "scope":  "L2a store/service only",
+    "providerKind":  "fixture",
+    "realMetaRequests":  0,
+    "fullSuitePassed":  21,
+    "finalTargetedPassed":  2,
+    "uniqueTestsCovered":  22,
+    "typecheck":  "passed",
+    "diffCheck":  "passed",
+    "fixtureReportSha256":  "1b0215e6e2f6254cc727d62309f69423dd7dfec1ec9bb4df13eb0b31764af25f",
+    "candidateOutcome":  "worse",
+    "baselineWaitMs":  614900,
+    "candidateWaitMs":  623600,
+    "shippedEach":  6,
+    "makespanEachMs":  502400,
+    "pending":  [
+                    "L2b HTTP routes and shared durable budget/concurrency/auth integration",
+                    "L2c unified workspace and real Edge fixture flow",
+                    "coordinator review"
+                ]
+}

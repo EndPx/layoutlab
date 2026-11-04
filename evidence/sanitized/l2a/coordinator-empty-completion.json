@@ -1,0 +1,7 @@
+{
+  "ok": false,
+  "mismatches": [
+    "completed lifecycle requires baseline interpretation and approval",
+    "completion requires valid finish or exhausted requests"
+  ]
+}
