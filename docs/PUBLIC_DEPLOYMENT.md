@@ -5,6 +5,25 @@ Hostinger VPS, restricted password/Basic Auth access, and US$1 total for the
 initial public Live Meta test, separate from the completed US$1.50 benchmark.
 The public allowance must persist without automatic replenishment.
 
+## R1 renderer release (2026-11-04, current app)
+
+Active native release `/opt/layoutlab/releases/5cd1655` adds textured cartons/
+totes, source material splits, PBR replacements where documented, shadows and
+pooled solid carried freight. Native build passed; ledger bytes unchanged.
+Independent public visible Edge check verified all five v2 asset byte hashes,
+matching headless/browser clock29200ms after25 events, eight total carried
+items rendered, Reset returning to zero cargo, no page errors or390px overflow.
+No API POST/model request was made. Evidence: `evidence/r1/public-review.json`
+and `deployment-5cd1655.json`, with public screenshots in the same directory.
+Human figures, unified workspace and physical editor are not in this release.
+
+The public allowance now has four committed conservative claims totalingUS$1,
+availableUS$0. The fourth investigation claim was recorded before this renderer
+deployment (2026-11-04T11:48:13Z); attribution/provider billing was not inferred.
+No automatic refill. Sample simulation/replay/verification remain anonymous;
+new paid inference is guarded and cannot proceed without additional authorized
+allowance. These claims are not actual invoices.
+
 ## Experiments UI and brand release (2026-11-04, current app)
 
 Active release `/opt/layoutlab/releases/878a07b` includes Experiments,

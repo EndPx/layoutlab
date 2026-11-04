@@ -10,7 +10,7 @@ native server API with user approval. Racks stay fixed; only assignments
 change.
 
 Status (2026-11-04): the public [web preview](https://layoutlab.endpx.cloud)
-runs release `878a07b` with the main warehouse scene, engine-driven operations,
+runs release `5cd1655` with the main warehouse scene, engine-driven operations,
 dispatch, inbound/put-away, split trips, and operations report replay. The
 18-trial storage-planning Meta benchmark remains separate, completed evidence.
 
@@ -24,7 +24,7 @@ real warehouse savings or AI superiority over a fixed search strategy.
 See [investigation evidence](docs/OPERATIONS_INVESTIGATION_REVIEW.md).
 
 Public inference is password-restricted with a persistent US$1 allowance.
-The ledger now has US$0.75 conservatively committed and US$0.25 available;
+The ledger now has US$1 conservatively committed and US$0 available;
 these claims are not invoices. [Deployment evidence](docs/PUBLIC_DEPLOYMENT.md)
 keeps earlier failures and later successful runs visible.
 

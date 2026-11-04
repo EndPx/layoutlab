@@ -1,0 +1,45 @@
+{
+  "checkedAt": "2026-11-04T14:14:04.085Z",
+  "commit": "5cd1655",
+  "browser": "Microsoft Edge, visible, anonymous fresh profile",
+  "publicAssets": [
+    {
+      "path": "/assets/warehouse-section/rack_large_empty_a02-v2.glb",
+      "status": 200
+    },
+    {
+      "path": "/assets/warehouse-section/environment_floor_a01-v2.glb",
+      "status": 200
+    },
+    {
+      "path": "/assets/warehouse-cargo/cart_luggage_platform_a01-v2.glb",
+      "status": 200
+    },
+    {
+      "path": "/assets/warehouse-section/box_cardboard_a01-v2.glb",
+      "status": 200
+    },
+    {
+      "path": "/assets/warehouse-section/crate_blue_a01-v2.glb",
+      "status": 200
+    }
+  ],
+  "headlessAndBrowserClockMs": 29200,
+  "committedCargoItems": 8,
+  "renderQuality": "full (shadows on)",
+  "resetCargoItems": 0,
+  "mobileOverflow": 0,
+  "pageErrors": [],
+  "apiPosts": 0,
+  "budgetUnchanged": true,
+  "budgetAfter": {
+    "guard": "active",
+    "perRunReservationUsd": 0.25,
+    "capUsd": 1,
+    "reservedUsd": 0,
+    "committedUsd": 1,
+    "availableUsd": 0,
+    "entries": 4,
+    "accounting": "reservedUsd is a held conservative bound; committedUsd is that bound charged after dispatch. Neither is an invoice or a confirmed provider price."
+  }
+}
