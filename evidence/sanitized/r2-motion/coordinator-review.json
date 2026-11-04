@@ -1,0 +1,55 @@
+{
+  "asymmetricLongDuration": 1650,
+  "expectedAsymmetricLongDuration": 1650,
+  "cartOriginRadii": [
+    {
+      "profile": "push350",
+      "radius": 1567
+    },
+    {
+      "profile": "push500",
+      "radius": 1713
+    },
+    {
+      "profile": "side",
+      "radius": 1321
+    }
+  ],
+  "nanRoute": {
+    "rejected": true,
+    "error": "Error: invalid envelope"
+  },
+  "nanRoom": {
+    "rejected": true,
+    "error": "Error: invalid envelope"
+  },
+  "negativeRamp": {
+    "rejected": true,
+    "error": "Error: invalid distance"
+  },
+  "externalLimitsMutation": {
+    "before": {
+      "position": {
+        "x": 3000,
+        "z": 3125
+      },
+      "heading": 0,
+      "speed": 0.5,
+      "distance": 125,
+      "phase": 0.10407993338884262,
+      "kind": "line"
+    },
+    "after": {
+      "position": {
+        "x": 3000,
+        "z": 3125
+      },
+      "heading": 0,
+      "speed": 0.5,
+      "distance": 125,
+      "phase": 0.10407993338884262,
+      "kind": "line"
+    },
+    "unchanged": true
+  }
+}
