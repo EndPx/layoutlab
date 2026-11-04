@@ -1,6 +1,6 @@
 # Manual packing-station layout review (L1)
 
-Review candidate; no deployment, commit, inference or allowance change. This implements manual translation in the accepted unified workspace. It does not complete L2/L3.
+Coordinator ACCEPTED 2026-11-05 after continuity revision and independent review. Application commit267af5a is deployed publicly; deployment evidence commit916318f. Evidence: evidence/sanitized/l1-public/review.json, evidence/sanitized/l1-continuity/coordinator-browser-review.json and sequential replay-check.json. L1 gate is released for L2. No inference or allowance change occurred. This implements manual translation; it does not complete L2/L3.
 
 ## Implemented flow
 
@@ -31,7 +31,7 @@ Offline verification: build the simulation workspace, then run node scripts/veri
 
 ## Remaining required scope
 
-L2 must connect bounded Muse proposals to the SAME production contract and approved constraints. L3 must add rack movement/rotation and initial-agent positions with attachment/navigation tests. Human R2 assets and lanes are untouched. Pointer dragging remains a UI extension; accessible numeric editing is implemented. Coordinator independent review and any deployment remain outstanding.
+L2 must connect bounded Muse proposals to the SAME production contract and approved constraints. L3 must add rack movement/rotation and initial-agent positions with attachment/navigation tests. Human R2 assets and lanes are untouched. Pointer dragging remains a UI extension; accessible numeric editing is implemented. Coordinator review and L1 deployment are complete as recorded at the top; broader L2/L3 scope remains outstanding.
 
 Final unchanged-oracle rerun: 20/20 production cases passed; final desktop manual + existing unified workspace regression 2/2 passed. Mobile manual 1/1 passed in the prior combined desktop/mobile run. git diff --check and final web typecheck passed. The latest desktop workflow recording and final-edge-summary.json are included.
 
