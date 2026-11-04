@@ -1,0 +1,50 @@
+{
+  "scope": "LOCAL fake-provider actual HTTP, production evaluator; not live Meta",
+  "browser": "msedge",
+  "providerCalls": 4,
+  "realMetaRequests": 0,
+  "invalidFeedback": true,
+  "baselineUnchangedUntilApply": true,
+  "originalClockRestored": true,
+  "manualPreviewHandover": true,
+  "reportCandidateCentre": {
+    "x": 20500,
+    "z": 4000
+  },
+  "viewerCandidateCentre": {
+    "x": 20500,
+    "z": 4000
+  },
+  "reportMetrics": {
+    "completionStage": "SUPPORTED_STAGE_COMPLETE",
+    "shipped": 6,
+    "backlog": 0,
+    "stageBacklog": 0,
+    "totalWaitMs": 623600,
+    "makespanMs": 502400,
+    "lastShippedAtMs": 502400,
+    "stopClockMs": 540000
+  },
+  "invalidBlocked": true,
+  "staleBlocked": true,
+  "tamperRejected": true,
+  "oversizedImportRejected": true,
+  "oversized413": true,
+  "roundtrip": true,
+  "returnOriginal": true,
+  "ledger": {
+    "capMicroUsd": 250000,
+    "reservedMicroUsd": 0,
+    "committedMicroUsd": 250000,
+    "availableMicroUsd": 0,
+    "entries": [
+      {
+        "id": "layout:c2e111d4-92de-43c1-8acd-6dbf65e8e99d",
+        "reservedMicroUsd": 250000,
+        "committedMicroUsd": 250000,
+        "state": "committed",
+        "createdAtMs": 1793828355731
+      }
+    ]
+  }
+}

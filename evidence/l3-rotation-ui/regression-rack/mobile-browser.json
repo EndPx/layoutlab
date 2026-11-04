@@ -1,0 +1,3413 @@
+{
+  "channel": "msedge",
+  "width": 390,
+  "locations": [
+    {
+      "id": "L01",
+      "rackId": "R1",
+      "anchorMm": {
+        "x": 3000,
+        "y": 450,
+        "z": 5000
+      },
+      "approachMm": {
+        "x": 3000,
+        "z": 7800
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 0,
+      "productId": "P01",
+      "quantity": 48,
+      "unitsPerVisual": 8,
+      "containers": [
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L02",
+      "rackId": "R1",
+      "anchorMm": {
+        "x": 5000,
+        "y": 450,
+        "z": 5000
+      },
+      "approachMm": {
+        "x": 5000,
+        "z": 7800
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 0,
+      "productId": "P02",
+      "quantity": 36,
+      "unitsPerVisual": 6,
+      "containers": [
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L03",
+      "rackId": "R1",
+      "anchorMm": {
+        "x": 3000,
+        "y": 1580,
+        "z": 5000
+      },
+      "approachMm": {
+        "x": 3000,
+        "z": 8200
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 1,
+      "productId": "P07",
+      "quantity": 96,
+      "unitsPerVisual": 4,
+      "containers": [
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L04",
+      "rackId": "R1",
+      "anchorMm": {
+        "x": 5000,
+        "y": 1580,
+        "z": 5000
+      },
+      "approachMm": {
+        "x": 5000,
+        "z": 8200
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 1,
+      "productId": "P08",
+      "quantity": 144,
+      "unitsPerVisual": 6,
+      "containers": [
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L05",
+      "rackId": "R2",
+      "anchorMm": {
+        "x": 9000,
+        "y": 450,
+        "z": 6000
+      },
+      "approachMm": {
+        "x": 9000,
+        "z": 8800
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 0,
+      "productId": "P03",
+      "quantity": 72,
+      "unitsPerVisual": 12,
+      "containers": [
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L06",
+      "rackId": "R2",
+      "anchorMm": {
+        "x": 11000,
+        "y": 450,
+        "z": 6000
+      },
+      "approachMm": {
+        "x": 11000,
+        "z": 8800
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 0,
+      "productId": "P04",
+      "quantity": 48,
+      "unitsPerVisual": 8,
+      "containers": [
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L07",
+      "rackId": "R2",
+      "anchorMm": {
+        "x": 9000,
+        "y": 1580,
+        "z": 6000
+      },
+      "approachMm": {
+        "x": 9000,
+        "z": 9200
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 1,
+      "productId": "P09",
+      "quantity": 192,
+      "unitsPerVisual": 8,
+      "containers": [
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L08",
+      "rackId": "R2",
+      "anchorMm": {
+        "x": 11000,
+        "y": 1580,
+        "z": 6000
+      },
+      "approachMm": {
+        "x": 11000,
+        "z": 9200
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 1,
+      "productId": "P10",
+      "quantity": 96,
+      "unitsPerVisual": 4,
+      "containers": [
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L09",
+      "rackId": "R3",
+      "anchorMm": {
+        "x": 15000,
+        "y": 450,
+        "z": 6000
+      },
+      "approachMm": {
+        "x": 15000,
+        "z": 8800
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 0,
+      "productId": "P05",
+      "quantity": 36,
+      "unitsPerVisual": 6,
+      "containers": [
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L10",
+      "rackId": "R3",
+      "anchorMm": {
+        "x": 17000,
+        "y": 450,
+        "z": 6000
+      },
+      "approachMm": {
+        "x": 17000,
+        "z": 8800
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 0,
+      "productId": "P06",
+      "quantity": 72,
+      "unitsPerVisual": 12,
+      "containers": [
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L11",
+      "rackId": "R3",
+      "anchorMm": {
+        "x": 15000,
+        "y": 1580,
+        "z": 6000
+      },
+      "approachMm": {
+        "x": 15000,
+        "z": 9200
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 1,
+      "productId": "P09",
+      "quantity": 192,
+      "unitsPerVisual": 8,
+      "containers": [
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L12",
+      "rackId": "R3",
+      "anchorMm": {
+        "x": 17000,
+        "y": 1580,
+        "z": 6000
+      },
+      "approachMm": {
+        "x": 17000,
+        "z": 9200
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 1,
+      "productId": "P10",
+      "quantity": 96,
+      "unitsPerVisual": 4,
+      "containers": [
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L13",
+      "rackId": "R4",
+      "anchorMm": {
+        "x": 3000,
+        "y": 450,
+        "z": 12000
+      },
+      "approachMm": {
+        "x": 3000,
+        "z": 14100
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 0,
+      "productId": "P01",
+      "quantity": 48,
+      "unitsPerVisual": 8,
+      "containers": [
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L14",
+      "rackId": "R4",
+      "anchorMm": {
+        "x": 5000,
+        "y": 450,
+        "z": 12000
+      },
+      "approachMm": {
+        "x": 5000,
+        "z": 14100
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 0,
+      "productId": "P02",
+      "quantity": 36,
+      "unitsPerVisual": 6,
+      "containers": [
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L15",
+      "rackId": "R4",
+      "anchorMm": {
+        "x": 3000,
+        "y": 1580,
+        "z": 12000
+      },
+      "approachMm": {
+        "x": 3000,
+        "z": 14500
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 1,
+      "productId": "P07",
+      "quantity": 96,
+      "unitsPerVisual": 4,
+      "containers": [
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L16",
+      "rackId": "R4",
+      "anchorMm": {
+        "x": 5000,
+        "y": 1580,
+        "z": 12000
+      },
+      "approachMm": {
+        "x": 5000,
+        "z": 14500
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 1,
+      "productId": "P08",
+      "quantity": 144,
+      "unitsPerVisual": 6,
+      "containers": [
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L17",
+      "rackId": "R5",
+      "anchorMm": {
+        "x": 9000,
+        "y": 450,
+        "z": 12000
+      },
+      "approachMm": {
+        "x": 9000,
+        "z": 14100
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 0,
+      "productId": "P03",
+      "quantity": 72,
+      "unitsPerVisual": 12,
+      "containers": [
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L18",
+      "rackId": "R5",
+      "anchorMm": {
+        "x": 11000,
+        "y": 450,
+        "z": 12000
+      },
+      "approachMm": {
+        "x": 11000,
+        "z": 14100
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 0,
+      "productId": "P04",
+      "quantity": 48,
+      "unitsPerVisual": 8,
+      "containers": [
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L19",
+      "rackId": "R5",
+      "anchorMm": {
+        "x": 9000,
+        "y": 1580,
+        "z": 12000
+      },
+      "approachMm": {
+        "x": 9000,
+        "z": 14500
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 1,
+      "productId": "P05",
+      "quantity": 36,
+      "unitsPerVisual": 6,
+      "containers": [
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L20",
+      "rackId": "R5",
+      "anchorMm": {
+        "x": 11000,
+        "y": 1580,
+        "z": 12000
+      },
+      "approachMm": {
+        "x": 11000,
+        "z": 14500
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 1,
+      "productId": "P06",
+      "quantity": 72,
+      "unitsPerVisual": 12,
+      "containers": [
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": -522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 0,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": -350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/box_cardboard_a01",
+          "glbUrl": "/assets/warehouse-section/box_cardboard_a01.glb",
+          "dxMm": 350,
+          "dyMm": 0,
+          "dzMm": 522,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L21",
+      "rackId": "R6",
+      "anchorMm": {
+        "x": 15000,
+        "y": 450,
+        "z": 12000
+      },
+      "approachMm": {
+        "x": 15000,
+        "z": 14100
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 0,
+      "productId": "P11",
+      "quantity": 144,
+      "unitsPerVisual": 6,
+      "containers": [
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L22",
+      "rackId": "R6",
+      "anchorMm": {
+        "x": 17000,
+        "y": 450,
+        "z": 12000
+      },
+      "approachMm": {
+        "x": 17000,
+        "z": 14100
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 0,
+      "productId": "P12",
+      "quantity": 192,
+      "unitsPerVisual": 8,
+      "containers": [
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L23",
+      "rackId": "R6",
+      "anchorMm": {
+        "x": 15000,
+        "y": 1580,
+        "z": 12000
+      },
+      "approachMm": {
+        "x": 15000,
+        "z": 14500
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 1,
+      "productId": "P11",
+      "quantity": 144,
+      "unitsPerVisual": 6,
+      "containers": [
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 0,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": -203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 203,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": -606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 0,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        },
+        {
+          "asset": "warehouse-section/crate_blue_a01",
+          "glbUrl": "/assets/warehouse-section/crate_blue_a01.glb",
+          "dxMm": 606,
+          "dyMm": 254,
+          "dzMm": 609,
+          "yawDeg": 0
+        }
+      ]
+    },
+    {
+      "id": "L24",
+      "rackId": "R6",
+      "anchorMm": {
+        "x": 17000,
+        "y": 1580,
+        "z": 12000
+      },
+      "approachMm": {
+        "x": 17000,
+        "z": 14500
+      },
+      "usableMm": {
+        "width": 1900,
+        "depth": 1900,
+        "height": 700
+      },
+      "deck": 1,
+      "productId": null,
+      "quantity": 0,
+      "unitsPerVisual": 0,
+      "containers": []
+    }
+  ],
+  "applied": [
+    {
+      "id": "R1",
+      "positionMm": {
+        "x": 4000,
+        "z": 5000
+      },
+      "dimsMm": {
+        "width": 4000,
+        "depth": 2000,
+        "height": 3010
+      },
+      "intrinsicDimsMm": {
+        "width": 4000,
+        "depth": 2000,
+        "height": 3010
+      },
+      "yawDeg": 0,
+      "scale": {
+        "x": 1.0000055000302501,
+        "y": 0.9999996677741967,
+        "z": 0.9677820516108492
+      }
+    },
+    {
+      "id": "R2",
+      "positionMm": {
+        "x": 10000,
+        "z": 5000
+      },
+      "dimsMm": {
+        "width": 4000,
+        "depth": 2000,
+        "height": 3010
+      },
+      "intrinsicDimsMm": {
+        "width": 4000,
+        "depth": 2000,
+        "height": 3010
+      },
+      "yawDeg": 0,
+      "scale": {
+        "x": 1.0000055000302501,
+        "y": 0.9999996677741967,
+        "z": 0.9677820516108492
+      }
+    },
+    {
+      "id": "R3",
+      "positionMm": {
+        "x": 16000,
+        "z": 6000
+      },
+      "dimsMm": {
+        "width": 4000,
+        "depth": 2000,
+        "height": 3010
+      },
+      "intrinsicDimsMm": {
+        "width": 4000,
+        "depth": 2000,
+        "height": 3010
+      },
+      "yawDeg": 0,
+      "scale": {
+        "x": 1.0000055000302501,
+        "y": 0.9999996677741967,
+        "z": 0.9677820516108492
+      }
+    },
+    {
+      "id": "R4",
+      "positionMm": {
+        "x": 4000,
+        "z": 12000
+      },
+      "dimsMm": {
+        "width": 4000,
+        "depth": 2000,
+        "height": 3010
+      },
+      "intrinsicDimsMm": {
+        "width": 4000,
+        "depth": 2000,
+        "height": 3010
+      },
+      "yawDeg": 0,
+      "scale": {
+        "x": 1.0000055000302501,
+        "y": 0.9999996677741967,
+        "z": 0.9677820516108492
+      }
+    },
+    {
+      "id": "R5",
+      "positionMm": {
+        "x": 10000,
+        "z": 12000
+      },
+      "dimsMm": {
+        "width": 4000,
+        "depth": 2000,
+        "height": 3010
+      },
+      "intrinsicDimsMm": {
+        "width": 4000,
+        "depth": 2000,
+        "height": 3010
+      },
+      "yawDeg": 0,
+      "scale": {
+        "x": 1.0000055000302501,
+        "y": 0.9999996677741967,
+        "z": 0.9677820516108492
+      }
+    },
+    {
+      "id": "R6",
+      "positionMm": {
+        "x": 16000,
+        "z": 12000
+      },
+      "dimsMm": {
+        "width": 4000,
+        "depth": 2000,
+        "height": 3010
+      },
+      "intrinsicDimsMm": {
+        "width": 4000,
+        "depth": 2000,
+        "height": 3010
+      },
+      "yawDeg": 0,
+      "scale": {
+        "x": 1.0000055000302501,
+        "y": 0.9999996677741967,
+        "z": 0.9677820516108492
+      }
+    }
+  ],
+  "posts": [],
+  "sequential": true,
+  "reset": true,
+  "original": true
+}

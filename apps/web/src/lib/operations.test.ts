@@ -4,10 +4,11 @@
 // simulation workspace runner (no new scripts or dependencies):
 //   npx --prefix packages/simulation vitest run --root . apps/web/src/lib/operations.test.ts
 import { describe, expect, it } from "vitest";
-import { parseOperationsScenario, applyAgentInitialPlacement, contentSha256 } from "@layoutlab/simulation";
+import { parseOperationsScenario, applyAgentInitialPlacement, contentSha256, applyRackQuarterTurn, buildRackAttachmentMap, type RackQuarterTurnProposal } from "@layoutlab/simulation";
 import parentJson from "../../../../fixtures/operations/main-warehouse.json";
 import burstJson from "../../../../fixtures/operations/picking-packing-burst.json";
 import {
+  canonicalLayoutScenario,
   buildLayoutScene,
   resolveLayoutAttachments,
   SPARSE_ARROW_SPACING_MM,
@@ -291,4 +292,29 @@ it('renders invalid overlapping initial parking as the candidate while admission
  const s=burst();s.mobileUnits[0]!.parkingSlotMm={...s.mobileUnits[1]!.parkingSlotMm};
  const scene=buildLayoutScene({scenario:s,transform:{entityId:s.mobileUnits[0]!.id,fromCentreMm:{x:3000,z:1200},toCentreMm:{...s.mobileUnits[0]!.parkingSlotMm},deltaMm:{dx:3000,dz:0}},changedFields:[]});
  expect(scene.units[0]!.parkingMm).toEqual(s.mobileUnits[1]!.parkingSlotMm);
+});
+async function rotateScene(s=burst(),turns:1|2|3=1) {
+ const p:RackQuarterTurnProposal={kind:'RACK_QUARTER_TURN',proposalId:'ui-frame',entityId:'R1',quarterTurns:turns,parent:{scenarioId:s.id,scenarioContentSha256:await contentSha256(s),schemaVersion:s.schemaVersion,engineVersion:s.engineVersion}};
+ return applyRackQuarterTurn(s,p,canonicalLayoutScenario(),buildRackAttachmentMap(s));
+}
+describe('rack rotation scene frame',()=>{
+ it('literal anchor/approach, intrinsic scale, container grid offsets and yaw share the rack frame',async()=>{
+  const original=buildLayoutScene(await rotateScene(burst(),3)); // establish a separately resolved frame
+  expect(original.racks[0]!.yawDeg).toBe(270);
+  const baseline=loadOperationsScene();const b=await rotateScene();const scene=buildLayoutScene(b),rack=scene.racks[0]!,slot=scene.locations.find(l=>l.id==='L01')!;
+  expect(slot.anchorMm).toEqual({x:4000,y:450,z:7000});expect(slot.approachMm).toEqual({x:6800,z:7000});expect(rack.yawDeg).toBe(90);expect(rack.scale).toEqual(baseline.racks[0]!.scale);
+  expect(rack.dimsMm.width).toBe(baseline.racks[0]!.dimsMm.depth);expect(rack.intrinsicDimsMm).toEqual(baseline.racks[0]!.dimsMm);
+  const before=baseline.locations.find(l=>l.id==='L01')!;
+  expect(slot.containers).toHaveLength(before.containers.length);
+  slot.containers.forEach((c,i)=>{expect(c.dxMm).toBe(before.containers[i]!.dzMm);expect(c.dzMm).toBe(-before.containers[i]!.dxMm);expect(c.dyMm).toBe(before.containers[i]!.dyMm);expect(c.yawDeg).toBe(90);});
+  expect(scene.counts.containers).toEqual(baseline.counts.containers);
+ });
+ it('inverse and four turns restore exact geometry, products, parking and scene frames',async()=>{
+  const s=burst();const first=await rotateScene(s),undo=await rotateScene(first.scenario,3);expect(undo.scenario).toEqual(s);
+  let next=s;for(let i=0;i<4;i++)next=(await rotateScene(next)).scenario;expect(next).toEqual(s);expect(buildLayoutScene(await rotateScene((await rotateScene(s,3)).scenario)).racks[0]!.yawDeg).toBe(0);
+ });
+ it('nonrigid anchor frames refuse rather than guessing yaw',async()=>{
+  const b=await rotateScene();b.scenario.locations[0]!.storageAnchorMm.x++;
+  expect(()=>buildLayoutScene(b)).toThrow('NON_RIGID_GEOMETRY');
+ });
 });

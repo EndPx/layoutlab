@@ -1,0 +1,22 @@
+{
+  "browser": "msedge",
+  "intrinsicScaleUnchanged": true,
+  "worldBoundsSwapped": true,
+  "rotatedMaterialInstances": 60,
+  "anchor": {
+    "x": 4000,
+    "y": 450,
+    "z": 7000
+  },
+  "approach": {
+    "x": 6800,
+    "z": 7000
+  },
+  "baselineUnchanged": true,
+  "exportRecomputed": true,
+  "applyResetReturn": true,
+  "baselineMakespanMs": 502400,
+  "candidateMakespanMs": 506800,
+  "classification": "worse",
+  "realMetaRequests": 0
+}

@@ -1099,6 +1099,8 @@ export function OperationsView(props: {
         }
       }
       const rackGroup = rackUrl ? loaded.get(rackUrl) : undefined;
+      const rackBoxes = new Map(ops.racks.map(r=>[r.id,new THREE.Box3()]));
+      const rackMatrices: unknown[] = [];
       if (rackGroup) {
         for (const entry of meshesOf(rackGroup)) {
           const inst = new THREE.InstancedMesh(entry.geometry, entry.material, ops.racks.length);
@@ -1107,24 +1109,32 @@ export function OperationsView(props: {
           inst.castShadow = true;
           inst.receiveShadow = true;
           ops.racks.forEach((r, i) =>
-            placeInstance(inst, i, r.positionMm.x * MM, 0, r.positionMm.z * MM, 0, r.scale.x, r.scale.y, r.scale.z));
+            placeInstance(inst, i, r.positionMm.x * MM, 0, r.positionMm.z * MM, r.yawDeg, r.scale.x, r.scale.y, r.scale.z));
           inst.instanceMatrix.needsUpdate = true;
           const matrix = new THREE.Matrix4();
-          mount.dataset['rackTransforms'] = JSON.stringify(ops.racks.map((rack, i) => { inst.getMatrixAt(i, matrix); return { id: rack.id, xMm: Math.round(matrix.elements[12] / MM), zMm: Math.round(matrix.elements[14] / MM) }; }));
+          entry.geometry.computeBoundingBox();
+          ops.racks.forEach((rack,i)=>{
+            inst.getMatrixAt(i,matrix);rackBoxes.get(rack.id)!.union(entry.geometry.boundingBox!.clone().applyMatrix4(matrix));
+            const position=new THREE.Vector3(), quaternion=new THREE.Quaternion(), scale=new THREE.Vector3();matrix.decompose(position,quaternion,scale);
+            if (rackMatrices.length < ops.racks.length) rackMatrices.push({id:rack.id,xMm:position.x/MM,zMm:position.z/MM,scale:{x:scale.x,y:scale.y,z:scale.z},yawDeg:(Math.atan2(matrix.elements[8]!/scale.z,matrix.elements[0]!/scale.x)*180/Math.PI+360)%360,matrix:matrix.toArray()});
+          });
           threeScene.add(inst);
         }
       }
+      mount.dataset['rackTransforms'] = JSON.stringify(rackMatrices);
+      mount.dataset['rackWorldBounds'] = JSON.stringify([...rackBoxes].map(([id,box])=>({id,min:box.min.toArray().map(x=>x/MM),max:box.max.toArray().map(x=>x/MM),sizeMm:box.getSize(new THREE.Vector3()).toArray().map(x=>x/MM)})));
       // Shelf containers: one InstancedMesh per geometry entry (v2 splits
       // add entries); per-instance base matrices are retained so live
       // stock only toggles visibility. Receive-only in the shadow pass:
       // goods sit inside rack cavities, and casting from every shelf
       // container is the budget choice documented in the R1 review.
+      const containerDiagnostics: unknown[] = [];
       for (const cg of ops.containerGlbs) {
         const group = loaded.get(cg.glbUrl);
         if (!group) continue;
         const entries = meshesOf(group);
         if (entries.length === 0) continue;
-        const items: { x: number; y: number; z: number; locId: string }[] = [];
+        const items: { x: number; y: number; z: number; locId: string; yawDeg: number }[] = [];
         for (const l of ops.locations) {
           for (const c of l.containers) {
             if (c.glbUrl !== cg.glbUrl) continue;
@@ -1132,7 +1142,7 @@ export function OperationsView(props: {
               x: (l.anchorMm.x + c.dxMm) * MM,
               y: (l.anchorMm.y + c.dyMm) * MM,
               z: (l.anchorMm.z + c.dzMm) * MM,
-              locId: l.id,
+              locId: l.id, yawDeg: c.yawDeg,
             });
           }
         }
@@ -1142,7 +1152,7 @@ export function OperationsView(props: {
           inst.userData["pickIds"] = items.map((p) => p.locId);
           inst.count = items.length;
           inst.receiveShadow = true;
-          items.forEach((p, i) => placeInstance(inst, i, p.x, p.y, p.z, 0));
+          items.forEach((p, i) => placeInstance(inst, i, p.x, p.y, p.z, p.yawDeg));
           inst.instanceMatrix.needsUpdate = true;
           threeScene.add(inst);
           const state: ContainerMeshState = { mesh: inst, items: [] };
@@ -1150,10 +1160,13 @@ export function OperationsView(props: {
           items.forEach((p, i) => {
             inst.getMatrixAt(i, m);
             state.items.push({ locId: p.locId, base: m.clone() });
+            entry.geometry.computeBoundingBox();const box=entry.geometry.boundingBox!.clone().applyMatrix4(m);
+            containerDiagnostics.push({locId:p.locId,asset:cg.glbUrl,index:i,matrix:m.toArray(),positionMm:[m.elements[12]!/MM,m.elements[13]!/MM,m.elements[14]!/MM],worldMinMm:box.min.toArray().map(x=>x/MM),worldMaxMm:box.max.toArray().map(x=>x/MM),worldSizeMm:box.getSize(new THREE.Vector3()).toArray().map(x=>x/MM)});
           });
           handles.containerMeshes.push(state);
         }
       }
+      mount.dataset['containerTransforms'] = JSON.stringify(containerDiagnostics);
       const cutaway = new THREE.Plane(new THREE.Vector3(0, -1, 0), 2.5);
       const addShell = (placements: typeof ops.walls): void => {
         for (const pl of placements) {
@@ -1178,6 +1191,7 @@ export function OperationsView(props: {
       };
       addShell(ops.walls);
       addShell(ops.entrances);
+      delete mount.dataset['layoutGhost'];
       if (ops.layoutGhost) {
         const r = ops.layoutGhost.obstacleRectMm;
         const points = [[r.minXMm,r.minZMm],[r.maxXMm,r.minZMm],[r.maxXMm,r.maxZMm],[r.minXMm,r.maxZMm],[r.minXMm,r.minZMm]].map(([x,z]) => new THREE.Vector3(x * MM, 0.04, z * MM));
@@ -1191,7 +1205,9 @@ export function OperationsView(props: {
         if (moved) {
           const dx = (moved.centerMm.x - ops.layoutGhost.centreMm.x) * MM;
           const dz = (moved.centerMm.z - ops.layoutGhost.centreMm.z) * MM;
-          const proposed = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points.map(p => p.clone().add(new THREE.Vector3(dx, 0, dz)))), new THREE.LineBasicMaterial({ color: 0x0b6b6e }));
+          const candidatePoints = rack ? (()=>{const c=rack.positionMm,d=rack.dimsMm;return [[c.x-d.width/2,c.z-d.depth/2],[c.x+d.width/2,c.z-d.depth/2],[c.x+d.width/2,c.z+d.depth/2],[c.x-d.width/2,c.z+d.depth/2],[c.x-d.width/2,c.z-d.depth/2]].map(([x,z])=>new THREE.Vector3(x!*MM,0.04,z!*MM));})() : points.map(p => p.clone().add(new THREE.Vector3(dx, 0, dz)));
+          mount.dataset['layoutGhost'] = JSON.stringify({original:points.map(p=>[p.x/MM,p.z/MM]),candidate:candidatePoints.map(p=>[p.x/MM,p.z/MM])});
+          const proposed = new THREE.Line(new THREE.BufferGeometry().setFromPoints(candidatePoints), new THREE.LineBasicMaterial({ color: 0x0b6b6e }));
           threeScene.add(proposed);
         }
 

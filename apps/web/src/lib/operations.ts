@@ -1,4 +1,4 @@
-import { applyAgentInitialPlacement, MAIN_WAREHOUSE_ATTACHMENTS, buildStationAttachmentMap, buildRackAttachmentMap, applyRackTranslation, canonicalStringify, type StationAttachment } from "@layoutlab/simulation";
+import { applyRackQuarterTurn, resolveRackOrientations, rotateRackOffset, applyAgentInitialPlacement, MAIN_WAREHOUSE_ATTACHMENTS, buildStationAttachmentMap, buildRackAttachmentMap, applyRackTranslation, canonicalStringify, type StationAttachment } from "@layoutlab/simulation";
 // Operations scene-input boundary: the typed bridge between the canonical
 // operations fixture and the warehouse renderer.
 //
@@ -37,6 +37,7 @@ export type SceneContainer = {
   dxMm: number;
   dyMm: number;
   dzMm: number;
+  yawDeg: number;
 };
 
 export type SceneLocation = {
@@ -56,6 +57,8 @@ export type SceneRack = {
   id: string;
   positionMm: { x: number; z: number };
   dimsMm: { width: number; depth: number; height: number };
+  intrinsicDimsMm: { width: number; depth: number; height: number };
+  yawDeg: number;
   scale: { x: number; y: number; z: number };
 };
 
@@ -214,13 +217,22 @@ export function buildOperationsScene(): OperationsScene {
   return buildSceneFrom(scenario, bd);
 }
 
+export function canonicalLayoutScenario(): OperationsScenario { return parseOperationsScenario(fixtureJson); }
+function sceneRackFrames(scenario: OperationsScenario) {
+  const normalized = structuredClone(scenario), canonical = canonicalLayoutScenario();
+  normalized.mobileUnits.forEach((u,i) => { u.parkingSlotMm = structuredClone(canonical.mobileUnits[i]!.parkingSlotMm); });
+  return resolveRackOrientations(normalized, canonical);
+}
 function buildSceneFrom(scenario: OperationsScenario, bd: Bindings): OperationsScene {
+  const frames = new Map(sceneRackFrames(scenario).map(f => [f.rackId,f]));
 
   const racks: SceneRack[] = scenario.geometry.racks.map((r) => ({
     id: r.id,
     positionMm: { ...r.positionMm },
     dimsMm: { ...r.dimensionsMm },
-    scale: rackAxisScale(bd.racks.sourceSizeM, r.dimensionsMm),
+    intrinsicDimsMm: { ...frames.get(r.id)!.intrinsicDimensionsMm },
+    yawDeg: frames.get(r.id)!.yawDeg,
+    scale: rackAxisScale(bd.racks.sourceSizeM, frames.get(r.id)!.intrinsicDimensionsMm),
   }));
 
   const stockByLoc = new Map(scenario.initialStock.map((s) => [s.locationId, s]));
@@ -266,9 +278,10 @@ function buildSceneFrom(scenario: OperationsScenario, bd: Bindings): OperationsS
       containers: grid.placements.map((p) => ({
         asset: bind.containerAsset,
         glbUrl: url,
-        dxMm: p.dxMm,
+        dxMm: rotateRackOffset({x:p.dxMm,z:p.dzMm},frames.get(loc.rackId)!.quarterTurns).x,
         dyMm: p.dyMm,
-        dzMm: p.dzMm,
+        dzMm: rotateRackOffset({x:p.dxMm,z:p.dzMm},frames.get(loc.rackId)!.quarterTurns).z,
+        yawDeg: frames.get(loc.rackId)!.yawDeg,
       })),
     };
   });
@@ -921,14 +934,10 @@ export function resolveLayoutAttachments(scenario: OperationsScenario): StationA
     const resource = normalized.resources.find(r => r.id === a.resourceId)!;
     resource.servicePositions = structuredClone(a.servicePositions); resource.queueSlots = structuredClone(a.queueSlots);
   }
-  const rackMap = buildRackAttachmentMap(canonical);
-  for (const rack of scenario.geometry.racks) {
-    const original = rackMap.get(rack.id);
-    if (!original) throw new Error(`Unsupported rack ${rack.id}`);
-    const expected = applyRackTranslation(canonical, { kind: 'RACK_TRANSLATION', proposalId: 'scene-rigid-check', entityId: rack.id, parent: { scenarioId: canonical.id, scenarioContentSha256: '0'.repeat(64), schemaVersion: canonical.schemaVersion, engineVersion: canonical.engineVersion }, target: { mode: 'ABSOLUTE_CENTER_MM', centerMm: rack.positionMm } }, rackMap).viewerPlacement;
-    const actual = buildRackAttachmentMap(normalized).get(rack.id);
-    if (canonicalStringify(expected) !== canonicalStringify(actual)) throw new Error(`Rack ${rack.id}: non-rigid racks/owned anchor/approach geometry rejected`);
-    normalized.geometry.racks[normalized.geometry.racks.findIndex(r => r.id === rack.id)] = structuredClone(original.rack);
+  resolveRackOrientations(normalized, canonical);
+  const originalRacks = buildRackAttachmentMap(canonical);
+  for (const original of originalRacks.values()) {
+    normalized.geometry.racks[normalized.geometry.racks.findIndex(r => r.id === original.rackId)] = structuredClone(original.rack);
     for (const slot of original.slots) {
       const row = normalized.locations.find(l => l.id === slot.id)!;
       row.storageAnchorMm = structuredClone(slot.storageAnchorMm); row.approachPointMm = structuredClone(slot.approachPointMm);
@@ -937,7 +946,7 @@ export function resolveLayoutAttachments(scenario: OperationsScenario): StationA
   assertDerivedFixtureCompatible(canonical,normalized);
   return resolved;
 }
-export function buildLayoutScene(bundle: import("@layoutlab/simulation").CandidateBundle | ReturnType<typeof applyRackTranslation> | ReturnType<typeof applyAgentInitialPlacement>): OperationsScene {
+export function buildLayoutScene(bundle: import("@layoutlab/simulation").CandidateBundle | ReturnType<typeof applyRackTranslation> | ReturnType<typeof applyAgentInitialPlacement> | ReturnType<typeof applyRackQuarterTurn>): OperationsScene {
   const scene = buildSceneForScenario(bundle.scenario);
   if (!('attachmentsBefore' in bundle)) {
     const unit = bundle.scenario.mobileUnits.find(u => u.id === bundle.transform.entityId)!;

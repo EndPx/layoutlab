@@ -1,0 +1,248 @@
+{
+  "channel": "msedge",
+  "width": 390,
+  "id": "PK-1",
+  "original": [
+    {
+      "id": "PK-1",
+      "role": "picker",
+      "parkingMm": {
+        "x": 3000,
+        "z": 1200
+      },
+      "loadCapacityUnits": 4,
+      "footprintMm": {
+        "width": 680,
+        "length": 1220,
+        "margin": 100
+      }
+    },
+    {
+      "id": "PK-2",
+      "role": "picker",
+      "parkingMm": {
+        "x": 6000,
+        "z": 1200
+      },
+      "loadCapacityUnits": 4,
+      "footprintMm": {
+        "width": 680,
+        "length": 1220,
+        "margin": 100
+      }
+    },
+    {
+      "id": "PK-3",
+      "role": "picker",
+      "parkingMm": {
+        "x": 9000,
+        "z": 1200
+      },
+      "loadCapacityUnits": 4,
+      "footprintMm": {
+        "width": 680,
+        "length": 1220,
+        "margin": 100
+      }
+    },
+    {
+      "id": "PK-4",
+      "role": "picker",
+      "parkingMm": {
+        "x": 12000,
+        "z": 1200
+      },
+      "loadCapacityUnits": 4,
+      "footprintMm": {
+        "width": 680,
+        "length": 1220,
+        "margin": 100
+      }
+    },
+    {
+      "id": "PA-1",
+      "role": "putaway",
+      "parkingMm": {
+        "x": 15000,
+        "z": 1200
+      },
+      "loadCapacityUnits": 4,
+      "footprintMm": {
+        "width": 680,
+        "length": 1220,
+        "margin": 100
+      }
+    },
+    {
+      "id": "PA-2",
+      "role": "putaway",
+      "parkingMm": {
+        "x": 18000,
+        "z": 1200
+      },
+      "loadCapacityUnits": 4,
+      "footprintMm": {
+        "width": 680,
+        "length": 1220,
+        "margin": 100
+      }
+    }
+  ],
+  "applied": [
+    {
+      "id": "PK-1",
+      "role": "picker",
+      "parkingMm": {
+        "x": 3000,
+        "z": 2200
+      },
+      "loadCapacityUnits": 4,
+      "footprintMm": {
+        "width": 680,
+        "length": 1220,
+        "margin": 100
+      }
+    },
+    {
+      "id": "PK-2",
+      "role": "picker",
+      "parkingMm": {
+        "x": 6000,
+        "z": 1200
+      },
+      "loadCapacityUnits": 4,
+      "footprintMm": {
+        "width": 680,
+        "length": 1220,
+        "margin": 100
+      }
+    },
+    {
+      "id": "PK-3",
+      "role": "picker",
+      "parkingMm": {
+        "x": 9000,
+        "z": 1200
+      },
+      "loadCapacityUnits": 4,
+      "footprintMm": {
+        "width": 680,
+        "length": 1220,
+        "margin": 100
+      }
+    },
+    {
+      "id": "PK-4",
+      "role": "picker",
+      "parkingMm": {
+        "x": 12000,
+        "z": 1200
+      },
+      "loadCapacityUnits": 4,
+      "footprintMm": {
+        "width": 680,
+        "length": 1220,
+        "margin": 100
+      }
+    },
+    {
+      "id": "PA-1",
+      "role": "putaway",
+      "parkingMm": {
+        "x": 15000,
+        "z": 1200
+      },
+      "loadCapacityUnits": 4,
+      "footprintMm": {
+        "width": 680,
+        "length": 1220,
+        "margin": 100
+      }
+    },
+    {
+      "id": "PA-2",
+      "role": "putaway",
+      "parkingMm": {
+        "x": 18000,
+        "z": 1200
+      },
+      "loadCapacityUnits": 4,
+      "footprintMm": {
+        "width": 680,
+        "length": 1220,
+        "margin": 100
+      }
+    }
+  ],
+  "poses": [
+    {
+      "id": "PK-1",
+      "xMm": 3000,
+      "zMm": 2200
+    },
+    {
+      "id": "PK-2",
+      "xMm": 6000,
+      "zMm": 1200
+    },
+    {
+      "id": "PK-3",
+      "xMm": 9000,
+      "zMm": 1200
+    },
+    {
+      "id": "PK-4",
+      "xMm": 12000,
+      "zMm": 1200
+    },
+    {
+      "id": "PA-1",
+      "xMm": 15000,
+      "zMm": 1200
+    },
+    {
+      "id": "PA-2",
+      "xMm": 18000,
+      "zMm": 1200
+    }
+  ],
+  "frozen": "⏱ 00:05.000",
+  "originalPoses": [
+    {
+      "id": "PK-1",
+      "xMm": 1200,
+      "zMm": 4400
+    },
+    {
+      "id": "PK-2",
+      "xMm": 6000,
+      "zMm": 1200
+    },
+    {
+      "id": "PK-3",
+      "xMm": 9000,
+      "zMm": 1200
+    },
+    {
+      "id": "PK-4",
+      "xMm": 12000,
+      "zMm": 1200
+    },
+    {
+      "id": "PA-1",
+      "xMm": 15000,
+      "zMm": 1200
+    },
+    {
+      "id": "PA-2",
+      "xMm": 18000,
+      "zMm": 1200
+    }
+  ],
+  "posts": [],
+  "invalidDiagnostics": [
+    "Invalid preview ? Test and Apply blocked\nPK-1: OVERLAP PK-2 ? Initial occupancy discs collide\nPK-1: ENGINE_ADMISSION_FAILED ? [ { \"code\": \"custom\", \"message\": \"duplicate parking slot at 6000,1200\", \"path\": [] } ]",
+    "Invalid preview ? Test and Apply blocked\nPK-1: CLEARANCE_VIOLATION R1 ? PK-1:parking at (3000,6000) lies inside physical rect R1 (point-in-rect proven)\nPK-1: SLOT_UNNAVIGABLE ? PK-1:parking at (3000,6000) is not statically navigable for picker PK-1 (its footprint radius clears no position there)\nL01: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L01:approach (3000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL02: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L02:approach (5000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL03: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L03:approach (3000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL04: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L04:approach (5000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL05: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L05:approach (9000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL06: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L06:approach (11000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL07: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L07:approach (9000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL08: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L08:approach (11000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL09: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L09:approach (15000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL10: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L10:approach (17000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL11: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L11:approach (15000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL12: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L12:approach (17000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL13: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L13:approach (3000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL14: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L14:approach (5000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL15: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L15:approach (3000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL16: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L16:approach (5000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL17: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L17:approach (9000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL18: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L18:approach (11000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL19: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L19:approach (9000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL20: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L20:approach (11000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL21: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L21:approach (15000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL22: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L22:approach (17000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL23: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L23:approach (15000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL24: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L24:approach (17000,14500) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-1:PACK1-S1 (20500,6900) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-1:PACK1-Q1 (22500,6900) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-1:PACK1-Q2 (22500,8600) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-1:PACK1-Q3 (22500,10300) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-2:PACK2-S1 (20500,12900) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-2:PACK2-Q1 (22500,12000) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-2:PACK2-Q2 (22500,13700) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-2:PACK2-Q3 (20500,9400) for unit PK-1: FROM_UNNAVIGABLE\nPK-1: ENGINE_ADMISSION_FAILED ? Error: initial admission rejected [INITIAL_OBSTACLE_OVERLAP]: unit PK-1 declared footprint at (3000,6000) overlaps rack R1",
+    "Invalid preview ? Test and Apply blocked\nPK-1: SLOT_UNNAVIGABLE ? PK-1:parking at (0,1200) is not statically navigable for picker PK-1 (its footprint radius clears no position there)\nL01: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L01:approach (3000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL02: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L02:approach (5000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL03: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L03:approach (3000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL04: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L04:approach (5000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL05: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L05:approach (9000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL06: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L06:approach (11000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL07: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L07:approach (9000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL08: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L08:approach (11000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL09: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L09:approach (15000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL10: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L10:approach (17000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL11: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L11:approach (15000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL12: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L12:approach (17000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL13: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L13:approach (3000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL14: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L14:approach (5000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL15: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L15:approach (3000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL16: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L16:approach (5000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL17: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L17:approach (9000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL18: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L18:approach (11000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL19: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L19:approach (9000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL20: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L20:approach (11000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL21: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L21:approach (15000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL22: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L22:approach (17000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL23: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L23:approach (15000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL24: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L24:approach (17000,14500) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-1:PACK1-S1 (20500,6900) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-1:PACK1-Q1 (22500,6900) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-1:PACK1-Q2 (22500,8600) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-1:PACK1-Q3 (22500,10300) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-2:PACK2-S1 (20500,12900) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-2:PACK2-Q1 (22500,12000) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-2:PACK2-Q2 (22500,13700) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-2:PACK2-Q3 (20500,9400) for unit PK-1: FROM_UNNAVIGABLE\nPK-1: ENGINE_ADMISSION_FAILED ? Error: initial admission rejected [INITIAL_ROOM_EXCEEDED]: unit PK-1 declared footprint [-340..340]x[590..1810] at (0,1200) leaves the 24000x18000 room"
+  ]
+}

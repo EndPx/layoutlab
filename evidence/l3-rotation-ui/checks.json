@@ -1,0 +1,301 @@
+{
+  "date": "2026-11-05",
+  "scope": "local manual rack quarter-turn UI; not public deployment",
+  "checks": [
+    {
+      "cwd": "apps/web",
+      "command": "npx tsc --noEmit",
+      "exitCode": 0
+    },
+    {
+      "cwd": "apps/web",
+      "command": "npx vite build",
+      "exitCode": 0,
+      "modules": 194,
+      "warning": "Vite large chunk warning: JS 1756.07 kB / gzip 472.12 kB"
+    },
+    {
+      "cwd": ".",
+      "command": "npx vitest run apps/web/src/lib/operations.test.ts",
+      "exitCode": 0,
+      "testsPassed": 34
+    },
+    {
+      "cwd": "apps/web",
+      "env": {
+        "M3C_CHANNEL": "msedge",
+        "M3C_VIDEO": "on"
+      },
+      "command": "npx playwright test e2e/manual-rack-rotation.spec.ts --reporter=list",
+      "exitCode": 0,
+      "testsPassed": 2,
+      "duration": "7.1m"
+    },
+    {
+      "cwd": "apps/web",
+      "env": {
+        "M3C_CHANNEL": "msedge"
+      },
+      "command": "npx playwright test e2e/rotation-regression-station.spec.ts e2e/rotation-regression-rack.spec.ts e2e/rotation-regression-parking.spec.ts e2e/rotation-regression-continuity.spec.ts e2e/rotation-regression-l2-http.spec.ts e2e/layout-results-race.spec.ts e2e/layout-preview-revocation.spec.ts --reporter=list --output ../../evidence/l3-rotation-ui/regression-runtime",
+      "exitCode": 0,
+      "testsPassed": 20,
+      "duration": "16.6m"
+    },
+    {
+      "cwd": "apps/web",
+      "env": {
+        "M3C_CHANNEL": "msedge"
+      },
+      "command": "npx playwright test e2e/rotation-controls.spec.ts --reporter=list --output ../../evidence/l3-rotation-ui/controls-runtime",
+      "exitCode": 0,
+      "testsPassed": 2,
+      "duration": "45.1s",
+      "scope": "Final retained centre correction, absolute source bounds, history schema/download, delayed quarter-turn selection/discard and cleared ghost metadata"
+    },
+    {
+      "command": "git diff --check -- apps/web/src/components/LayoutEditor.tsx apps/web/src/components/OperationsView.tsx apps/web/src/lib/operations.ts apps/web/src/lib/operations.test.ts apps/web/src/lib/manual-layout.ts scripts/verify-layout-comparison.mjs docs/RACK_ROTATION_REVIEW.md",
+      "exitCode": 0
+    },
+    {
+      "cwd": ".",
+      "command": "node scripts/verify-layout-comparison.mjs evidence/l3-rotation-ui/desktop-rotation.json",
+      "exitCode": 0,
+      "ok": true,
+      "expected": true
+    },
+    {
+      "cwd": ".",
+      "command": "node scripts/verify-layout-comparison.mjs evidence/l3-rotation-ui/mobile-rotation.json",
+      "exitCode": 0,
+      "ok": true,
+      "expected": true
+    },
+    {
+      "cwd": ".",
+      "command": "node scripts/verify-layout-comparison.mjs evidence/l3-rotation-ui/desktop-history-rotation.json",
+      "exitCode": 0,
+      "ok": true,
+      "expected": true
+    },
+    {
+      "cwd": ".",
+      "command": "node scripts/verify-layout-comparison.mjs evidence/l3-rotation-ui/mobile-history-rotation.json",
+      "exitCode": 0,
+      "ok": true,
+      "expected": true
+    },
+    {
+      "cwd": ".",
+      "command": "node scripts/verify-layout-comparison.mjs evidence/l3-rotation-ui/regression-station/desktop-comparison.json",
+      "exitCode": 0,
+      "ok": true,
+      "expected": true
+    },
+    {
+      "cwd": ".",
+      "command": "node scripts/verify-layout-comparison.mjs evidence/l3-rotation-ui/regression-rack/desktop-rack.json",
+      "exitCode": 0,
+      "ok": true,
+      "expected": true
+    },
+    {
+      "cwd": ".",
+      "command": "node scripts/verify-layout-comparison.mjs evidence/l3-rotation-ui/regression-parking/desktop-agent.json",
+      "exitCode": 0,
+      "ok": true,
+      "expected": true
+    },
+    {
+      "cwd": ".",
+      "command": "node scripts/verify-layout-comparison.mjs evidence/l3-rotation-ui/desktop-rotation-tampered.json",
+      "exitCode": 1,
+      "ok": false,
+      "expected": true
+    }
+  ],
+  "browserCasesPassed": 24,
+  "observed": {
+    "desktopWidth": 1440,
+    "mobileWidth": 390,
+    "channel": "msedge",
+    "originalClock": "⏱ 00:05.000",
+    "yawBefore": 0,
+    "yawAfter": 90,
+    "scaleBefore": {
+      "x": 1.0000054836273193,
+      "y": 0.9999996423721313,
+      "z": 0.9677820801734924
+    },
+    "scaleAfter": {
+      "x": 1.0000054836273193,
+      "y": 0.9999996423721313,
+      "z": 0.9677820801734924
+    },
+    "sourceBoundsBeforeMm": {
+      "id": "R1",
+      "min": [
+        2000.00035768997,
+        0,
+        5000.00008062014
+      ],
+      "max": [
+        5999.99999993986,
+        3009.999629258857,
+        7000.000496222931
+      ],
+      "sizeMm": [
+        3999.9996422498893,
+        3009.999629258857,
+        2000.0004156027912
+      ]
+    },
+    "sourceBoundsAfterMm": {
+      "id": "R1",
+      "min": [
+        3000.000080620139,
+        0,
+        4000.0000000601403
+      ],
+      "max": [
+        5000.000496222931,
+        3009.999629258857,
+        7999.99964231003
+      ],
+      "sizeMm": [
+        2000.0004156027917,
+        3009.999629258857,
+        3999.9996422498893
+      ]
+    },
+    "R1MaterialInstancesChecked": 60,
+    "literalAnchorMm": {
+      "x": 4000,
+      "y": 450,
+      "z": 7000
+    },
+    "literalApproachMm": {
+      "x": 6800,
+      "z": 7000
+    },
+    "invalid": "Invalid preview ? Test and Apply blocked\nDSP-1: CLEARANCE_VIOLATION R6 ? DSP-Q2 at (16400,14000) lies inside physical rect R6 (point-in-rect proven)",
+    "measurement": "measured",
+    "improvement": "worse",
+    "baselineMetrics": {
+      "completionStage": "SUPPORTED_STAGE_COMPLETE",
+      "shipped": 6,
+      "backlog": 0,
+      "stageBacklog": 0,
+      "totalWaitMs": 614900,
+      "makespanMs": 502400,
+      "lastShippedAtMs": 502400,
+      "stopClockMs": 540000
+    },
+    "candidateMetrics": {
+      "completionStage": "SUPPORTED_STAGE_COMPLETE",
+      "shipped": 6,
+      "backlog": 0,
+      "stageBacklog": 0,
+      "totalWaitMs": 655300,
+      "makespanMs": 506800,
+      "lastShippedAtMs": 506800,
+      "stopClockMs": 540000
+    },
+    "scope": {
+      "runMode": "finite-cohort",
+      "horizonMs": null,
+      "arrivalCutoffMs": 25000,
+      "safetyCeilingMs": 7200000,
+      "ordersInScenario": 6,
+      "baselineStopReason": "stage-complete",
+      "candidateStopReason": "stage-complete",
+      "truncated": false,
+      "fullHorizonEvaluated": true
+    },
+    "rotationPosts": [],
+    "inverse": true,
+    "fourTurns": true
+  },
+  "historicalBytes": {
+    "checked": 113,
+    "changed": [],
+    "publicFixtureUnchanged": true
+  },
+  "httpRegression": {
+    "desktop": {
+      "scope": "LOCAL fake-provider actual HTTP, production evaluator; not live Meta",
+      "providerCalls": 4,
+      "realMetaRequests": 0,
+      "invalidFeedback": true,
+      "tamperRejected": true,
+      "returnOriginal": true,
+      "manualPreviewHandover": true
+    },
+    "mobile": {
+      "scope": "LOCAL fake-provider actual HTTP, production evaluator; not live Meta",
+      "providerCalls": 4,
+      "realMetaRequests": 0,
+      "invalidFeedback": true,
+      "tamperRejected": true,
+      "returnOriginal": true,
+      "manualPreviewHandover": true
+    }
+  },
+  "schemas": [
+    "layoutlab.layout-comparison/2",
+    "layoutlab.rack-comparison/1",
+    "layoutlab.agent-placement-comparison/1",
+    "layoutlab.rack-rotation-comparison/1"
+  ],
+  "recordings": {
+    "desktop-workflow.webm": 17348482,
+    "mobile-workflow.webm": 21971971
+  },
+  "filesModified": [
+    "apps/web/src/components/LayoutEditor.tsx",
+    "apps/web/src/components/OperationsView.tsx",
+    "apps/web/src/lib/operations.ts",
+    "apps/web/src/lib/manual-layout.ts",
+    "apps/web/src/lib/operations.test.ts",
+    "scripts/verify-layout-comparison.mjs",
+    "docs/RACK_ROTATION_REVIEW.md",
+    "apps/web/e2e/manual-rack-rotation.spec.ts",
+    "apps/web/e2e/rotation-controls.spec.ts",
+    "apps/web/e2e/rotation-regression-station.spec.ts",
+    "apps/web/e2e/rotation-regression-rack.spec.ts",
+    "apps/web/e2e/rotation-regression-parking.spec.ts",
+    "apps/web/e2e/rotation-regression-continuity.spec.ts",
+    "apps/web/e2e/rotation-regression-l2-http.spec.ts"
+  ],
+  "sha256": {
+    "apps/web/src/components/LayoutEditor.tsx": "df091c6f447e2907840ce367cc425d86195a717b4d1a4d7384990155b547b018",
+    "apps/web/src/components/OperationsView.tsx": "45895445819d6e0f461660e33aee43a75dbc8f0deb555b1076d4d2795d6e1dd0",
+    "apps/web/src/lib/operations.ts": "3b40beb660b849d22195bbb2fd2fca0055af2d717a5d0ba55b70f107cf269670",
+    "apps/web/src/lib/manual-layout.ts": "ba0d7c460ba52ea1929f6e5d908d3c7a4e907057eb60e8732d1ab7dbbbe8b274",
+    "apps/web/src/lib/operations.test.ts": "c2b84ed38aaa15765575a3c96aeda73cfe76319e5bbdcc24669d130087658656",
+    "scripts/verify-layout-comparison.mjs": "625ef155445d6486e937703da74e71a94fd7a261d633fa7ed52c587d16a3ac00",
+    "docs/RACK_ROTATION_REVIEW.md": "3f0c1413a24bc92b96c8fa2c82b9d7e5301efa85a92a22d67dbda4e01a1a94c8",
+    "apps/web/e2e/manual-rack-rotation.spec.ts": "cf73034d8961b02eed25a64c5864c56cf8b098e0478bdce4e16bb8163b96d447",
+    "apps/web/e2e/rotation-controls.spec.ts": "5e4897d5f8d18559f4627ccc0d6e1d4bf94308dc7d33501129f0019810825297",
+    "apps/web/e2e/rotation-regression-station.spec.ts": "042e01b59914f045602a990bcac008e16fc2c88657e10a71a05049e4c59f78fd",
+    "apps/web/e2e/rotation-regression-rack.spec.ts": "e5a4b904c9a9b20c6440a3657d17bee4976545cc925a1a7213b913556c601bd4",
+    "apps/web/e2e/rotation-regression-parking.spec.ts": "9a0715ebbebf8cd6aa1e275c7c1ca3dab487579aeaaae9c54712cf3f433dddd1",
+    "apps/web/e2e/rotation-regression-continuity.spec.ts": "57fb60dcb44723adf6cfa4549b72e0e843bde09ba63cb2a3dcc9ba4434faed38",
+    "apps/web/e2e/rotation-regression-l2-http.spec.ts": "ba4f90a34492f6a1ff4d2a151dbc8f8e18eb4cee6e12a019605c9e89b7c28820"
+  },
+  "attemptNotes": [
+    "The first pilot was interrupted after Windows shell encoding replaced the UI degree symbol; JavaScript Unicode escapes fixed the label before successful final runs.",
+    "The final retained-centre form and ghost-metadata fixes were covered by both focused Edge projects after the long regression suite; rotation transform and engine were unchanged."
+  ],
+  "boundaries": [
+    "No shared simulation dist build or index edit",
+    "No API compile or API/engine/schema/nav/assets/dependencies edits",
+    "Existing compiled local fake-provider HTTP harness only; no paid calls or real Meta requests",
+    "No commit/push/deploy"
+  ],
+  "remainingGates": [
+    "coordinator public release review",
+    "initial unit heading",
+    "human-plus-cart profile admission",
+    "model rotation/rack/agent proposals beyond station-only"
+  ]
+}
