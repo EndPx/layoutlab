@@ -1,0 +1,9 @@
+2026-11-05 foundation acceptance
+npx vitest run packages/simulation/src/layout/agent-placement.test.ts
+Result: 1 file, 14 tests passed (final run 03:38:59; duration 1.23s).
+npx tsc --noEmit -p packages/simulation/tsconfig.json
+Result: exit 0.
+Oracle: shipment baseline 28000ms, candidate 27000ms; derived initial travel saving 1000mm / 1000mm/s before execution.
+Contract: layoutlab.agent-placement-comparison/1; pure transform, separate approved authority, parent identity, production geometry/controller admission and traffic contact predicate, full canonical keyless recomputation.
+No installs, rootbuild, API compile, shared dist mutation, commit, push or deployment.
+Pending: UI, heading, human-plus-cart profile safety, public index integration.
