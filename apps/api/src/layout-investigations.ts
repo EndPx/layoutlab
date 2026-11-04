@@ -71,7 +71,7 @@ const rejectionReason = (e: unknown) => sanitizeMessage(e instanceof Error ? e.m
 const closed = (s: State) => s !== "RUNNING" && s !== "AWAITING_APPROVAL";
 export class LayoutInvestigationStore {
   private records = new Map<string, LayoutInvestigationRecord>();
-  constructor(private config: ApiConfig, private hooks: { beforeDispatch?: (record: LayoutInvestigationRecord) => void; isLegacyBusy?: () => boolean } = {}) {}
+  constructor(private config: ApiConfig, private hooks: { beforeDispatch?: (record: LayoutInvestigationRecord) => void; isLegacyBusy?: () => boolean; onTerminal?: (record: LayoutInvestigationRecord) => void } = {}) {}
   get(id: string) { return this.records.get(id); }
   hasActive() { return [...this.records.values()].some(r => !closed(r.report.state)); }
   async create(value: unknown, claimId: string | null): Promise<LayoutInvestigationRecord> {
@@ -106,6 +106,7 @@ export class LayoutInvestigationStore {
     if (closed(r.report.state)) return;
     r.report.state = state; r.report.error = error; r.report.recommendation ??= this.fallback(r);
     if (r.timer) clearTimeout(r.timer); r.timer = null; r.controller.abort();
+    this.hooks.onTerminal?.(r);
   }
   private launch(r: LayoutInvestigationRecord, work: () => Promise<void>) {
     r.task = work().catch(e => { if (this.alive(r)) this.finish(r, "FAILED", sanitizeMessage(e instanceof Error ? e.message : "failed", this.config).slice(0,500)); });
@@ -290,9 +291,3 @@ export async function verifyLayoutInvestigationExport(value: unknown): Promise<{
   }catch(e){mismatches.push(e instanceof Error?e.message:"invalid report");}
   return {ok:mismatches.length===0,mismatches};
 }
-
-
-
-
-
-

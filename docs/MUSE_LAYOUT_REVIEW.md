@@ -184,3 +184,38 @@ coordinator independent re-review; L2b/L2c work has not started.
 ## Coordinator acceptance — L2a only, 2026-11-05
 
 Accepted for L2b dependency after independent rerun of review-l2a.mjs and review-l2a-empty.mjs against compiled API. Early cancel: zero provider calls, baseline absent before/after, unchanged terminal report and verifier ok. Fabricated rejection and empty COMPLETED exports reject. Production-engine comparisons and preserved worse result remain as documented. No HTTP/workspace/live inference or full L2 acceptance is implied. L2b routes, durable settlement/shared concurrency/auth review and L2c UI are required next. Public application remains267af5a.
+
+## L2b1 native HTTP admission — 2026-11-05
+
+Implemented only the first API slice. `POST /api/operations/layout-investigations`
+accepts the strict L2a input `{scenario, executionConfig, question,
+safetyCeilingMs, mode:"live", consent:true}` and returns202 with the existing
+`layoutlab.layout-investigation/1` summary/report shape. Identity is `runId`;
+state starts `RUNNING` and becomes `AWAITING_APPROVAL` after interpretation.
+`GET /api/operations/layout-investigations/:id` returns200 with that same shape
+or404. `POST /api/operations/layout-investigations/:id/cancel` accepts an empty
+JSON object, returns200 with the cancelled shape,404 for unknown IDs and409
+for closed runs. Create uses the existing inference limiter; status/cancel use
+the existing bounded safe limiter and all bodies retain the1MB limit.
+
+Synchronous pending admission blocks competing paid routes before async hashing.
+One durable claim maps to the record before interpretation starts and is checked
+before dispatch. Approval waiting retains ownership and the claim. Terminal
+notification settles without polling: zero dispatched requests release; any
+dispatch commits. Cancellation retains ownership until task/transport unwinds;
+storage failure retains ownership and the counted claim conservatively.
+
+Validation: direct `npx tsc -p apps/api/tsconfig.build.json` passed;
+`npx vitest run apps/api/test/layout-http-admission.test.ts --maxWorkers=1
+--testTimeout=120000` passed3 tests in13.96s. Tests execute the actual production
+engine with loopback fake Meta, fixture-only credentials and temporary ledgers.
+They cover one held reservation at available0, interpretation/approval waiting,
+cancel commit, malformed input with zero calls/claims, concurrent create denial,
+and competing one-shot proposal denial with provider peak1.
+
+These new paths are NOT deployed or verified protected. Coordinator deployment
+auth/Nginx gate remains required. Approval/report/keyless replay verification
+endpoints remain L2b2; L2c workspace/UI and full L2 acceptance remain pending.
+No paid calls, ledger refill, commit, push or deployment occurred.
+
+Coordinator L2b1 review accepted2026-11-05: source-level admission lock precedes async create, claim is mapped before start, waiting approval preserves ownership, cancellation settlement waits for task unwind. Three focused HTTP tests cover the stated first slice only. L2b2 still must prove approved continuation with same claim at available0, all existing paid-route conflicts, automatic timeout settlement, guard loss, report/verify/tamper, and deployment auth mapping. No public release authorization from this slice alone.

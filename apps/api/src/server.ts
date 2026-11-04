@@ -1,3 +1,4 @@
+import { LayoutInvestigationStore, parseLayoutInvestigationInput } from "./layout-investigations.js";
 // Express app factory for M3 (+M6B same-origin production). Same-origin only
 // (no CORS wildcard); the Vite dev server proxies /api to this loopback API
 // in development, while `npm start` serves the built web from this same app.
@@ -124,6 +125,37 @@ export function createApp(opts: {
   // holders synchronously before dispatching, so at the configured
   // concurrency of 1 the provider-call peak stays 1 across routes.
   let oneShotInFlight = 0;
+  let layoutAdmissionPending = false;
+  const layoutClaims = new Map<string, string>();
+  const layoutOwners = new Set<string>();
+  const layoutBusy = () => layoutAdmissionPending || layoutOwners.size > 0;
+  const layouts = new LayoutInvestigationStore(config, {
+    isLegacyBusy: () => store.activeInference > 0 || oneShotInFlight > 0 || investigations.hasActive(),
+    beforeDispatch: record => {
+      if (!budgetGuard) return;
+      const claim = layoutClaims.get(record.report.runId);
+      if (!claim) throw new BudgetGuardError("BUDGET_GUARD_UNAVAILABLE", 503, "Missing layout reservation");
+      budgetGuard.assertReservation(claim, config.publicBudgetPerRunUsd);
+    },
+    onTerminal: record => {
+      const id = record.report.runId;
+      const settle = () => {
+        const claim = layoutClaims.get(id);
+        try {
+          if (budgetGuard && claim) {
+            if (record.report.modelRequestsUsed === 0) budgetGuard.release(claim);
+            else budgetGuard.commit(claim);
+          }
+          layoutClaims.delete(id);
+          layoutOwners.delete(id);
+        } catch { /* Fail closed: retain counted claim and ownership. */ }
+      };
+      // Cancellation can abort a transport before its promise settles.
+      // Keep ownership until all work using that transport has unwound.
+      if (record.task) void record.task.then(settle, settle);
+      else settle();
+    },
+  });
   // E4a investigations hold ONE durable claim for the whole loop (not one
   // per model request). The map only locates the claim; authorization is
   // the persisted entry, revalidated before every dispatch.
@@ -138,10 +170,10 @@ export function createApp(opts: {
   };
   const investigations = new InvestigationStore(config, {
     beforeDispatch: assertInvestigationDispatch,
-    isLegacyBusy: () => store.activeInference > 0 || oneShotInFlight > 0,
+    isLegacyBusy: () => store.activeInference > 0 || oneShotInFlight > 0 || layoutBusy(),
   });
   const paidInferenceBusy = (): boolean =>
-    oneShotInFlight > 0 || store.activeInference > 0 || investigations.hasActive();
+    layoutBusy() || layouts.hasActive() || oneShotInFlight > 0 || store.activeInference > 0 || investigations.hasActive();
   const settleInvestigationReservation = (investigationId: string): void => {
     if (!budgetGuard) return;
     const reservationId = investigationReservations.get(investigationId);
@@ -211,6 +243,7 @@ export function createApp(opts: {
     try {
       const key = (req.ip ?? "unknown").slice(0, 64);
       const inferenceStart =
+        (req.method === "POST" && req.path === "/api/operations/layout-investigations") ||
         (req.method === "POST" && req.path === "/api/runs") ||
         (req.method === "POST" && req.path === "/api/operations/investigations") ||
         (req.method === "POST" && req.path.endsWith("/approve"));
@@ -279,7 +312,7 @@ export function createApp(opts: {
       }
       // Shared inference concurrency: a running investigation or an
       // in-flight one-shot proposal holds the slot.
-      if (investigations.hasActive() || oneShotInFlight > 0) {
+      if (layoutBusy() || investigations.hasActive() || oneShotInFlight > 0) {
         res.status(429).json({ code: "CONCURRENCY_LIMIT", message: "Server is busy (concurrency limit); retry shortly." });
         return;
       }
@@ -336,7 +369,7 @@ export function createApp(opts: {
         return;
       }
       const runId = req.params["id"] as string;
-      if ((investigations.hasActive() || oneShotInFlight > 0) && store.get(runId)?.state === "AWAITING_APPROVAL") {
+      if ((layoutBusy() || investigations.hasActive() || oneShotInFlight > 0) && store.get(runId)?.state === "AWAITING_APPROVAL") {
         res.status(429).json({ code: "CONCURRENCY_LIMIT", message: "Server is busy (concurrency limit); retry shortly." });
         return;
       }
@@ -501,6 +534,49 @@ export function createApp(opts: {
       if (oneShotLeaseHeld) oneShotInFlight--;
       next(e);
     }
+  });
+
+  app.post("/api/operations/layout-investigations", async (req, res, next) => {
+    let claim: string | null = null;
+    let admitted = false;
+    try {
+      let input;
+      try { input = parseLayoutInvestigationInput(req.body); }
+      catch { res.status(400).json({ code: "BAD_REQUEST", message: "Invalid layout investigation input." }); return; }
+      const live = liveAvailable(config);
+      if (!live.ok) { res.status(503).json({ status: "setup_required", reason: live.reason }); return; }
+      if (paidInferenceBusy()) { res.status(429).json({ code: "CONCURRENCY_LIMIT", message: "Server is busy." }); return; }
+      layoutAdmissionPending = true;
+      admitted = true;
+      if (budgetGuard) {
+        claim = `layout:${randomUUID()}`;
+        budgetGuard.reserve(claim, config.publicBudgetPerRunUsd);
+      }
+      const record = await layouts.create(input, claim);
+      const id = record.report.runId;
+      if (claim) layoutClaims.set(id, claim);
+      layoutOwners.add(id);
+      claim = null;
+      const snapshot = layouts.toSummary(record);
+      layouts.start(record, fetchImpl);
+      res.status(202).json(snapshot);
+    } catch (e) {
+      if (budgetGuard && claim) { try { budgetGuard.release(claim); } catch { /* counted */ } }
+      next(e);
+    } finally { if (admitted) layoutAdmissionPending = false; }
+  });
+  app.get("/api/operations/layout-investigations/:id", (req, res) => {
+    const record = layouts.get(req.params.id);
+    if (!record) { res.status(404).json({ code: "UNKNOWN_INVESTIGATION", message: "Unknown layout investigation." }); return; }
+    res.json(layouts.toSummary(record));
+  });
+  app.post("/api/operations/layout-investigations/:id/cancel", (req, res) => {
+    if (!z.strictObject({}).safeParse(req.body ?? {}).success) { res.status(400).json({ code: "BAD_REQUEST", message: "Cancel body must be empty." }); return; }
+    const record = layouts.get(req.params.id);
+    if (!record) { res.status(404).json({ code: "UNKNOWN_INVESTIGATION", message: "Unknown layout investigation." }); return; }
+    if (!["RUNNING", "AWAITING_APPROVAL"].includes(record.report.state)) { res.status(409).json({ code: "RUN_CLOSED", message: "Layout investigation closed." }); return; }
+    layouts.cancel(req.params.id);
+    res.json(layouts.toSummary(record));
   });
 
   app.post("/api/operations/investigations", (req: Request, res: Response, next: (e: unknown) => void) => {

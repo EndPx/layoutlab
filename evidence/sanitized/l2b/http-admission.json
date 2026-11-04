@@ -1,0 +1,1 @@
+{"slice":"L2b1","provider":"loopback-fake-meta","reportSchema":"layoutlab.layout-investigation/1","tests":3,"passed":3,"durationSeconds":13.96,"apiCompilation":"passed","paidCalls":0,"deployed":false,"pending":["L2b2 approval/report/verify","deployment auth gate","L2c workspace UI"]}
