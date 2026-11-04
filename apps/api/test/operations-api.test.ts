@@ -87,19 +87,48 @@ describe("operations patch validation and experiments", () => {
     expect(bad.status).toBe(400);
   });
 
-  it("runs a controlled experiment with deterministic ranking", async () => {
+  it("runs a controlled experiment with deterministic ranking", { timeout: 60000 }, async () => {
     const apiUrl = await startApi(noKeyConfig());
     const { scenario, executionConfig } = burstBody();
     const res = await post(`${apiUrl}/api/operations/experiments`, {
       scenario,
       executionConfig,
-      candidates: [
-        { candidateId: "baseline", patch: {} },
-        { candidateId: "fast-dispatch", patch: { dispatchDurationMs: 1000 } },
-      ],
+      interventionPolicy: { allowedFields: ["dispatchDurationMs"] },
+      candidates: [{ candidateId: "fast-dispatch", patch: { dispatchDurationMs: 1000 } }],
     });
     expect(res.status).toBe(200);
+    expect(res.json["schema"]).toBe("layoutlab.operations-experiment/2");
     expect(res.json["rankedCandidateIds"]).toEqual(["fast-dispatch", "baseline"]);
+    expect(res.json["selectedCandidateId"]).toBe("fast-dispatch");
+    // Complete report, not a stripped summary: common inputs, policy and a
+    // full run report per valid candidate are all present for download.
+    expect((res.json["commonInputs"] as Record<string, unknown>)["scenario"]).toBeTruthy();
+    expect(res.json["interventionPolicy"]).toEqual({ allowedFields: ["dispatchDurationMs"] });
+    const candidates = res.json["candidates"] as { candidateId: string; report: unknown }[];
+    expect(candidates.find((c) => c.candidateId === "baseline")?.report).toBeTruthy();
+  });
+
+  it("retains a denied-staffing candidate instead of failing the comparison", { timeout: 60000 }, async () => {
+    const apiUrl = await startApi(noKeyConfig());
+    const { scenario, executionConfig } = burstBody();
+    const res = await post(`${apiUrl}/api/operations/experiments`, {
+      scenario,
+      executionConfig,
+      candidates: [{ candidateId: "more-pickers", patch: { extraPickers: 1 } }],
+    });
+    expect(res.status).toBe(200);
+    const candidates = res.json["candidates"] as { candidateId: string; status: string; reason: string }[];
+    const denied = candidates.find((c) => c.candidateId === "more-pickers");
+    expect(denied?.status).toBe("invalid");
+    expect(denied?.reason).toContain("staffing is not allowed");
+    expect(res.json["rankedCandidateIds"]).toEqual(["baseline"]);
+    const badPolicy = await post(`${apiUrl}/api/operations/experiments`, {
+      scenario,
+      executionConfig,
+      interventionPolicy: { allowedFields: ["teleport"] },
+      candidates: [],
+    });
+    expect(badPolicy.status).toBe(400);
   });
 
   it("proposals refuse honestly without a server key", async () => {

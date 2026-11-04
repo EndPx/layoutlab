@@ -4,9 +4,12 @@
 // schema before anything runs; invalid model output is rejected, never
 // executed. No key is ever read here beyond the server config.
 import {
+  parseInterventionPolicy,
+  parseOperationsExecutionConfig,
   parseOperationsPatch,
   parseOperationsScenario,
   runOperationsExperiment,
+  type OperationsExperimentResult,
   type OperationsPatch,
 } from "@layoutlab/simulation";
 import { liveAvailable, type ApiConfig } from "./config.js";
@@ -18,6 +21,9 @@ function apiError(code: string, status: number, message: string): ApiErrorLike {
   return Object.assign(new Error(message), { code, status });
 }
 
+// Syntax-only check for the manual patch endpoint: a valid result says the
+// patch parses inside the bounded schema. It grants no intervention
+// permission; only an experiment's explicit interventionPolicy does.
 export function validatePatch(body: unknown): OperationsPatch {
   try {
     return parseOperationsPatch(body);
@@ -26,36 +32,32 @@ export function validatePatch(body: unknown): OperationsPatch {
   }
 }
 
+// Full controlled experiment: returns the complete verifiable comparison
+// report (common inputs, policy, every candidate with its full run report,
+// ranking). Per-candidate bad patches are retained as invalid candidates;
+// only a malformed outer envelope, scenario, policy or termination bound
+// rejects the request. An absent policy allows the baseline only.
 export function runExperiment(body: {
   scenario?: unknown;
   executionConfig?: unknown;
   candidates?: unknown;
-}): {
-  schema: string;
-  scenarioId: string;
-  rankedCandidateIds: string[];
-  candidates: {
-    candidateId: string;
-    patch: OperationsPatch;
-    completionStage: string;
-    shipped: number;
-    backlog: number;
-    stageBacklog: number;
-    makespanMs: number | null;
-    totalWaitMs: number;
-  }[];
-} {
-  const raw = body as Record<string, unknown>;
-  const candidatesRaw = raw["candidates"];
-  if (!Array.isArray(candidatesRaw) || candidatesRaw.length === 0 || candidatesRaw.length > 8) {
-    throw apiError("BAD_REQUEST", 400, "candidates must be a non-empty array of at most 8 entries");
+  interventionPolicy?: unknown;
+  safetyCeilingMs?: unknown;
+}): OperationsExperimentResult {
+  const raw = (body ?? {}) as Record<string, unknown>;
+  const candidatesRaw = raw["candidates"] ?? [];
+  if (!Array.isArray(candidatesRaw) || candidatesRaw.length > 8) {
+    throw apiError("BAD_REQUEST", 400, "candidates must be an array of at most 8 entries including baseline");
   }
   const candidates = candidatesRaw.map((c) => {
-    const entry = c as { candidateId?: unknown; patch?: unknown };
-    if (typeof entry.candidateId !== "string" || entry.candidateId.length === 0) {
-      throw apiError("BAD_REQUEST", 400, "each candidate needs a candidateId");
+    if (!c || typeof c !== "object" || Array.isArray(c)) {
+      throw apiError("BAD_REQUEST", 400, "each candidate must be an object");
     }
-    return { candidateId: entry.candidateId, patch: validatePatch(entry.patch ?? {}) };
+    const entry = c as { candidateId?: unknown; patch?: unknown };
+    if (typeof entry.candidateId !== "string" || entry.candidateId.length === 0 || entry.candidateId.length > 128) {
+      throw apiError("BAD_REQUEST", 400, "each candidate needs a candidateId of 1..128 characters");
+    }
+    return { candidateId: entry.candidateId, patch: entry.patch ?? {} };
   });
   let scenario;
   try {
@@ -63,31 +65,32 @@ export function runExperiment(body: {
   } catch (e) {
     throw apiError("BAD_SCENARIO", 400, e instanceof Error ? e.message : "invalid scenario");
   }
-  const executionConfig = raw["executionConfig"];
-  if (!executionConfig || typeof executionConfig !== "object") {
-    throw apiError("BAD_REQUEST", 400, "executionConfig is required");
+  let executionConfig;
+  try {
+    executionConfig = parseOperationsExecutionConfig(raw["executionConfig"]);
+  } catch (e) {
+    throw apiError("BAD_REQUEST", 400, e instanceof Error ? e.message : "invalid executionConfig");
+  }
+  let interventionPolicy;
+  if (raw["interventionPolicy"] !== undefined) {
+    try {
+      interventionPolicy = parseInterventionPolicy(raw["interventionPolicy"]);
+    } catch (e) {
+      throw apiError("BAD_REQUEST", 400, e instanceof Error ? e.message : "invalid interventionPolicy");
+    }
+  }
+  const safetyCeilingMs = raw["safetyCeilingMs"];
+  if (safetyCeilingMs !== undefined && (!Number.isSafeInteger(safetyCeilingMs) || (safetyCeilingMs as number) < 1)) {
+    throw apiError("BAD_REQUEST", 400, "safetyCeilingMs must be a positive integer");
   }
   try {
-    const result = runOperationsExperiment({
+    return runOperationsExperiment({
       scenario,
-      executionConfig: executionConfig as never,
+      executionConfig,
       candidates,
+      ...(interventionPolicy !== undefined ? { interventionPolicy } : {}),
+      ...(safetyCeilingMs !== undefined ? { safetyCeilingMs: safetyCeilingMs as number } : {}),
     });
-    return {
-      schema: result.schema,
-      scenarioId: result.scenarioId,
-      rankedCandidateIds: result.rankedCandidateIds,
-      candidates: result.candidates.map((c) => ({
-        candidateId: c.candidateId,
-        patch: c.patch,
-        completionStage: c.completionStage,
-        shipped: c.shipped,
-        backlog: c.backlog,
-        stageBacklog: c.stageBacklog,
-        makespanMs: c.makespanMs,
-        totalWaitMs: c.totalWaitMs,
-      })),
-    };
   } catch (e) {
     if ((e as ApiErrorLike).code) throw e;
     throw apiError("EXPERIMENT_FAILED", 400, e instanceof Error ? e.message : "experiment failed");

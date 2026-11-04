@@ -1,0 +1,66 @@
+{
+  "checkedAt": "2026-11-04T08:48:39.546Z",
+  "scope": "Codex independent compiled-engine replay and adversarial verification; synthetic inputs only",
+  "realMetaRequests": 0,
+  "cleanExportRecomputed": true,
+  "rejectedTampering": [
+    "standalone report claims safety ceiling 1ms despite later stop",
+    "comparison missing required termination policy",
+    "invalid candidate fabricated reason",
+    "standalone ceiling exceeds engine MAX_TIME_MS",
+    "no-progress claimed at initial clock despite executable workload"
+  ],
+  "handOracle": {
+    "baselineReadyMs": [
+      6100,
+      11400
+    ],
+    "changedServiceReadyMs": [
+      7100,
+      12400
+    ],
+    "recordedWait": {
+      "reason": "NO_IDLE_PICKER",
+      "startMs": 0,
+      "endMs": 5100,
+      "totalWaitMs": 5100
+    },
+    "shipped": 0,
+    "makespanMs": null
+  },
+  "comparison": [
+    {
+      "id": "baseline",
+      "status": "valid-complete",
+      "makespanMs": 502400,
+      "totalWaitMs": 614900,
+      "shipped": 6
+    },
+    {
+      "id": "fast-dispatch",
+      "status": "valid-complete",
+      "makespanMs": 343200,
+      "totalWaitMs": 614900,
+      "shipped": 6
+    },
+    {
+      "id": "slow-dispatch",
+      "status": "valid-complete",
+      "makespanMs": 1942400,
+      "totalWaitMs": 3717100,
+      "shipped": 6
+    },
+    {
+      "id": "more-pickers",
+      "status": "invalid",
+      "makespanMs": null,
+      "totalWaitMs": null,
+      "shipped": null
+    }
+  ],
+  "limits": [
+    "No authenticated provenance: coordinated edits to all inputs produce a different declared comparison",
+    "Staffing clones infeasible in current warehouse geometry",
+    "No full Meta investigation or new UI verified by this milestone"
+  ]
+}

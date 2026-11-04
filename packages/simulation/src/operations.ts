@@ -313,6 +313,23 @@ export type OperationsController = {
   exportReport(): OperationsReport;
 };
 
+export type OperationsTermination = {
+  mode: "fixed-window" | "finite-cohort";
+  horizonMs: number | null;
+  arrivalCutoffMs: number | null;
+  // Null in a bare exportReport: the caller drove the clock, so no safety
+  // ceiling was in force. Experiment runs always record a real ceiling.
+  safetyCeilingMs: number | null;
+  stopClockMs: number;
+  stopReason:
+    | "stage-complete"
+    | "blocked"
+    | "window-ended"
+    | "safety-ceiling"
+    | "no-progress"
+    | "caller-stopped";
+};
+
 export type OperationsReport = {
   schema: "layoutlab.operations-report/1";
   scenarioId: string;
@@ -323,72 +340,331 @@ export type OperationsReport = {
   completionStage: string;
   counts: OperationsCounts;
   orders: { orderId: string; state: string; timestamps: Partial<Record<OrderLifecycleState, number>> }[];
-  deliveries: { deliveryId: string; state: string }[];
+  deliveries: {
+    deliveryId: string;
+    state: string;
+    timestamps?: Partial<Record<DeliveryLifecycleState, number>>;
+  }[];
   checks: OperationsChecks;
+  // E3 evidence extension on the same /1 schema: historical reports without
+  // these fields still load, but the verifier flags the missing evidence
+  // instead of calling them fully verified.
+  clockMs?: number;
+  termination?: OperationsTermination;
+  totalWaitMs?: number;
+  makespanMs?: number | null;
+  lastShippedAtMs?: number | null;
 };
+
+export const DEFAULT_OPERATIONS_SAFETY_CEILING_MS = 7_200_000;
+
+// Total wait from engine wait records only (e.g. NO_IDLE_PICKER, traffic,
+// queue-full holds); open intervals clip at the actual report clock, never
+// at a hidden cap. A packing station job waitMs (enqueue to service start)
+// includes picker travel and unload after enqueue, so it is not waiting
+// time and is never summed into totalWaitMs.
+export function operationsRunMetrics(
+  snapshot: OperationsSnapshot,
+  completionStage: string,
+): { totalWaitMs: number; makespanMs: number | null; lastShippedAtMs: number | null } {
+  const totalWaitMs = snapshot.waits.reduce(
+    (n, w) => n + Math.max(0, (w.endMs ?? snapshot.clockMs) - w.startMs),
+    0,
+  );
+  const shippedTimes = snapshot.orders
+    .map((o) => o.timestamps.SHIPPED)
+    .filter((t): t is number => typeof t === "number");
+  const lastShippedAtMs = shippedTimes.length > 0 ? Math.max(...shippedTimes) : null;
+  // A makespan exists only for a complete intended cohort: stage complete
+  // with every selected order shipped. Partial shipped maxima stay visible
+  // as lastShippedAtMs and are never relabeled.
+  const completeCohort =
+    completionStage === "SUPPORTED_STAGE_COMPLETE" &&
+    snapshot.counts.selected > 0 &&
+    snapshot.counts.shipped === snapshot.counts.selected;
+  return { totalWaitMs, makespanMs: completeCohort ? lastShippedAtMs : null, lastShippedAtMs };
+}
+
+// Drive a controller to its declared end: finite-cohort completion/block,
+// the fixed-window horizon, or the explicit safety ceiling, whichever first.
+// Chunk targets always move forward, so a run parked at a ceiling stops
+// instead of advancing to the same time in a loop.
+export function runOperationsToTermination(
+  controller: OperationsController,
+  safetyCeilingMs: number = DEFAULT_OPERATIONS_SAFETY_CEILING_MS,
+): OperationsTermination {
+  if (
+    !Number.isSafeInteger(safetyCeilingMs) ||
+    safetyCeilingMs < 1 ||
+    safetyCeilingMs > MAX_TIME_MS
+  ) {
+    throw new Error(`safetyCeilingMs must be an integer in 1..${MAX_TIME_MS}`);
+  }
+  const run = controller.exportReport().scenario.policies.run;
+  const mode = run.mode;
+  const horizonMs = mode === "fixed-window" ? run.horizonMs : null;
+  const arrivalCutoffMs = mode === "finite-cohort" ? run.arrivalCutoffMs : null;
+  let stopReason: OperationsTermination["stopReason"] = "caller-stopped";
+  for (let guard = 0; guard < 100_000; guard += 1) {
+    const stage = controller.getCompletionStatus().stage;
+    const clock = controller.getClockMs();
+    if (stage === "SUPPORTED_STAGE_COMPLETE") { stopReason = "stage-complete"; break; }
+    if (stage === "BLOCKED") { stopReason = "blocked"; break; }
+    if (stage === "WINDOW_ENDED") { stopReason = "window-ended"; break; }
+    if (clock >= safetyCeilingMs) { stopReason = "safety-ceiling"; break; }
+    const target =
+      mode === "fixed-window"
+        ? Math.min(horizonMs as number, safetyCeilingMs)
+        : Math.min(clock + 60_000, safetyCeilingMs);
+    if (target <= clock) {
+      stopReason =
+        mode === "fixed-window" && safetyCeilingMs >= (horizonMs as number)
+          ? "window-ended"
+          : "safety-ceiling";
+      break;
+    }
+    controller.advanceTo(target);
+    if (controller.getClockMs() <= clock) { stopReason = "no-progress"; break; }
+  }
+  return {
+    mode,
+    horizonMs,
+    arrivalCutoffMs,
+    safetyCeilingMs,
+    stopClockMs: controller.getClockMs(),
+    stopReason,
+  };
+}
 
 export type OperationsReportVerification = {
   ok: boolean;
   recomputedStage: string;
   recomputedCounts: OperationsCounts;
+  recomputedClockMs: number;
   mismatches: string[];
 };
 
 // Independently recompute a report: rerun its embedded scenario/config
-// headlessly and compare final counts and per-order/delivery states. Any
-// tampered count or state is reported as a mismatch, never accepted.
+// headlessly to the report's explicit clock and compare completeness of
+// IDs, counts, states, timestamps, checks, versions, seed, clock and
+// derived metrics. Saved totals are never echoed as proof. Historical
+// reports without the E3 evidence fields are flagged, not verified.
 export function recomputeOperationsReport(
   report: OperationsReport,
 ): OperationsReportVerification {
   const mismatches: string[] = [];
-  if (report.schema !== "layoutlab.operations-report/1") {
-    return {
-      ok: false,
-      recomputedStage: "UNKNOWN",
-      recomputedCounts: report.counts,
-      mismatches: [`unsupported report schema ${String(report.schema)}`],
-    };
-  }
-  const c = createOperationsController({
-    scenario: report.scenario,
-    executionConfig: report.executionConfig,
+  const fail = (stage: string, counts: OperationsCounts, clock: number): OperationsReportVerification => ({
+    ok: false, recomputedStage: stage, recomputedCounts: counts, recomputedClockMs: clock, mismatches,
   });
-  const CAP = 3_600_000;
-  let stage = c.getCompletionStatus().stage;
-  let guard = 0;
-  while (stage === "IN_PROGRESS" && guard < 240) {
-    c.advanceTo(Math.min(c.getClockMs() + 60_000, CAP));
-    stage = c.getCompletionStatus().stage;
-    guard += 1;
+  if (!report || typeof report !== "object") {
+    mismatches.push("report must be an object");
+    return fail("UNKNOWN", (report as OperationsReport | null)?.counts as OperationsCounts, 0);
+  }
+  if (report.schema !== "layoutlab.operations-report/1") {
+    mismatches.push(`unsupported report schema ${String(report.schema)}`);
+    return fail("UNKNOWN", report.counts, 0);
+  }
+  let scenario: OperationsScenario;
+  try {
+    scenario = parseOperationsScenario(report.scenario);
+  } catch (e) {
+    mismatches.push(`scenario: ${e instanceof Error ? e.message : "invalid scenario"}`);
+    return fail("UNKNOWN", report.counts, 0);
+  }
+  try {
+    parseOperationsExecutionConfig(report.executionConfig);
+  } catch (e) {
+    mismatches.push(`executionConfig: ${e instanceof Error ? e.message : "invalid execution config"}`);
+    return fail("UNKNOWN", report.counts, 0);
+  }
+  if (report.scenarioId !== scenario.id) {
+    mismatches.push(`scenarioId: report ${String(report.scenarioId)} != scenario ${scenario.id}`);
+  }
+  if (report.seed !== scenario.seed) {
+    mismatches.push(`seed: report ${String(report.seed)} != scenario ${scenario.seed}`);
+  }
+  const expectedVersions = {
+    simulation: SIMULATION_VERSION,
+    operationsSchema: OPERATIONS_SCHEMA_VERSION,
+    operationsEngine: OPERATIONS_ENGINE_VERSION,
+  };
+  for (const key of Object.keys(expectedVersions) as (keyof typeof expectedVersions)[]) {
+    if (report.versions?.[key] !== expectedVersions[key]) {
+      mismatches.push(`versions.${key}: report ${String(report.versions?.[key])} != current ${expectedVersions[key]}`);
+    }
+  }
+  const hasClock = typeof report.clockMs === "number" && Number.isSafeInteger(report.clockMs);
+  if (!hasClock) mismatches.push("clockMs: missing E3 clock evidence (legacy report not fully verifiable)");
+  if (!report.termination) mismatches.push("termination: missing E3 termination evidence (legacy report not fully verifiable)");
+  if (report.totalWaitMs === undefined) mismatches.push("totalWaitMs: missing E3 metric evidence (legacy report not fully verifiable)");
+  if (report.makespanMs === undefined) mismatches.push("makespanMs: missing E3 metric evidence (legacy report not fully verifiable)");
+  if (report.lastShippedAtMs === undefined) mismatches.push("lastShippedAtMs: missing E3 metric evidence (legacy report not fully verifiable)");
+
+  let c: OperationsController;
+  try {
+    c = createOperationsController({ scenario: report.scenario, executionConfig: report.executionConfig });
+  } catch (e) {
+    mismatches.push(`run: ${e instanceof Error ? e.message : "controller failed"}`);
+    return fail("UNKNOWN", report.counts, 0);
+  }
+  if (hasClock) {
+    if ((report.clockMs as number) > 0) c.advanceTo(report.clockMs as number);
+  } else {
+    runOperationsToTermination(c);
   }
   const s = c.snapshot();
+  const stage = c.getCompletionStatus().stage;
   const rc = s.counts;
-  const ec = report.counts;
-  for (const key of Object.keys(ec) as (keyof OperationsCounts)[]) {
-    if (rc[key] !== ec[key]) {
-      mismatches.push(`counts.${key}: report ${ec[key]} != recomputed ${rc[key]}`);
+  if (s.scenarioId !== scenario.id) mismatches.push(`recomputed scenarioId ${s.scenarioId} != scenario ${scenario.id}`);
+  if (s.seed !== scenario.seed) mismatches.push(`recomputed seed ${s.seed} != scenario ${scenario.seed}`);
+  if (hasClock && s.clockMs !== report.clockMs) {
+    mismatches.push(`clockMs: report ${String(report.clockMs)} != recomputed ${s.clockMs}`);
+  }
+  const countKeys = Object.keys(rc) as (keyof OperationsCounts)[];
+  for (const key of countKeys) {
+    if (report.counts?.[key] !== rc[key]) {
+      mismatches.push(`counts.${key}: report ${String(report.counts?.[key])} != recomputed ${rc[key]}`);
     }
+  }
+  for (const key of Object.keys(report.counts ?? {})) {
+    if (!(countKeys as string[]).includes(key)) mismatches.push(`counts.${key}: unexpected saved count key`);
   }
   if (stage !== report.completionStage) {
-    mismatches.push(`completionStage: report ${report.completionStage} != recomputed ${stage}`);
+    mismatches.push(`completionStage: report ${String(report.completionStage)} != recomputed ${stage}`);
   }
-  for (const o of report.orders) {
-    const r = s.orders.find((x) => x.orderId === o.orderId);
-    if (!r) {
-      mismatches.push(`order ${o.orderId}: missing on recomputation`);
-    } else if (r.state !== o.state) {
-      mismatches.push(`order ${o.orderId}: report ${o.state} != recomputed ${r.state}`);
+  const sameTimestamps = (
+    a: Record<string, number | undefined>,
+    b: Record<string, number | undefined>,
+  ): boolean => {
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+    for (const k of keys) if (a[k] !== b[k]) return false;
+    return true;
+  };
+  const checkRows = (
+    label: string,
+    saved: { id: string; state: string; timestamps?: Record<string, number> }[],
+    fresh: { id: string; state: string; timestamps: Record<string, number> }[],
+    requireTimestamps: boolean,
+  ): void => {
+    const savedIds = new Set<string>();
+    for (const row of saved) {
+      if (savedIds.has(row.id)) mismatches.push(`${label} ${row.id}: duplicate saved row`);
+      savedIds.add(row.id);
+    }
+    const freshById = new Map(fresh.map((r) => [r.id, r]));
+    for (const row of saved) {
+      const r = freshById.get(row.id);
+      if (!r) { mismatches.push(`${label} ${row.id}: missing on recomputation`); continue; }
+      if (r.state !== row.state) mismatches.push(`${label} ${row.id}: report ${row.state} != recomputed ${r.state}`);
+      if (row.timestamps === undefined) {
+        if (requireTimestamps) mismatches.push(`${label} ${row.id}: missing timestamps evidence`);
+      } else if (!sameTimestamps(row.timestamps, r.timestamps)) {
+        mismatches.push(`${label} ${row.id}: timestamps report ${JSON.stringify(row.timestamps)} != recomputed ${JSON.stringify(r.timestamps)}`);
+      }
+    }
+    for (const r of fresh) {
+      if (!savedIds.has(r.id)) mismatches.push(`${label} ${r.id}: missing in saved report`);
+    }
+  };
+  checkRows(
+    "order",
+    (report.orders ?? []).map((o) => ({ id: o.orderId, state: o.state, timestamps: o.timestamps as Record<string, number> })),
+    s.orders.map((o) => ({ id: o.orderId, state: o.state, timestamps: o.timestamps as Record<string, number> })),
+    true,
+  );
+  checkRows(
+    "delivery",
+    (report.deliveries ?? []).map((d) => ({ id: d.deliveryId, state: d.state, timestamps: d.timestamps as Record<string, number> | undefined })),
+    s.deliveries.map((d) => ({ id: d.deliveryId, state: d.state, timestamps: d.timestamps as Record<string, number> })),
+    true,
+  );
+  const metrics = operationsRunMetrics(s, stage);
+  if (report.totalWaitMs !== undefined && report.totalWaitMs !== metrics.totalWaitMs) {
+    mismatches.push(`totalWaitMs: report ${String(report.totalWaitMs)} != recomputed ${metrics.totalWaitMs}`);
+  }
+  if (report.makespanMs !== undefined && report.makespanMs !== metrics.makespanMs) {
+    mismatches.push(`makespanMs: report ${String(report.makespanMs)} != recomputed ${String(metrics.makespanMs)}`);
+  }
+  if (report.lastShippedAtMs !== undefined && report.lastShippedAtMs !== metrics.lastShippedAtMs) {
+    mismatches.push(`lastShippedAtMs: report ${String(report.lastShippedAtMs)} != recomputed ${String(metrics.lastShippedAtMs)}`);
+  }
+  for (const key of ["conservation", "capacity", "safety"] as const) {
+    const savedChecks = report.checks?.[key];
+    if (!Array.isArray(savedChecks) || JSON.stringify(savedChecks) !== JSON.stringify(s.checks[key])) {
+      mismatches.push(`checks.${key}: report ${JSON.stringify(savedChecks)} != recomputed ${JSON.stringify(s.checks[key])}`);
     }
   }
-  for (const d of report.deliveries) {
-    const r = s.deliveries.find((x) => x.deliveryId === d.deliveryId);
-    if (!r) {
-      mismatches.push(`delivery ${d.deliveryId}: missing on recomputation`);
-    } else if (r.state !== d.state) {
-      mismatches.push(`delivery ${d.deliveryId}: report ${d.state} != recomputed ${r.state}`);
+  if (report.termination) {
+    const t = report.termination;
+    const run = scenario.policies.run;
+    if (t.mode !== run.mode) mismatches.push(`termination.mode: report ${String(t.mode)} != scenario ${run.mode}`);
+    const wantHorizon = run.mode === "fixed-window" ? run.horizonMs : null;
+    const wantCutoff = run.mode === "finite-cohort" ? run.arrivalCutoffMs : null;
+    if (t.horizonMs !== wantHorizon) mismatches.push(`termination.horizonMs: report ${String(t.horizonMs)} != scenario ${String(wantHorizon)}`);
+    if (t.arrivalCutoffMs !== wantCutoff) mismatches.push(`termination.arrivalCutoffMs: report ${String(t.arrivalCutoffMs)} != scenario ${String(wantCutoff)}`);
+    if (hasClock && t.stopClockMs !== report.clockMs) mismatches.push(`termination.stopClockMs: report ${String(t.stopClockMs)} != clockMs ${String(report.clockMs)}`);
+    if (t.stopClockMs !== s.clockMs) mismatches.push(`termination.stopClockMs: report ${String(t.stopClockMs)} != recomputed clock ${s.clockMs}`);
+    if (
+      t.safetyCeilingMs !== null &&
+      (typeof t.safetyCeilingMs !== "number" || !Number.isSafeInteger(t.safetyCeilingMs) || t.safetyCeilingMs < 1 || t.safetyCeilingMs > MAX_TIME_MS)
+    ) {
+      mismatches.push(`termination.safetyCeilingMs: invalid ceiling ${String(t.safetyCeilingMs)}`);
+    }
+    // Declared termination must be complete and consistent with the actual
+    // replayed stop: a ceiling below the stop clock is impossible evidence,
+    // a safety-ceiling stop lands exactly on its ceiling, and the stop
+    // reason must match the recomputed stage. Missing fields are rejected,
+    // never defaulted.
+    const STOP_REASONS = ["stage-complete", "blocked", "window-ended", "safety-ceiling", "no-progress", "caller-stopped"];
+    if (t.stopReason === undefined) {
+      mismatches.push("termination.stopReason: missing declared stop reason");
+    } else if (!STOP_REASONS.includes(t.stopReason)) {
+      mismatches.push(`termination.stopReason: invalid stop reason ${String(t.stopReason)}`);
+    }
+    if (t.safetyCeilingMs === undefined) {
+      mismatches.push("termination.safetyCeilingMs: missing declared ceiling (null means caller drove the clock)");
+    }
+    if (typeof t.stopClockMs !== "number" || !Number.isSafeInteger(t.stopClockMs)) {
+      mismatches.push(`termination.stopClockMs: missing or invalid stop clock ${String(t.stopClockMs)}`);
+    }
+    if (typeof t.safetyCeilingMs === "number" && typeof t.stopClockMs === "number" && t.safetyCeilingMs < t.stopClockMs) {
+      mismatches.push(`termination.safetyCeilingMs: ceiling ${t.safetyCeilingMs} is below the actual stop clock ${t.stopClockMs} (impossible ceiling)`);
+    }
+    if (t.stopReason === "safety-ceiling") {
+      if (typeof t.safetyCeilingMs !== "number") {
+        mismatches.push("termination: stopReason safety-ceiling requires a numeric safetyCeilingMs");
+      } else if (t.safetyCeilingMs !== t.stopClockMs) {
+        mismatches.push(`termination: safety-ceiling stop must land on its ceiling ${t.safetyCeilingMs}, saved stop clock is ${String(t.stopClockMs)}`);
+      }
+    }
+    // A numeric ceiling is driver evidence: reconstruct the run driver on
+    // a fresh controller and require the declared stop to match it exactly,
+    // so no-progress (or any reason) is evidenced, not freely asserted.
+    if (typeof t.safetyCeilingMs === "number" && Number.isSafeInteger(t.safetyCeilingMs) && t.safetyCeilingMs >= 1 && t.safetyCeilingMs <= MAX_TIME_MS) {
+      try {
+        const driver = createOperationsController({ scenario: report.scenario, executionConfig: report.executionConfig });
+        const driven = runOperationsToTermination(driver, t.safetyCeilingMs);
+        if (driven.stopClockMs !== t.stopClockMs) mismatches.push(`termination.stopClockMs: declared ${String(t.stopClockMs)} != driver-reconstructed ${driven.stopClockMs} at ceiling ${t.safetyCeilingMs}`);
+        if (driven.stopReason !== t.stopReason) mismatches.push(`termination.stopReason: declared ${String(t.stopReason)} != driver-reconstructed ${driven.stopReason} at ceiling ${t.safetyCeilingMs}`);
+      } catch (e) {
+        mismatches.push(`termination: driver reconstruction failed: ${e instanceof Error ? e.message : "unknown"}`);
+      }
+    }
+    // A bare export (null ceiling) has no driver evidence: only the actual
+    // stage reason, or caller-stopped while in progress, may be claimed.
+    if (t.safetyCeilingMs === null && (t.stopReason === "no-progress" || t.stopReason === "safety-ceiling")) {
+      mismatches.push(`termination.stopReason: ${String(t.stopReason)} cannot be asserted without run-driver evidence (declare a numeric safetyCeilingMs)`);
+    }
+    const reasonForStage =
+      stage === "SUPPORTED_STAGE_COMPLETE" ? ["stage-complete"]
+      : stage === "BLOCKED" ? ["blocked"]
+      : stage === "WINDOW_ENDED" ? ["window-ended"]
+      : ["safety-ceiling", "no-progress", "caller-stopped"];
+    if (STOP_REASONS.includes(t.stopReason) && !reasonForStage.includes(t.stopReason)) {
+      mismatches.push(`termination.stopReason: saved ${String(t.stopReason)} is inconsistent with recomputed stage ${stage}`);
     }
   }
-  return { ok: mismatches.length === 0, recomputedStage: stage, recomputedCounts: rc, mismatches };
+  return { ok: mismatches.length === 0, recomputedStage: stage, recomputedCounts: rc, recomputedClockMs: s.clockMs, mismatches };
 }
 
 type PickLeg = {
@@ -3361,6 +3637,9 @@ export function createOperationsController(opts: {
     getDiagnostic: () => diagnosticOf(S),
     exportReport: (): OperationsReport => {
       const snap = buildSnapshot(S);
+      const stage = completionOf(S).stage;
+      const metrics = operationsRunMetrics(snap, stage);
+      const run = scenario.policies.run;
       return {
         schema: "layoutlab.operations-report/1",
         scenarioId: snap.scenarioId,
@@ -3368,7 +3647,7 @@ export function createOperationsController(opts: {
         versions: { ...snap.versions },
         scenario: structuredClone(scenario) as OperationsScenario,
         executionConfig: { ...executionConfig },
-        completionStage: completionOf(S).stage,
+        completionStage: stage,
         counts: { ...snap.counts },
         orders: snap.orders.map((o) => ({
           orderId: o.orderId,
@@ -3378,12 +3657,32 @@ export function createOperationsController(opts: {
         deliveries: snap.deliveries.map((d) => ({
           deliveryId: d.deliveryId,
           state: d.state,
+          timestamps: { ...d.timestamps },
         })),
         checks: {
           conservation: [...snap.checks.conservation],
           capacity: [...snap.checks.capacity],
           safety: [...snap.checks.safety],
         },
+        clockMs: snap.clockMs,
+        termination: {
+          mode: run.mode,
+          horizonMs: run.mode === "fixed-window" ? run.horizonMs : null,
+          arrivalCutoffMs: run.mode === "finite-cohort" ? run.arrivalCutoffMs : null,
+          safetyCeilingMs: null,
+          stopClockMs: snap.clockMs,
+          stopReason:
+            stage === "SUPPORTED_STAGE_COMPLETE"
+              ? "stage-complete"
+              : stage === "BLOCKED"
+                ? "blocked"
+                : stage === "WINDOW_ENDED"
+                  ? "window-ended"
+                  : "caller-stopped",
+        },
+        totalWaitMs: metrics.totalWaitMs,
+        makespanMs: metrics.makespanMs,
+        lastShippedAtMs: metrics.lastShippedAtMs,
       };
     },
   };

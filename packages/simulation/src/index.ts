@@ -143,7 +143,7 @@ export type {
   Trajectory,
   Xz,
 } from "./traffic.js";
-export { createOperationsController, parseOperationsExecutionConfig, operationsExecutionConfigSchema, recomputeOperationsReport } from "./operations.js";
+export { createOperationsController, parseOperationsExecutionConfig, operationsExecutionConfigSchema, recomputeOperationsReport, operationsRunMetrics, runOperationsToTermination, DEFAULT_OPERATIONS_SAFETY_CEILING_MS } from "./operations.js";
 export type {
   OperationsChecks,
   OperationsCompletion,
@@ -158,6 +158,7 @@ export type {
   OperationsPackingView,
   OperationsReport,
   OperationsReportVerification,
+  OperationsTermination,
   OperationsSnapshot,
   OperationsTimelineEntry,
   OperationsUnitTaskView,
@@ -169,11 +170,20 @@ export {
   applyOperationsPatch,
   operationsPatchSchema,
   parseOperationsPatch,
+  INTERVENTION_FIELDS,
+  interventionPolicySchema,
+  parseInterventionPolicy,
+  OPERATIONS_EXPERIMENT_SCHEMA,
   runOperationsExperiment,
+  verifyOperationsExperiment,
 } from "./experiments.js";
 export type {
   ExperimentCandidateResult,
+  ExperimentCandidateStatus,
+  InterventionField,
+  InterventionPolicy,
   OperationsExperimentResult,
+  OperationsExperimentVerification,
   OperationsPatch,
 } from "./experiments.js";
 export { createTransportController, createTransportDomain } from "./transport.js";
