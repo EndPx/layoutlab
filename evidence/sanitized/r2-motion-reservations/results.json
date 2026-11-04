@@ -1,0 +1,2929 @@
+{
+  "tests": {
+    "count": 22,
+    "names": [
+      "exclusive crossing first owner then wait exact retry",
+      "retry accepted with honest initial occupancy",
+      "duplicate reservation denied",
+      "stale revision denied",
+      "in-motion cancellation denied",
+      "nonintersecting concurrent accepted",
+      "stopped occupant persists forever",
+      "final occupant blocks after movement ends",
+      "actual custom limits reserve correct end event",
+      "dwell reserved explicitly and integer intervals gapless",
+      "turn full arc has occupied interval",
+      "turn interval conflict rejected continuously",
+      "dwell interval conflict rejected continuously",
+      "invalid versions and timestamps fail closed",
+      "prestart cancellation restores infinite initial occupancy",
+      "unsafe goal yaw denied",
+      "unsafe initial pose denied",
+      "mutations cannot change reserved authority",
+      "exact JSON trajectory and reservation replay",
+      "canonical final facing L01 required admitted",
+      "canonical destination-facing reservation accepted",
+      "position-only success cannot bypass unsafe required goal yaw"
+    ]
+  },
+  "micro": {
+    "accepted": {
+      "status": "reserved",
+      "owner": "A",
+      "revision": 3,
+      "endEventMs": 8100
+    },
+    "waiting": {
+      "status": "wait",
+      "owner": "A",
+      "kind": "forward",
+      "retryAt": 8000,
+      "requestedKind": "forward",
+      "revision": 3
+    },
+    "retried": {
+      "status": "reserved",
+      "owner": "B",
+      "revision": 4,
+      "endEventMs": 15100
+    },
+    "plans": [
+      {
+        "worldId": "micro-world",
+        "id": "plan-a",
+        "owner": "A",
+        "targetId": "target-A",
+        "requiredFinalHeading": 1.5707963267948966,
+        "startMs": 1000,
+        "body": {
+          "left": 100,
+          "right": 100,
+          "front": 100,
+          "rear": 100,
+          "margin": 0
+        },
+        "scene": {
+          "room": {
+            "widthMm": 12000,
+            "depthMm": 12000
+          },
+          "obstacles": [],
+          "stopped": []
+        },
+        "limits": {
+          "v": 1,
+          "a": 0.001,
+          "d": 0.001,
+          "omega": 0.0015707963267948967,
+          "stopMs": 100,
+          "strideMm": 1201
+        },
+        "actions": [
+          {
+            "from": {
+              "p": {
+                "x": 2000,
+                "z": 5000
+              },
+              "heading": 1.5707963267948966
+            },
+            "to": {
+              "p": {
+                "x": 8000,
+                "z": 5000
+              },
+              "heading": 1.5707963267948966
+            },
+            "mode": "forward"
+          }
+        ],
+        "version": "layoutlab.motion-draft-reservations/2"
+      },
+      {
+        "worldId": "micro-world",
+        "id": "plan-b",
+        "owner": "B",
+        "targetId": "target-B",
+        "requiredFinalHeading": 0,
+        "startMs": 8000,
+        "body": {
+          "left": 100,
+          "right": 100,
+          "front": 100,
+          "rear": 100,
+          "margin": 0
+        },
+        "scene": {
+          "room": {
+            "widthMm": 12000,
+            "depthMm": 12000
+          },
+          "obstacles": [],
+          "stopped": []
+        },
+        "limits": {
+          "v": 1,
+          "a": 0.001,
+          "d": 0.001,
+          "omega": 0.0015707963267948967,
+          "stopMs": 100,
+          "strideMm": 1201
+        },
+        "actions": [
+          {
+            "from": {
+              "p": {
+                "x": 5000,
+                "z": 2000
+              },
+              "heading": 0
+            },
+            "to": {
+              "p": {
+                "x": 5000,
+                "z": 8000
+              },
+              "heading": 0
+            },
+            "mode": "forward"
+          }
+        ],
+        "version": "layoutlab.motion-draft-reservations/2"
+      }
+    ],
+    "snapshot": {
+      "version": "layoutlab.motion-draft-reservations/2",
+      "world": {
+        "id": "micro-world",
+        "scene": {
+          "room": {
+            "widthMm": 12000,
+            "depthMm": 12000
+          },
+          "obstacles": [],
+          "stopped": []
+        }
+      },
+      "observedNowMs": 0,
+      "revision": 4,
+      "actors": [
+        {
+          "owner": "A",
+          "pose": {
+            "p": {
+              "x": 2000,
+              "z": 5000
+            },
+            "heading": 1.5707963267948966
+          },
+          "body": {
+            "left": 100,
+            "right": 100,
+            "front": 100,
+            "rear": 100,
+            "margin": 0
+          },
+          "holds": [
+            {
+              "owner": "A",
+              "kind": "initial",
+              "start": 0,
+              "end": 1000,
+              "box": {
+                "minX": 1899.9999999,
+                "maxX": 2100.0000001,
+                "minZ": 4899.9999999,
+                "maxZ": 5100.0000001
+              }
+            },
+            {
+              "owner": "A",
+              "kind": "forward",
+              "start": 1000,
+              "end": 8000,
+              "box": {
+                "minX": 1899.9999999,
+                "maxX": 8100.0000001,
+                "minZ": 4899.9999999,
+                "maxZ": 5100.0000001
+              }
+            },
+            {
+              "owner": "A",
+              "kind": "dwell",
+              "start": 8000,
+              "end": 8100,
+              "box": {
+                "minX": 7899.9999999,
+                "maxX": 8100.0000001,
+                "minZ": 4899.9999999,
+                "maxZ": 5100.0000001
+              }
+            },
+            {
+              "owner": "A",
+              "kind": "final",
+              "start": 8100,
+              "end": null,
+              "box": {
+                "minX": 7899.9999999,
+                "maxX": 8100.0000001,
+                "minZ": 4899.9999999,
+                "maxZ": 5100.0000001
+              }
+            }
+          ],
+          "plan": {
+            "worldId": "micro-world",
+            "id": "plan-a",
+            "owner": "A",
+            "targetId": "target-A",
+            "requiredFinalHeading": 1.5707963267948966,
+            "startMs": 1000,
+            "body": {
+              "left": 100,
+              "right": 100,
+              "front": 100,
+              "rear": 100,
+              "margin": 0
+            },
+            "scene": {
+              "room": {
+                "widthMm": 12000,
+                "depthMm": 12000
+              },
+              "obstacles": [],
+              "stopped": []
+            },
+            "limits": {
+              "v": 1,
+              "a": 0.001,
+              "d": 0.001,
+              "omega": 0.0015707963267948967,
+              "stopMs": 100,
+              "strideMm": 1201
+            },
+            "actions": [
+              {
+                "from": {
+                  "p": {
+                    "x": 2000,
+                    "z": 5000
+                  },
+                  "heading": 1.5707963267948966
+                },
+                "to": {
+                  "p": {
+                    "x": 8000,
+                    "z": 5000
+                  },
+                  "heading": 1.5707963267948966
+                },
+                "mode": "forward"
+              }
+            ],
+            "version": "layoutlab.motion-draft-reservations/2"
+          }
+        },
+        {
+          "owner": "B",
+          "pose": {
+            "p": {
+              "x": 5000,
+              "z": 2000
+            },
+            "heading": 0
+          },
+          "body": {
+            "left": 100,
+            "right": 100,
+            "front": 100,
+            "rear": 100,
+            "margin": 0
+          },
+          "holds": [
+            {
+              "owner": "B",
+              "kind": "initial",
+              "start": 0,
+              "end": 8000,
+              "box": {
+                "minX": 4899.9999999,
+                "maxX": 5100.0000001,
+                "minZ": 1899.9999999,
+                "maxZ": 2100.0000001
+              }
+            },
+            {
+              "owner": "B",
+              "kind": "forward",
+              "start": 8000,
+              "end": 15000,
+              "box": {
+                "minX": 4899.9999999,
+                "maxX": 5100.0000001,
+                "minZ": 1899.9999999,
+                "maxZ": 8100.0000001
+              }
+            },
+            {
+              "owner": "B",
+              "kind": "dwell",
+              "start": 15000,
+              "end": 15100,
+              "box": {
+                "minX": 4899.9999999,
+                "maxX": 5100.0000001,
+                "minZ": 7899.9999999,
+                "maxZ": 8100.0000001
+              }
+            },
+            {
+              "owner": "B",
+              "kind": "final",
+              "start": 15100,
+              "end": null,
+              "box": {
+                "minX": 4899.9999999,
+                "maxX": 5100.0000001,
+                "minZ": 7899.9999999,
+                "maxZ": 8100.0000001
+              }
+            }
+          ],
+          "plan": {
+            "worldId": "micro-world",
+            "id": "plan-b",
+            "owner": "B",
+            "targetId": "target-B",
+            "requiredFinalHeading": 0,
+            "startMs": 8000,
+            "body": {
+              "left": 100,
+              "right": 100,
+              "front": 100,
+              "rear": 100,
+              "margin": 0
+            },
+            "scene": {
+              "room": {
+                "widthMm": 12000,
+                "depthMm": 12000
+              },
+              "obstacles": [],
+              "stopped": []
+            },
+            "limits": {
+              "v": 1,
+              "a": 0.001,
+              "d": 0.001,
+              "omega": 0.0015707963267948967,
+              "stopMs": 100,
+              "strideMm": 1201
+            },
+            "actions": [
+              {
+                "from": {
+                  "p": {
+                    "x": 5000,
+                    "z": 2000
+                  },
+                  "heading": 0
+                },
+                "to": {
+                  "p": {
+                    "x": 5000,
+                    "z": 8000
+                  },
+                  "heading": 0
+                },
+                "mode": "forward"
+              }
+            ],
+            "version": "layoutlab.motion-draft-reservations/2"
+          }
+        }
+      ],
+      "used": [
+        "plan-a",
+        "plan-b"
+      ]
+    }
+  },
+  "canonical": {
+    "headingAssumption": "L01 approach to storage anchor in XZ gives pi; geometric stance only, not engine-sourced/grip validated",
+    "search": {
+      "status": "found",
+      "targetId": "L01",
+      "expansions": 518,
+      "visited": 546,
+      "blockers": {
+        "wall": 178,
+        "PK-2": 86,
+        "R1": 162,
+        "PK-3": 72,
+        "R2": 46,
+        "PK-4": 34,
+        "R4": 22
+      },
+      "rejectedExamples": [
+        {
+          "action": {
+            "from": {
+              "p": {
+                "x": 3000,
+                "z": 1200
+              },
+              "heading": 1.5707963267948966
+            },
+            "to": {
+              "p": {
+                "x": 3000,
+                "z": 1200
+              },
+              "heading": 0
+            },
+            "mode": "turn"
+          },
+          "checks": [
+            {
+              "kind": "turn",
+              "start": 0,
+              "conservative": true,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            },
+            {
+              "kind": "target",
+              "start": 999.9999999999999,
+              "conservative": false,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            }
+          ]
+        },
+        {
+          "action": {
+            "from": {
+              "p": {
+                "x": 3000,
+                "z": 1200
+              },
+              "heading": 4.71238898038469
+            },
+            "to": {
+              "p": {
+                "x": 3000,
+                "z": 1200
+              },
+              "heading": 0
+            },
+            "mode": "turn"
+          },
+          "checks": [
+            {
+              "kind": "turn",
+              "start": 0,
+              "conservative": true,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            },
+            {
+              "kind": "target",
+              "start": 1000.0000000000002,
+              "conservative": false,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            }
+          ]
+        },
+        {
+          "action": {
+            "from": {
+              "p": {
+                "x": 3000,
+                "z": 800
+              },
+              "heading": 3.141592653589793
+            },
+            "to": {
+              "p": {
+                "x": 3000,
+                "z": 800
+              },
+              "heading": 1.5707963267948966
+            },
+            "mode": "turn"
+          },
+          "checks": [
+            {
+              "kind": "turn",
+              "start": 0,
+              "conservative": true,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            }
+          ]
+        },
+        {
+          "action": {
+            "from": {
+              "p": {
+                "x": 3000,
+                "z": 800
+              },
+              "heading": 3.141592653589793
+            },
+            "to": {
+              "p": {
+                "x": 3000,
+                "z": 800
+              },
+              "heading": 4.71238898038469
+            },
+            "mode": "turn"
+          },
+          "checks": [
+            {
+              "kind": "turn",
+              "start": 0,
+              "conservative": true,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            }
+          ]
+        },
+        {
+          "action": {
+            "from": {
+              "p": {
+                "x": 3000,
+                "z": 800
+              },
+              "heading": 3.141592653589793
+            },
+            "to": {
+              "p": {
+                "x": 3000,
+                "z": 400
+              },
+              "heading": 3.141592653589793
+            },
+            "mode": "forward"
+          },
+          "checks": [
+            {
+              "kind": "line",
+              "start": 0,
+              "conservative": false,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            },
+            {
+              "kind": "stop",
+              "start": 1264.9110640673518,
+              "conservative": false,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            },
+            {
+              "kind": "target",
+              "start": 1364.9110640673518,
+              "conservative": false,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            }
+          ]
+        },
+        {
+          "action": {
+            "from": {
+              "p": {
+                "x": 3400,
+                "z": 1200
+              },
+              "heading": 1.5707963267948966
+            },
+            "to": {
+              "p": {
+                "x": 3400,
+                "z": 1200
+              },
+              "heading": 0
+            },
+            "mode": "turn"
+          },
+          "checks": [
+            {
+              "kind": "turn",
+              "start": 0,
+              "conservative": true,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            },
+            {
+              "kind": "target",
+              "start": 999.9999999999999,
+              "conservative": false,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            }
+          ]
+        },
+        {
+          "action": {
+            "from": {
+              "p": {
+                "x": 2600,
+                "z": 1200
+              },
+              "heading": 1.5707963267948966
+            },
+            "to": {
+              "p": {
+                "x": 2600,
+                "z": 1200
+              },
+              "heading": 0
+            },
+            "mode": "turn"
+          },
+          "checks": [
+            {
+              "kind": "turn",
+              "start": 0,
+              "conservative": true,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            },
+            {
+              "kind": "target",
+              "start": 999.9999999999999,
+              "conservative": false,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            }
+          ]
+        },
+        {
+          "action": {
+            "from": {
+              "p": {
+                "x": 2600,
+                "z": 1200
+              },
+              "heading": 4.71238898038469
+            },
+            "to": {
+              "p": {
+                "x": 2600,
+                "z": 1200
+              },
+              "heading": 0
+            },
+            "mode": "turn"
+          },
+          "checks": [
+            {
+              "kind": "turn",
+              "start": 0,
+              "conservative": true,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            },
+            {
+              "kind": "target",
+              "start": 1000.0000000000002,
+              "conservative": false,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            }
+          ]
+        },
+        {
+          "action": {
+            "from": {
+              "p": {
+                "x": 3400,
+                "z": 1200
+              },
+              "heading": 4.71238898038469
+            },
+            "to": {
+              "p": {
+                "x": 3400,
+                "z": 1200
+              },
+              "heading": 0
+            },
+            "mode": "turn"
+          },
+          "checks": [
+            {
+              "kind": "turn",
+              "start": 0,
+              "conservative": true,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            },
+            {
+              "kind": "target",
+              "start": 1000.0000000000002,
+              "conservative": false,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            }
+          ]
+        },
+        {
+          "action": {
+            "from": {
+              "p": {
+                "x": 3800,
+                "z": 1200
+              },
+              "heading": 1.5707963267948966
+            },
+            "to": {
+              "p": {
+                "x": 3800,
+                "z": 1200
+              },
+              "heading": 0
+            },
+            "mode": "turn"
+          },
+          "checks": [
+            {
+              "kind": "turn",
+              "start": 0,
+              "conservative": true,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            },
+            {
+              "kind": "target",
+              "start": 999.9999999999999,
+              "conservative": false,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            }
+          ]
+        },
+        {
+          "action": {
+            "from": {
+              "p": {
+                "x": 2200,
+                "z": 1200
+              },
+              "heading": 1.5707963267948966
+            },
+            "to": {
+              "p": {
+                "x": 2200,
+                "z": 1200
+              },
+              "heading": 0
+            },
+            "mode": "turn"
+          },
+          "checks": [
+            {
+              "kind": "turn",
+              "start": 0,
+              "conservative": true,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            },
+            {
+              "kind": "target",
+              "start": 999.9999999999999,
+              "conservative": false,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            }
+          ]
+        },
+        {
+          "action": {
+            "from": {
+              "p": {
+                "x": 2200,
+                "z": 1200
+              },
+              "heading": 4.71238898038469
+            },
+            "to": {
+              "p": {
+                "x": 2200,
+                "z": 1200
+              },
+              "heading": 0
+            },
+            "mode": "turn"
+          },
+          "checks": [
+            {
+              "kind": "turn",
+              "start": 0,
+              "conservative": true,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            },
+            {
+              "kind": "target",
+              "start": 1000.0000000000002,
+              "conservative": false,
+              "blockers": [
+                "wall"
+              ],
+              "accepted": false
+            }
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "from": {
+            "p": {
+              "x": 3000,
+              "z": 1200
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 3000,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "turn"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 3000,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 2600,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "forward"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 2600,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 2200,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "forward"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 2200,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 1800,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "forward"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1800,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "forward"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 1200
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "turn"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 1200
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 1600
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 1600
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 2000
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 2000
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 2400
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 2400
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 2800
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 2800
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 3200
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 3200
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 3600
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 3600
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 4000
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 4000
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 4400
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 4400
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 4800
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 4800
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 5200
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 5200
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 5600
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 5600
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 6000
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 6000
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 6400
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 6400
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 6800
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 6800
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 7200
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 7200
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 7600
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 7600
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 8000
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 8000
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "turn"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 1800,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1800,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 2200,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 2200,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 2600,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 2600,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 3000,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 3000,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 3000,
+              "z": 8000
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "turn"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 3000,
+              "z": 8000
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 3000,
+              "z": 8400
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 3000,
+              "z": 8400
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 3000,
+              "z": 8800
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        }
+      ]
+    },
+    "plan": {
+      "worldId": "micro-world",
+      "id": "canonical-facing-L01",
+      "owner": "PK-1",
+      "targetId": "L01",
+      "requiredFinalHeading": 3.141592653589793,
+      "startMs": 1000,
+      "body": {
+        "left": 374.5,
+        "right": 374.5,
+        "front": 610,
+        "rear": 1418,
+        "margin": 100
+      },
+      "scene": {
+        "room": {
+          "widthMm": 24000,
+          "depthMm": 18000
+        },
+        "obstacles": [
+          {
+            "minX": 2000,
+            "maxX": 6000,
+            "minZ": 5000,
+            "maxZ": 7000,
+            "id": "R1"
+          },
+          {
+            "minX": 8000,
+            "maxX": 12000,
+            "minZ": 5000,
+            "maxZ": 7000,
+            "id": "R2"
+          },
+          {
+            "minX": 14000,
+            "maxX": 18000,
+            "minZ": 5000,
+            "maxZ": 7000,
+            "id": "R3"
+          },
+          {
+            "minX": 2000,
+            "maxX": 6000,
+            "minZ": 11000,
+            "maxZ": 13000,
+            "id": "R4"
+          },
+          {
+            "minX": 8000,
+            "maxX": 12000,
+            "minZ": 11000,
+            "maxZ": 13000,
+            "id": "R5"
+          },
+          {
+            "minX": 14000,
+            "maxX": 18000,
+            "minZ": 11000,
+            "maxZ": 13000,
+            "id": "R6"
+          },
+          {
+            "minX": 2000,
+            "maxX": 6000,
+            "minZ": 15600,
+            "maxZ": 17200,
+            "id": "OB-RCV-STAGE"
+          },
+          {
+            "minX": 18000,
+            "maxX": 22000,
+            "minZ": 15600,
+            "maxZ": 17200,
+            "id": "OB-DSP-STAGE"
+          },
+          {
+            "minX": 19566,
+            "maxX": 21434,
+            "minZ": 4390,
+            "maxZ": 5610,
+            "id": "OB-PACK1"
+          },
+          {
+            "minX": 19566,
+            "maxX": 21434,
+            "minZ": 10390,
+            "maxZ": 11610,
+            "id": "OB-PACK2"
+          },
+          {
+            "minX": 1346,
+            "maxX": 1500,
+            "minZ": 15766,
+            "maxZ": 15917,
+            "id": "OB-RCV-B1"
+          },
+          {
+            "minX": 6499,
+            "maxX": 6654,
+            "minZ": 15766,
+            "maxZ": 15917,
+            "id": "OB-RCV-B2"
+          },
+          {
+            "minX": 964,
+            "maxX": 1545,
+            "minZ": 16334,
+            "maxZ": 17999,
+            "id": "OB-RCV-D1"
+          },
+          {
+            "minX": 6454,
+            "maxX": 7035,
+            "minZ": 16334,
+            "maxZ": 18000,
+            "id": "OB-RCV-D2"
+          },
+          {
+            "minX": 17346,
+            "maxX": 17500,
+            "minZ": 15766,
+            "maxZ": 15917,
+            "id": "OB-DSP-B1"
+          },
+          {
+            "minX": 22499,
+            "maxX": 22654,
+            "minZ": 15766,
+            "maxZ": 15917,
+            "id": "OB-DSP-B2"
+          },
+          {
+            "minX": 16964,
+            "maxX": 17545,
+            "minZ": 16334,
+            "maxZ": 17999,
+            "id": "OB-DSP-D1"
+          },
+          {
+            "minX": 22454,
+            "maxX": 23035,
+            "minZ": 16334,
+            "maxZ": 18000,
+            "id": "OB-DSP-D2"
+          }
+        ],
+        "stopped": [
+          {
+            "id": "PK-2",
+            "p": {
+              "x": 6000,
+              "z": 1200
+            },
+            "heading": 3.141592653589793,
+            "body": {
+              "left": 374.5,
+              "right": 374.5,
+              "front": 610,
+              "rear": 1418,
+              "margin": 100
+            }
+          },
+          {
+            "id": "PK-3",
+            "p": {
+              "x": 9000,
+              "z": 1200
+            },
+            "heading": 3.141592653589793,
+            "body": {
+              "left": 374.5,
+              "right": 374.5,
+              "front": 610,
+              "rear": 1418,
+              "margin": 100
+            }
+          },
+          {
+            "id": "PK-4",
+            "p": {
+              "x": 12000,
+              "z": 1200
+            },
+            "heading": 3.141592653589793,
+            "body": {
+              "left": 374.5,
+              "right": 374.5,
+              "front": 610,
+              "rear": 1418,
+              "margin": 100
+            }
+          },
+          {
+            "id": "PA-1",
+            "p": {
+              "x": 15000,
+              "z": 1200
+            },
+            "heading": 3.141592653589793,
+            "body": {
+              "left": 374.5,
+              "right": 374.5,
+              "front": 610,
+              "rear": 1418,
+              "margin": 100
+            }
+          },
+          {
+            "id": "PA-2",
+            "p": {
+              "x": 18000,
+              "z": 1200
+            },
+            "heading": 3.141592653589793,
+            "body": {
+              "left": 374.5,
+              "right": 374.5,
+              "front": 610,
+              "rear": 1418,
+              "margin": 100
+            }
+          }
+        ]
+      },
+      "actions": [
+        {
+          "from": {
+            "p": {
+              "x": 3000,
+              "z": 1200
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 3000,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "turn"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 3000,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 2600,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "forward"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 2600,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 2200,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "forward"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 2200,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 1800,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "forward"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1800,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "forward"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 1200
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 1200
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "turn"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 1200
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 1600
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 1600
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 2000
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 2000
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 2400
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 2400
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 2800
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 2800
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 3200
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 3200
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 3600
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 3600
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 4000
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 4000
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 4400
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 4400
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 4800
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 4800
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 5200
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 5200
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 5600
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 5600
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 6000
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 6000
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 6400
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 6400
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 6800
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 6800
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 7200
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 7200
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 7600
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 7600
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 8000
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 8000
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 1400,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "turn"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1400,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 1800,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 1800,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 2200,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 2200,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 2600,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 2600,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 3000,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 3000,
+              "z": 8000
+            },
+            "heading": 4.71238898038469
+          },
+          "to": {
+            "p": {
+              "x": 3000,
+              "z": 8000
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "turn"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 3000,
+              "z": 8000
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 3000,
+              "z": 8400
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        },
+        {
+          "from": {
+            "p": {
+              "x": 3000,
+              "z": 8400
+            },
+            "heading": 3.141592653589793
+          },
+          "to": {
+            "p": {
+              "x": 3000,
+              "z": 8800
+            },
+            "heading": 3.141592653589793
+          },
+          "mode": "reverse"
+        }
+      ],
+      "version": "layoutlab.motion-draft-reservations/2",
+      "limits": {
+        "v": 1,
+        "a": 0.001,
+        "d": 0.001,
+        "omega": 0.0015707963267948967,
+        "stopMs": 100,
+        "strideMm": 1201
+      }
+    },
+    "duration": 40852.59872981852,
+    "endEventMs": 41853,
+    "endpoint": {
+      "position": {
+        "x": 3000,
+        "z": 8800
+      },
+      "heading": 3.141592653589793,
+      "speed": 0,
+      "distance": 10800,
+      "phase": 0.9925062447960027,
+      "kind": "stop",
+      "signedAcceleration": 0,
+      "signedSpeed": 0,
+      "mode": "reverse"
+    },
+    "reservation": {
+      "status": "reserved",
+      "owner": "PK-1",
+      "revision": 7,
+      "endEventMs": 41853
+    },
+    "holds": [
+      {
+        "owner": "PK-1",
+        "kind": "initial",
+        "start": 0,
+        "end": 1000,
+        "box": {
+          "minX": 2525.4999999,
+          "maxX": 3474.5000001,
+          "minZ": 489.99999989999986,
+          "maxZ": 2718.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "turn",
+        "start": 1000,
+        "end": 2000,
+        "box": {
+          "minX": 2146.038495983815,
+          "maxX": 4590.432095575341,
+          "minZ": 346.0384959838151,
+          "maxZ": 2790.4320955753415
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "forward",
+        "start": 2000,
+        "end": 3265,
+        "box": {
+          "minX": 1889.9999999,
+          "maxX": 4518.0000001,
+          "minZ": 725.4999998999999,
+          "maxZ": 1674.5000001000003
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 3264,
+        "end": 3365,
+        "box": {
+          "minX": 1889.9999999,
+          "maxX": 4118.0000001,
+          "minZ": 725.4999998999999,
+          "maxZ": 1674.5000001000003
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "forward",
+        "start": 3364,
+        "end": 4630,
+        "box": {
+          "minX": 1489.9999999,
+          "maxX": 4118.0000001,
+          "minZ": 725.4999998999999,
+          "maxZ": 1674.5000001000003
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 4629,
+        "end": 4730,
+        "box": {
+          "minX": 1489.9999999,
+          "maxX": 3718.0000001,
+          "minZ": 725.4999998999999,
+          "maxZ": 1674.5000001000003
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "forward",
+        "start": 4729,
+        "end": 5995,
+        "box": {
+          "minX": 1089.9999999,
+          "maxX": 3718.0000001,
+          "minZ": 725.4999998999999,
+          "maxZ": 1674.5000001000003
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 5994,
+        "end": 6095,
+        "box": {
+          "minX": 1089.9999999,
+          "maxX": 3318.0000001,
+          "minZ": 725.4999998999999,
+          "maxZ": 1674.5000001000003
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "forward",
+        "start": 6094,
+        "end": 7360,
+        "box": {
+          "minX": 689.9999998999999,
+          "maxX": 3318.0000001,
+          "minZ": 725.4999998999999,
+          "maxZ": 1674.5000001000003
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 7359,
+        "end": 7460,
+        "box": {
+          "minX": 689.9999998999999,
+          "maxX": 2918.0000001,
+          "minZ": 725.4999998999999,
+          "maxZ": 1674.5000001000003
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "turn",
+        "start": 7459,
+        "end": 8460,
+        "box": {
+          "minX": 546.0384959838151,
+          "maxX": 2990.4320955753415,
+          "minZ": 346.0384959838151,
+          "maxZ": 2790.4320955753415
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 8459,
+        "end": 9725,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 489.99999989999986,
+          "maxZ": 3118.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 9724,
+        "end": 9825,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 889.9999998999999,
+          "maxZ": 3118.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 9824,
+        "end": 11090,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 889.9999998999999,
+          "maxZ": 3518.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 11089,
+        "end": 11190,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 1289.9999999,
+          "maxZ": 3518.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 11189,
+        "end": 12455,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 1289.9999999,
+          "maxZ": 3918.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 12454,
+        "end": 12555,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 1689.9999999,
+          "maxZ": 3918.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 12554,
+        "end": 13820,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 1689.9999999,
+          "maxZ": 4318.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 13819,
+        "end": 13920,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 2089.9999999,
+          "maxZ": 4318.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 13919,
+        "end": 15185,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 2089.9999999,
+          "maxZ": 4718.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 15184,
+        "end": 15285,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 2489.9999999,
+          "maxZ": 4718.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 15284,
+        "end": 16550,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 2489.9999999,
+          "maxZ": 5118.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 16549,
+        "end": 16650,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 2889.9999999,
+          "maxZ": 5118.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 16649,
+        "end": 17915,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 2889.9999999,
+          "maxZ": 5518.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 17914,
+        "end": 18015,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 3289.9999999,
+          "maxZ": 5518.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 18014,
+        "end": 19279,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 3289.9999999,
+          "maxZ": 5918.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 19278,
+        "end": 19379,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 3689.9999999,
+          "maxZ": 5918.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 19378,
+        "end": 20644,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 3689.9999999,
+          "maxZ": 6318.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 20643,
+        "end": 20744,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 4089.9999999,
+          "maxZ": 6318.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 20743,
+        "end": 22009,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 4089.9999999,
+          "maxZ": 6718.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 22008,
+        "end": 22109,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 4489.9999999,
+          "maxZ": 6718.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 22108,
+        "end": 23374,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 4489.9999999,
+          "maxZ": 7118.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 23373,
+        "end": 23474,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 4889.9999999,
+          "maxZ": 7118.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 23473,
+        "end": 24739,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 4889.9999999,
+          "maxZ": 7518.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 24738,
+        "end": 24839,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 5289.9999999,
+          "maxZ": 7518.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 24838,
+        "end": 26104,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 5289.9999999,
+          "maxZ": 7918.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 26103,
+        "end": 26204,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 5689.9999999,
+          "maxZ": 7918.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 26203,
+        "end": 27469,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 5689.9999999,
+          "maxZ": 8318.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 27468,
+        "end": 27569,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 6089.9999999,
+          "maxZ": 8318.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 27568,
+        "end": 28834,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 6089.9999999,
+          "maxZ": 8718.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 28833,
+        "end": 28934,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 6489.9999999,
+          "maxZ": 8718.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 28933,
+        "end": 30199,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 6489.9999999,
+          "maxZ": 9118.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 30198,
+        "end": 30299,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 6889.9999999,
+          "maxZ": 9118.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 30298,
+        "end": 31564,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 6889.9999999,
+          "maxZ": 9518.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 31563,
+        "end": 31664,
+        "box": {
+          "minX": 925.4999998999998,
+          "maxX": 1874.5000001,
+          "minZ": 7289.9999999,
+          "maxZ": 9518.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "turn",
+        "start": 31663,
+        "end": 32664,
+        "box": {
+          "minX": 546.0384959838151,
+          "maxX": 2990.4320955753415,
+          "minZ": 7146.038495983816,
+          "maxZ": 9590.432095575343
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 32663,
+        "end": 33929,
+        "box": {
+          "minX": 689.9999998999999,
+          "maxX": 3318.0000001,
+          "minZ": 7525.4999999,
+          "maxZ": 8474.5000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 33928,
+        "end": 34029,
+        "box": {
+          "minX": 1089.9999999,
+          "maxX": 3318.0000001,
+          "minZ": 7525.4999999,
+          "maxZ": 8474.5000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 34028,
+        "end": 35293,
+        "box": {
+          "minX": 1089.9999999,
+          "maxX": 3718.0000001,
+          "minZ": 7525.4999999,
+          "maxZ": 8474.5000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 35292,
+        "end": 35393,
+        "box": {
+          "minX": 1489.9999999,
+          "maxX": 3718.0000001,
+          "minZ": 7525.4999999,
+          "maxZ": 8474.5000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 35392,
+        "end": 36658,
+        "box": {
+          "minX": 1489.9999999,
+          "maxX": 4118.0000001,
+          "minZ": 7525.4999999,
+          "maxZ": 8474.5000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 36657,
+        "end": 36758,
+        "box": {
+          "minX": 1889.9999999,
+          "maxX": 4118.0000001,
+          "minZ": 7525.4999999,
+          "maxZ": 8474.5000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 36757,
+        "end": 38023,
+        "box": {
+          "minX": 1889.9999999,
+          "maxX": 4518.0000001,
+          "minZ": 7525.4999999,
+          "maxZ": 8474.5000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 38022,
+        "end": 38123,
+        "box": {
+          "minX": 2289.9999999,
+          "maxX": 4518.0000001,
+          "minZ": 7525.4999999,
+          "maxZ": 8474.5000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "turn",
+        "start": 38122,
+        "end": 39123,
+        "box": {
+          "minX": 2146.038495983815,
+          "maxX": 4590.432095575341,
+          "minZ": 7146.038495983816,
+          "maxZ": 9590.432095575343
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 39122,
+        "end": 40388,
+        "box": {
+          "minX": 2525.4999999,
+          "maxX": 3474.5000001,
+          "minZ": 7289.9999999,
+          "maxZ": 9918.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 40387,
+        "end": 40488,
+        "box": {
+          "minX": 2525.4999999,
+          "maxX": 3474.5000001,
+          "minZ": 7689.9999999,
+          "maxZ": 9918.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "reverse",
+        "start": 40487,
+        "end": 41753,
+        "box": {
+          "minX": 2525.4999999,
+          "maxX": 3474.5000001,
+          "minZ": 7689.9999999,
+          "maxZ": 10318.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "dwell",
+        "start": 41752,
+        "end": 41853,
+        "box": {
+          "minX": 2525.4999999,
+          "maxX": 3474.5000001,
+          "minZ": 8089.9999999,
+          "maxZ": 10318.0000001
+        }
+      },
+      {
+        "owner": "PK-1",
+        "kind": "final",
+        "start": 41852,
+        "end": null,
+        "box": {
+          "minX": 2525.4999999,
+          "maxX": 3474.5000001,
+          "minZ": 8089.9999999,
+          "maxZ": 10318.0000001
+        }
+      }
+    ]
+  }
+}

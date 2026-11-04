@@ -1,0 +1,429 @@
+{
+  "tests": {
+    "count": 18,
+    "names": [
+      "independent rewound cancellation sequence denied",
+      "true pose retained after stale cancel",
+      "exact JSON command replay including rejected time",
+      "rejected revision still observes valid advanced clock",
+      "invalid clock does not advance observed time",
+      "wait observes clock and retry uses monotonic time",
+      "valid prestart cancel advances clock and retains initial",
+      "omitted obstacle denied even otherwise valid plan",
+      "different room denied",
+      "different world identity denied",
+      "invalid initial stationary wall and obstacle denied",
+      "source world and snapshot mutation cannot alter authority",
+      "correct bound world admits clear shared-world motion",
+      "registered dynamic actor cannot disappear from caller scene",
+      "fixed external body cannot be omitted",
+      "fixed external body identity cannot be registered twice",
+      "correct fixed external plus dynamic authority accepted",
+      "JSON replay wait retry and rejected cancellation clocks"
+    ]
+  },
+  "independentRevised": {
+    "cancelWithRewoundClockAccepted": false,
+    "previousObservedNowMs": 2000,
+    "cancelNowMs": 0,
+    "aTruePoseAt2000": {
+      "x": 2500,
+      "z": 5000
+    },
+    "book": {
+      "snapshot": {
+        "version": "layoutlab.motion-draft-reservations/2",
+        "world": {
+          "id": "shared-world",
+          "scene": {
+            "room": {
+              "widthMm": 12000,
+              "depthMm": 12000
+            },
+            "obstacles": [],
+            "stopped": []
+          }
+        },
+        "observedNowMs": 2000,
+        "revision": 4,
+        "actors": [
+          {
+            "owner": "A",
+            "pose": {
+              "p": {
+                "x": 2000,
+                "z": 5000
+              },
+              "heading": 1.5707963267948966
+            },
+            "body": {
+              "left": 100,
+              "right": 100,
+              "front": 100,
+              "rear": 100,
+              "margin": 0
+            },
+            "holds": [
+              {
+                "owner": "A",
+                "kind": "initial",
+                "start": 0,
+                "end": 1000,
+                "box": {
+                  "minX": 1899.9999999,
+                  "maxX": 2100.0000001,
+                  "minZ": 4899.9999999,
+                  "maxZ": 5100.0000001
+                }
+              },
+              {
+                "owner": "A",
+                "kind": "forward",
+                "start": 1000,
+                "end": 8000,
+                "box": {
+                  "minX": 1899.9999999,
+                  "maxX": 8100.0000001,
+                  "minZ": 4899.9999999,
+                  "maxZ": 5100.0000001
+                }
+              },
+              {
+                "owner": "A",
+                "kind": "dwell",
+                "start": 8000,
+                "end": 8100,
+                "box": {
+                  "minX": 7899.9999999,
+                  "maxX": 8100.0000001,
+                  "minZ": 4899.9999999,
+                  "maxZ": 5100.0000001
+                }
+              },
+              {
+                "owner": "A",
+                "kind": "final",
+                "start": 8100,
+                "end": null,
+                "box": {
+                  "minX": 7899.9999999,
+                  "maxX": 8100.0000001,
+                  "minZ": 4899.9999999,
+                  "maxZ": 5100.0000001
+                }
+              }
+            ],
+            "plan": {
+              "id": "a",
+              "worldId": "shared-world",
+              "owner": "A",
+              "targetId": "A-goal",
+              "requiredFinalHeading": 1.5707963267948966,
+              "startMs": 1000,
+              "body": {
+                "left": 100,
+                "right": 100,
+                "front": 100,
+                "rear": 100,
+                "margin": 0
+              },
+              "scene": {
+                "room": {
+                  "widthMm": 12000,
+                  "depthMm": 12000
+                },
+                "obstacles": [],
+                "stopped": []
+              },
+              "actions": [
+                {
+                  "from": {
+                    "p": {
+                      "x": 2000,
+                      "z": 5000
+                    },
+                    "heading": 1.5707963267948966
+                  },
+                  "to": {
+                    "p": {
+                      "x": 8000,
+                      "z": 5000
+                    },
+                    "heading": 1.5707963267948966
+                  },
+                  "mode": "forward"
+                }
+              ],
+              "version": "layoutlab.motion-draft-reservations/2",
+              "limits": {
+                "v": 1,
+                "a": 0.001,
+                "d": 0.001,
+                "omega": 0.0015707963267948967,
+                "stopMs": 100,
+                "strideMm": 1201
+              }
+            }
+          },
+          {
+            "owner": "B",
+            "pose": {
+              "p": {
+                "x": 9000,
+                "z": 9000
+              },
+              "heading": 1.5707963267948966
+            },
+            "body": {
+              "left": 100,
+              "right": 100,
+              "front": 100,
+              "rear": 100,
+              "margin": 0
+            },
+            "holds": [
+              {
+                "owner": "B",
+                "kind": "initial",
+                "start": 0,
+                "end": 3000,
+                "box": {
+                  "minX": 8899.9999999,
+                  "maxX": 9100.0000001,
+                  "minZ": 8899.9999999,
+                  "maxZ": 9100.0000001
+                }
+              },
+              {
+                "owner": "B",
+                "kind": "forward",
+                "start": 3000,
+                "end": 6000,
+                "box": {
+                  "minX": 8899.9999999,
+                  "maxX": 11100.0000001,
+                  "minZ": 8899.9999999,
+                  "maxZ": 9100.0000001
+                }
+              },
+              {
+                "owner": "B",
+                "kind": "dwell",
+                "start": 6000,
+                "end": 6100,
+                "box": {
+                  "minX": 10899.9999999,
+                  "maxX": 11100.0000001,
+                  "minZ": 8899.9999999,
+                  "maxZ": 9100.0000001
+                }
+              },
+              {
+                "owner": "B",
+                "kind": "final",
+                "start": 6100,
+                "end": null,
+                "box": {
+                  "minX": 10899.9999999,
+                  "maxX": 11100.0000001,
+                  "minZ": 8899.9999999,
+                  "maxZ": 9100.0000001
+                }
+              }
+            ],
+            "plan": {
+              "id": "b",
+              "worldId": "shared-world",
+              "owner": "B",
+              "targetId": "B-goal",
+              "requiredFinalHeading": 1.5707963267948966,
+              "startMs": 3000,
+              "body": {
+                "left": 100,
+                "right": 100,
+                "front": 100,
+                "rear": 100,
+                "margin": 0
+              },
+              "scene": {
+                "room": {
+                  "widthMm": 12000,
+                  "depthMm": 12000
+                },
+                "obstacles": [],
+                "stopped": []
+              },
+              "actions": [
+                {
+                  "from": {
+                    "p": {
+                      "x": 9000,
+                      "z": 9000
+                    },
+                    "heading": 1.5707963267948966
+                  },
+                  "to": {
+                    "p": {
+                      "x": 11000,
+                      "z": 9000
+                    },
+                    "heading": 1.5707963267948966
+                  },
+                  "mode": "forward"
+                }
+              ],
+              "version": "layoutlab.motion-draft-reservations/2",
+              "limits": {
+                "v": 1,
+                "a": 0.001,
+                "d": 0.001,
+                "omega": 0.0015707963267948967,
+                "stopMs": 100,
+                "strideMm": 1201
+              }
+            }
+          }
+        ],
+        "used": [
+          "a",
+          "b"
+        ]
+      },
+      "responses": [
+        {
+          "status": "reserved",
+          "owner": "A",
+          "revision": 3,
+          "endEventMs": 8100
+        },
+        {
+          "status": "reserved",
+          "owner": "B",
+          "revision": 4,
+          "endEventMs": 6100
+        },
+        {
+          "error": "Error: rewound/invalid engine clock"
+        }
+      ]
+    }
+  },
+  "events": [
+    {
+      "op": "reserve",
+      "plan": {
+        "id": "a",
+        "worldId": "shared-world",
+        "owner": "A",
+        "targetId": "A-goal",
+        "requiredFinalHeading": 1.5707963267948966,
+        "startMs": 1000,
+        "body": {
+          "left": 100,
+          "right": 100,
+          "front": 100,
+          "rear": 100,
+          "margin": 0
+        },
+        "scene": {
+          "room": {
+            "widthMm": 12000,
+            "depthMm": 12000
+          },
+          "obstacles": [],
+          "stopped": []
+        },
+        "actions": [
+          {
+            "from": {
+              "p": {
+                "x": 2000,
+                "z": 5000
+              },
+              "heading": 1.5707963267948966
+            },
+            "to": {
+              "p": {
+                "x": 8000,
+                "z": 5000
+              },
+              "heading": 1.5707963267948966
+            },
+            "mode": "forward"
+          }
+        ],
+        "version": "layoutlab.motion-draft-reservations/2",
+        "limits": {
+          "v": 1,
+          "a": 0.001,
+          "d": 0.001,
+          "omega": 0.0015707963267948967,
+          "stopMs": 100,
+          "strideMm": 1201
+        }
+      },
+      "now": 0
+    },
+    {
+      "op": "reserve",
+      "plan": {
+        "id": "b",
+        "worldId": "shared-world",
+        "owner": "B",
+        "targetId": "B-goal",
+        "requiredFinalHeading": 1.5707963267948966,
+        "startMs": 3000,
+        "body": {
+          "left": 100,
+          "right": 100,
+          "front": 100,
+          "rear": 100,
+          "margin": 0
+        },
+        "scene": {
+          "room": {
+            "widthMm": 12000,
+            "depthMm": 12000
+          },
+          "obstacles": [],
+          "stopped": []
+        },
+        "actions": [
+          {
+            "from": {
+              "p": {
+                "x": 9000,
+                "z": 9000
+              },
+              "heading": 1.5707963267948966
+            },
+            "to": {
+              "p": {
+                "x": 11000,
+                "z": 9000
+              },
+              "heading": 1.5707963267948966
+            },
+            "mode": "forward"
+          }
+        ],
+        "version": "layoutlab.motion-draft-reservations/2",
+        "limits": {
+          "v": 1,
+          "a": 0.001,
+          "d": 0.001,
+          "omega": 0.0015707963267948967,
+          "stopMs": 100,
+          "strideMm": 1201
+        }
+      },
+      "now": 2000
+    },
+    {
+      "op": "cancel",
+      "owner": "A",
+      "id": "a",
+      "now": 0
+    }
+  ]
+}
