@@ -1,4 +1,4 @@
-# Warehouse realism requirements — user steering, 2026-11-04
+# Warehouse realism requirements â€” user steering, 2026-11-04
 
 The user's current target is a coherent warehouse operations simulator with
 storage planning tied to the same warehouse state. The legacy isolated-rack
@@ -45,7 +45,4 @@ on2026-11-04, source evidence public-access-split.json. Root opens Operations.
 Never put the private password in a publicly visible submission description.
 Provide judge-only access notes; recorded runs remain available without it.
 
-Coding continues with one Muse worker and Codex review. Current coding CLI is
-muse-wonder-1.0 max. Runtime Meta remains muse-spark-1.3-contributor with the
-existing persistent allowance. Do not change models, subscribe, or spend
-additional inference funds silently.
+Current coding direction (user-authorized update): Sol 6.1 low workers through Orca, with Codex coordination/review and disjoint file ownership. This supersedes the historical Muse-only coding requirement after its billing failure. Runtime application provider remains Meta with the existing exhausted public allowance; no automatic refill or new inference authorization. Historical 11/28 diagnosis above was engine0.1.0; accepted0.1.1 fixes outbound liveness to28/28 while infeasible inbound remains disclosed. L1/L2 station layout releases do not complete human physics or rack/agent editing.

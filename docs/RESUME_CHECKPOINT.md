@@ -1,6 +1,9 @@
 # Current delivery checkpoint
 
-## Current accepted public release — 2026-11-05
+## Latest public release — 2026-11-05
+Applicationb8d4ec5 deployed at https://layoutlab.endpx.cloud. L2 packing-station interpretation/approval/results/verified-preview/Apply/export/recorded-FIXTURE path is accepted locally with actual fake-provider HTTP tests and now public fixture smoke. Independent public Edge: protected create/status/approve/cancel/report all401 without credentials; exact verification public200 with no model; recorded fixture preview coordinate20500,4000; baseline unchanged untilApply; original restored; exported full report recomputed;0 page errors; only verifyPOST; budget unchanged (cap1,committed1,available0). Evidence evidence/sanitized/l2-public/review.json. Native build passed; ledger bytes unchanged; Nginx config validated and other site configs unchanged. Live Meta account/billing and new layout inference remain UNVERIFIED, not fixed by configured status. Sol6.1 low is coding executor through Orca. Next L3 rack editing and R2 human motion/combined envelope, not completed by this release.
+
+## Current accepted public release â€” 2026-11-05
 Application commit267af5a is deployed at https://layoutlab.endpx.cloud. U1 unified workspace, engine0.1.1 plus archived0.1.0 replay, and L1 manual packing-station translation/validation/comparison/export are accepted. Independent public Microsoft Edge smoke passed baseline, snapped move, Validate/Test, exact export offline recompute, Apply/Reset/Return original; zero page errors and zero POSTs, budget unchanged. Evidence: evidence/sanitized/l1-public/review.json and comparison-edge.png. Native VPS build passed, service active in /opt/layoutlab/releases/267af5a; ledger bytes unchanged. Status liveAvailable only means configured, not a successful new model call. Public allowance remains0; no inference attempted. L2 model layout proposals and L3 rack/rotation/agent-position editing plus R2 humans remain pending. Coding executor is Sol6.1 low via Orca, coordinator reviews.
 
 ## Historical checkpoints (superseded by current release above)
@@ -103,7 +106,7 @@ Coordinator forwarded build window to U1; web builds allowed, no competing
 root install/build. Final joint review/deployment approval still pending.
 No model calls or allowance changes in this coordination step.
 
-## R3c independent review — runtime accepted, API metadata fixes pending
+## R3c independent review â€” runtime accepted, API metadata fixes pending
 
 Coordinator verified archived bundle SHA and14 pre-patch source hashes against
 manifest.sourceCommita8a8809 (LF/CRLF normalization only). Actual versioned
@@ -122,7 +125,7 @@ term_638977b11a2ac2e14f97811c157bf9e1. Engine/archive unchanged, API-only
 compile/tests; U1 notified via msg_69c4df0bf856 and keeps web ownership.
 No deployment/new inference. Final joint U1/R3c acceptance remains pending.
 
-## BILLING BLOCK — no automatic Muse retries
+## BILLING BLOCK â€” no automatic Muse retries
 
 Both U1 ctx_11cb95949ad1 and R3c final-revision ctx_9b5286db4588 reported
 HTTP402 billing_error: Billing verification failed; Meta team billing needs
@@ -157,12 +160,12 @@ also remain pending. No worker_done for U1 and no final acceptance/deploy.
 
 Offline-review user response received: continue local review without inference. Completed handoff: docs/OFFLINE_REVIEW_HANDOFF.md. Added source-confirmed U1 verification-badge/report identity and offline-verification copy findings; independently verified R2 GLB/source hashes and preserved embedded mesh/skin/animation data (23 joints, 17 clips). Evidence .coordination/r2-human-independent-integrity.json. No production code, retry, paid call, commit, or deployment in this follow-up. Earlier no-reply wording is superseded by this entry.
 
-## Executor reassignment authorized — 2026-11-04
+## Executor reassignment authorized â€” 2026-11-04
 User explicitly requested continuing with Sol 6.1 low after the Meta billing failure. Coding workers may now use Codex gpt-6.1-sol, reasoning low, through Orca. This supersedes Muse-only coding and billing-wait requirements; it does not change the application's Meta provider, refill its allowance, or authorize new paid inference. Resume existing U1/R3c tasks with preserved partial work and docs/OFFLINE_REVIEW_HANDOFF.md acceptance checks. Coordinator retains review/commit/deploy ownership.
 
 Sol recovery workers started successfully through Orca: API ctx_f1fd87edf03b (task_9a589ecf3690), U1 ctx_9bdda0844e0d (task_5fdc8ef3826a), both gpt-6.1-sol low, structured, ready. Original blocked attempts exited/released. Same tasks reopened; initial retry-of rejected because ready tasks require fresh start, then documented same-task recovery succeeded. Sent bounded file ownership and all OFFLINE_REVIEW_HANDOFF gates. Await reports; coordinator owns review/release.
 
-## Coordinator acceptance — 2026-11-05
+## Coordinator acceptance â€” 2026-11-05
 
 U1 canonical workspace accepted for L1 dependency release after source review and inspection of final Edge fixture test: actual HTTP/UI verifier 0.1.1, server 0.1.1, fake transport unchanged at two requests. Recorded 0.1.0 reset retains context after another report import; exact-report race protected. Typecheck/build, 12 helper tests and Edge evidence recorded by worker. Mock lifecycle tests remain distinct from actual API recomputation. Remaining cosmetic literal question-mark separators in technical details are nonblocking and may be corrected with L1; no physics/editor completeness claim.
 
@@ -170,5 +173,5 @@ R3c metadata reviewed: outer declared version is separate from actual replay ver
 
 Proceed L1 task_67523ad65899 using Sol6.1 low. L0 accepted isolated foundation must become version-aware in integration; do not silently rerun recorded0.1.0 under0.1.1. One station translation with candidate geometry/service/queue/obstacle coherence and reproducible matched-input comparison first. Racks/rotation/initial agent placement remain later required scope. No new paid calls.
 
-## L1 coordinator acceptance — 2026-11-05
+## L1 coordinator acceptance â€” 2026-11-05
 L1 manual packing-station translation accepted after revision. Independent Edge reproduction .coordination/l1-browser-review.json now shows Step disabled during editing, unchanged clock and successful applied-scene reopen; independent sequential export verification returned ok/mixed for PACK-2-desktop.json with first station preserved. Source review confirms explicit editing guards, original full-context restore, strict relative-attachment reconstruction plus unrelated geometry checks. Worker evidence: production20/20, simulation268/268 serial, web38/38, Edge continuity desktop/mobile and U1 regression; no paid calls. Numeric/snapped station edits only; recorded0.1.0 is read-only, L2 model layout and L3 racks/rotation/agent placement remain pending. Main source reviewed; human lane untouched.

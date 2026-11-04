@@ -1,0 +1,59 @@
+{
+  "commit": "b8d4ec5",
+  "browser": "msedge",
+  "publicUrl": "https://layoutlab.endpx.cloud",
+  "protectedRoutes": [
+    {
+      "path": "",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "path": "/unknown",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "path": "/unknown/approve",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "path": "/unknown/cancel",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "path": "/unknown/report",
+      "method": "GET",
+      "status": 401
+    }
+  ],
+  "publicKeylessVerify": true,
+  "source": "Recorded local fake-provider FIXTURE; no live Meta inference",
+  "verified": {
+    "ok": true,
+    "mismatches": []
+  },
+  "baselineUnchangedUntilApply": true,
+  "previewCentre": {
+    "x": 20500,
+    "z": 4000
+  },
+  "applyAndReturnOriginal": true,
+  "posts": [
+    "https://layoutlab.endpx.cloud/api/operations/layout-investigations/verify"
+  ],
+  "pageErrors": [],
+  "budgetUnchanged": true,
+  "budget": {
+    "guard": "active",
+    "perRunReservationUsd": 0.25,
+    "capUsd": 1,
+    "reservedUsd": 0,
+    "committedUsd": 1,
+    "availableUsd": 0,
+    "entries": 4,
+    "accounting": "reservedUsd is a held conservative bound; committedUsd is that bound charged after dispatch. Neither is an invoice or a confirmed provider price."
+  }
+}
