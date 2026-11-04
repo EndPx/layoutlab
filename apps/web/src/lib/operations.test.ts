@@ -4,10 +4,12 @@
 // simulation workspace runner (no new scripts or dependencies):
 //   npx --prefix packages/simulation vitest run --root . apps/web/src/lib/operations.test.ts
 import { describe, expect, it } from "vitest";
-import { parseOperationsScenario } from "@layoutlab/simulation";
+import { parseOperationsScenario, applyAgentInitialPlacement, contentSha256 } from "@layoutlab/simulation";
 import parentJson from "../../../../fixtures/operations/main-warehouse.json";
 import burstJson from "../../../../fixtures/operations/picking-packing-burst.json";
 import {
+  buildLayoutScene,
+  resolveLayoutAttachments,
   SPARSE_ARROW_SPACING_MM,
   allocateCarryCells,
   assertCarryPacketCompatible,
@@ -272,4 +274,21 @@ describe("stock visuals", () => {
     expect(visualContainersForQty(46, 8)).toEqual({ full: 5, partial: 6 });
     expect(visualContainersForQty(7, 8)).toEqual({ full: 0, partial: 7 });
   });
+});
+describe('initial parking scene boundary', () => {
+ it('accepts only unit parking while deriving scene and ghost from candidate',async()=>{
+  const s=burst(); const unit=s.mobileUnits[0]!; const centre={x:unit.parkingSlotMm.x,z:unit.parkingSlotMm.z+100};
+  const bundle=applyAgentInitialPlacement(s,{kind:'AGENT_INITIAL_PLACEMENT',proposalId:'scene',entityId:unit.id,parent:{scenarioId:s.id,scenarioContentSha256:await contentSha256(s),schemaVersion:s.schemaVersion,engineVersion:s.engineVersion},target:{mode:'ABSOLUTE_CENTER_MM',centerMm:centre}});
+  const scene=buildLayoutScene(bundle); expect(scene.units[0]!.parkingMm).toEqual(centre);expect(scene.layoutGhost?.centreMm).toEqual(unit.parkingSlotMm);expect(scene.scenario.mobileUnits[0]!.parkingSlotMm).toEqual(centre);
+ });
+ it.each(['id','role','speedMmPerSecond','footprintMm','loadCapacityUnits','eligibleHandlingClasses','staff'])('rejects canonical unit profile drift %s',field=>{
+  const s=burst(),u=s.mobileUnits[0]!; const row=u as unknown as Record<string,unknown>;
+  if(field==='staff')s.mobileUnits.push({...structuredClone(u),id:'NEW'});else row[field]=field==='id'?'OTHER':field==='role'?'putaway':field==='footprintMm'?{...u.footprintMm,width:999}:field==='eligibleHandlingClasses'?[]:999;
+  expect(()=>resolveLayoutAttachments(s)).toThrow();
+ });
+});
+it('renders invalid overlapping initial parking as the candidate while admission remains separate',()=>{
+ const s=burst();s.mobileUnits[0]!.parkingSlotMm={...s.mobileUnits[1]!.parkingSlotMm};
+ const scene=buildLayoutScene({scenario:s,transform:{entityId:s.mobileUnits[0]!.id,fromCentreMm:{x:3000,z:1200},toCentreMm:{...s.mobileUnits[0]!.parkingSlotMm},deltaMm:{dx:3000,dz:0}},changedFields:[]});
+ expect(scene.units[0]!.parkingMm).toEqual(s.mobileUnits[1]!.parkingSlotMm);
 });

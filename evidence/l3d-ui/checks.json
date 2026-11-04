@@ -1,0 +1,160 @@
+{
+  "date": "2026-11-05",
+  "checks": [
+    {
+      "cwd": "apps/web",
+      "command": "npx tsc --noEmit",
+      "exitCode": 0
+    },
+    {
+      "cwd": "apps/web",
+      "command": "npx vite build",
+      "exitCode": 0,
+      "warning": "large chunk: about 1753 kB JS, 471 kB gzip"
+    },
+    {
+      "cwd": ".",
+      "command": "npx vitest run apps/web/src/lib/operations.test.ts",
+      "exitCode": 0,
+      "testsPassed": 31
+    },
+    {
+      "cwd": "apps/web",
+      "env": {
+        "M3C_CHANNEL": "msedge"
+      },
+      "command": "npx playwright test e2e/manual-agent-placement.spec.ts e2e/l3d-regression-manual-layout.spec.ts e2e/l3d-regression-manual-rack.spec.ts e2e/l3d-regression-u1-recovery.spec.ts --reporter=list",
+      "exitCode": 0,
+      "testsPassed": 10,
+      "duration": "7.4m"
+    },
+    {
+      "cwd": "apps/web",
+      "env": {
+        "M3C_CHANNEL": "msedge"
+      },
+      "command": "npx playwright test e2e/manual-agent-placement.spec.ts --reporter=list",
+      "exitCode": 0,
+      "testsPassed": 2,
+      "duration": "3.3m",
+      "note": "final strengthened pose/hash/history/scenario checks"
+    },
+    {
+      "cwd": ".",
+      "command": "node scripts/verify-layout-comparison.mjs evidence/l3d-ui/desktop-agent.json",
+      "exitCode": 0,
+      "ok": true,
+      "expected": true
+    },
+    {
+      "cwd": ".",
+      "command": "node scripts/verify-layout-comparison.mjs evidence/l3d-ui/mobile-agent.json",
+      "exitCode": 0,
+      "ok": true,
+      "expected": true
+    },
+    {
+      "cwd": ".",
+      "command": "node scripts/verify-layout-comparison.mjs evidence/l3d-ui/regression-l1/desktop-comparison.json",
+      "exitCode": 0,
+      "ok": true,
+      "expected": true
+    },
+    {
+      "cwd": ".",
+      "command": "node scripts/verify-layout-comparison.mjs evidence/l3d-ui/regression-rack/desktop-rack.json",
+      "exitCode": 0,
+      "ok": true,
+      "expected": true
+    },
+    {
+      "cwd": ".",
+      "command": "node scripts/verify-layout-comparison.mjs evidence/l3d-ui/desktop-agent-tampered.json",
+      "exitCode": 1,
+      "ok": false,
+      "expected": true
+    }
+  ],
+  "observed": {
+    "desktopWidth": 1440,
+    "mobileWidth": 390,
+    "channel": "msedge",
+    "originalClock": "⏱ 00:05.000",
+    "originalLivePose": {
+      "id": "PK-1",
+      "xMm": 1200,
+      "zMm": 4400
+    },
+    "candidatePose": {
+      "id": "PK-1",
+      "xMm": 3000,
+      "zMm": 2200
+    },
+    "originalParking": {
+      "x": 3000,
+      "z": 1200
+    },
+    "appliedParking": {
+      "x": 3000,
+      "z": 2200
+    },
+    "parkingPosts": [],
+    "invalidDiagnostics": [
+      "Invalid preview ? Test and Apply blocked\nPK-1: OVERLAP PK-2 ? Initial occupancy discs collide\nPK-1: ENGINE_ADMISSION_FAILED ? [ { \"code\": \"custom\", \"message\": \"duplicate parking slot at 6000,1200\", \"path\": [] } ]",
+      "Invalid preview ? Test and Apply blocked\nPK-1: CLEARANCE_VIOLATION R1 ? PK-1:parking at (3000,6000) lies inside physical rect R1 (point-in-rect proven)\nPK-1: SLOT_UNNAVIGABLE ? PK-1:parking at (3000,6000) is not statically navigable for picker PK-1 (its footprint radius clears no position there)\nL01: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L01:approach (3000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL02: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L02:approach (5000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL03: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L03:approach (3000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL04: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L04:approach (5000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL05: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L05:approach (9000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL06: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L06:approach (11000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL07: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L07:approach (9000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL08: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L08:approach (11000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL09: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L09:approach (15000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL10: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L10:approach (17000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL11: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L11:approach (15000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL12: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L12:approach (17000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL13: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L13:approach (3000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL14: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L14:approach (5000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL15: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L15:approach (3000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL16: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L16:approach (5000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL17: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L17:approach (9000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL18: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L18:approach (11000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL19: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L19:approach (9000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL20: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L20:approach (11000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL21: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L21:approach (15000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL22: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L22:approach (17000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL23: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L23:approach (15000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL24: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to L24:approach (17000,14500) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-1:PACK1-S1 (20500,6900) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-1:PACK1-Q1 (22500,6900) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-1:PACK1-Q2 (22500,8600) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-1:PACK1-Q3 (22500,10300) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-2:PACK2-S1 (20500,12900) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-2:PACK2-Q1 (22500,12000) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-2:PACK2-Q2 (22500,13700) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (3000,6000) to PACK-2:PACK2-Q3 (20500,9400) for unit PK-1: FROM_UNNAVIGABLE\nPK-1: ENGINE_ADMISSION_FAILED ? Error: initial admission rejected [INITIAL_OBSTACLE_OVERLAP]: unit PK-1 declared footprint at (3000,6000) overlaps rack R1",
+      "Invalid preview ? Test and Apply blocked\nPK-1: SLOT_UNNAVIGABLE ? PK-1:parking at (0,1200) is not statically navigable for picker PK-1 (its footprint radius clears no position there)\nL01: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L01:approach (3000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL02: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L02:approach (5000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL03: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L03:approach (3000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL04: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L04:approach (5000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL05: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L05:approach (9000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL06: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L06:approach (11000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL07: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L07:approach (9000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL08: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L08:approach (11000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL09: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L09:approach (15000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL10: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L10:approach (17000,8800) for unit PK-1: FROM_UNNAVIGABLE\nL11: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L11:approach (15000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL12: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L12:approach (17000,9200) for unit PK-1: FROM_UNNAVIGABLE\nL13: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L13:approach (3000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL14: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L14:approach (5000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL15: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L15:approach (3000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL16: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L16:approach (5000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL17: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L17:approach (9000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL18: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L18:approach (11000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL19: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L19:approach (9000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL20: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L20:approach (11000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL21: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L21:approach (15000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL22: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L22:approach (17000,14100) for unit PK-1: FROM_UNNAVIGABLE\nL23: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L23:approach (15000,14500) for unit PK-1: FROM_UNNAVIGABLE\nL24: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to L24:approach (17000,14500) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-1:PACK1-S1 (20500,6900) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-1:PACK1-Q1 (22500,6900) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-1:PACK1-Q2 (22500,8600) for unit PK-1: FROM_UNNAVIGABLE\nPACK-1: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-1:PACK1-Q3 (22500,10300) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-2:PACK2-S1 (20500,12900) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-2:PACK2-Q1 (22500,12000) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-2:PACK2-Q2 (22500,13700) for unit PK-1: FROM_UNNAVIGABLE\nPACK-2: ROUTE_UNREACHABLE ? no static route from PK-1:parking (0,1200) to PACK-2:PACK2-Q3 (20500,9400) for unit PK-1: FROM_UNNAVIGABLE\nPK-1: ENGINE_ADMISSION_FAILED ? Error: initial admission rejected [INITIAL_ROOM_EXCEEDED]: unit PK-1 declared footprint [-340..340]x[590..1810] at (0,1200) leaves the 24000x18000 room"
+    ]
+  },
+  "schemas": [
+    "layoutlab.layout-comparison/2",
+    "layoutlab.rack-comparison/1",
+    "layoutlab.agent-placement-comparison/1"
+  ],
+  "historicalCaptures": "Regression copies change output destinations only; no historical capture paths written.",
+  "attemptNotes": [
+    "Wrong-cwd invocation omitted web config and failed URL resolution; corrected workspace runs passed.",
+    "A misplaced strengthened original-pose assertion during preview was moved to restoration gates; final tests passed.",
+    "An explicit-config root invocation was interrupted before captures. Optional cleanup of empty D:/Belajar/Hackacton/evidence/l3d-ui and regression-rack directories was rejected by automatic command policy."
+  ],
+  "pending": [
+    "rotation UI",
+    "initial heading",
+    "human-plus-cart admission",
+    "model proposals beyond station-only"
+  ],
+  "boundaries": [
+    "no paid calls",
+    "no API/engine/assets edits",
+    "no API compile",
+    "no simulation dist rebuild by this worker",
+    "no commit/push/deploy"
+  ],
+  "filesModified": [
+    "apps/web/src/components/LayoutEditor.tsx",
+    "apps/web/src/components/WarehouseWorkspace.tsx",
+    "apps/web/src/components/OperationsView.tsx",
+    "apps/web/src/lib/operations.ts",
+    "apps/web/src/lib/manual-layout.ts",
+    "apps/web/src/lib/operations.test.ts",
+    "apps/web/e2e/manual-agent-placement.spec.ts",
+    "apps/web/e2e/l3d-regression-manual-layout.spec.ts",
+    "apps/web/e2e/l3d-regression-manual-rack.spec.ts",
+    "apps/web/e2e/l3d-regression-u1-recovery.spec.ts",
+    "scripts/verify-layout-comparison.mjs",
+    "docs/AGENT_PLACEMENT_REVIEW.md"
+  ],
+  "sha256": {
+    "apps/web/src/components/LayoutEditor.tsx": "0216eeb62f68cf2e826f25d3359557344f176c7519f46e88ac6112914bb7fa6e",
+    "apps/web/src/components/WarehouseWorkspace.tsx": "967030aa1cfd7a25c0da918fe345c961573b09fecaa19b3656e14f6ee609c85d",
+    "apps/web/src/components/OperationsView.tsx": "63ca6dd306b856ae1f2fb7678dfab511e51aadfd6d1a4d5076372497d789bfd8",
+    "apps/web/src/lib/operations.ts": "64fcc7dbbb6d0fb5500e7a2a8d98de6089e567c5a54d1aeb95da1ee7f70bd2f3",
+    "apps/web/src/lib/manual-layout.ts": "dcf3cccf0c6ff302ff5c175f14c32d7c75e2d47ee19ac49d188567aad90efbd2",
+    "apps/web/src/lib/operations.test.ts": "dea3bf6056ebb70d11830fefaedc04411f33e573dac86cb96ca33c3aa0e59340",
+    "apps/web/e2e/manual-agent-placement.spec.ts": "f8d407f00ec9e6b0543f24da6a4c9599c9c99378979d0518068e28d9c3cebc31",
+    "apps/web/e2e/l3d-regression-manual-layout.spec.ts": "d7ebe47ed35932c49179b0efd9768013ecc14e00ef79157fac7eb431fff4aa33",
+    "apps/web/e2e/l3d-regression-manual-rack.spec.ts": "2517d5700579712d7c1784337f01ce1499aa4c47af4835c2e6e7d3ea09dc9c6f",
+    "apps/web/e2e/l3d-regression-u1-recovery.spec.ts": "4f22bb758775fb406b249f7842204a8cf857d7b308053e847be3ee2e4e431f61",
+    "scripts/verify-layout-comparison.mjs": "0fd3b7ee7f8cbad1b1b7aefd30fef999e0a9874dbd64c44bf766e92866d2bb53",
+    "docs/AGENT_PLACEMENT_REVIEW.md": "0b8d95d6940dacca7150737ddea02ebeb40fdbd2c6be3db02b3bbb6ee9445910"
+  }
+}

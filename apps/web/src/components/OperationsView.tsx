@@ -200,6 +200,12 @@ export function OperationsView(props: {
       cart.position.set(p.x * MM, 0, p.z * MM);
     }
 
+    mount.dataset['unitTransforms'] = JSON.stringify([...v.cartOf].map(([id, cart]) => ({ id, xMm: cart.position.x / MM, zMm: cart.position.z / MM })));
+    mount.dataset['unitScreenPositions'] = JSON.stringify([...v.cartOf].map(([id, cart]) => {
+      const point = new THREE.Vector3(cart.position.x, 0.15, cart.position.z).project(v.camera);
+      return { id, x: (point.x + 1) * v.size.w / 2, y: (1 - point.y) * v.size.h / 2 };
+    }));
+    mount.dataset['parkingOutlines'] = JSON.stringify(ops.units.map(u => ({id:u.id, ...u.parkingMm})));
     // Shelf-stock visibility from the live ledger: full containers plus at
     // most one partial (same mesh), zero stock hides every instance.
     let visibleContainers = 0;
@@ -811,7 +817,7 @@ export function OperationsView(props: {
 
     const parkLineMat = new THREE.LineBasicMaterial({ color: 0x51607a });
     for (const u of ops.units) {
-      const hw = 0.3, hl = 0.4;
+      const hw = u.footprintMm.width * MM / 2, hl = u.footprintMm.length * MM / 2;
       const cx = u.parkingMm.x * MM, cz = u.parkingMm.z * MM;
       annoGroup.add(new THREE.LineLoop(
         new THREE.BufferGeometry().setFromPoints([
@@ -1180,7 +1186,8 @@ export function OperationsView(props: {
         ghost.computeLineDistances(); threeScene.add(ghost);
         const station = ops.stations.find(s => s.id === ops.layoutGhost?.stationId);
         const rack = ops.racks.find(s => s.id === ops.layoutGhost?.stationId);
-        const moved = station ?? (rack ? { centerMm: rack.positionMm } : undefined);
+        const unit = ops.units.find(u => u.id === ops.layoutGhost?.stationId);
+        const moved = station ?? (rack ? { centerMm: rack.positionMm } : unit ? { centerMm: unit.parkingMm } : undefined);
         if (moved) {
           const dx = (moved.centerMm.x - ops.layoutGhost.centreMm.x) * MM;
           const dz = (moved.centerMm.z - ops.layoutGhost.centreMm.z) * MM;

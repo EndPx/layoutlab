@@ -1,4 +1,4 @@
-import { MAIN_WAREHOUSE_ATTACHMENTS, buildStationAttachmentMap, buildRackAttachmentMap, applyRackTranslation, canonicalStringify, type StationAttachment } from "@layoutlab/simulation";
+import { applyAgentInitialPlacement, MAIN_WAREHOUSE_ATTACHMENTS, buildStationAttachmentMap, buildRackAttachmentMap, applyRackTranslation, canonicalStringify, type StationAttachment } from "@layoutlab/simulation";
 // Operations scene-input boundary: the typed bridge between the canonical
 // operations fixture and the warehouse renderer.
 //
@@ -890,10 +890,21 @@ export function buildOpsSnapshotSignature(snap: OperationsSnapshot): string {
   return lines.join("\n");
 }
 
-// Reconstruct only rigid canonical station translations; normalize those exact
-// attachments before retaining the existing checks for every unrelated spatial field.
+// Normalize only rigid station/rack translations and parking of exact canonical
+// unit profiles before checking every unrelated spatial field. Admission stays separate.
 export function resolveLayoutAttachments(scenario: OperationsScenario): StationAttachment[] {
   const normalized = structuredClone(scenario);
+  const canonical = parseOperationsScenario(fixtureJson);
+  if (scenario.mobileUnits.length !== canonical.mobileUnits.length) throw new Error('Canonical unit count required');
+  for (let i = 0; i < scenario.mobileUnits.length; i++) {
+    const unit = scenario.mobileUnits[i]!, original = canonical.mobileUnits[i]!;
+    const { parkingSlotMm: _parking, ...profile } = unit;
+    const { parkingSlotMm: _originalParking, ...canonicalProfile } = original;
+    if (canonicalStringify(profile) !== canonicalStringify(canonicalProfile)) throw new Error(`Unit ${unit.id}: canonical ID/role/speed/footprint/load/handling profile required`);
+    if (!Number.isSafeInteger(unit.parkingSlotMm.x) || !Number.isSafeInteger(unit.parkingSlotMm.z)) throw new Error(`Unit ${unit.id}: integer parking required`);
+    normalized.mobileUnits[i]!.parkingSlotMm = structuredClone(original.parkingSlotMm);
+  }
+
   const resolved = MAIN_WAREHOUSE_ATTACHMENTS.map(a => {
     const obstacle = scenario.geometry.obstacles.find(o => o.id === a.obstacleId);
     if (!obstacle) throw new Error(`Missing canonical obstacle ${a.obstacleId}`);
@@ -904,19 +915,18 @@ export function resolveLayoutAttachments(scenario: OperationsScenario): StationA
     const r = a.obstacleRectMm;
     return {...a,centreMm:{x,z},obstacleRectMm:{minXMm:r.minXMm+dx,maxXMm:r.maxXMm+dx,minZMm:r.minZMm+dz,maxZMm:r.maxZMm+dz},servicePositions:slots(a.servicePositions),queueSlots:slots(a.queueSlots)};
   });
-  buildStationAttachmentMap(scenario, resolved);
+  buildStationAttachmentMap(normalized, resolved);
   for (const a of MAIN_WAREHOUSE_ATTACHMENTS) {
     Object.assign(normalized.geometry.obstacles.find(o => o.id === a.obstacleId)!,a.obstacleRectMm);
     const resource = normalized.resources.find(r => r.id === a.resourceId)!;
     resource.servicePositions = structuredClone(a.servicePositions); resource.queueSlots = structuredClone(a.queueSlots);
   }
-  const canonical = parseOperationsScenario(fixtureJson);
   const rackMap = buildRackAttachmentMap(canonical);
   for (const rack of scenario.geometry.racks) {
     const original = rackMap.get(rack.id);
     if (!original) throw new Error(`Unsupported rack ${rack.id}`);
     const expected = applyRackTranslation(canonical, { kind: 'RACK_TRANSLATION', proposalId: 'scene-rigid-check', entityId: rack.id, parent: { scenarioId: canonical.id, scenarioContentSha256: '0'.repeat(64), schemaVersion: canonical.schemaVersion, engineVersion: canonical.engineVersion }, target: { mode: 'ABSOLUTE_CENTER_MM', centerMm: rack.positionMm } }, rackMap).viewerPlacement;
-    const actual = buildRackAttachmentMap(scenario).get(rack.id);
+    const actual = buildRackAttachmentMap(normalized).get(rack.id);
     if (canonicalStringify(expected) !== canonicalStringify(actual)) throw new Error(`Rack ${rack.id}: non-rigid racks/owned anchor/approach geometry rejected`);
     normalized.geometry.racks[normalized.geometry.racks.findIndex(r => r.id === rack.id)] = structuredClone(original.rack);
     for (const slot of original.slots) {
@@ -927,8 +937,14 @@ export function resolveLayoutAttachments(scenario: OperationsScenario): StationA
   assertDerivedFixtureCompatible(canonical,normalized);
   return resolved;
 }
-export function buildLayoutScene(bundle: import("@layoutlab/simulation").CandidateBundle | ReturnType<typeof applyRackTranslation>): OperationsScene {
+export function buildLayoutScene(bundle: import("@layoutlab/simulation").CandidateBundle | ReturnType<typeof applyRackTranslation> | ReturnType<typeof applyAgentInitialPlacement>): OperationsScene {
   const scene = buildSceneForScenario(bundle.scenario);
+  if (!('attachmentsBefore' in bundle)) {
+    const unit = bundle.scenario.mobileUnits.find(u => u.id === bundle.transform.entityId)!;
+    const centre = bundle.transform.fromCentreMm, f = unit.footprintMm;
+    scene.layoutGhost = { stationId: unit.id, centreMm: { ...centre }, obstacleRectMm: { minXMm: centre.x-f.width/2, maxXMm: centre.x+f.width/2, minZMm: centre.z-f.length/2, maxZMm: centre.z+f.length/2 } };
+    return scene;
+  }
   const before = bundle.attachmentsBefore;
   if ('rackId' in before) {
     const r = before.rack;

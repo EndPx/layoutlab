@@ -1,0 +1,61 @@
+import { test, expect } from '@playwright/test';
+import fs from 'node:fs';
+test('verification belongs to exact report and ignores obsolete responses', async ({ page }) => {
+ test.setTimeout(180000);
+ const report = JSON.parse(fs.readFileSync('public/evidence/e4a-live-investigation-f24a6a1.json','utf8'));
+ let release: (() => void) | undefined;
+ let delayed = false;
+ const posts: string[] = [];
+ page.on('request', r => { if(r.method()==='POST') posts.push(r.url()); });
+ await page.route('**/api/status', r => r.fulfill({json:{}}));
+ await page.route('**/api/budget', r => r.fulfill({json:{}}));
+ await page.route('**/api/operations/investigations/verify', async r => {
+   if(delayed) await new Promise<void>(resolve => { release=resolve; });
+   await r.fulfill({json:{ok:true,mismatches:[],verifierImplementationVersion:'0.1.0'}});
+ });
+ await page.goto('/');
+ await page.getByTestId('ws-recorded-load').click();
+ await expect(page.getByTestId('ws-verify')).toBeEnabled();
+ await page.getByTestId('ws-verify').click();
+ await expect(page.getByTestId('ws-verify-result')).toContainText('Verified');
+ const replace = async (id:string) => page.getByTestId('ws-import').setInputFiles({name:'report.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({...report,runId:id}))});
+ await replace('replacement-B');
+ await expect(page.getByTestId('ws-verify-result')).toHaveCount(0);
+ delayed=true;
+ await page.getByTestId('ws-verify').click();
+ await expect.poll(()=>!!release).toBe(true);
+ await replace('replacement-C');
+ release!();
+ await page.waitForTimeout(500);
+ await expect(page.getByTestId('ws-verify-result')).toHaveCount(0);
+ expect(posts.every(p=>p.endsWith('/verify'))).toBe(true);
+ await page.screenshot({path:'../../evidence/l3d-ui/regression-u1/recovery-verification-edge.png',fullPage:true});
+});
+test('recorded runtime survives reset at required widths', async ({page}) => {
+ test.setTimeout(180000);
+ await page.route('**/api/status', r=>r.fulfill({json:{}}));
+ await page.route('**/api/budget', r=>r.fulfill({json:{}}));
+ await page.goto('/');
+ await page.getByTestId('ws-recorded-load').click();
+ await page.getByTestId('ws-load-recorded-scenario').click();
+ await expect(page.getByTestId('ws-stale-report')).toHaveCount(0);
+ await page.getByTestId('ws-result-tech').locator('summary').click();
+ await expect(page.getByTestId('ws-result-tech')).toContainText('Replay implementation: 0.1.0');
+ const other = JSON.parse(fs.readFileSync('public/evidence/e4a-live-investigation-f24a6a1.json','utf8'));
+ other.runId = 'other-report'; other.input.scenario.seed = 'different-seed';
+ await page.getByTestId('ws-import').setInputFiles({name:'other.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(other))});
+ await expect(page.getByTestId('ws-stale-report')).toBeVisible();
+ await page.getByTestId('ws-reset').click();
+ await expect(page.getByTestId('ws-result-tech')).toContainText('Replay implementation: 0.1.0');
+ await expect(page.getByTestId('ws-stale-report')).toBeVisible();
+ await expect(page.getByTestId('ws-clock')).toContainText('00:00.000');
+ await expect(page.getByTestId('ws-result-tech')).not.toContainText('seed different-seed');
+ for(const width of [1586,768,390]) {
+  await page.setViewportSize({width,height:992});
+  await expect(page.getByTestId('ops-canvas')).toBeVisible();
+  await expect.poll(() => page.evaluate(()=>document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+  await page.screenshot({path:`../../evidence/l3d-ui/regression-u1/recovery-${width}-edge.png`,fullPage:true});
+ }
+ await page.getByTestId('ws-scenario').selectOption('burst');
+ await expect(page.getByTestId('ws-stale-report')).toBeVisible();
+});
