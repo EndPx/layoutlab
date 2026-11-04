@@ -1,0 +1,20 @@
+{
+  "commit": "2d24a72",
+  "release": "/opt/layoutlab/releases/2d24a72",
+  "nativeBuild": "passed",
+  "budgetAdminOperation": "init",
+  "previousLedgerExisted": false,
+  "previousKeyPresent": false,
+  "budget": {
+    "guard": "active",
+    "capUsd": 1,
+    "reservedUsd": 0,
+    "committedUsd": 0,
+    "availableUsd": 1,
+    "entries": 0,
+    "accounting": "reservedUsd is a held conservative bound; committedUsd is that bound charged after dispatch. Neither is an invoice or a confirmed provider price."
+  },
+  "liveAvailable": false,
+  "service": "active",
+  "otherAppsChanged": false
+}

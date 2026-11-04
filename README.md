@@ -9,20 +9,25 @@ measures every candidate; proposals come from a clearly labeled stub
 native server API with user approval. Racks stay fixed; only assignments
 change.
 
-Status: reference UI and local native start accepted; the actual 18-trial
-Meta benchmark is complete and reproducible. Inside-rack storage mapping is
-accepted. [Restricted web preview](https://layoutlab.endpx.cloud) runs reviewed
-R1 on the VPS with verified DNS, HTTPS and password access. Sample/manual/stub
-flows work; public Live Meta awaits its persistent US$1 total allowance guard.
-The original-catalog warehouse-section investigation now precedes playback
-integration. See `docs/PUBLIC_DEPLOYMENT.md`,
-`docs/MILESTONES.md` and `docs/EVALUATION.md`.
+Status (2026-11-04): the restricted [web preview](https://layoutlab.endpx.cloud)
+runs release `2d24a72` with the main warehouse scene, engine-driven operations,
+dispatch, inbound/put-away, split trips, and operations report replay. The
+18-trial storage-planning Meta benchmark remains separate, completed evidence.
 
-The user has expanded the target to a configured warehouse operations
-simulator: [Implementation Brief v3](docs/IMPLEMENTATION_BRIEF_V3.md) and
-[engine contracts/milestone plan](docs/V3_IMPLEMENTATION_PLAN.md). Receiving,
-inventory depletion, multi-agent traffic, resource queues and operational
-metrics are development targets, not features of the deployed R1 planner.
+The public budget guard passed independent review and 128 API tests. Its first
+operations Meta smoke reached the real provider but failed JSON-schema
+validation; inference is temporarily disabled pending that fix. The durable
+US$1 allowance has US$0.25 conservatively committed and US$0.75 available;
+these are allowance amounts, not actual billed costs. See
+[deployment evidence](docs/PUBLIC_DEPLOYMENT.md).
+
+The [v3 brief](docs/IMPLEMENTATION_BRIEF_V3.md) and
+[Experimenter delivery plan](docs/EXPERIMENTER_DELIVERY_PLAN.md) define the
+remaining work. The current controlled-experiment and one-shot proposal API
+is a foundation; a complete bounded AI investigation with enforced allowed
+changes, run-linked recommendations and comparative evaluation is still in
+progress. No full-simulator or operational-savings claim follows from the
+storage-planning benchmark.
 
 ## Native start (Node 24.18 tested, no Docker)
 

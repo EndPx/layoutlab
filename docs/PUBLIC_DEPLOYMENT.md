@@ -5,7 +5,36 @@ Hostinger VPS, restricted password/Basic Auth access, and US$1 total for the
 initial public Live Meta test, separate from the completed US$1.50 benchmark.
 The public allowance must persist without automatic replenishment.
 
-## Installed on the VPS
+## Current release and activation status (2026-11-04)
+
+The active native service runs `/opt/layoutlab/releases/2d24a72`, including the
+operations additions from `3093591` and the independently reviewed public
+budget guard. Native install/build passed; other application configurations,
+DNS, Nginx and Basic Auth were unchanged. Previous releases remain available.
+
+The old guard had reported an empty allowance without creating a ledger file.
+Read-only inspection confirmed the file did not exist, no server model key
+was present and the old allowance had zero entries/spend. Deployment therefore
+performed explicit first initialization (not migration) of the US$1 v2 ledger
+at `/var/lib/layoutlab/budget.json`, owned by the service user, mode 0600.
+It did not restore or reset previously spent allowance.
+
+One authorized public request reached real Meta using
+`muse-spark-1.3-contributor`. It failed with HTTP 400 because the operations
+structured-output schema omitted the required-key array. No successful model
+proposal or operational improvement is claimed. The guard retained US$0.25
+as committed conservative allowance, leaving US$0.75. Actual billing/token
+usage was not returned. No automatic retry was made. Inference was then
+disabled pending the schema correction; key material is retained only in
+private server configuration, never in this repository.
+
+Evidence: `evidence/sanitized/public-budget-deployment-2d24a72.json`,
+`public-budget-independent-review.json`, and `public-meta-smoke-2d24a72.json`.
+The older sections below are historical records, not current feature or
+activation status. E3/E4 Experimenter end-to-end gates remain open.
+
+## Historical initial R1 installation
+
 
 The reviewed R1 release `d039fa9` was exported with `git archive`, transferred
 over the existing SSH connection, and built natively on Ubuntu24.04 with
