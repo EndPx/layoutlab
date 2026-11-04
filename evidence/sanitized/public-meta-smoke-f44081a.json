@@ -1,0 +1,48 @@
+{
+  "checkedAt": "2026-11-04T08:07:56.274275+00:00",
+  "commit": "f44081a",
+  "publicUrl": "https://layoutlab.endpx.cloud",
+  "endpoint": "/api/operations/proposals",
+  "provider": "meta",
+  "model": "muse-spark-1.3-contributor",
+  "maximumRequests": 1,
+  "syntheticObservation": "Synthetic integration smoke only. Keep staffing unchanged: extraPickers=0 and extraPutaway=0. Propose packingDurationMs=10000 as a hypothetical permitted service-time experiment. Do not claim measured improvement; no simulation results are supplied.",
+  "httpStatus": 200,
+  "response": {
+    "patch": {
+      "extraPickers": 0,
+      "extraPutaway": 0,
+      "packingDurationMs": 10000
+    },
+    "model": "muse-spark-1.3-contributor",
+    "responseId": "chatcmpl-01a1a599-b398-7559-b38a-fa5aa42833f1",
+    "provider": "meta",
+    "providerKind": "meta",
+    "finishReason": "stop",
+    "durationMs": 3667,
+    "usage": {
+      "promptTokens": 332,
+      "completionTokens": 450,
+      "totalTokens": 782
+    }
+  },
+  "budgetBefore": {
+    "guard": "active",
+    "capUsd": 1,
+    "reservedUsd": 0,
+    "committedUsd": 0.25,
+    "availableUsd": 0.75,
+    "entries": 1,
+    "accounting": "reservedUsd is a held conservative bound; committedUsd is that bound charged after dispatch. Neither is an invoice or a confirmed provider price."
+  },
+  "budgetAfter": {
+    "guard": "active",
+    "capUsd": 1,
+    "reservedUsd": 0,
+    "committedUsd": 0.5,
+    "availableUsd": 0.5,
+    "entries": 2,
+    "accounting": "reservedUsd is a held conservative bound; committedUsd is that bound charged after dispatch. Neither is an invoice or a confirmed provider price."
+  },
+  "accountingNote": "Full conservative claim, not invoice. Validated usage is included on success; any usage-derived estimate is not an invoice. No benchmark or simulation superiority claim. No automatic retry."
+}

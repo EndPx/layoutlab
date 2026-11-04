@@ -10,34 +10,22 @@ statuses and pictured warehouse models are illustrative.
 This changes execution priority; it does not make unimplemented v3 features
 complete or authorize unsupported experiments.
 
-## Verified starting point
+## Verified starting point (updated2026-11-04)
 
-- Public deployment is still the reviewed R1 storage planner at
-  https://layoutlab.endpx.cloud. The operations environment is local.
-- Accepted M2a provides validated inputs and a deterministic scheduling
-  kernel. M2b inventory/reservation/finite-resource state is accepted after
-  148 tests and 9 independent built-export assertion groups. M3a canonical
-  navigation/transport is accepted after207 tests and7 independent assertion
-  groups. M3b picking/packing lifecycle and physical queue handshakes now run
-  on one kernel (231 tests,8 independent gates). The6-order burst ends at
-  READY_FOR_DISPATCH with shipped0/backlog6/stageBacklog0; UI binding and
-  dispatch/inbound/put-away remain next, before complete operational claims.
-- Muse delivered the main-interface static environment: 6 racks, 24 slots,
-  12 products, 6 parked units, 28 orders and 12 deliveries. Independent
-  buffer/hash/arithmetic checks cover 8 assets and 336 stored containers.
-  Review identified planner header controls leaking into operations mode;
-  Muse corrected the separation and passed 10 focused browser checks. Codex
-  reviewed the corrected source/header evidence and rebuilt all workspaces.
-  The static environment is accepted with the limits below. See MAIN_WAREHOUSE_ENVIRONMENT_REVIEW.md
-  and evidence/sanitized/environment-main-independent-review.json.
-- The static view draws approximately 19 million triangles. Loopback load
-  timing is not evidence of continuous animation performance.
-- Every slot currently restricts eligibility to a single product. This
-  fixture cannot demonstrate free storage reassignment. A later documented
-  experiment fixture must declare its actual permitted changes and preserve
-  locks, compatibility and physical fit. Do not quietly relax constraints.
-- Existing live planning benchmark evidence is separate from operations
-  experiments. No operations-agent inference has been demonstrated.
+- Restricted public release f44081a includes the main warehouse, engine-driven
+  operations, dispatch, inbound/put-away, split trips, and report replay.
+  Historical detailed geometry/engine proofs remain in their review docs.
+- The public guard and provider schema have passed independent review. One
+  actual operations proposal succeeded, with model/run usage metadata in
+  public-meta-smoke-f44081a.json. The earlier failed smoke remains recorded.
+- The experiment API is still a foundation: explicit intervention permission,
+  complete failure retention, metric/report recomputation and a bounded Meta
+  experiment tool loop need their own gates. An HTTP200 proposal does not
+  prove any operational improvement or AI-selection quality.
+- Source asset/material/performance limitations remain documented; no mobile,
+  full-warehouse benchmark or production-readiness claim is added.
+- The main fixture restricts slot eligibility. Do not silently relax locks,
+  fit or compatibility to manufacture assignment improvements.
 
 ## Ordered acceptance gates
 

@@ -10,15 +10,17 @@ native server API with user approval. Racks stay fixed; only assignments
 change.
 
 Status (2026-11-04): the restricted [web preview](https://layoutlab.endpx.cloud)
-runs release `2d24a72` with the main warehouse scene, engine-driven operations,
+runs release `f44081a` with the main warehouse scene, engine-driven operations,
 dispatch, inbound/put-away, split trips, and operations report replay. The
 18-trial storage-planning Meta benchmark remains separate, completed evidence.
 
-The public budget guard passed independent review and 128 API tests. Its first
-operations Meta smoke reached the real provider but failed JSON-schema
-validation; inference is temporarily disabled pending that fix. The durable
-US$1 allowance has US$0.25 conservatively committed and US$0.75 available;
-these are allowance amounts, not actual billed costs. See
+The public budget guard passed independent review and 128 API tests; the
+subsequent strict-schema fix passed 133 API tests. A real operations proposal
+succeeded through the public domain with `muse-spark-1.3-contributor` and
+recorded response ID/token usage. Public inference is enabled behind Basic
+Auth and the persistent US$1 cap. After one failed schema request and one
+successful smoke, US$0.50 is conservatively committed and US$0.50 available;
+these allowance amounts are not invoices. See
 [deployment evidence](docs/PUBLIC_DEPLOYMENT.md).
 
 The [v3 brief](docs/IMPLEMENTATION_BRIEF_V3.md) and

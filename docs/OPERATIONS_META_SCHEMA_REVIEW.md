@@ -132,3 +132,16 @@ Checks run (all offline, zero paid calls):
   Experimenter loop (frozen comparable inputs, intervention
   enforcement, retained invalid candidates, complete export and
   recomputation, bounded tool loop) is still open.
+
+
+## Coordinator acceptance and actual Meta check (2026-11-04)
+
+Independent compiled-API wire/normalization checks passed; evidence is
+`evidence/sanitized/operations-meta-schema-independent.json`. Fix f44081a
+was pushed and deployed with ledger bytes unchanged. One bounded public
+request then succeeded HTTP200 with actual muse-spark-1.3-contributor,
+recorded responseId, finishReason stop, and usage 332 input / 450 output.
+See `evidence/sanitized/public-meta-smoke-f44081a.json`. This supersedes the
+offline-only limitation above for schema/provider compatibility. It does not
+prove useful experiments, causal explanation, or the full agent loop.
+The earlier failed run remains in the evidence set and allowance ledger.

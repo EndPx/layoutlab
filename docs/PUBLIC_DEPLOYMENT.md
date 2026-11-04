@@ -7,31 +7,44 @@ The public allowance must persist without automatic replenishment.
 
 ## Current release and activation status (2026-11-04)
 
-The active native service runs `/opt/layoutlab/releases/2d24a72`, including the
-operations additions from `3093591` and the independently reviewed public
-budget guard. Native install/build passed; other application configurations,
-DNS, Nginx and Basic Auth were unchanged. Previous releases remain available.
+The active native service runs `/opt/layoutlab/releases/f44081a`, including
+operations, the reviewed budget guard and the Meta strict-schema fix. Native
+install/build passed. The upgrade preserved ledger bytes exactly; other app
+configurations, DNS, Nginx and Basic Auth were unchanged.
 
-The old guard had reported an empty allowance without creating a ledger file.
-Read-only inspection confirmed the file did not exist, no server model key
-was present and the old allowance had zero entries/spend. Deployment therefore
-performed explicit first initialization (not migration) of the US$1 v2 ledger
-at `/var/lib/layoutlab/budget.json`, owned by the service user, mode 0600.
-It did not restore or reset previously spent allowance.
+One public operations proposal succeeded with HTTP200 using actual
+`muse-spark-1.3-contributor`: response ID
+`chatcmpl-01a1a599-b398-7559-b38a-fa5aa42833f1`, 332 prompt tokens, 450
+completion tokens, finishReason `stop`, provider duration 3667ms. The
+synthetic smoke requested unchanged staffing and a hypothetical 10000ms
+packing service duration. Meta returned that patch. No simulation improvement
+or complete AI investigation was tested or claimed by this request.
 
-One authorized public request reached real Meta using
-`muse-spark-1.3-contributor`. It failed with HTTP 400 because the operations
-structured-output schema omitted the required-key array. No successful model
-proposal or operational improvement is claimed. The guard retained US$0.25
-as committed conservative allowance, leaving US$0.75. Actual billing/token
-usage was not returned. No automatic retry was made. Inference was then
-disabled pending the schema correction; key material is retained only in
-private server configuration, never in this repository.
+The persistent US$1 cap now shows US$0.50 committed conservative allowance,
+US$0.50 available, two entries (one earlier failed schema request, one success).
+Those are full bound charges, not provider invoices. The successful response
+alone gives US$0.0001232 estimated token cost at the rates checked on
+2026-11-04 (0.10/M input, 0.20/M output); the failed request had no usage
+metadata and is not assigned an invented cost. No allowance was refunded or
+reset. `/api/status` reports ready/liveAvailable:true and budgetGuard:active.
 
-Evidence: `evidence/sanitized/public-budget-deployment-2d24a72.json`,
-`public-budget-independent-review.json`, and `public-meta-smoke-2d24a72.json`.
-The older sections below are historical records, not current feature or
-activation status. E3/E4 Experimenter end-to-end gates remain open.
+Evidence: `evidence/sanitized/public-schema-deployment-f44081a.json`,
+`operations-meta-schema-independent.json`, and `public-meta-smoke-f44081a.json`.
+
+## Guard deployment and initial failed smoke (historical, same day)
+
+Release2d24a72 replaced the old guard. The old implementation reported an
+empty allowance without creating a ledger; inspection confirmed no file,
+no server key, and zero entries/spend. Explicit first initialization created
+the v2 US$1 ledger at `/var/lib/layoutlab/budget.json`, service-owned mode0600.
+It did not restore previously spent allowance. One real request then failed
+HTTP400 due to missing required schema keys and retained US$0.25. Inference
+was temporarily disabled until the f44081a correction above.
+Evidence: `public-budget-deployment-2d24a72.json`,
+`public-budget-independent-review.json`, `public-meta-smoke-2d24a72.json`.
+
+Older sections below are historical records. The full Experimenter E3/E4
+end-to-end gates remain open; a successful proposal is not their completion.
 
 ## Historical initial R1 installation
 
