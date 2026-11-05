@@ -1,0 +1,12 @@
+[
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "9FA86ADB120C1CB098DED92AF10C110B3616AD9CADDBACEBF129D93AA41873C1",
+        "Path":  "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\src\\components\\OperationsView.tsx"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "0694014F0EFADC397B3FEE5E773F15F6AA34CAC8B5F15A425F658AB471A00F73",
+        "Path":  "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\src\\lib\\warehouseRender.ts"
+    }
+]

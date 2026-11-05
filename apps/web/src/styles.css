@@ -441,3 +441,23 @@ details.ops-diagnostics summary { cursor: pointer; font-size: 13px; font-weight:
 [data-testid="layout-editor"] .mono { overflow-wrap: anywhere; }
 [data-testid="layout-editor"] table { font-size: 12px; width: 100%; }
 [data-testid="layout-editor"] input { max-width: 100%; }
+
+/* P1: compact state strip and independently scrolling contextual inspector. */
+.ws-metrics { gap: 8px; }
+.ws-metrics .metric { padding: 8px 12px; }
+.ws-metrics .metric-value { font-size: 24px; margin: 2px 0; }
+.ws-metrics .metric-caption { font-size: 12px; margin: 0; }
+.ws-intro p { max-width: 90ch; }
+.ws-side { max-height: 680px; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.ws-side p, .ws-results p { overflow-wrap: anywhere; }
+.ws-service-settings { margin: 12px 0; }
+.ws-service-settings > summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
+.ws-controls { position: sticky; top: 0; z-index: 5; }
+@media (max-width: 1023px) { .ws-side { max-height: none; overflow: visible; } }
+@media (max-width: 640px) {
+  .ws-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ws-metrics .metric { padding: 8px; }
+  .ws-scenario-label { min-width: 0; max-width: 100%; }
+  .ws-scenario-label select { min-width: 0; max-width: 100%; }
+  .ws-settings-drop { min-width: 0; width: min(300px, 85vw); }
+}

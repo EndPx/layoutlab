@@ -1,0 +1,9 @@
+{
+  "posts": [
+    "http://127.0.0.1:5173/api/operations/investigations/verify"
+  ],
+  "providerCalls": 0,
+  "keyboard": true,
+  "noKey": true,
+  "apiVerify": true
+}

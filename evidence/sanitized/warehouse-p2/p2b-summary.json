@@ -1,0 +1,32 @@
+{
+    "gpu":  {
+                "vendor":  "WebKit",
+                "renderer":  "WebKit WebGL",
+                "unmasked":  "ANGLE (AMD, AMD Radeon(TM) Graphics (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+            },
+    "requests":  8,
+    "sampleCount":  12,
+    "cpuSubmissionMin":  2.6,
+    "cpuSubmissionMedian":  3.9,
+    "cpuSubmissionMax":  5.6,
+    "errors":  [
+                   "502 http://127.0.0.1:5192/api/status",
+                   "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+                   "502 http://127.0.0.1:5192/api/budget",
+                   "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+                   "502 http://127.0.0.1:5192/api/status",
+                   "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+                   "502 http://127.0.0.1:5192/api/budget",
+                   "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+               ],
+    "sourceHashes":  [
+                         {
+                             "Path":  "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\src\\components\\OperationsView.tsx",
+                             "Hash":  "028801E202F5706E02D45379CE9E3E06CBC77BC7F197AAA6376FD21A115AB24C"
+                         },
+                         {
+                             "Path":  "D:\\Belajar\\Hackacton\\Hackacton yang masih jalan\\LayoutLab Muse\\apps\\web\\src\\lib\\warehouseRender.ts",
+                             "Hash":  "0694014F0EFADC397B3FEE5E773F15F6AA34CAC8B5F15A425F658AB471A00F73"
+                         }
+                     ]
+}

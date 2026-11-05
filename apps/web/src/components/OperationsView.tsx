@@ -145,6 +145,8 @@ export function OperationsView(props: {
   const [preset, setPreset] = useState<"overview" | "top" | "inspect" | null>(null);
   const mountRef = useRef<HTMLDivElement | null>(null);
   const statusRef = useRef<HTMLParagraphElement | null>(null);
+  const disclosureRef = useRef<HTMLDetailsElement | null>(null);
+  const provenanceRef = useRef<HTMLParagraphElement | null>(null);
   const viewRef = useRef<ViewHandles | null>(null);
   const homeRef = useRef<{ pos: THREE.Vector3; target: THREE.Vector3 } | null>(null);
   const savedCamRef = useRef<{ pos: THREE.Vector3; target: THREE.Vector3 } | null>(null);
@@ -285,6 +287,15 @@ export function OperationsView(props: {
           const [r, g, b] = cargoFamilyTint(it.family);
           pool.solid.setColorAt(i, tint.setRGB(r, g, b));
         });
+        // CPU readback of the actual instance buffer, not raw GPU certification.
+        const emitted = new THREE.Matrix4();
+        if (!pool.solid.geometry.boundingBox) pool.solid.geometry.computeBoundingBox();
+        mount.dataset["cargoMatrices"] = JSON.stringify(plan.items.map((it, i) => {
+          pool.solid.getMatrixAt(i, emitted);
+          const bounds = pool.solid.geometry.boundingBox!.clone().applyMatrix4(emitted);
+          return { unitId: it.unitId, productId: it.productId, cellId: it.cellId,
+            matrix: emitted.toArray(), min: bounds.min.toArray(), max: bounds.max.toArray() };
+        }));
         solidCount = plan.items.length;
         pool.solid.count = solidCount;
         pool.wire.count = solidCount;
@@ -490,8 +501,9 @@ export function OperationsView(props: {
       ops.units.forEach((u, i) => {
         const live = snap?.units.find((x) => x.unitId === u.id);
         const p = poseOf(u.id);
-        const extra = live ? ` · ${unitOperationalLabel(live)}${live.carried.length > 0 ? ` + ${live.carried.map((l) => `${l.productId}×${l.quantity}`).join("+")}` : ""}` : "";
-        addLabel(`${u.id} · ${u.role}${extra}${isSel("unit", u.id) ? " ◆Selected" : ""}`, isSel("unit", u.id) ? "loc selected" : "loc", p.x * MM, 1.7 + (i % 3) * 0.7, p.z * MM);
+        const detailed = isSel("unit", u.id) || layer === "all";
+        const extra = live && detailed ? ` · ${unitOperationalLabel(live)}${live.carried.length > 0 ? ` + ${live.carried.map((l) => `${l.productId}×${l.quantity}`).join("+")}` : ""}` : "";
+        addLabel(`${u.id}${detailed ? ` · ${u.role}` : ""}${extra}${isSel("unit", u.id) ? " ◆Selected" : ""}`, isSel("unit", u.id) ? "loc selected" : "loc", p.x * MM, 1.7 + (i % 3) * 0.7, p.z * MM);
       });
       addLabel("Receiving entrance", "pack", 4, 2.7, 17.2);
       addLabel("Dispatch exit", "pack", 20, 2.7, 17.2);
@@ -591,7 +603,7 @@ export function OperationsView(props: {
     renderer.shadowMap.enabled = !softwareGl;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.06;
+    renderer.toneMappingExposure = 0.88;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     const W = Math.max(240, Math.min(1100, mount.clientWidth || 700));
     const H = W < 520 ? Math.max(300, Math.round((W * 9) / 14)) : Math.min(520, Math.round((W * 9) / 16));
@@ -690,11 +702,11 @@ export function OperationsView(props: {
     if (!softwareGl) {
       const pmrem = new THREE.PMREMGenerator(renderer);
       threeScene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-      threeScene.environmentIntensity = 0.5;
+      threeScene.environmentIntensity = 0.32;
       pmrem.dispose();
     }
-    threeScene.add(new THREE.HemisphereLight(0xffffff, 0xcfd8e4, 0.55));
-    const key = new THREE.DirectionalLight(0xffffff, 1.7);
+    threeScene.add(new THREE.HemisphereLight(0xffffff, 0x8995a3, 0.32));
+    const key = new THREE.DirectionalLight(0xffffff, 2.1);
     key.position.set(center.x + 10, 20, center.z + 9);
     key.castShadow = true;
     key.shadow.mapSize.set(2048, 2048);
@@ -709,7 +721,7 @@ export function OperationsView(props: {
     key.target.position.copy(center);
     threeScene.add(key);
     threeScene.add(key.target);
-    const fill = new THREE.DirectionalLight(0xe8f2f2, 0.4);
+    const fill = new THREE.DirectionalLight(0xe8f2f2, 0.22);
     fill.position.set(center.x - 10, 10, center.z - 8);
     threeScene.add(fill);
 
@@ -751,6 +763,11 @@ export function OperationsView(props: {
       const entries = [...assetStatus.entries()];
       const failed = entries.filter(([, s]) => s.status === "error");
       const loading = entries.filter(([, s]) => s.status === "loading");
+      if (provenanceRef.current) provenanceRef.current.textContent = failed.length > 0
+        ? "Warehouse geometry incomplete — some assets failed to load. See renderer details."
+        : loading.length > 0 ? "Loading sourced warehouse geometry…"
+        : "Warehouse: NVIDIA SimReady derivatives (CC-BY-4.0), replacement materials and custom annotations.";
+      if (failed.length > 0 && disclosureRef.current) disclosureRef.current.open = true;
       if (statusRef.current) {
         statusRef.current.textContent =
           failed.length > 0
@@ -1479,9 +1496,13 @@ export function OperationsView(props: {
         <button type="button" onClick={() => zoom(1 / 1.25)} data-testid="ops-zoom-in" aria-label="Zoom operations view in">+</button>
         <button type="button" onClick={() => zoom(1.25)} data-testid="ops-zoom-out" aria-label="Zoom operations view out">−</button>
       </div>
+      <p ref={provenanceRef} role="status" data-testid="ops-provenance">Loading sourced warehouse geometry…</p>
+      <details ref={disclosureRef} data-testid="ops-render-details">
+        <summary>Renderer and asset details</summary>
       <p className="mono" ref={statusRef} data-testid="ops-asset-status">
         Environment: loading sourced geometry…
       </p>
+      </details>
     </div>
   );
 }

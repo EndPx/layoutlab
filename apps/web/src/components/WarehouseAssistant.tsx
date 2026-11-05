@@ -210,13 +210,30 @@ export function WarehouseAssistant(props: {
 
   return (
     <>
-    <label>Supported action<select data-testid="assistant-action" value={action} onChange={e => setAction(e.target.value)}><option value="service">Hypothetical service-duration testing</option><option value="layout">Packing-station layout testing</option></select></label>
+      <fieldset>
+        <legend>Recorded AI example (free)</legend>
+        <p className="actions">
+          <button type="button" data-testid="ws-recorded-load" disabled={busy !== null || running} onClick={() => void loadRecorded()}>Open recorded AI example (free)</button>
+          <label className="filebtn">Import report<input type="file" accept="application/json" disabled={running} data-testid="ws-import" onChange={(e) => { const f = e.target.files?.[0]; if (f) void importFile(f); e.target.value = ""; }} /></label>
+        </p>
+        <p className="hint">Recorded and imported reports replay with zero paid requests. A recorded Meta example is not fresh inference; fixture stays labeled fixture.</p>
+        {report && <p role="status" data-testid="ws-recorded-result-cue">{holder.provenance?.label ?? "Report loaded"}. <a href="#workspace-results">Inspect comparison, export or verify results below</a>.</p>}
+        {importError && <p className="error" role="alert" data-testid="ws-import-error">{importError}</p>}
+      </fieldset>
+
+    <label>AI experiment type<select data-testid="assistant-action" value={action} onChange={e => setAction(e.target.value)}><option value="service">Explore service-time assumptions</option><option value="layout">Try a layout change</option></select></label>
     <div hidden={action !== "layout"}><LayoutAssistant holder={props.layoutHolder} /><LayoutResults holder={props.layoutResults} /></div>
     <div hidden={action !== "service"}>
     <div data-testid="ws-assistant">
       <h2>Warehouse assistant</h2>
-      <p className="hint">Run this warehouse, explore what slows it down, and test changes. Ask a question, choose which changes LayoutLab may test, then start deliberately — starting inference spends from the capped public allowance.</p>
+      <p className="hint">Use the free recorded example above, or expand service assumptions to prepare an investigation. Opening evidence makes no new inference request.</p>
       {props.loadError && <p className="error" role="alert">{props.loadError}</p>}
+        <p className="hint" aria-live="polite" data-testid="ws-run-status">
+          {running ? `Running${summary?.phase ? ` · ${PHASE_LABELS[summary.phase] ?? summary.phase}` : ""} · requests ${requestCount}/${limits.maxModelRequests} · experiments ${experimentCount}/${limits.maxExperiments}`
+            : report ? `${report.state} · requests ${requestCount}/${limits.maxModelRequests} · experiments ${experimentCount}/${limits.maxExperiments}`
+            : "No investigation running. Only Start can spend; running, pausing, selecting, replay, export, and verify never create a run."}
+        </p>
+      <details className="ws-service-settings"><summary>Service assumptions and live investigation</summary>
       <label htmlFor="ws-question">What would you like to improve?</label>
       <textarea id="ws-question" data-testid="ws-question" rows={3} maxLength={2000} value={holder.question} onChange={(e) => onChange({ question: e.target.value })} />
       <p className="hint">{holder.question.length}/2000. Choose the supported changes below that LayoutLab may test.</p>
@@ -261,24 +278,11 @@ export function WarehouseAssistant(props: {
           <button type="button" data-testid="ws-cancel" disabled={!running || busy !== null} onClick={() => void cancel()}>Cancel</button>
         </p>
         {startDisabledReasons.length > 0 && <p className="hint" data-testid="ws-start-reason">Start disabled: {startDisabledReasons[0]}.</p>}
-        <p className="hint" aria-live="polite" data-testid="ws-run-status">
-          {running ? `Running${summary?.phase ? ` · ${PHASE_LABELS[summary.phase] ?? summary.phase}` : ""} · requests ${requestCount}/${limits.maxModelRequests} · experiments ${experimentCount}/${limits.maxExperiments}`
-            : report ? `${report.state} · requests ${requestCount}/${limits.maxModelRequests} · experiments ${experimentCount}/${limits.maxExperiments}`
-            : "No investigation running. Only Start can spend; running, pausing, selecting, replay, export, and verify never create a run."}
-        </p>
         {actionError && <p className="error" role="alert" data-testid="ws-error">{actionError}</p>}
         {(summary?.lastError || report?.lastError) && <p className="hint" role="alert">{summary?.lastError ?? report?.lastError}</p>}
       </fieldset>
 
-      <fieldset>
-        <legend>Recorded AI example (free)</legend>
-        <p className="actions">
-          <button type="button" data-testid="ws-recorded-load" disabled={busy !== null || running} onClick={() => void loadRecorded()}>Recorded AI example</button>
-          <label className="filebtn">Import report<input type="file" accept="application/json" disabled={running} data-testid="ws-import" onChange={(e) => { const f = e.target.files?.[0]; if (f) void importFile(f); e.target.value = ""; }} /></label>
-        </p>
-        <p className="hint">Recorded and imported reports replay with zero paid requests. A recorded Meta example is not fresh inference; fixture stays labeled fixture.</p>
-        {importError && <p className="error" role="alert" data-testid="ws-import-error">{importError}</p>}
-      </fieldset>
+      </details>
 
       <details className="ws-tech" data-testid="ws-tech">
         <summary>Technical details</summary>

@@ -1,3 +1,4 @@
+import { layoutMetricLabels, formatLayoutMetric, exactLayoutMetric } from "../lib/layout-metric-copy";
 ﻿import { useEffect, useRef, useState } from 'react';
 import type { LayoutComparisonResult, OperationsScenario } from '@layoutlab/simulation';
 import { layoutContext, verifyLayoutReport, type LayoutReport } from '../lib/layout-investigations';
@@ -75,8 +76,8 @@ export function useLayoutResults(props: Props) {
  return {report,rows,malformed,selected,setSelected,row,valid,stale,proof,verification,key,error,busy,verify,apply,exportReport,importReport,recorded,previewing,clearPreview,canApply:!!proof&&proof.key===key&&proof.sequence===sequence.current&&!stale&&!props.assistant.stale&&report?.state==='COMPLETED'&&!busy&&valid,origin:props.assistant.origin,active:props.assistant.active,loadInput:()=>void verify(false,true)};
 }
 export type LayoutResultsHolder=ReturnType<typeof useLayoutResults>;
-const metric=(v:unknown)=>typeof v==='number'&&Number.isFinite(v)?v:'unavailable';
 const fields=['shipped','makespanMs','totalWaitMs','backlog'] as const;
+
 export function LayoutResults({holder:h}:{holder:LayoutResultsHolder}) {
  const baseline=h.report?.baseline as LayoutComparisonResult|null|undefined;
  const provider=h.report?.provider as {kind?:string}|undefined;
@@ -97,9 +98,9 @@ export function LayoutResults({holder:h}:{holder:LayoutResultsHolder}) {
    {h.verification?.key===h.key&&<p data-testid="layout-verification" role="status">{h.verification.message}</p>}
    <p className="hint">Saved report evidence requires verification for the selected candidate and current parent. Verification checks consistency, not model or user authorship.</p>
    <p>Model recommendation: {typeof recommendation?.candidateId==='string'?proposalLabel(recommendation.candidateId):'none'} ({typeof recommendation?.source==='string'?recommendation.source:'none'}). This is separate from the measured results below.</p>
-   <div style={{maxWidth:'100%',overflowX:'auto'}}><table data-testid="layout-evidence-table"><thead><tr><th>Evidence</th><th>Outcome</th>{fields.map(k=><th key={k}>{k}</th>)}</tr></thead><tbody>
-    <tr><td>Baseline</td><td>{baseline?.baselineValid?'Valid baseline':'Not evaluated'}</td>{fields.map(k=><td key={k}>{metric(baseline?.baselineMetrics?.[k])}</td>)}</tr>
-    {h.rows.map((r,index)=><tr key={r.candidateId}><td>Proposal {index+1}</td><td>{r.evaluation.comparison?.improvement??'invalid / not measured'}</td>{fields.map(k=><td key={k}>{metric(r.evaluation.comparison?.candidateMetrics?.[k])}</td>)}</tr>)}
+   <div style={{maxWidth:'100%',overflowX:'auto'}}><table data-testid="layout-evidence-table"><thead><tr><th>Evidence</th><th>Outcome</th>{fields.map(k=><th key={k}>{layoutMetricLabels[k]}</th>)}</tr></thead><tbody>
+    <tr><td>Baseline</td><td>{baseline?.baselineValid?'Valid baseline':'Not evaluated'}</td>{fields.map(k=><td key={k} title={exactLayoutMetric(k,baseline?.baselineMetrics?.[k])}>{formatLayoutMetric(k,baseline?.baselineMetrics?.[k])}</td>)}</tr>
+    {h.rows.flatMap((r,index)=>[<tr key={r.candidateId}><td>Proposal {index+1}</td><td>{r.evaluation.comparison?.improvement??'invalid / not measured'}</td>{fields.map(k=><td key={k} title={exactLayoutMetric(k,r.evaluation.comparison?.candidateMetrics?.[k])}>{formatLayoutMetric(k,r.evaluation.comparison?.candidateMetrics?.[k])}</td>)}</tr>,<tr key={`${r.candidateId}-delta`}><td>Change from baseline</td><td>{r.evaluation.validation.candidateValid?'Valid layout':'Invalid layout'}</td>{fields.map(k=><td key={k} title={exactLayoutMetric(k,r.evaluation.comparison?.delta?.[k])}>{formatLayoutMetric(k,r.evaluation.comparison?.delta?.[k],true)}</td>)}</tr>])}
    </tbody></table></div>
    <label>Inspect proposal<select data-testid="layout-result-select" value={h.selected} onChange={e=>h.setSelected(e.target.value)}><option value="">Choose evidence</option>{h.rows.map(r=><option key={r.candidateId} value={r.candidateId}>{r.candidateId} · {r.evaluation.comparison?.improvement??'invalid / not measured'}</option>)}</select></label>
    {h.row&&<><p>{h.row.hypothesis} (provider assertion)</p>{h.row.evaluation.validation.issues.map((i,n)=><p className="error" key={n}>{i.code}: {i.message}</p>)}{h.row.evaluation.regionIssues.map((i,n)=><p key={n}>{i}</p>)}{h.row.evaluation.comparison&&<><p>{h.row.evaluation.comparison.explanation}</p><p data-testid="layout-relocation">{h.row.evaluation.comparison.transform ? `${h.row.evaluation.comparison.transform.entityId}: (${h.row.evaluation.comparison.transform.fromCentreMm?.x}, ${h.row.evaluation.comparison.transform.fromCentreMm?.z}) to (${h.row.evaluation.comparison.transform.toCentreMm?.x}, ${h.row.evaluation.comparison.transform.toCentreMm?.z}) mm` : 'No relocation'}</p><p>{h.row.evaluation.comparison.evaluationScope.truncated?'Truncated evaluation scope':'Full declared evaluation scope'}</p></>}

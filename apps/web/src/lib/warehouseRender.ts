@@ -63,13 +63,13 @@ export const ROLE_PBR: Record<
   { color: number; roughness: number; metalness: number }
 > = {
   concreteFloor: { color: 0x8a8f94, roughness: 0.95, metalness: 0.0 },
-  wallConcrete: { color: 0xd3cfc6, roughness: 0.9, metalness: 0.0 },
+  wallConcrete: { color: 0xaaa69c, roughness: 0.9, metalness: 0.0 },
   entranceConcrete: { color: 0xaeaaa2, roughness: 0.85, metalness: 0.05 },
   rackSteel: { color: 0x738ba8, roughness: 0.5, metalness: 0.35 },
   cardboard: { color: 0xc29a6b, roughness: 0.9, metalness: 0.0 },
   plasticCrate: { color: 0x2659bf, roughness: 0.55, metalness: 0.0 },
   cartEquipment: { color: 0xb8b3a8, roughness: 0.6, metalness: 0.25 },
-  packingStation: { color: 0x59856f, roughness: 0.6, metalness: 0.2 },
+  packingStation: { color: 0x38634d, roughness: 0.6, metalness: 0.2 },
   generic: { color: 0x9aa3ab, roughness: 0.8, metalness: 0.1 },
 };
 
@@ -132,6 +132,21 @@ export function prepareAssetGroup(
       ) {
         sawV2 = true;
         const std = mat as THREE.MeshStandardMaterial;
+        // P2a replacement response only: keep source-textured carton/plastic
+        // and all per-face splits/UVs intact. These are display PBR factors,
+        // not recovered source MDL properties. Idempotent on cached groups.
+        if (mat.name.startsWith("layoutlab-replacement-")) {
+          if (mat.name.includes("concrete__plain")) {
+            std.color.setHex(0x727b82);
+            std.roughness = 0.96;
+          } else if (mat.name.includes("painted_unique_rack")) {
+            std.color.setHex(0x405a70);
+            std.roughness = 0.48;
+          } else if (mat.name.includes("unique_rack")) {
+            std.color.setHex(0x939fa8);
+            std.roughness = 0.38;
+          }
+        }
         for (const tex of [std.map, std.metalnessMap, std.roughnessMap, std.normalMap]) {
           if (tex) tex.anisotropy = Math.max(tex.anisotropy, maxAnisotropy);
         }

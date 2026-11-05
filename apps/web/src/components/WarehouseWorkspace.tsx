@@ -285,7 +285,7 @@ export function WarehouseWorkspace(props: {
       <div className="page ws-page">
         <section className="ws-intro" aria-label="Introduction">
           <h1>Run this warehouse</h1>
-          <p>Run this warehouse, explore what slows it down, and test changes. Run the sample warehouse, then click a worker or station to explore what happens. {displayedLabel !== "Current" ? `Now viewing ${displayedLabel}.` : "You are viewing Current."}</p>
+          <p>Run the sample, inspect a worker or station, then compare a layout change or service-time assumption. {displayedLabel !== "Current" ? `Now viewing ${displayedLabel}.` : "You are viewing Current."}</p>
         </section>
 
         {stale && report && (
@@ -305,7 +305,7 @@ export function WarehouseWorkspace(props: {
         <div className="ws-controls" role="group" aria-label="Warehouse playback controls" data-testid="ws-controls">
           {playing
             ? <button type="button" className="primary" data-testid="ws-pause" onClick={() => setPlaying(false)}>⏸ Pause</button>
-            : <button type="button" className="primary" data-testid="ws-run" onClick={() => { if (layoutEditing || assistantPreview) return; setEngineError(null); setPlaying(true); }} disabled={engineError !== null || layoutEditing || assistantPreview}>▶ Run warehouse</button>}
+            : <button type="button" className="primary" data-testid="ws-run" onClick={() => { if (layoutEditing || assistantPreview) return; setEngineError(null); setPlaying(true); }} disabled={engineError !== null || layoutEditing || assistantPreview}>▶ Run sample warehouse</button>}
           {originalContext.current && <button data-testid="layout-return-original" onClick={() => { if (!originalContext.current) return; setPlaying(false); setInspect(null); setLayoutEditing(false); setLayoutPreview(null); setCurrent(originalContext.current); originalContext.current = null; setLayoutEpoch(e => e+1); }}>Return to original run</button>}
           <button type="button" data-testid="ws-reset" onClick={resetCurrent}>↺ Reset</button>
           <button type="button" data-testid="ws-step" disabled={playing || layoutEditing || assistantPreview} onClick={stepOnce} title="Advance exactly one engine event">Step event</button>
@@ -323,6 +323,7 @@ export function WarehouseWorkspace(props: {
             <p className="hint">Click a worker, slot, rack or station in the warehouse to inspect it. Click empty ground to return to the assistant. Top / Overview / Inspect views are in the viewer controls.</p>
           </div>
           <div className="panel ws-side" data-testid="ws-side">
+            <p className="hint ws-layout-guide">Run a baseline before testing a layout; your current playback is preserved. Then choose Edit layout.</p>
             <LayoutEditor key={layoutEpoch} scene={currentOk.scene} executionConfig={activeExec} implementationVersion={implVersion} selection={selection} onResult={r => setLayoutHistory(h => [...h, r])}
               onEditing={editing => { if(editing)layoutResults.clearPreview(); setLayoutEditing(editing); setPlaying(false); setInspect(null); }} onPreview={setLayoutPreview}
               onApply={scene => { if (!originalContext.current) originalContext.current = currentOk; setLayoutEditing(false); setLayoutEpoch(e => e+1); setPlaying(false); setInspect(null); setCurrent({ ...currentOk, scene: { ...scene, layoutGhost: undefined }, controller: createControllerForVersioned(scene.scenario, activeExec, implVersion) }); }} />
@@ -361,7 +362,7 @@ export function WarehouseWorkspace(props: {
           </div>
         </div>
 
-        <div className="panel ws-results" data-testid="ws-results">
+        <div id="workspace-results" className="panel ws-results" data-testid="ws-results">
           <details><summary>Layout test history ({layoutHistory.length})</summary>{layoutHistory.map((r,i) => <p key={i}>Previous evidence {i+1}: {r.commonInputs.scenario.id}, {r.improvement}; {r.schema}; input {r.schema !== "layoutlab.layout-comparison/2" ? r.parentHash : r.parentIdentity.scenarioContentSha256}.<button onClick={() => { const url=URL.createObjectURL(new Blob([JSON.stringify(r,null,2)],{type:"application/json"})); const a=document.createElement("a"); a.href=url; a.download=`layout-test-${i+1}.json`; a.click(); URL.revokeObjectURL(url); }}>Export history {i+1}</button></p>)}</details>
           <h2>Service-duration results</h2>
           {!report && !comparison && <p className="hint">No test results yet. Run the warehouse, then test a supported change in the assistant. Results stay here — the warehouse above never changes pages.</p>}
