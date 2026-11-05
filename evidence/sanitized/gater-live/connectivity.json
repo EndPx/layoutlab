@@ -1,0 +1,29 @@
+{
+  "startedAt": "2026-11-05T17:52:55.035Z",
+  "finishedAt": "2026-11-05T17:53:02.512Z",
+  "provider": "gater",
+  "model": "glm-5-3-flash",
+  "realProviderCalls": 1,
+  "result": {
+    "status": "ready",
+    "structured_output": true,
+    "supported_formats": [
+      "JSON",
+      "YAML",
+      "Markdown table",
+      "numbered/bulleted lists",
+      "custom schemas"
+    ],
+    "note": "Specify the format and content you need, and the result will be returned directly."
+  },
+  "usage": {
+    "promptTokens": 9649,
+    "completionTokens": 135,
+    "totalTokens": 9784
+  },
+  "durationMs": 7474,
+  "responseId": "20261106015258713ffb423a9b44e5",
+  "finishReason": "stop",
+  "scope": "Authorized real transport response received, but requested object schema NOT satisfied; downstream lifecycle readiness remains unproven.",
+  "schemaConformant": false
+}

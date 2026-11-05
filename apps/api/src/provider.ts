@@ -14,8 +14,8 @@ export type StructuredCall = {
 
 export type ProviderUsage = { promptTokens: number | null; completionTokens: number | null; totalTokens: number | null };
 
-// Server-owned settings recorded in summaries. Meta and fixtures retain low;
-// Gater sends no reasoning option, so its upstream default remains unknown.
+// Server-owned requested settings recorded in summaries. Meta and fixtures retain low;
+// Exact GLM flash requests low; historical/other Gater settings remain unspecified.
 export const REASONING_EFFORT = "low" as const;
 
 export type GenerationSettings = {
@@ -24,7 +24,7 @@ export type GenerationSettings = {
 };
 
 export function generationSettingsOf(config: ApiConfig): GenerationSettings {
-  return { reasoningEffort: config.providerKind === "gater" ? "not-specified" : REASONING_EFFORT, maxCompletionTokens: config.maxCompletionTokens };
+  return { reasoningEffort: config.providerKind === "gater" && config.modelId !== "glm-5-3-flash" ? "not-specified" : REASONING_EFFORT, maxCompletionTokens: config.maxCompletionTokens };
 }
 
 // Concise sanitized envelope diagnostics. Carried on success AND attached to
@@ -150,15 +150,19 @@ export async function chatCompletionJson(
   const body = {
     model: config.modelId,
     messages: [
-      { role: config.providerKind === "gater" ? "system" : "developer", content: call.developerInstruction },
-      { role: "user", content: call.userContent },
+      { role: config.providerKind === "gater" ? "system" : "developer", content: config.providerKind === "gater"
+        ? `${call.developerInstruction}\n\nReturn exactly one JSON object conforming to the following output JSON Schema. All required properties must be present; do not add properties, markdown, or commentary. The schema describes your response, not a topic to explain.\n${JSON.stringify(call.schema)}`
+        : call.developerInstruction },
+      { role: "user", content: config.providerKind === "gater"
+        ? `${call.userContent}\n\nYour entire response must conform exactly to this JSON Schema, with no additional properties:\n${JSON.stringify(call.schema)}`
+        : call.userContent },
     ] satisfies ChatMessage[],
     response_format: {
       type: "json_schema",
       json_schema: { name: call.schemaName, schema: call.schema, strict: true },
     },
     ...(config.providerKind === "gater"
-      ? { max_tokens: config.maxCompletionTokens }
+      ? { max_tokens: config.maxCompletionTokens, ...(config.modelId === "glm-5-3-flash" ? { reasoning_effort: "low", thinking: { type: "enabled" } } : {}) }
       : { max_completion_tokens: config.maxCompletionTokens, reasoning_effort: REASONING_EFFORT }),
     stream: false,
   };
@@ -286,4 +290,13 @@ export async function chatCompletionJson(
     responseId: diag.responseId,
     finishReason: diag.finishReason,
   };
+}
+
+// Redact string leaves without truncating structured evidence or changing its shape.
+export function redactStructured<T>(value: T, config: ApiConfig): T {
+  return JSON.parse(JSON.stringify(value, (_key, item: unknown) => {
+    if (typeof item !== "string") return item;
+    let out = config.apiKey ? item.split(config.apiKey).join("[REDACTED]") : item;
+    return out.replace(/Bearer\s+[A-Za-z0-9._~+/-]+=*/gi, "Bearer [REDACTED]");
+  })) as T;
 }

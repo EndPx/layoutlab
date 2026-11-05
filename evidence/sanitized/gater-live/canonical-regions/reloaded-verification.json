@@ -1,0 +1,67 @@
+{
+  "bytes": 251876,
+  "sha256": "77b6ea9cb401433b4d0d16e625851cfc8f7be00128c4519e393ab011e84443b5",
+  "verification": {
+    "ok": true,
+    "mismatches": []
+  },
+  "state": "FAILED",
+  "error": "Model request failed: HTTP 504 <!DOCTYPE html>\n<!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 8]>    <html class=\"no-js ie8 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if gt IE 8]><!--> <html class=\"no-js\" lang=\"en-US\"> <!--<![endif]-->\n<head>\n\n<title>gater.ai.id | 504: Gateway time-out</title>\n<meta charset=\"UTF-8\" />\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n",
+  "requests": [
+    {
+      "index": 1,
+      "phase": "interpretation",
+      "status": "success",
+      "diagnostics": {
+        "responseId": "20261106023357bc921728eb3e4a24",
+        "finishReason": "stop",
+        "usage": {
+          "promptTokens": 10259,
+          "completionTokens": 674,
+          "totalTokens": 10933
+        },
+        "durationMs": 45132,
+        "responseBytes": 1000,
+        "model": "glm-5-3-flash"
+      },
+      "output": {
+        "objective": "Test moving PACK-1 within a 5000mm translation envelope around its current service position PACK1-S1 (20500,6900) to reduce picking travel; receiving RCV-1 locked, workers, workload, seed, service durations and all non-packing geometry fixed.",
+        "constraints": {
+          "lockedEntityIds": [
+            "RCV-1"
+          ],
+          "maxMovedEntities": 1,
+          "maxTranslationMm": 5000,
+          "snapGridMm": 100,
+          "requireSameWorkerCount": true,
+          "requireSameServiceDurations": true,
+          "requireSameWorkload": true,
+          "requireSameSeed": true
+        },
+        "allowedRegions": [
+          {
+            "entityId": "PACK-1",
+            "minXMm": 15500,
+            "minZMm": 1900,
+            "maxXMm": 24000,
+            "maxZMm": 11900
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "index": 2,
+      "phase": "proposal",
+      "status": "failed",
+      "diagnostics": null,
+      "output": null,
+      "error": "Model request failed: HTTP 504 <!DOCTYPE html>\n<!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 8]>    <html class=\"no-js ie8 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if gt IE 8]><!--> <html class=\"no-js\" lang=\"en-US\"> <!--<![endif]-->\n<head>\n\n<title>gater.ai.id | 504: Gateway time-out</title>\n<meta charset=\"UTF-8\" />\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
+    }
+  ],
+  "proposals": 0,
+  "recommendation": {
+    "candidateId": "baseline",
+    "source": "deterministic-fallback"
+  }
+}

@@ -11,6 +11,8 @@ import { createBudgetGuard, initializeBudgetLedger } from "../src/budget-guard.j
 // Fixture JSON is asserted field-by-field below; keep the DOM unknown boundary local.
 const fetch = globalThis.fetch as (...args: Parameters<typeof globalThis.fetch>) => Promise<Omit<Response, "json"> & { json(): Promise<any> }>;
 const path = "/api/operations/layout-investigations";
+// Provider v3 derives editable IDs from the region entries.
+const providerConstraints = () => { const { allowedEntityIds, ...constraints } = defaultApprovedConstraints(["PACK-1"]); return constraints; };
 const scenario = JSON.parse(readFileSync("fixtures/operations/picking-packing-burst.json", "utf8"));
 const input = () => ({ scenario, executionConfig: { pickDurationMsPerItem: 2000, unloadDurationMsPerItem: 1500 }, question: "Reduce packing waiting", safetyCeilingMs: 600000, mode: "live", consent: true });
 async function listen(server: Server) { server.listen(0, "127.0.0.1"); await once(server, "listening"); return `http://127.0.0.1:${(server.address() as { port: number }).port}`; }
@@ -18,7 +20,7 @@ async function fixture(handler?: (payload: any, n: number) => unknown, extra: Re
  let calls = 0;
  const fetchImpl: import("../src/provider.js").FetchLike = async (_url, options) => {
   calls++;
-  const payload=JSON.parse(JSON.parse(options!.body as string).messages[1].content);
+  const payload=JSON.parse(JSON.parse(options!.body as string).messages[1].content.split("\n\nYour entire response must conform exactly")[0]);
   return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify(handler!(payload,calls))},finish_reason:"stop"}],usage:{prompt_tokens:10,completion_tokens:10,total_tokens:20}}));
  };
  const file = join(mkdtempSync(join(tmpdir(), "layout-http-")), "budget.json");
@@ -34,7 +36,7 @@ async function fixture(handler?: (payload: any, n: number) => unknown, extra: Re
 }
 it("corrected approval, invalid feedback, valid move, finish and keyless replay", async () => {
  const f = await fixture((p,n) => {
-  if(n===1)return {objective:"Reduce waiting",constraints:defaultApprovedConstraints(["PACK-1"]),allowedRegions:[{entityId:"PACK-1",minXMm:0,minZMm:0,maxXMm:scenario.geometry.room.widthMm,maxZMm:scenario.geometry.room.depthMm}]};
+  if(n===1)return {objective:"Reduce waiting",constraints:providerConstraints(),allowedRegions:[{entityId:"PACK-1",minXMm:0,minZMm:0,maxXMm:scenario.geometry.room.widthMm,maxZMm:scenario.geometry.room.depthMm}]};
   if(n===4)return {action:"finish",hypothesis:"Fixture selects retained result",proposalId:null,entityId:null,parent:null,centerMm:null,candidateId:p.finishCandidateIds.at(-1)};
   if(n===3)expect(p.results[0].validation.ok).toBe(false);
   return {action:"propose",hypothesis:"Fixture translation",proposalId:`move-${n}`,entityId:"PACK-1",parent:p.parent,centerMm:{x:20500,z:n===2?-1000:4000},candidateId:null};

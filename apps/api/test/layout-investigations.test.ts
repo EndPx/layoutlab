@@ -19,7 +19,7 @@ function fixture(handler:(p:any,n:number)=>unknown) {
   const check=(s:any)=>{if(s.properties){expect(s.additionalProperties).toBe(false);expect(s.required.sort()).toEqual(Object.keys(s.properties).sort());Object.values(s.properties).forEach(check);}if(s.items)check(s.items);};
   check(body.response_format.json_schema.schema);
   const p=JSON.parse(body.messages[1].content);payloads.push(p);
-  return new Response(JSON.stringify({id:"fixture-response",model:"fixture",choices:[{message:{content:JSON.stringify(handler(p,payloads.length))},finish_reason:"stop"}],usage:{prompt_tokens:10,completion_tokens:10,total_tokens:20}}));
+  return new Response(JSON.stringify({id:"fixture-response",model:"fixture",choices:[{message:{content:JSON.stringify(providerV3(handler(p,payloads.length)))},finish_reason:"stop"}],usage:{prompt_tokens:10,completion_tokens:10,total_tokens:20}}));
  };return {fetchImpl,payloads};
 }
 const propose=(p:any,z=4000)=>({action:"propose",hypothesis:"Test actual translation",proposalId:"move-1",entityId:"PACK-1",parent:p.parent,centerMm:{x:20500,z},candidateId:null});
@@ -105,3 +105,5 @@ describe("L2a executable fixture service, zero real inference",()=>{
 
 
 
+
+function providerV3(value:any){if(value?.objective && value?.constraints && value?.allowedRegions){const {allowedEntityIds,...constraints}=value.constraints;return {...value,constraints};}return value;}

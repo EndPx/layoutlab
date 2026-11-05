@@ -22,7 +22,7 @@ async function fixture(handler?: (payload: any, n: number) => unknown, extra: Re
   calls++; active++; peak = Math.max(peak, active);
   const result = { objective: "Reduce waiting", constraints: defaultApprovedConstraints(["PACK-1"]), allowedRegions: [{ entityId: "PACK-1", minXMm: 0, minZMm: 0, maxXMm: scenario.geometry.room.widthMm, maxZMm: scenario.geometry.room.depthMm }] };
   res.setHeader("content-type", "application/json");
-  res.end(JSON.stringify({ id: "loopback-fake-meta", model: "fixture", choices: [{ message: { content: JSON.stringify(handler ? handler(payload,calls) : result) }, finish_reason: "stop" }], usage: { prompt_tokens: 10, completion_tokens: 10, total_tokens: 20 } })); active--;
+  res.end(JSON.stringify({ id: "loopback-fake-meta", model: "fixture", choices: [{ message: { content: JSON.stringify(providerV3(handler ? handler(payload,calls) : result)) }, finish_reason: "stop" }], usage: { prompt_tokens: 10, completion_tokens: 10, total_tokens: 20 } })); active--;
  });
  const providerUrl = await listen(provider);
  const file = join(mkdtempSync(join(tmpdir(), "layout-http-")), "budget.json");
@@ -122,7 +122,7 @@ it("legacy, service and one-shot owners block layout and layout blocks legacy ap
  const legacy=JSON.parse(readFileSync("fixtures/sample/warehouse-basic.json","utf8"));
  let gate:Promise<void>|null=null,open=()=>{};let calls=0,active=0,peak=0;
  const hold=()=>{gate=new Promise<void>(r=>open=r);};const release=()=>{open();gate=null;};
- const response=(content:unknown)=>new Response(JSON.stringify({id:"fake-meta-cross-route",model:"fixture",choices:[{message:{content:JSON.stringify(content)},finish_reason:"stop"}],usage:{prompt_tokens:10,completion_tokens:10,total_tokens:20}}));
+ const response=(content:unknown)=>new Response(JSON.stringify({id:"fake-meta-cross-route",model:"fixture",choices:[{message:{content:JSON.stringify(providerV3(content))},finish_reason:"stop"}],usage:{prompt_tokens:10,completion_tokens:10,total_tokens:20}}));
  const {app}=createApp({config:loadConfig({MODEL_API_KEY:"fixture-only",META_API_BASE_URL:"http://127.0.0.1:1/v1"}),fetchImpl:async(_url,init)=>{
   calls++;active++;peak=Math.max(peak,active);try{if(gate)await gate;const body=JSON.parse(init!.body as string);const name=body.response_format.json_schema.name;
    if(name==="planning_requirements")return response({objective:"minimize_weighted_picking_travel",maxRelocatedProducts:4,lockedProductIds:[],assumptions:[],unresolvedQuestions:[]});
@@ -148,3 +148,5 @@ it("legacy, service and one-shot owners block layout and layout blocks legacy ap
   expect(peak).toBe(1);
  }finally{release();await post(`/api/runs/unused/cancel`,{});server.closeAllConnections();await new Promise<void>(r=>server.close(()=>r()));}
 },120000);
+
+function providerV3(value:any){if(value?.objective && value?.constraints && value?.allowedRegions){const {allowedEntityIds,...constraints}=value.constraints;return {...value,constraints};}return value;}

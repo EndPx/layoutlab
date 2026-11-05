@@ -1,0 +1,113 @@
+{
+  "bytes": 253232,
+  "sha256": "978cbb344561aa47df7a6614343139b6b301a5d6f1b440e5f73aba4b7d94d609",
+  "verification": {
+    "ok": true,
+    "mismatches": []
+  },
+  "state": "TIMED_OUT",
+  "error": "deadline exceeded",
+  "requests": [
+    {
+      "index": 1,
+      "phase": "interpretation",
+      "status": "success",
+      "diagnostics": {
+        "responseId": "20261106021758d596d50e1bb6472d",
+        "finishReason": "stop",
+        "usage": {
+          "promptTokens": 10169,
+          "completionTokens": 627,
+          "totalTokens": 10796
+        },
+        "durationMs": 38124,
+        "responseBytes": 1146,
+        "model": "glm-5-3-flash"
+      },
+      "output": {
+        "objective": "Move only PACK-1 (service position PACK1-S1) to reduce travel distance; receiving station RCV-1, workers, workload, seed and service times remain unchanged; at most one entity may be relocated within 5000 mm of its current position on a 100 mm grid.",
+        "constraints": {
+          "allowedEntityIds": [
+            "PACK-1",
+            "PACK-2"
+          ],
+          "lockedEntityIds": [
+            "RCV-1"
+          ],
+          "maxMovedEntities": 1,
+          "maxTranslationMm": 5000,
+          "snapGridMm": 100,
+          "requireSameWorkerCount": true,
+          "requireSameServiceDurations": true,
+          "requireSameWorkload": true,
+          "requireSameSeed": true
+        },
+        "allowedRegions": [
+          {
+            "entityId": "PACK-1",
+            "minXMm": 15500,
+            "minZMm": 1900,
+            "maxXMm": 24000,
+            "maxZMm": 11900
+          },
+          {
+            "entityId": "PACK-2",
+            "minXMm": 20500,
+            "minZMm": 12900,
+            "maxXMm": 20500,
+            "maxZMm": 12900
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "index": 2,
+      "phase": "proposal",
+      "status": "success",
+      "diagnostics": {
+        "responseId": "202611060218141573726902f54f63",
+        "finishReason": "stop",
+        "usage": {
+          "promptTokens": 12355,
+          "completionTokens": 2356,
+          "totalTokens": 14711
+        },
+        "durationMs": 45887,
+        "responseBytes": 1400,
+        "model": "glm-5-3-flash"
+      },
+      "output": {
+        "action": "propose",
+        "hypothesis": "Relocating PACK-1 from (20500,5000) to (16500,8000) — a 5000 mm translation (dx=4000, dz=3000, on the 100 mm grid, within the approved region x[15500,24000] z[1900,11900]) — places the pack table in the central corridor between rack rows R1-R3 (z 5000-7000) and R4-R6 (z 11000-13000), with the table rect (15566-17434, 7390-8610) clear of all racks, obstacles and PACK-2. Summed Manhattan distance from the six rack centres drops from 87000 mm to about 51000 mm, so picker carry travel to packing should fall substantially; RCV-1, workers, workload, seed and service durations stay unchanged.",
+        "proposalId": "prop-pack1-corridor-move-1",
+        "entityId": "PACK-1",
+        "parent": {
+          "scenarioId": "picking-packing-burst",
+          "scenarioContentSha256": "b13bc94b62a1492037ff5d44f178a655f67c7d962a64cd8459a34cfcb673e84e",
+          "schemaVersion": "layoutlab.operations/1",
+          "engineVersion": "layoutlab.operations-engine/1"
+        },
+        "centerMm": {
+          "x": 16500,
+          "z": 8000
+        },
+        "candidateId": null
+      },
+      "error": null
+    },
+    {
+      "index": 3,
+      "phase": "proposal",
+      "status": "aborted",
+      "diagnostics": null,
+      "output": null,
+      "error": "Model request aborted (cancelled or deadline)."
+    }
+  ],
+  "proposals": 0,
+  "recommendation": {
+    "candidateId": "baseline",
+    "source": "deterministic-fallback"
+  }
+}

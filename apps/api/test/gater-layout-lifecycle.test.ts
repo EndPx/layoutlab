@@ -15,10 +15,10 @@ function fixture(handler:(p:any,n:number)=>unknown) {
  const payloads:any[]=[];
  const fetchImpl:FetchLike=async(_url,options)=>{
   const body=JSON.parse(options!.body as string);
-  expect((body.max_completion_tokens ?? body.max_tokens)).toBeLessThanOrEqual(2000);
+  expect((body.max_completion_tokens ?? body.max_tokens)).toBeLessThanOrEqual(8192);
   const check=(s:any)=>{if(s.properties){expect(s.additionalProperties).toBe(false);expect(s.required.sort()).toEqual(Object.keys(s.properties).sort());Object.values(s.properties).forEach(check);}if(s.items)check(s.items);};
   check(body.response_format.json_schema.schema);
-  const p=JSON.parse(body.messages[1].content);payloads.push(p);
+  const p=JSON.parse(body.messages[1].content.split("\n\nYour entire response must conform exactly")[0]);payloads.push(p);
   return new Response(JSON.stringify({id:"fixture-response",model:"fixture",choices:[{message:{content:JSON.stringify(handler(p,payloads.length))},finish_reason:"stop"}],usage:{prompt_tokens:10,completion_tokens:10,total_tokens:20}}));
  };return {fetchImpl,payloads};
 }
@@ -28,7 +28,7 @@ async function started(store:LayoutInvestigationStore,f:FetchLike,claim:string|n
 // Injected transport only: no real Gater or Meta inference. Verification has no provider configuration.
 describe("Gater layout offline lifecycle",()=>{
  it("interpret -> approval -> invalid feedback -> revision -> cap fallback, exact manual equality and offline tamper rejection",async()=>{
-  const f=fixture((p,n)=>{if(n===1)return interpretation();if(n===2)return propose(p,-1000);if(n===3){expect(p.results[0].validation.ok).toBe(false);return propose(p);}expect(p.results[1].metrics.shipped).toBeTypeOf("number");return finish(p.finishCandidateIds.at(-1));});
+  const f=fixture((p,n)=>{if(n===1){const v=interpretation();const {allowedEntityIds,...constraints}=v.constraints;return {...v,constraints};}if(n===2)return propose(p,-1000);if(n===3){expect(p.results[0].validation.ok).toBe(false);return propose(p);}expect(p.results[1].metrics.shipped).toBeTypeOf("number");return finish(p.finishCandidateIds.at(-1));});
   const store=new LayoutInvestigationStore(config());const r=await started(store,f.fetchImpl);
   expect(f.payloads).toHaveLength(1);expect(r.report.proposals).toHaveLength(0);
   const approved=interpretation();store.approve(r.report.runId,approved,f.fetchImpl);approved.constraints.maxMovedEntities=0;await r.task;
@@ -38,7 +38,7 @@ describe("Gater layout offline lifecycle",()=>{
   const manual=await runLayoutComparison({baselineScenario:r.report.input.scenario,executionConfig:r.report.input.executionConfig,proposal:valid.proposal,attachments:r.report.attachments,approvedConstraints:r.report.approved!.constraints,safetyCeilingMs:r.report.input.safetyCeilingMs});
   expect(valid.evaluation.comparison).toEqual(manual);
   expect(await verifyLayoutInvestigationExport(store.buildReport(r))).toEqual({ok:true,mismatches:[]});
-  for(const mutate of [(e:any)=>e.provider.kind="unknown", (e:any)=>e.input.scenario.seed++, (e:any)=>e.input.executionConfig.pickDurationMsPerItem++, (e:any)=>e.proposals[1].evaluation.comparison.candidateMetrics.shipped++, (e:any)=>e.modelRequestsUsed--, (e:any)=>e.budget.dispatched--, (e:any)=>e.proposals[1].proposal.parent.scenarioContentSha256="0".repeat(64), (e:any)=>e.recommendation.candidateId="unknown"]){const e=store.buildReport(r);mutate(e);expect((await verifyLayoutInvestigationExport(e)).ok).toBe(false);}
+  for(const mutate of [(e:any)=>e.interpreted.constraints.allowedEntityIds=["PACK-2"], (e:any)=>e.provider.kind="unknown", (e:any)=>e.input.scenario.seed++, (e:any)=>e.input.executionConfig.pickDurationMsPerItem++, (e:any)=>e.proposals[1].evaluation.comparison.candidateMetrics.shipped++, (e:any)=>e.modelRequestsUsed--, (e:any)=>e.budget.dispatched--, (e:any)=>e.proposals[1].proposal.parent.scenarioContentSha256="0".repeat(64), (e:any)=>e.recommendation.candidateId="unknown"]){const e=store.buildReport(r);mutate(e);expect((await verifyLayoutInvestigationExport(e)).ok).toBe(false);}
  },120000);
  it("verifies archived fixture export offline",async()=>{const report=JSON.parse(readFileSync("evidence/sanitized/l2a/fixture-report.json","utf8")); const result=await verifyLayoutInvestigationExport(report);expect(result.ok).toBe(true);},120000);
 });

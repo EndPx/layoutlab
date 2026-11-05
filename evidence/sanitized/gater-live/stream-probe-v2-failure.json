@@ -1,0 +1,44 @@
+{
+  "durationMs": 32553,
+  "firstByteMs": 9426,
+  "httpStatus": 200,
+  "events": 2,
+  "bytes": 444,
+  "finishReason": null,
+  "id": "chatcmpl-a3bdfa5f-2897-44fe-ac6a-d82769bb53b0",
+  "done": true,
+  "eventShapes": [
+    {
+      "keys": [
+        "id",
+        "object",
+        "created",
+        "model",
+        "choices",
+        "usage"
+      ],
+      "type": null,
+      "error": null,
+      "choiceKeys": [
+        "index",
+        "delta",
+        "finish_reason"
+      ],
+      "deltaKeys": [
+        "role",
+        "content"
+      ]
+    },
+    {
+      "keys": [
+        "error"
+      ],
+      "type": null,
+      "error": "{\"origin\":\"upstream\",\"code\":\"platform_unavailable\",\"message\":\"The AI provider is temporarily unavailable. Please try again.\",\"type\":\"platform_unavailable\",\"details\":{}}",
+      "choiceKeys": [],
+      "deltaKeys": []
+    }
+  ],
+  "error": "SyntaxError: Unexpected end of JSON input",
+  "realProviderAttempts": 1
+}

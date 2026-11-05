@@ -1,0 +1,29 @@
+{
+  "bytes": 240513,
+  "sha256": "1743f2be29f9160ca1f3d3e2ab12d392bbd35bedcccd6f4c37d78557f053ae83",
+  "verification": {
+    "ok": true,
+    "mismatches": [],
+    "verifierImplementationVersion": "0.1.1"
+  },
+  "state": "COMPLETED",
+  "requestCount": 4,
+  "recommendation": {
+    "candidateId": "exp-2",
+    "source": "deterministic-fallback",
+    "modelSelectedCandidateId": null,
+    "deterministicBestCandidateId": "exp-2",
+    "baselineCandidateId": "baseline",
+    "improvedOverBaseline": true,
+    "comparisons": {
+      "baselineCandidateId": "baseline",
+      "candidateId": "exp-2",
+      "shippedDelta": 0,
+      "makespanDeltaMs": -145300,
+      "makespanImprovementPercent": 28.921178,
+      "totalWaitDeltaMs": 0,
+      "totalWaitImprovementPercent": 0
+    },
+    "explanation": "Server-computed contrast in this synthetic scenario only: candidate exp-2 vs baseline baseline under declared patch {\"dispatchDurationMs\":10000}: shipped 6 vs 6 (delta 0), makespanMs 357100 vs 502400 (delta -145300 ms, improvement 28.921178%), totalWaitMs 614900 vs 614900 (delta 0 ms). The candidate ranks ahead of the baseline under the deterministic E3 ranking for this bounded contrast. This is a bounded contrast for the declared intervention in a synthetic scenario, not causal proof, not a global optimum, and not real warehouse savings."
+  }
+}

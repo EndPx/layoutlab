@@ -101,7 +101,7 @@ export function createApp(opts: {
   const config = opts.config ?? loadConfig();
   const fetchImpl = opts.fetchImpl ?? fetch;
   const budgetGuard: BudgetGuard | null =
-    opts.budgetGuard ??
+    config.publicBudgetMode === "unlimited" ? null : opts.budgetGuard ??
     (config.budgetStateFile !== ""
       ? createBudgetGuard({ filePath: config.budgetStateFile, capUsd: config.publicBudgetUsd })
       : null);
@@ -268,7 +268,8 @@ export function createApp(opts: {
       : { ok: false, reason: baseLive.ok ? budget.reason : baseLive.reason };
     res.json({
       liveAvailable: live.ok,
-      budgetGuard: !budgetGuard ? "not_configured" : budget.ok ? "active" : "unavailable",
+      budgetMode: config.publicBudgetMode ?? "capped",
+      budgetGuard: config.publicBudgetMode === "unlimited" ? "unlimited" : !budgetGuard ? "not_configured" : budget.ok ? "active" : "unavailable",
       reason: live.reason,
       status: live.ok ? "ready" : "setup_required",
       baseUrl: config.baseUrl,
@@ -427,8 +428,13 @@ export function createApp(opts: {
 
   app.get("/api/budget", (_req: Request, res: Response, next: (e: unknown) => void) => {
     try {
+      if (config.publicBudgetMode === "unlimited") {
+        res.json({ mode: "unlimited", guard: "unlimited", capUsd: null, reservedUsd: null, committedUsd: null, availableUsd: null, perRunReservationUsd: null, accounting: "No total allowance limit; per-run limits apply. Provider billing still applies; monetary totals unavailable." });
+        return;
+      }
       if (!budgetGuard) {
         res.json({
+          mode: "capped",
           guard: "not_configured",
           publicBudgetUsd: config.publicBudgetUsd,
           perRunReservationUsd: config.publicBudgetPerRunUsd,
@@ -437,6 +443,7 @@ export function createApp(opts: {
       }
       const snap = budgetGuard.snapshot();
       res.json({
+        mode: "capped",
         guard: "active",
         perRunReservationUsd: config.publicBudgetPerRunUsd,
         capUsd: snap.capMicroUsd / 1_000_000,

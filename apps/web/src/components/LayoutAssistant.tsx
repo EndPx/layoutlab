@@ -84,8 +84,8 @@ export function useLayoutAssistant({ scenario, executionConfig, implementationVe
  if (!consent) reasons.push('Consent is required.');
  if (!question.trim()) reasons.push('Enter a question.');
  if (!status?.liveAvailable) reasons.push(status?.reason ?? 'Live inference unavailable; refresh status.');
- if (budget?.guard !== 'active' || typeof budget.availableUsd !== 'number' || typeof budget.perRunReservationUsd !== 'number') reasons.push('Guarded allowance unavailable.');
- else if (budget.availableUsd <= 0 || budget.availableUsd < budget.perRunReservationUsd) reasons.push('Allowance exhausted; live start disabled.');
+ if (budget?.guard !== 'unlimited' && (budget?.guard !== 'active' || typeof budget.availableUsd !== 'number' || typeof budget.perRunReservationUsd !== 'number')) reasons.push('Guarded allowance unavailable.');
+ else if (budget?.guard === 'active' && (budget.availableUsd! <= 0 || budget.availableUsd! < budget.perRunReservationUsd!)) reasons.push('Allowance exhausted; live start disabled.');
  if (active) reasons.push('An investigation is active; cancel it or wait before starting another.');
  const updateConstraint = (key: 'maxMovedEntities' | 'maxTranslationMm', value: number) => draft && setDraft({...draft, constraints:{...draft.constraints, [key]:value}});
  function toggleStation(id: string, checked: boolean) {
@@ -141,6 +141,6 @@ export function LayoutAssistant({holder}: {holder: LayoutAssistantHolder}) {
    </fieldset>}
    {active && <button data-testid="layout-cancel" disabled={busy} onClick={() => void act(s => cancelLayoutInvestigation(run.report.runId,s),false,true)}>Cancel layout investigation</button>}
   </>}
-  <details><summary>Technical details · schema, budget and complete evidence</summary><pre>{JSON.stringify({status,budget,report:run?.report ?? null,previous},null,2)}</pre></details>
+  <p>{budget?.guard === "unlimited" ? "No total allowance limit; per-run limits apply. Provider billing still applies." : ""}</p><details><summary>Technical details · schema, budget and complete evidence</summary><pre>{JSON.stringify({status,budget,report:run?.report ?? null,previous},null,2)}</pre></details>
  </section>;
 }

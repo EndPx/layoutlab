@@ -1,3 +1,4 @@
+import { runTimeoutCeiling } from "./api";
 // E4b Experiments browser adapter and pure helpers. Same-origin /api only:
 // no API key in the browser, no direct Meta requests. Report shapes mirror
 // the accepted server types structurally; no Node-only API module is
@@ -190,17 +191,10 @@ export type InvestigationSummary = {
   report: InvestigationReport | null;
 };
 
-export type BudgetInfo = {
-  guard: string;
-  perRunReservationUsd?: number;
-  publicBudgetUsd?: number;
-  capUsd?: number;
-  reservedUsd?: number;
-  committedUsd?: number;
-  availableUsd?: number;
-  entries?: number;
-  accounting?: string;
-};
+type FiniteBudget = { perRunReservationUsd?: number; publicBudgetUsd?: number; capUsd?: number; reservedUsd?: number; committedUsd?: number; availableUsd?: number; entries?: number; accounting?: string };
+export type BudgetInfo =
+  | (FiniteBudget & { mode?: "capped"; guard: "active" | "not_configured" | "unavailable" })
+  | { mode: "unlimited"; guard: "unlimited"; perRunReservationUsd: null; capUsd: null; reservedUsd: null; committedUsd: null; availableUsd: null; publicBudgetUsd?: never; entries?: never; accounting: string };
 
 export type Provenance =
   | { kind: "live"; label: string }
@@ -323,6 +317,8 @@ export function parseInvestigationReport(value: unknown): { report: Investigatio
   if (!isRec(limits) || !isInt(limits["maxModelRequests"]) || !isInt(limits["maxExperiments"]) || !isInt(limits["maxCompletionTokens"]) || !isInt(limits["timeoutMs"])) {
     return bad("Report limits.maxModelRequests/maxExperiments/maxCompletionTokens/timeoutMs must be integers.");
   }
+  if ((limits.maxCompletionTokens as number) < 1 || (limits.maxCompletionTokens as number) > (r.providerKind === "gater" && r.configuredModel === "glm-5-3-flash" ? 8192 : 2000)) return bad("Report token ceiling invalid for provider/model.");
+  if ((limits.timeoutMs as number) < 1 || (limits.timeoutMs as number) > runTimeoutCeiling(r.providerKind,r.configuredModel)) return bad("Report timeout exceeds provider/model ceiling.");
   const budget = r["budget"];
   if (!isRec(budget) || typeof budget["publicBudgetPerRunUsd"] !== "number" || !(budget["claimId"] === null || isStr(budget["claimId"])) || !isStr(budget["accounting"])) {
     return bad("Report budget must carry a numeric publicBudgetPerRunUsd, claimId (string or null), and accounting text.");
@@ -441,8 +437,21 @@ async function request(path: string, init?: RequestInit): Promise<unknown> {
   return body;
 }
 
+export function parseBudgetStatus(value: unknown): BudgetInfo {
+  if (!isRec(value) || !["active", "unlimited", "not_configured", "unavailable"].includes(String(value["guard"]))) throw new Error("Invalid budget status");
+  const fields = ["capUsd", "reservedUsd", "committedUsd", "availableUsd", "perRunReservationUsd"];
+  if (value["guard"] === "unlimited") {
+    if (value["mode"] !== "unlimited" || fields.some(k => value[k] !== null) || value["publicBudgetUsd"] !== undefined || value["entries"] !== undefined || typeof value["accounting"] !== "string") throw new Error("Invalid unlimited budget");
+  } else {
+    if (value["mode"] !== undefined && value["mode"] !== "capped") throw new Error("Invalid capped mode");
+    if (value["guard"] === "active" && fields.some(k => typeof value[k] !== "number" || !Number.isFinite(value[k]) || value[k] < 0)) throw new Error("Missing capped total");
+    if (Object.entries(value).some(([k,v]) => k.endsWith("Usd") && (typeof v !== "number" || !Number.isFinite(v) || v < 0))) throw new Error("Invalid monetary total");
+    if (value["entries"] !== undefined && (typeof value["entries"] !== "number" || !Number.isSafeInteger(value["entries"]) || value["entries"] < 0)) throw new Error("Invalid entry count");
+  }
+  return value as unknown as BudgetInfo;
+}
 export function getBudget(signal?: AbortSignal): Promise<BudgetInfo> {
-  return request("/api/budget", { signal }) as Promise<BudgetInfo>;
+  return request("/api/budget", { signal }).then(parseBudgetStatus);
 }
 
 export function createInvestigation(input: {
@@ -490,6 +499,7 @@ export function parseInvestigationSummary(value: unknown): InvestigationSummary 
   const v = value;
   const bad = () => { throw new Error("Malformed investigation summary"); };
   if (!isRec(v) || !validProviderPair(v.provider, v.providerKind) || !["runId", "investigationId", "phase", "createdAt", "expiresAt", "configuredModel"].every(k => isStr(v[k])) || !REPORT_STATES.has(String(v.state)) || !["completedAt", "returnedModel", "outcome", "lastError"].every(k => v[k] === null || isStr(v[k]))) return bad();
+  if (isRec(v.limits) && (typeof v.limits.timeoutMs !== "number" || v.limits.timeoutMs < 1 || v.limits.timeoutMs > runTimeoutCeiling(v.providerKind,v.configuredModel))) return bad();
   if (!isInt(v.requestCount) || (v.requestCount as number) < 0 || !isInt(v.experimentCount) || (v.experimentCount as number) < 0 || v.realMetaRequests !== (v.providerKind === "meta" ? v.requestCount : 0) || !isRec(v.limits) || !["maxModelRequests", "maxExperiments", "timeoutMs"].every(k => isInt((v.limits as Record<string, unknown>)[k])) || (v.requestCount as number) > (v.limits.maxModelRequests as number) || (v.experimentCount as number) > (v.limits.maxExperiments as number)) return bad();
   if (!Array.isArray(v.requests) || !v.requests.every(r => isRec(r) && isInt(r.index) && isStr(r.status) && isNumOrNull(r.durationMs) && (r.usage === null || isRec(r.usage) && ["promptTokens", "completionTokens", "totalTokens"].every(k => isNumOrNull((r.usage as Record<string, unknown>)[k]))))) return bad();
   if (!Array.isArray(v.trace) || !v.trace.every(r => isRec(r) && isInt(r.seq) && TRACE_KINDS.has(String(r.kind)) && isStr(r.status) && ["shipped", "makespanMs", "totalWaitMs", "backlog"].every(k => isNumOrNull(r[k])))) return bad();

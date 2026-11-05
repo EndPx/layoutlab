@@ -1,0 +1,22 @@
+{
+  "schema": "layoutlab.layout-investigation/1",
+  "promptVersion": "layoutlab.layout-investigation-prompt/1",
+  "implementationVersion": "0.1.1",
+  "runId": "4d255a53-5b80-4337-94be-131170ac1b0b",
+  "createdAt": 1793901599046,
+  "deadlineAt": 1793901719046,
+  "state": "FAILED",
+  "input": {
+    "scenario": {
+      "schemaVersion": "layoutlab.operations/1",
+      "engineVersion": "layoutlab.operations-engine/1",
+      "id": "picking-packing-burst",
+      "provenance": {
+        "category": "synthetic",
+        "description": "M3b first connected picking/packing slice: 6 small burst orders on the accepted main-warehouse geometry/stock/products/resources/units; no inbound deliveries; finite-cohort run for SUPPORTED_STAGE_COMPLETE.",
+        "sourceUrls": [],
+        "assumptions": [
+          "Derived from fixtures/operations/main-warehouse.json sha256 c6e4f208835e31de2554850fa618953bb6f9a1b03c360b137c784bd5112660cb (23520 bytes), cargo-c2 model: room, racks, obstacles, products, locations, initial stock, home assignments, mobile units (4 pickers + 2 putaway), and all resource coordinates/capacities/durations are unchanged FROM THE PARENT (the historical ce33a9c5/70ec57ab revision pair is preserved in oracles/git history, never rewritten).",
+          "Constructed fields: id, seed, provenance, orderSchedule (6 burst orders B-01..B-06 at 0/5000/10000/15000/20000/25000ms, 3-4 items each, single-trip loads), empty deliverySchedule, finite-cohort run with arrivalCutoffMs 25000.",
+          "Why this fixture exists: the full 28-order + 12-delivery main schedule is NOT executable as the M3b slice (inbound unsupported); this burst proves scheduled orders -> reservations -> concurrent picks -> packing queues -> READY_FOR_DISPATCH on real main-warehouse coordinates.",
+          "Simplifications: no inbound deliveries; putaway units stay idle at occupied parking; packing service uses the configured 90000ms durations; pick/unload handling durations come from the saved execution

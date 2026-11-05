@@ -1,0 +1,39 @@
+{
+  "timestamp": "2026-11-05T17:57:43.335Z",
+  "requestCount": 1,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "ready": {
+        "type": "boolean",
+        "const": true
+      },
+      "domain": {
+        "type": "string",
+        "const": "warehouse"
+      }
+    },
+    "required": [
+      "ready",
+      "domain"
+    ],
+    "additionalProperties": false
+  },
+  "automaticRetries": 0,
+  "jsonText": "{\"ready\":true,\"domain\":\"warehouse\"}",
+  "parsed": {
+    "ready": true,
+    "domain": "warehouse"
+  },
+  "usage": {
+    "promptTokens": 9702,
+    "completionTokens": 25,
+    "totalTokens": 9727
+  },
+  "responseBytes": 420,
+  "durationMs": 4248,
+  "model": "glm-5-3-flash",
+  "responseId": "20261106015744caf0577f925f4d25",
+  "finishReason": "stop",
+  "schemaConformant": true
+}

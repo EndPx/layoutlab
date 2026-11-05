@@ -1,3 +1,4 @@
+import { runTimeoutCeiling, completionTokenCeiling } from "./config.js";
 // E4a bounded Meta investigation backend: question -> model-selected
 // experiment (E3 engine) -> real measured feedback -> next choice ->
 // evidence-linked recommendation. In-memory only (no durable-resume claim),
@@ -125,6 +126,19 @@ export const INVESTIGATION_ACTION_JSON_SCHEMA = {
 
 const ACTION_KEYS = [...INVESTIGATION_ACTION_JSON_SCHEMA.required] as readonly string[];
 const PATCH_KEYS = ["extraPickers", "extraPutaway", "packingDurationMs", "dispatchDurationMs", "receivingDurationMs"] as const;
+
+// Mirror the existing action validator in the Gater prompt schema. Keep the
+// historical Meta strict-schema payload unchanged.
+export const GATER_INVESTIGATION_ACTION_JSON_SCHEMA = {
+  ...INVESTIGATION_ACTION_JSON_SCHEMA,
+  allOf: [
+    { if: { properties: { action: { const: "run_experiment" } } }, then: { properties: { candidateId: { type: "null" } } } },
+    { if: { properties: { action: { const: "finish" } } }, then: { properties: {
+      ...Object.fromEntries(PATCH_KEYS.map(key => [key, { type: "null" }])),
+      candidateId: { type: "string", minLength: 1, maxLength: 128 },
+    } } },
+  ],
+};
 
 type ModelAction =
   | { kind: "run_experiment"; hypothesis: string | null; patch: OperationsPatch }
@@ -694,7 +708,7 @@ export class InvestigationStore {
           config,
           {
             schemaName: "operations_investigation_action",
-            schema: INVESTIGATION_ACTION_JSON_SCHEMA,
+            schema: config.providerKind === "gater" ? GATER_INVESTIGATION_ACTION_JSON_SCHEMA : INVESTIGATION_ACTION_JSON_SCHEMA,
             developerInstruction:
               "You are LayoutLab's bounded operations investigator. Choose exactly ONE action as JSON. " +
               "action run_experiment proposes ONE experiment patch: include ALL keys (action, hypothesis, the five patch fields, candidateId); " +
@@ -893,8 +907,9 @@ export class InvestigationStore {
       budget: {
         publicBudgetPerRunUsd: this.config.publicBudgetPerRunUsd,
         claimId: record.budgetClaimId,
-        accounting:
-          "one publicBudgetPerRunUsd conservative claim holds the whole investigation; it is committed in full after any dispatched request and released only when zero requests were dispatched. It is not an invoice or a confirmed provider price.",
+        accounting: this.config.publicBudgetMode === "unlimited"
+          ? "Configured publicBudgetPerRunUsd is an unused bound; no reservation or monetary charge is recorded. No total allowance limit; provider billing still applies. This is not an invoice."
+          : "one publicBudgetPerRunUsd conservative claim holds the whole investigation; it is committed in full after any dispatched request and released only when zero requests were dispatched. It is not an invoice or a confirmed provider price.",
       },
       requestCount: record.modelRequestsUsed,
       experimentCount: record.experimentsUsed,
@@ -1101,8 +1116,8 @@ export function verifyInvestigationExport(exported: unknown): {
     const intIn = (v: unknown, min: number, max: number): boolean => Number.isSafeInteger(v) && (v as number) >= min && (v as number) <= max;
     if (!intIn(l["maxModelRequests"], 0, MAX_INVESTIGATION_REQUESTS)) bad("limits.maxModelRequests must be an integer in 0..4");
     if (!intIn(l["maxExperiments"], 0, MAX_INVESTIGATION_EXPERIMENTS)) bad("limits.maxExperiments must be an integer in 0..3");
-    if (!intIn(l["maxCompletionTokens"], 1, 2000)) bad("limits.maxCompletionTokens must be an integer in 1..2000");
-    if (!intIn(l["timeoutMs"], 1, 120000)) bad("limits.timeoutMs must be an integer in 1..120000");
+    if (!intIn(l["maxCompletionTokens"], 1, completionTokenCeiling(exp.providerKind,exp.configuredModel))) bad("limits.maxCompletionTokens exceeds provider/model ceiling");
+    if (!intIn(l["timeoutMs"], 1, runTimeoutCeiling(exp.providerKind,exp.configuredModel))) bad("limits.timeoutMs exceeds provider/model ceiling");
     limitsOk = intIn(l["maxModelRequests"], 0, MAX_INVESTIGATION_REQUESTS) && intIn(l["maxExperiments"], 0, MAX_INVESTIGATION_EXPERIMENTS);
   }
   if (!isRecord(raw["budget"]) || !hasExactKeys(raw["budget"], BUDGET_KEYS)) {

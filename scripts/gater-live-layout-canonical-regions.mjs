@@ -1,0 +1,13 @@
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {loadConfig,loadEnvFileInto,sanitizeMessage} from '../.coordination/gater-live-dist/config.js';
+import {InvestigationStore,parseInvestigationInput,verifyInvestigationExport} from '../.coordination/gater-live-dist/operations-investigations.js';
+import {redactStructured} from '../.coordination/gater-live-dist/provider.js';
+import {LayoutInvestigationStore,verifyLayoutInvestigationExport} from '../.coordination/gater-live-dist/layout-investigations.js';
+import {defaultApprovedConstraints} from '../packages/simulation/dist/index.js';
+mkdirSync('evidence/sanitized/gater-live/canonical-regions',{recursive:true});
+const env={};loadEnvFileInto(env,'.env.gater.local');const config=loadConfig(env);
+const scenario=JSON.parse(readFileSync('fixtures/operations/picking-packing-burst.json','utf8'));scenario.orderSchedule=scenario.orderSchedule.slice(0,6);
+const {executionConfig}=JSON.parse(readFileSync('fixtures/operations/picking-packing-burst.runconfig.json','utf8'));
+const save=(name,value)=>writeFileSync(`evidence/sanitized/gater-live/canonical-regions/${name}.json`,JSON.stringify(redactStructured(value,config),null,2));
+const layout=new LayoutInvestigationStore(config);const l=await layout.create({scenario,executionConfig,question:'Test moving PACK-1 within the allowed area to reduce picking travel; keep receiving and all operational inputs fixed',safetyCeilingMs:600000,mode:'live',consent:true},null);layout.start(l,fetch);await l.task;save('layout-interpretation',layout.buildReport(l));
+if(l.report.state==='AWAITING_APPROVAL'){layout.approve(l.report.runId,{objective:'Reduce packing travel',constraints:defaultApprovedConstraints(['PACK-1']),allowedRegions:[{entityId:'PACK-1',minXMm:0,minZMm:0,maxXMm:scenario.geometry.room.widthMm,maxZMm:scenario.geometry.room.depthMm}]},fetch);await l.task;}save('layout',layout.buildReport(l));save('layout-verifier',await verifyLayoutInvestigationExport(layout.buildReport(l)));console.log(JSON.stringify({layout:l.report.state}));

@@ -1,0 +1,12 @@
+import {readFileSync,writeFileSync} from 'node:fs';
+import {loadConfig,loadEnvFileInto,sanitizeMessage} from '../.coordination/gater-live-dist/config.js';
+import {InvestigationStore,parseInvestigationInput,verifyInvestigationExport} from '../.coordination/gater-live-dist/operations-investigations.js';
+import {redactStructured} from '../.coordination/gater-live-dist/provider.js';
+import {LayoutInvestigationStore,verifyLayoutInvestigationExport} from '../.coordination/gater-live-dist/layout-investigations.js';
+import {defaultApprovedConstraints} from '../packages/simulation/dist/index.js';
+const env={};loadEnvFileInto(env,'.env.gater.local');const config=loadConfig(env);
+const scenario=JSON.parse(readFileSync('fixtures/operations/picking-packing-burst.json','utf8'));scenario.orderSchedule=scenario.orderSchedule.slice(0,6);
+const {executionConfig}=JSON.parse(readFileSync('fixtures/operations/picking-packing-burst.runconfig.json','utf8'));
+const save=(name,value)=>writeFileSync(`evidence/sanitized/gater-live/canonical-regions/${name}.json`,JSON.stringify(redactStructured(value,config),null,2));
+const ops=new InvestigationStore(config);const r=ops.create(parseInvestigationInput({scenario,executionConfig,interventionPolicy:{allowedFields:['dispatchDurationMs']},question:'Can faster dispatch reduce completion time for these six orders? Test an actual candidate before finishing.',mode:'live',consent:true}),null);ops.start(r,fetch);while(r.state==='RUNNING')await new Promise(resolve=>setTimeout(resolve,50));const report=ops.toSummary(r).report;save('operations',report);save('operations-verifier',verifyInvestigationExport(report));
+console.log(JSON.stringify({operations:r.state}));

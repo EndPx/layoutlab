@@ -1,0 +1,111 @@
+{
+  "operations": {
+    "bytes": 187664,
+    "sha256": "31282bf6635ce46088053ce02a075b541e79ff95432a15f8992802135585cdbd",
+    "verification": {
+      "ok": true,
+      "mismatches": [],
+      "verifierImplementationVersion": "0.1.1"
+    },
+    "state": "TIMED_OUT",
+    "error": null,
+    "requests": [
+      {
+        "index": 1,
+        "status": "invalid-action",
+        "responseId": "20261106020134fa609c2095524e82",
+        "usage": {
+          "promptTokens": 10170,
+          "completionTokens": 247,
+          "totalTokens": 10417
+        },
+        "finishReason": "stop",
+        "durationMs": 11086,
+        "model": "glm-5-3-flash",
+        "errorCode": "INVALID_ACTION",
+        "error": "invalid action rejected: run_experiment requires candidateId to be null"
+      },
+      {
+        "index": 2,
+        "status": "ok",
+        "responseId": "20261106020317b8ac2583a109470b",
+        "usage": {
+          "promptTokens": 10190,
+          "completionTokens": 199,
+          "totalTokens": 10389
+        },
+        "finishReason": "stop",
+        "durationMs": 99128,
+        "model": "glm-5-3-flash",
+        "errorCode": null,
+        "error": null
+      },
+      {
+        "index": 3,
+        "status": "aborted",
+        "responseId": null,
+        "usage": null,
+        "finishReason": null,
+        "durationMs": null,
+        "model": null,
+        "errorCode": "ABORTED",
+        "error": "Model request aborted (cancelled or deadline)."
+      }
+    ],
+    "requestCount": 3,
+    "recommendation": {
+      "candidateId": "exp-1",
+      "source": "deterministic-fallback",
+      "modelSelectedCandidateId": null,
+      "deterministicBestCandidateId": "exp-1",
+      "baselineCandidateId": "baseline",
+      "improvedOverBaseline": true,
+      "comparisons": {
+        "baselineCandidateId": "baseline",
+        "candidateId": "exp-1",
+        "shippedDelta": 0,
+        "makespanDeltaMs": -105300,
+        "makespanImprovementPercent": 20.959395,
+        "totalWaitDeltaMs": 0,
+        "totalWaitImprovementPercent": 0
+      },
+      "explanation": "Server-computed contrast in this synthetic scenario only: candidate exp-1 vs baseline baseline under declared patch {\"dispatchDurationMs\":30000}: shipped 6 vs 6 (delta 0), makespanMs 397100 vs 502400 (delta -105300 ms, improvement 20.959395%), totalWaitMs 614900 vs 614900 (delta 0 ms). The candidate ranks ahead of the baseline under the deterministic E3 ranking for this bounded contrast. This is a bounded contrast for the declared intervention in a synthetic scenario, not causal proof, not a global optimum, and not real warehouse savings."
+    }
+  },
+  "layout": {
+    "bytes": 248524,
+    "sha256": "2a2b26b586a52ef2e9d6d63241ba2024933d31c49f66815abf8ae0fe389878db",
+    "verification": {
+      "ok": true,
+      "mismatches": []
+    },
+    "state": "FAILED",
+    "error": "Model response has no message content.",
+    "requests": [
+      {
+        "index": 1,
+        "phase": "interpretation",
+        "status": "failed",
+        "diagnostics": {
+          "responseId": "20261106020952ef324e6187ac4d0b",
+          "finishReason": "length",
+          "usage": {
+            "promptTokens": 12027,
+            "completionTokens": 2000,
+            "totalTokens": 14027
+          },
+          "durationMs": 51144,
+          "responseBytes": 7822,
+          "model": "glm-5-3-flash"
+        },
+        "output": null,
+        "error": "Model response has no message content."
+      }
+    ],
+    "requestCount": 1,
+    "recommendation": {
+      "candidateId": "baseline",
+      "source": "deterministic-fallback"
+    }
+  }
+}

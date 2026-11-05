@@ -1,17 +1,23 @@
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
 import { selectLayoutInvestigationRuntime, MAIN_WAREHOUSE_ATTACHMENTS, buildStationAttachmentMap, canonicalStringify, contentSha256, defaultApprovedConstraints, parseOperationsScenario, parseOperationsExecutionConfig, runLayoutComparison, validateLayoutCandidate, SIMULATION_VERSION, type LayoutComparisonResult, type OperationsScenario, type OperationsExecutionConfig, type StationAttachment } from "@layoutlab/simulation";
-import { liveAvailable, sanitizeMessage, type ApiConfig, type ProviderKind } from "./config.js";
-import { chatCompletionJson, type FetchLike, type ProviderDiagnostics } from "./provider.js";
+import { runTimeoutCeiling, completionTokenCeiling, liveAvailable, sanitizeMessage, type ApiConfig, type ProviderKind } from "./config.js";
+import { redactStructured, chatCompletionJson, type FetchLike, type ProviderDiagnostics } from "./provider.js";
 import { parseLayoutAction, parseLayoutInterpretation, type LayoutInterpretation } from "./layout-investigation-contract.js";
 
 export const LAYOUT_INVESTIGATION_SCHEMA = "layoutlab.layout-investigation/1";
-export const LAYOUT_PROMPT_VERSION = "layoutlab.layout-investigation-prompt/1";
+export const LAYOUT_PROMPT_VERSION = "layoutlab.layout-investigation-prompt/3";
 const strict = (properties: Record<string, unknown>) => ({ type: "object", additionalProperties: false, properties, required: Object.keys(properties) });
-const string = { type: "string" }; const integer = { type: "integer" };
-const region = strict({ entityId: string, minXMm: integer, minZMm: integer, maxXMm: integer, maxZMm: integer });
-export const LAYOUT_INTERPRETATION_JSON_SCHEMA = strict({ objective: string, constraints: strict({ allowedEntityIds: { type: "array", items: string }, lockedEntityIds: { type: "array", items: string }, maxMovedEntities: integer, maxTranslationMm: integer, snapGridMm: integer, requireSameWorkerCount: { type: "boolean", enum: [true] }, requireSameServiceDurations: { type: "boolean", enum: [true] }, requireSameWorkload: { type: "boolean", enum: [true] }, requireSameSeed: { type: "boolean", enum: [true] } }), allowedRegions: { type: "array", items: region } });
-export const LAYOUT_ACTION_JSON_SCHEMA = strict({ action: { type: "string", enum: ["propose", "finish"] }, hypothesis: string, proposalId: { type: ["string", "null"] }, entityId: { type: ["string", "null"] }, parent: { ...strict({ scenarioId: string, scenarioContentSha256: string, schemaVersion: string, engineVersion: string }), type: ["object", "null"] }, centerMm: { ...strict({ x: integer, z: integer }), type: ["object", "null"] }, candidateId: { type: ["string", "null"] } });
+const string = { type: "string", minLength: 1, maxLength: 128 }; const integer = { type: "integer", minimum: -9007199254740991, maximum: 9007199254740991 };
+const mm = { ...integer, minimum: 0 };
+const region = strict({ entityId: string, minXMm: mm, minZMm: mm, maxXMm: mm, maxZMm: mm });
+export const LAYOUT_INTERPRETATION_JSON_SCHEMA = strict({ objective: { ...string, minLength: 1, maxLength: 500 }, constraints: strict({ lockedEntityIds: { type: "array", items: string }, maxMovedEntities: { ...mm, maximum: 1 }, maxTranslationMm: { ...mm, maximum: 5000 }, snapGridMm: { type: "integer", const: 100 }, requireSameWorkerCount: { type: "boolean", enum: [true] }, requireSameServiceDurations: { type: "boolean", enum: [true] }, requireSameWorkload: { type: "boolean", enum: [true] }, requireSameSeed: { type: "boolean", enum: [true] } }), allowedRegions: { type: "array", minItems: 1, maxItems: 2, items: region } });
+export const LAYOUT_ACTION_JSON_SCHEMA = strict({ action: { type: "string", enum: ["propose", "finish"] }, hypothesis: { type: "string", maxLength: 500 }, proposalId: { ...string, type: ["string", "null"] }, entityId: { ...string, type: ["string", "null"] }, parent: { ...strict({ scenarioId: string, scenarioContentSha256: { type: "string", pattern: "^[a-f0-9]{64}$", minLength: 64, maxLength: 64 }, schemaVersion: string, engineVersion: string }), type: ["object", "null"] }, centerMm: { ...strict({ x: integer, z: integer }), type: ["object", "null"] }, candidateId: { ...string, type: ["string", "null"] } });
+// Conditional null branches mirror the authoritative parser; they do not repair output.
+Object.assign(LAYOUT_ACTION_JSON_SCHEMA, { allOf: [
+  { if: { properties: { action: { const: "propose" } } }, then: { properties: { proposalId: { type: "string" }, entityId: { type: "string" }, parent: { type: "object" }, centerMm: { type: "object" }, candidateId: { type: "null" } } } },
+  { if: { properties: { action: { const: "finish" } } }, then: { properties: { proposalId: { type: "null" }, entityId: { type: "null" }, parent: { type: "null" }, centerMm: { type: "null" }, candidateId: { type: "string" } } } },
+] });
 const providerAction = z.strictObject({ action: z.enum(["propose", "finish"]), hypothesis: z.string().max(500), proposalId: z.string().nullable(), entityId: z.string().nullable(), parent: z.unknown(), centerMm: z.unknown(), candidateId: z.string().nullable() });
 export function parseProviderLayoutAction(value: unknown) {
   const p = providerAction.parse(value);
@@ -50,6 +56,13 @@ export function parseLayoutApproval(value: unknown, input: LayoutInvestigationIn
   for (const r of p.allowedRegions) if (r.maxXMm > input.scenario.geometry.room.widthMm || r.maxZMm > input.scenario.geometry.room.depthMm) throw new Error("allowed region exceeds room bounds");
   return p;
 }
+// Version 3 provider regions are the sole source of editable IDs; raw output stays intact.
+export function parseProviderLayoutInterpretation(value: unknown, input: LayoutInvestigationInput, runtime: ReplayRuntime = currentRuntime): LayoutInterpretation {
+ const constraint = z.strictObject({lockedEntityIds:z.array(z.string().min(1).max(128)),maxMovedEntities:z.number().int().min(0).max(1),maxTranslationMm:z.number().int().min(0).max(5000),snapGridMm:z.literal(100),requireSameWorkerCount:z.literal(true),requireSameServiceDurations:z.literal(true),requireSameWorkload:z.literal(true),requireSameSeed:z.literal(true)});
+ const region=z.strictObject({entityId:z.string().min(1).max(128),minXMm:z.number().int().nonnegative().safe(),minZMm:z.number().int().nonnegative().safe(),maxXMm:z.number().int().nonnegative().safe(),maxZMm:z.number().int().nonnegative().safe()});
+ const raw=z.strictObject({objective:z.string().min(1).max(500),constraints:constraint,allowedRegions:z.array(region).min(1).max(2)}).parse(value);
+ return parseLayoutApproval({...raw,constraints:{...raw.constraints,allowedEntityIds:raw.allowedRegions.map(r=>r.entityId)}},input,runtime);
+}
 export type Evaluation = { validation: Awaited<ReturnType<typeof validateLayoutCandidate>>; regionIssues: string[]; comparison: LayoutComparisonResult | null };
 export async function evaluateLayoutProposal(input: LayoutInvestigationInput, approval: LayoutInterpretation, proposal: unknown, isActive: () => boolean = () => true, runtime: ReplayRuntime = currentRuntime): Promise<Evaluation> {
   if (!isActive()) throw new Error("RUN_CLOSED");
@@ -85,8 +98,8 @@ export class LayoutInvestigationStore {
       const old = [...this.records].find(([,r]) => closed(r.report.state));
       if (old) this.records.delete(old[0]); else throw new Error("RUN_STORE_FULL");
     }
-    const createdAt = Date.now(), timeoutMs = Math.min(120000, this.config.timeoutMs);
-    const r: LayoutInvestigationRecord = { report: { schema: LAYOUT_INVESTIGATION_SCHEMA, promptVersion: LAYOUT_PROMPT_VERSION, implementationVersion: SIMULATION_VERSION, runId: randomUUID(), createdAt, deadlineAt: createdAt + timeoutMs, state: "RUNNING", input, inputSha256, attachments, interpreted: null, approved: null, baseline: null, requests: [], proposals: [], rejectedActions: [], recommendation: null, modelRequestsUsed: 0, proposalsUsed: 0, limits: { requests: Math.min(4, this.config.maxRequests), proposals: Math.min(3, this.config.maxProposals), tokens: Math.min(2000, this.config.maxCompletionTokens), timeoutMs }, budget: { claimId, dispatched: 0 }, provider: { kind: this.config.providerKind, model: this.config.modelId }, error: null }, controller: new AbortController(), timer: null, task: null, started: false };
+    const createdAt = Date.now(), timeoutMs = Math.min(runTimeoutCeiling(this.config.providerKind,this.config.modelId), this.config.timeoutMs);
+    const r: LayoutInvestigationRecord = { report: { schema: LAYOUT_INVESTIGATION_SCHEMA, promptVersion: LAYOUT_PROMPT_VERSION, implementationVersion: SIMULATION_VERSION, runId: randomUUID(), createdAt, deadlineAt: createdAt + timeoutMs, state: "RUNNING", input, inputSha256, attachments, interpreted: null, approved: null, baseline: null, requests: [], proposals: [], rejectedActions: [], recommendation: null, modelRequestsUsed: 0, proposalsUsed: 0, limits: { requests: Math.min(4, this.config.maxRequests), proposals: Math.min(3, this.config.maxProposals), tokens: Math.min(completionTokenCeiling(this.config.providerKind,this.config.modelId), this.config.maxCompletionTokens), timeoutMs }, budget: { claimId, dispatched: 0 }, provider: { kind: this.config.providerKind, model: this.config.modelId }, error: null }, controller: new AbortController(), timer: null, task: null, started: false };
     this.records.set(r.report.runId, r);
     r.timer = setTimeout(() => this.finish(r, "TIMED_OUT", "deadline exceeded"), timeoutMs); r.timer.unref?.();
     return r;
@@ -123,9 +136,9 @@ export class LayoutInvestigationStore {
       const baseline = await runLayoutComparison({ baselineScenario: r.report.input.scenario, executionConfig: r.report.input.executionConfig, proposal: { kind: "PACKING_STATION_TRANSLATION", proposalId: "baseline", parent, entityId: first.stationId, target: { mode: "ABSOLUTE_CENTER_MM", centerMm: first.centreMm } }, attachments: r.report.attachments, approvedConstraints: defaultApprovedConstraints(r.report.attachments.map(a=>a.stationId)), safetyCeilingMs: r.report.input.safetyCeilingMs });
       if (!this.alive(r)) return;
       r.report.baseline = baseline;
-      const value = await this.request(r, "interpretation", LAYOUT_INTERPRETATION_JSON_SCHEMA, this.context(r), fetchImpl);
+      const value = await this.request(r, "interpretation", LAYOUT_INTERPRETATION_JSON_SCHEMA, this.interpretationContext(r), fetchImpl);
       if (!this.alive(r)) return;
-      r.report.interpreted = parseLayoutApproval(value, r.report.input);
+      r.report.interpreted = parseProviderLayoutInterpretation(value, r.report.input);
       r.report.state = "AWAITING_APPROVAL";
     });
   }
@@ -138,6 +151,13 @@ export class LayoutInvestigationStore {
     this.launch(r, () => this.loop(r, fetchImpl)); return r;
   }
   private async parent(r: LayoutInvestigationRecord) { const s = r.report.input.scenario; return { scenarioId:s.id, scenarioContentSha256:await contentSha256(s), schemaVersion:s.schemaVersion, engineVersion:s.engineVersion }; }
+  private interpretationContext(r: LayoutInvestigationRecord) {
+    const s=r.report.input.scenario;
+    return { objective:r.report.input.question, coordinateSystem:"integer-mm room frame", room:s.geometry.room,
+      packingStations:r.report.attachments.map(a=>({stationId:a.stationId,servicePositions:s.resources.find(x=>x.id===a.stationId)?.servicePositions})),
+      constraints:(()=>{const {allowedEntityIds,...fixed}=defaultApprovedConstraints(r.report.attachments.map(a=>a.stationId));return fixed;})(),
+      interpretationOnly:true, instruction:"Interpret editable constraints only; do not optimize or execute. Receiving locked; workers, workload, seed, service times and non-packing geometry fixed." };
+  }
   private context(r: LayoutInvestigationRecord) {
     const s=r.report.input.scenario;
     return { question:r.report.input.question, coordinateSystem:"integer-mm room frame", geometry:s.geometry, attachments:r.report.attachments, resources:s.resources, workers:s.mobileUnits, frozenInputSha256:r.report.inputSha256, executionConfig:r.report.input.executionConfig, baseline:r.report.baseline?.baselineMetrics, approved:r.report.approved, interpretation:r.report.interpreted };
@@ -151,11 +171,11 @@ export class LayoutInvestigationStore {
     if (!this.alive(r)) throw new Error("RUN_CLOSED");
     const row: RequestRow={index:++r.report.modelRequestsUsed,phase,status:"dispatched",diagnostics:null,output:null,error:null}; r.report.requests.push(row); r.report.budget.dispatched++;
     try {
-      const result=await chatCompletionJson({...this.config,maxCompletionTokens:r.report.limits.tokens},{schemaName:`layout_${phase}`,schema,developerInstruction: phase==="interpretation" ? "Interpret the objective into editable packing-station constraints for user review. One station maximum, receiving locked, 100mm grid, at most5000mm. All fixed-input flags true. Allowed regions are station centre bounds within room. No execution is authorized until approval." : "Use only approved packing-station transforms, never service/staff/racks. Propose concrete integer mm centres and exact parent identity. All keys required; proposal uses null candidateId; finish uses null transform fields and an existing valid finishCandidateId. Hypotheses are unproven. Use actual feedback, retain worse results; no invented metrics.",userContent},r.controller.signal,fetchImpl);
+      const result=await chatCompletionJson({...this.config,maxCompletionTokens:r.report.limits.tokens},{schemaName:`layout_${phase}`,schema,developerInstruction: phase==="interpretation" ? "Interpret the objective into editable packing-station constraints for user review. Objective must be one short sentence <=200 characters. One station maximum, receiving locked, 100mm grid, at most5000mm. All fixed-input flags true. Allowed regions are station centre bounds within room. allowedRegions is the only source of editable IDs: include only proposed editable packing stations. Do not output constraints.allowedEntityIds; the server derives it exactly from regions. No execution is authorized until approval." : "Use only approved packing-station transforms, never service/staff/racks. Hypothesis must be one short sentence <=200 characters; do not include verbose analysis in JSON. Propose concrete integer mm centres and exact parent identity. All keys required; proposal uses null candidateId; finish uses null transform fields and an existing valid finishCandidateId. Hypotheses are unproven. Use actual feedback, retain worse results; no invented metrics.",userContent},r.controller.signal,fetchImpl);
       row.diagnostics={responseId:result.responseId,finishReason:result.finishReason,usage:result.usage,durationMs:result.durationMs,responseBytes:result.responseBytes,model:result.model};
       if(!this.alive(r)){row.status="aborted";return null;}
       // Persist parsed structured evidence, never raw content/reasoning.
-      row.output=JSON.parse(sanitizeMessage(JSON.stringify(result.parsed),this.config)); row.status="success"; return row.output;
+      row.output=redactStructured(result.parsed,this.config); row.status="success"; return row.output;
     } catch(e) {
       row.status=this.alive(r)?"failed":"aborted"; row.error=sanitizeMessage(e instanceof Error?e.message:"provider failed",this.config).slice(0,500); row.diagnostics=(e as {diagnostics?:ProviderDiagnostics}).diagnostics??null; throw e;
     }
@@ -198,12 +218,12 @@ export async function verifyLayoutInvestigationExport(value: unknown): Promise<{
   try {
     if(!exactKeys(value,reportKeys))throw new Error("report envelope keys");
     const r=value as LayoutInvestigationReport;
-    check(r.schema===LAYOUT_INVESTIGATION_SCHEMA && r.promptVersion===LAYOUT_PROMPT_VERSION && r.implementationVersion==="0.1.1","versions");
+    check(r.schema===LAYOUT_INVESTIGATION_SCHEMA && ["layoutlab.layout-investigation-prompt/1","layoutlab.layout-investigation-prompt/2",LAYOUT_PROMPT_VERSION].includes(r.promptVersion) && r.implementationVersion==="0.1.1","versions");
     check(typeof r.runId==="string" && r.runId.length>0,"runId");
     check(["RUNNING","AWAITING_APPROVAL","COMPLETED","FAILED","CANCELLED","TIMED_OUT"].includes(r.state),"state");
     check(Number.isSafeInteger(r.createdAt)&&Number.isSafeInteger(r.deadlineAt)&&r.deadlineAt-r.createdAt===r.limits.timeoutMs,"deadline");
     check(exactKeys(r.limits,["requests","proposals","tokens","timeoutMs"]),"limits envelope");
-    for(const [n,max] of [[r.limits.requests,4],[r.limits.proposals,3],[r.limits.tokens,2000],[r.limits.timeoutMs,120000]])check(Number.isSafeInteger(n)&&n!>=0&&n!<=max!,"limit bound");
+    for(const [n,max] of [[r.limits.requests,4],[r.limits.proposals,3],[r.limits.tokens,completionTokenCeiling(r.provider.kind,r.provider.model)],[r.limits.timeoutMs,runTimeoutCeiling(r.provider.kind,r.provider.model)]])check(Number.isSafeInteger(n)&&n!>=0&&n!<=max!,"limit bound");
     check(r.limits.tokens>0&&r.limits.timeoutMs>0,"positive limits");
     // Bound all report-controlled loops and links before any simulator replay.
     if (!Array.isArray(r.requests) || !Array.isArray(r.proposals) || !Array.isArray(r.rejectedActions)) throw new Error("report arrays");
@@ -281,7 +301,7 @@ export async function verifyLayoutInvestigationExport(value: unknown): Promise<{
         if(row.status==="aborted")check(["CANCELLED","TIMED_OUT"].includes(r.state),"aborted request lifecycle");
         continue;
       }
-      if(row.phase==="interpretation") { try { const parsed = parseLayoutApproval(row.output,input,runtime); if(r.interpreted===null && ["CANCELLED","TIMED_OUT"].includes(r.state))check(row.index===r.requests.length&&r.approved===null,"cancelled interpretation settlement"); else equal(parsed,r.interpreted,"interpreted output");} catch {check(r.interpreted===null&&r.state==="FAILED","failed interpretation evidence");} continue;}
+      if(row.phase==="interpretation") { try { const parsed = r.promptVersion === LAYOUT_PROMPT_VERSION ? parseProviderLayoutInterpretation(row.output,input,runtime) : parseLayoutApproval(row.output,input,runtime); if(r.interpreted===null && ["CANCELLED","TIMED_OUT"].includes(r.state))check(row.index===r.requests.length&&r.approved===null,"cancelled interpretation settlement"); else equal(parsed,r.interpreted,"interpreted output");} catch {check(r.interpreted===null&&r.state==="FAILED","failed interpretation evidence");} continue;}
       check(r.approved!==null,"proposal requires approved authority");
       try {
         const a=parseProviderLayoutAction(row.output);

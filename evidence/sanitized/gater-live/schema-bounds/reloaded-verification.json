@@ -1,0 +1,78 @@
+{
+  "bytes": 251319,
+  "sha256": "90fdefd156fa1f96de09689477b359f96fc6177f8193a181425ddf494ae9651e",
+  "verification": {
+    "ok": true,
+    "mismatches": []
+  },
+  "state": "TIMED_OUT",
+  "error": "deadline exceeded",
+  "requests": [
+    {
+      "index": 1,
+      "phase": "interpretation",
+      "status": "success",
+      "diagnostics": {
+        "responseId": "20261106022335971db457533a4034",
+        "finishReason": "stop",
+        "usage": {
+          "promptTokens": 10299,
+          "completionTokens": 636,
+          "totalTokens": 10935
+        },
+        "durationMs": 45518,
+        "responseBytes": 1346,
+        "model": "glm-5-3-flash"
+      },
+      "output": {
+        "objective": "仅解释可编辑约束：PACK-1 可在允许区域内平移以缩短拣选行走距离，平移量不超过 5000mm 且吸附 100mm 网格；PACK-2 与接收区 RCV-1 保持固定；工人数量、服务时长、工作量与随机种子均不变。",
+        "constraints": {
+          "allowedEntityIds": [
+            "PACK-1",
+            "PACK-2"
+          ],
+          "lockedEntityIds": [
+            "RCV-1"
+          ],
+          "maxMovedEntities": 1,
+          "maxTranslationMm": 5000,
+          "snapGridMm": 100,
+          "requireSameWorkerCount": true,
+          "requireSameServiceDurations": true,
+          "requireSameWorkload": true,
+          "requireSameSeed": true
+        },
+        "allowedRegions": [
+          {
+            "entityId": "PACK-1",
+            "minXMm": 15500,
+            "minZMm": 1900,
+            "maxXMm": 24000,
+            "maxZMm": 11900
+          },
+          {
+            "entityId": "PACK-2",
+            "minXMm": 20500,
+            "minZMm": 12900,
+            "maxXMm": 20500,
+            "maxZMm": 12900
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "index": 2,
+      "phase": "proposal",
+      "status": "aborted",
+      "diagnostics": null,
+      "output": null,
+      "error": "Model request aborted (cancelled or deadline)."
+    }
+  ],
+  "proposals": 0,
+  "recommendation": {
+    "candidateId": "baseline",
+    "source": "deterministic-fallback"
+  }
+}

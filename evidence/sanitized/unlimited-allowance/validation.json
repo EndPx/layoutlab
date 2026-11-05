@@ -1,0 +1,45 @@
+{
+  "scope": "Offline loopback fake provider only; no credentials, paid inference or deployment",
+  "focused": {
+    "files": [
+      "apps/api/test/unlimited-allowance.test.ts",
+      "apps/web/src/lib/unlimited-allowance.test.ts"
+    ],
+    "passed": 19,
+    "failed": 0,
+    "report": "focused-tests.json"
+  },
+  "regression": {
+    "files": [
+      "apps/api/test/unlimited-allowance.test.ts",
+      "apps/web/src/lib/unlimited-allowance.test.ts",
+      "apps/api/test/budget-guard.test.ts",
+      "apps/api/test/layout-http-admission.test.ts",
+      "apps/web/src/lib/gater-contracts.test.ts"
+    ],
+    "passed": 71,
+    "failed": 0,
+    "durationSeconds": 117.1
+  },
+  "checks": [
+    "API typecheck passed",
+    "web typecheck passed",
+    "API isolated tsc build passed",
+    "web isolated Vite build passed; existing large-chunk warning"
+  ],
+  "assertions": [
+    "explicit unlimited bypasses injected reserve/assertReservation/commit/release/snapshot",
+    "exhausted temporary ledger bytes unchanged",
+    "HTTP layout create/approve/finish and cancel",
+    "HTTP service completion records two requests and no monetary claim",
+    "shared concurrent admission rejects while layout owns slot",
+    "missing key and unsupported URL still refuse",
+    "unknown and default mode capped; per-run 4/3/120000 caps",
+    "strict monetary and mode decoding; historical status without mode pair accepted"
+  ],
+  "temporaryBuildOutputs": [
+    "D:/Belajar/Hackacton/.tmp-unlimited-api-dist",
+    "D:/Belajar/Hackacton/Hackacton yang masih jalan/LayoutLab Muse/.tmp-unlimited-web-dist"
+  ],
+  "cleanup": "Remove-Item cleanup was blocked by automatic policy; outputs left for root"
+}

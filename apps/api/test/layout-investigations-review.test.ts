@@ -9,7 +9,7 @@ const input=()=>({...structuredClone(saved.input),safetyCeilingMs:1000});
 const finish=(id:string)=>({action:'finish',hypothesis:'fixture',proposalId:null,entityId:null,parent:null,centerMm:null,candidateId:id});
 const fixture=(id:string):FetchLike=>async(_url,options)=>{
  const body=JSON.parse(options!.body as string);const value=body.response_format.json_schema.name==='layout_interpretation'?saved.interpreted:finish(id);
- return new Response(JSON.stringify({id:'fixture',model:'fixture',choices:[{message:{content:JSON.stringify(value)},finish_reason:'stop'}]}));
+ return new Response(JSON.stringify({id:'fixture',model:'fixture',choices:[{message:{content:JSON.stringify(providerV3(value))},finish_reason:'stop'}]}));
 };
 async function completed(id:string,requests=2){const s=new LayoutInvestigationStore(config(requests));const r=await s.create(input(),null);s.start(r,fixture(id));await r.task;expect(r.report.state).toBe('AWAITING_APPROVAL');s.approve(r.report.runId,saved.approved,fixture(id));await r.task;expect(r.report.state).toBe('COMPLETED');return s.buildReport(r);}
 describe('L2a independent review regression negatives',()=>{
@@ -42,3 +42,5 @@ describe('L2a independent review regression negatives',()=>{
   vi.useFakeTimers();try{const timed=new LayoutInvestigationStore({...config(),timeoutMs:1});const t=await timed.create(input(),null);await vi.advanceTimersByTimeAsync(1);expect(t.report.state).toBe('TIMED_OUT');expect((await verifyLayoutInvestigationExport(timed.buildReport(t))).ok).toBe(true);}finally{vi.useRealTimers();}
  },60000);
 });
+
+function providerV3(value:any){if(value?.objective && value?.constraints && value?.allowedRegions){const {allowedEntityIds,...constraints}=value.constraints;return {...value,constraints};}return value;}

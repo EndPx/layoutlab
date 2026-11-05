@@ -1,0 +1,11 @@
+{
+  "durationMs": 32514,
+  "firstByteMs": 9523,
+  "httpStatus": 200,
+  "events": 2,
+  "bytes": 444,
+  "finishReason": null,
+  "id": "chatcmpl-4603722c-506c-4ecf-bee1-e7b4c0ffde7e",
+  "error": "SyntaxError: Unexpected end of JSON input",
+  "realProviderAttempts": 1
+}

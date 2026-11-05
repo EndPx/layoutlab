@@ -37,6 +37,7 @@ export type ApiConfig = {
   // publicBudgetPerRunUsd is a conservative allowance bound committed in
   // full per bounded run/proposal - NOT an estimated or confirmed price
   // (see docs/PUBLIC_BUDGET_GUARD_REVIEW.md for the activation preflight).
+  publicBudgetMode?: "capped" | "unlimited";
   publicBudgetUsd: number;
   publicBudgetPerRunUsd: number;
   budgetStateFile: string;
@@ -56,7 +57,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
   // Brief caps win regardless of env overrides (upper clamp only; lower is allowed).
   const maxProposals = clampInt(env["MAX_PROPOSALS_PER_RUN"], 3, 0, BRIEF_MAX_PROPOSALS);
   const maxRequests = clampInt(env["MAX_MODEL_REQUESTS_PER_RUN"], 4, 0, BRIEF_MAX_REQUESTS);
-  const timeoutMs = clampInt(env["RUN_TIMEOUT_MS"], BRIEF_MAX_TIMEOUT_MS, 1, BRIEF_MAX_TIMEOUT_MS);
+  const timeoutMs = clampInt(env["RUN_TIMEOUT_MS"], runTimeoutCeiling(deriveProviderKind(baseUrl),modelId), 1, runTimeoutCeiling(deriveProviderKind(baseUrl),modelId));
   const host = (env["API_HOST"] ?? "127.0.0.1").trim() || "127.0.0.1";
   const port = clampInt(env["API_PORT"], 3001, 1, 65535);
   const concurrency = clampInt(env["API_CONCURRENCY"], 1, 1, 64);
@@ -81,10 +82,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
     rateMax,
     rateWindowMs,
     maxRuns: 50,
-    maxCompletionTokens: 2000,
+    maxCompletionTokens: completionTokenCeiling(deriveProviderKind(baseUrl), modelId),
     maxResponseBytes: 65536,
     maxContextChars: 20000,
     heuristicMaxEvaluations,
+    publicBudgetMode: env["PUBLIC_BUDGET_MODE"] === "unlimited" ? "unlimited" : "capped",
     publicBudgetUsd: (() => {
       const n = Number.parseFloat(env["PUBLIC_BUDGET_USD"] ?? "1");
       return Number.isFinite(n) && n > 0 ? Math.min(n, 1000) : 1;
@@ -184,3 +186,7 @@ export function sanitizeMessage(message: string, config: ApiConfig): string {
   out = out.replace(/(Authorization["']?\s*[:=]\s*["']?)[^"'\n}]+/gi, "$1[REDACTED]");
   return out.slice(0, 2000);
 }
+
+export function completionTokenCeiling(kind: unknown, model: unknown): number { return kind === "gater" && model === "glm-5-3-flash" ? 8192 : 2000; }
+
+export function runTimeoutCeiling(kind: unknown, model: unknown): number { return kind === "gater" && model === "glm-5-3-flash" ? 360000 : 120000; }

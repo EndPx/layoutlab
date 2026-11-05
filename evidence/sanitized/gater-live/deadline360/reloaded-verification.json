@@ -1,0 +1,63 @@
+{
+  "bytes": 249473,
+  "sha256": "01e55a33577064552d83ab86b02373a25b15b5c7bb400235ac0f98a52d3acc9d",
+  "verification": {
+    "ok": true,
+    "mismatches": []
+  },
+  "state": "FAILED",
+  "error": "each editable station requires exactly one allowed region",
+  "requests": [
+    {
+      "index": 1,
+      "phase": "interpretation",
+      "status": "success",
+      "diagnostics": {
+        "responseId": "202611060228506ac3822f348446c0",
+        "finishReason": "stop",
+        "usage": {
+          "promptTokens": 10299,
+          "completionTokens": 429,
+          "totalTokens": 10728
+        },
+        "durationMs": 41677,
+        "responseBytes": 1235,
+        "model": "glm-5-3-flash"
+      },
+      "output": {
+        "objective": "Interpret editable constraints for relocating PACK-1 within 5000mm of its service position PACK1-S1 (20500, 6900) to reduce picking travel; receiving RCV-1 locked; workers, workload, seed, service durations and non-packing geometry fixed; interpretation only, no optimization or execution.",
+        "constraints": {
+          "allowedEntityIds": [
+            "PACK-1",
+            "PACK-2"
+          ],
+          "lockedEntityIds": [
+            "RCV-1"
+          ],
+          "maxMovedEntities": 1,
+          "maxTranslationMm": 5000,
+          "snapGridMm": 100,
+          "requireSameWorkerCount": true,
+          "requireSameServiceDurations": true,
+          "requireSameWorkload": true,
+          "requireSameSeed": true
+        },
+        "allowedRegions": [
+          {
+            "entityId": "PACK-1",
+            "minXMm": 15500,
+            "minZMm": 1900,
+            "maxXMm": 24000,
+            "maxZMm": 11900
+          }
+        ]
+      },
+      "error": null
+    }
+  ],
+  "proposals": 0,
+  "recommendation": {
+    "candidateId": "baseline",
+    "source": "deterministic-fallback"
+  }
+}

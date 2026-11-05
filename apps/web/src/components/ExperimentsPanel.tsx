@@ -577,7 +577,7 @@ export function ExperimentsPanel(props: {
             </div>
             <div data-testid="exp-allowance" className="hint">
               {budget ? (
-                budget.guard === "active" ? (
+                budget.guard === "unlimited" ? <span>No total allowance limit; per-run limits apply. Provider billing still applies.</span> : budget.guard === "active" ? (
                   <span>
                     Public allowance: ${budget.availableUsd?.toFixed(2) ?? "—"} available of ${budget.capUsd?.toFixed(2) ?? "—"} · $
                     {budget.perRunReservationUsd?.toFixed(2) ?? "—"} per investigation (server-configured).

@@ -18,3 +18,6 @@ packages/simulation/archive/archive11.vite.config.mjs -text
 # Human source and pose bytes are pinned by asset/gait provenance.
 apps/web/public/assets/humans/** -text
 apps/web/src/lib/humanBake*.mjs text eol=lf
+
+# Retain exact bytes for live provider reports and their recorded hashes.
+evidence/sanitized/gater-live/** -text

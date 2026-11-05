@@ -1,3 +1,4 @@
+import { runTimeoutCeiling } from "./api";
 import {
   CORE_VERSION,
   REPORT_LIMITATIONS,
@@ -353,9 +354,9 @@ export function replayM3Envelope(json: unknown): {
     !budgets ||
     typeof maxP !== "number" || !Number.isInteger(maxP) || maxP < 0 || maxP > MAX_PROPOSALS_PER_RUN ||
     typeof maxR !== "number" || !Number.isInteger(maxR) || maxR < 0 || maxR > MAX_MODEL_REQUESTS_PER_RUN ||
-    typeof timeout !== "number" || !Number.isInteger(timeout) || timeout <= 0 || timeout > 120000
+    typeof timeout !== "number" || !Number.isInteger(timeout) || timeout <= 0 || timeout > runTimeoutCeiling(e.providerKind,e.modelId)
   ) {
-    throw new Error("M3 budgets must be integers within brief caps (3 proposals, 4 requests, 120000 ms).");
+    throw new Error("M3 budgets must be integers within provider/model caps (3 proposals, 4 requests, finite timeout).");
   }
   if ((used as number) > (maxR as number) || (props as number) > (maxP as number)) {
     throw new Error("M3 used counts cannot exceed budgets.");
@@ -365,7 +366,7 @@ export function replayM3Envelope(json: unknown): {
     throw new Error("M3 envelope must declare providerKind meta, gater, or fixture.");
   }
   if ((e.provider === "gater") !== (e.providerKind === "gater")) throw new Error("Inconsistent M3 provider pairing.");
-  if ((e.providerKind === "gater" || e.generationSettings !== undefined) && !validGenerationSettings(e.generationSettings, e.providerKind)) throw new Error("Malformed M3 generation settings.");
+  if ((e.providerKind === "gater" || e.generationSettings !== undefined) && !validGenerationSettings(e.generationSettings, e.providerKind, e.modelId)) throw new Error("Malformed M3 generation settings.");
   const real = e["realMetaRequests"];
   if (typeof real !== "number" || !Number.isInteger(real) || real < 0 || real > (used as number)) {
     throw new Error("M3 realMetaRequests must be an integer within used requests.");

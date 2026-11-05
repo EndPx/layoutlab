@@ -16,15 +16,18 @@ const operations = {runId:'gater-contract',investigationId:'gater-contract',stat
 describe('Gater client source contracts', () => {
  it('preserves status and summaries without asserting live inference', () => {
   expect(parseApiStatus(status)).toBe(status); expect(parseRunSummary(run)).toBe(run);
+  const low = {...settings, reasoningEffort:'low', maxCompletionTokens:8192};
+  expect(parseApiStatus({...status,generationSettings:low}).generationSettings).toEqual(low);
+  expect(parseRunSummary({...run,generationSettings:low}).generationSettings).toEqual(low);
   expect(parseInvestigationSummary(operations).requestCount).toBe(1);
  });
  it('rejects pairing, counters, reasoning and malformed nested summaries', () => {
-  for (const change of [{provider:'meta'}, {provider:'other'}, {providerKind:'other'}, {realMetaRequests:1}, {candidateBudgets:{heuristic:null,model:{}}}, {requirements:{}}, {attempts:[null]}, {baseline:{name:'bad'}}, {generationSettings:{...settings,reasoningEffort:'low'}}]) expect(() => parseRunSummary({...run,...change})).toThrow();
+  for (const change of [{provider:'meta'}, {provider:'other'}, {providerKind:'other'}, {realMetaRequests:1}, {candidateBudgets:{heuristic:null,model:{}}}, {requirements:{}}, {attempts:[null]}, {baseline:{name:'bad'}}, {generationSettings:{...settings,reasoningEffort:'high'}}]) expect(() => parseRunSummary({...run,...change})).toThrow();
   for (const change of [{provider:'meta'}, {budgets:null}, {generationSettings:undefined}, {generationSettings:{}}]) expect(() => parseApiStatus({...status,...change})).toThrow();
   for (const change of [{provider:'meta'}, {realMetaRequests:1}, {requests:[null]}, {trace:[{}]}, {report:{}}, {limits:[]}]) expect(() => parseInvestigationSummary({...operations,...change})).toThrow();
  });
  it('rejects Gater generation settings above the 2000 token cap', () => {
-  const generationSettings = {...settings,maxCompletionTokens:2001};
+  const generationSettings = {...settings,maxCompletionTokens:8193};
   expect(() => parseApiStatus({...status,generationSettings})).toThrow();
   expect(() => parseRunSummary({...run,generationSettings})).toThrow();
   const old = load('evidence/sanitized/m3-live-smoke-report.json');
@@ -43,7 +46,7 @@ describe('Gater client source contracts', () => {
   expect(replayM3Envelope(gater).provider).toBe('gater');
   expect(() => replayM3Envelope({...gater,methodLabels:{...methodLabels,baseline:'other'}})).toThrow();
   expect(replayM3Envelope({...old,providerKind:'fixture',realMetaRequests:0}).provider).toBe('meta');
-  for (const change of [{provider:'meta'},{providerKind:'fixture'},{provider:'other'},{realMetaRequests:1},{generationSettings:undefined},{generationSettings:{...settings,reasoningEffort:'low'}},{candidates:[null]}]) expect(() => replayM3Envelope({...gater,...change})).toThrow();
+  for (const change of [{provider:'meta'},{providerKind:'fixture'},{provider:'other'},{realMetaRequests:1},{generationSettings:undefined},{generationSettings:{...settings,reasoningEffort:'high'}},{candidates:[null]}]) expect(() => replayM3Envelope({...gater,...change})).toThrow();
  });
  it('replays an actual fake-transport RunStore Gater export', async () => {
   const store = new RunStore(loadConfig({MODEL_API_KEY:'fake-test',MODEL_API_BASE_URL:'https://api.gater.ai.id/v1',MODEL_ID:'glm-5-3-flash'}));
@@ -64,4 +67,16 @@ describe('Gater client source contracts', () => {
   expect(() => replayFailureEnvelope({...audit,provider:'meta'})).toThrow();
   expect(() => replayFailureEnvelope({...audit,measurement:{}})).toThrow();
  });
+});
+
+it('rejects elevated completion ceilings outside exact Gater model',()=>{
+ for(const [provider,providerKind,modelId] of [['meta','meta','glm-5-3-flash'],['meta','fixture','glm-5-3-flash'],['gater','gater','other']]) expect(()=>parseApiStatus({...status,provider,providerKind,modelId,generationSettings:{reasoningEffort:'low',maxCompletionTokens:8192}})).toThrow();
+});
+
+it('admits historical and exact model extended timeout only',()=>{
+ expect(()=>parseApiStatus({...status,budgets:{...budgets,timeoutMs:360000}})).not.toThrow();
+ expect(()=>parseApiStatus({...status,budgets:{...budgets,timeoutMs:360001}})).toThrow();
+ for(const modelId of ['other'])expect(()=>parseApiStatus({...status,modelId,budgets:{...budgets,timeoutMs:360000}})).toThrow();
+ for(const providerKind of ['meta','fixture'])expect(()=>parseApiStatus({...status,provider:'meta',providerKind,budgets:{...budgets,timeoutMs:360000}})).toThrow();
+ expect(()=>parseApiStatus(status)).not.toThrow();
 });
