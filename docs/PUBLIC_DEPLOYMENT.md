@@ -1,3 +1,9 @@
+# Current release: a37b127 - workspace readability and renderer
+
+Deployed 2026-11-05 using native Node/systemd, retaining public provider configuration and exhausted budget. P1+P2 source/evidence passed review. Native build/service health passed; runtime environment and ledger remained byte-identical. Public Edge smoke passed four cargo snapshots and declared dimensions/cart-relative attachment, recorded Meta keyless verification (one verification POST, zero generation POSTs), zero browser errors and unchanged public budget. Evidence: [deployment](../evidence/sanitized/workspace-quality-public/deployment.json), [public smoke](../evidence/sanitized/workspace-quality-public/smoke.json), [overview](../evidence/sanitized/workspace-quality-public/overview.png). No human integration or real Gater completion is claimed; see [quality scope](WORKSPACE_QUALITY.md).
+
+Earlier deployment records follow and retain their historical scope.
+
 # Public deployment and restricted live inference
 
 Target: `https://layoutlab.endpx.cloud`. The user authorized the existing

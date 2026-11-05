@@ -51,7 +51,7 @@ Open `http://127.0.0.1:3001/`. Sample/manual controls and replay need no key. De
 | [Gater integration](docs/GATER_INTEGRATION.md) | Local glm-5-3-flash fixtures; no real completion or deployment proof |
 | [Deployment record](docs/PUBLIC_DEPLOYMENT.md) | Release and anonymous review history, including earlier failures |
 
-> Last verified public application: `fbe5cf6`, with the unified workspace, manual translations, rack quarter-turns, initial parking, separate candidates and export/recompute. Source milestone `574eee8` adds local Gater fixtures only. Sample/replay/manual controls are anonymous; paid routes require Basic Auth. Public allowance is exhausted and account billing is blocked, so current live inference is unavailable. Judges can review and verify recorded examples without a key.
+> Last verified public application: `a37b127`, with the unified workspace, manual translations, rack quarter-turns, initial parking, separate candidates and export/recompute. Source milestone `574eee8` added fixture-tested Gater support; that code is now included in the release, while public runtime configuration remains Meta and no real Gater completion has been tested. Sample/replay/manual controls are anonymous; paid routes require Basic Auth. Public allowance is exhausted and account billing is blocked, so current live inference is unavailable. Judges can review and verify recorded examples without a key.
 
 Stubs and HTTP fixtures prove integration behavior, not live inference. Historical Meta reports retain their provider identity. Replay establishes measurement consistency, not authenticated provider provenance.
 
@@ -66,6 +66,8 @@ Stubs and HTTP fixtures prove integration behavior, not live inference. Historic
 | [scripts](scripts) | Verification tooling |
 | [docs](docs/README.md) | Product, methodology and reviews |
 | [evidence/sanitized](evidence/sanitized) | Curated reports and captures |
+
+Workspace readability and renderer release: [quality review](docs/WORKSPACE_QUALITY.md).
 
 Read [methodology](docs/METHODOLOGY.md), [evaluation](docs/EVALUATION.md) and [limitations](docs/LIMITATIONS.md). Assets have [license records](assets/licenses) and [provenance](docs/ASSET_PROVENANCE.md); no code license is declared here.
 

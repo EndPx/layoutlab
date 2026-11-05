@@ -1,3 +1,7 @@
+# Current public release - 2026-11-05
+
+Application a37b127 is deployed at https://layoutlab.endpx.cloud. P1 readable workspace/results and P2 material/lighting/labels/disclosure passed local review and public Edge smoke. Public smoke: actual cargo dimensions/attachment across4frames, recorded Meta verification with1verificationPOST,0generationPOSTs,0browser errors, budget unchanged. Native build passed; runtime.env and ledger bytes unchanged, other apps untouched. Public provider remains Meta, allowance0; no paid calls or Gater runtime switch. Source includes fixture-tested Gater support. Evidence evidence/sanitized/workspace-quality-public/. Human articulated grip candidate is accepted only for further static collision checks, not deployed; gait/workwear/versioned engine integration remains active. This release does not close all user realism requirements.
+
 # Current coordinator checkpoint - 2026-11-05
 
 Gater GLM local integration is accepted for CONFIGURATION AND FIXTURES ONLY; see GATER_INTEGRATION.md. User explicitly excluded paid Gater inference. Private .env.gater.local stays ignored/server-side. Public application last verified fbe5cf6; no Gater deployment/env switch or budget refill. Existing human runtime/coupling drafts and unrelated evidence remain untouched. Video v3 now uses original ElevenLabs Audiobooks Albary/Eleven v4 WAV paragraphs (1801 existing credits used), with final energetic render still pending. This checkpoint supersedes older capability/status notes below.

@@ -29,3 +29,7 @@ It starts an isolated loopback API with an empty key and empty ledger path, proh
 Human/cart grip, complete body clearance, signed-distance gait and versioned production integration remain separate acceptance gates. The diagnostic human is not a shipped worker. No new live Meta or GLM completion was used. The public provider configuration and allowance remain unchanged.
 
 Local timing observations are CPU submission samples on the reported AMD Radeon environment, not a general FPS benchmark or mobile performance guarantee. The existing JavaScript bundle-size warning remains. These milestones improve product readability and visual separation; they do not by themselves close every high-end or real-life warehouse requirement.
+
+## Public release
+
+Application `a37b127` is deployed. Native build and service health passed; runtime environment and ledger bytes are unchanged. Public Edge smoke passed with one recorded-report verification POST, no generation POST, zero browser errors, matching cargo dimensions/attachment and unchanged allowance. Evidence: `evidence/sanitized/workspace-quality-public/`. Human integration remains excluded pending its gates.
