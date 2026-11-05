@@ -1,0 +1,33 @@
+{
+  "applicationCommit": "c1ac299",
+  "provider": "gater",
+  "model": "glm-5-3-flash",
+  "scope": "Actual public browser runs after user removed provider IP bindings",
+  "providerIpBlockResolved": true,
+  "totalActualRequests": 5,
+  "knownReturnedTokens": 59636,
+  "service": {
+    "runId": "b7e3e143-0dd1-42a7-b855-d192e8575d8b",
+    "state": "COMPLETED",
+    "requests": 2,
+    "experiments": 1,
+    "recommendationSource": "model",
+    "reportSha256": "6a005845fb84cb4d992033ffb961c9eac4239c2f3cab66bb0dbf65b4bc65f067"
+  },
+  "layout": {
+    "runId": "ff3f6783-8375-4ca9-9a03-f7ce71cdce8b",
+    "state": "COMPLETED",
+    "requests": 3,
+    "proposals": 1,
+    "recommendation": {
+      "candidateId": "baseline",
+      "source": "model"
+    },
+    "reportSha256": "46d7d246032bfccb48c23972fee317aa0f45156b2fa12ac0f7139d850b33c1e7"
+  },
+  "limitations": [
+    "Synthetic sample, not measured warehouse savings",
+    "One controlled scenario per workflow, not a broad model-quality benchmark",
+    "Provider availability can vary; no guarantee of future uptime"
+  ]
+}

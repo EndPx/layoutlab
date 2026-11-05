@@ -1,0 +1,112 @@
+{
+  "checkedAt": "2026-11-05T19:38:32.225Z",
+  "base": "https://layoutlab.endpx.cloud",
+  "status": {
+    "liveAvailable": true,
+    "budgetMode": "unlimited",
+    "budgetGuard": "unlimited",
+    "reason": null,
+    "status": "ready",
+    "baseUrl": "https://api.gater.ai.id/v1",
+    "modelId": "glm-5-3-flash",
+    "promptVersion": "layoutlab.m4prompt/1",
+    "apiVersion": "0.4.0",
+    "coreVersion": "0.1.0",
+    "operationsImplementationVersion": "0.1.1",
+    "budgets": {
+      "maxProposals": 3,
+      "maxRequests": 4,
+      "timeoutMs": 360000
+    },
+    "concurrency": 1,
+    "provider": "gater",
+    "providerKind": "gater",
+    "generationSettings": {
+      "reasoningEffort": "low",
+      "maxCompletionTokens": 8192
+    },
+    "contextCaps": {
+      "maxContextChars": 20000,
+      "maxResponseBytes": 65536
+    },
+    "routePolicy": "nearest-neighbor-a-star/1",
+    "heuristicMaxEvaluations": 32
+  },
+  "budget": {
+    "mode": "unlimited",
+    "guard": "unlimited",
+    "capUsd": null,
+    "reservedUsd": null,
+    "committedUsd": null,
+    "availableUsd": null,
+    "perRunReservationUsd": null,
+    "accounting": "No total allowance limit; per-run limits apply. Provider billing still applies; monetary totals unavailable."
+  },
+  "runId": "b7e3e143-0dd1-42a7-b855-d192e8575d8b",
+  "state": "COMPLETED",
+  "requestCount": 2,
+  "experimentCount": 1,
+  "recommendation": {
+    "candidateId": "exp-1",
+    "source": "model",
+    "modelSelectedCandidateId": "exp-1",
+    "deterministicBestCandidateId": "exp-1",
+    "baselineCandidateId": "baseline",
+    "improvedOverBaseline": true,
+    "comparisons": {
+      "baselineCandidateId": "baseline",
+      "candidateId": "exp-1",
+      "shippedDelta": 0,
+      "makespanDeltaMs": -105300,
+      "makespanImprovementPercent": 20.959395,
+      "totalWaitDeltaMs": 0,
+      "totalWaitImprovementPercent": 0
+    },
+    "explanation": "Server-computed contrast in this synthetic scenario only: candidate exp-1 vs baseline baseline under declared patch {\"dispatchDurationMs\":30000}: shipped 6 vs 6 (delta 0), makespanMs 397100 vs 502400 (delta -105300 ms, improvement 20.959395%), totalWaitMs 614900 vs 614900 (delta 0 ms). The candidate ranks ahead of the baseline under the deterministic E3 ranking for this bounded contrast. This is a bounded contrast for the declared intervention in a synthetic scenario, not causal proof, not a global optimum, and not real warehouse savings."
+  },
+  "requests": [
+    {
+      "index": 1,
+      "status": "ok",
+      "responseId": "20261106033745ecfd0399acf24615",
+      "usage": {
+        "promptTokens": 10312,
+        "completionTokens": 167,
+        "totalTokens": 10479
+      },
+      "finishReason": "stop",
+      "durationMs": 37183,
+      "model": "glm-5-3-flash",
+      "errorCode": null,
+      "error": null
+    },
+    {
+      "index": 2,
+      "status": "ok",
+      "responseId": "202611060338215cdc4b6cf6db4270",
+      "usage": {
+        "promptTokens": 10372,
+        "completionTokens": 182,
+        "totalTokens": 10554
+      },
+      "finishReason": "stop",
+      "durationMs": 35009,
+      "model": "glm-5-3-flash",
+      "errorCode": null,
+      "error": null
+    }
+  ],
+  "verification": {
+    "ok": true,
+    "mismatches": [],
+    "verifierImplementationVersion": "0.1.1"
+  },
+  "pageErrors": [],
+  "posts": [
+    "/api/operations/investigations"
+  ],
+  "realProviderRequests": 2,
+  "modelFinish": true,
+  "engineCandidateCount": 1,
+  "uiRunCompleted": true
+}

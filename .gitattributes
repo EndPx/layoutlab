@@ -21,3 +21,7 @@ apps/web/src/lib/humanBake*.mjs text eol=lf
 
 # Retain exact bytes for live provider reports and their recorded hashes.
 evidence/sanitized/gater-live/** -text
+
+# Exact public live report bytes for recorded verification hashes.
+evidence/sanitized/gater-public-unbound/** -text
+evidence/sanitized/gater-layout-public/** -text

@@ -268,3 +268,14 @@ This is operational visualization, not certified human-body traffic. Existing ca
 ## Gater/unlimited activation - 2026-11-06
 
 Application c1ac299 replaces c09947b. Gater glm-5-3-flash configured server-side, PUBLIC_BUDGET_MODE=unlimited, finite4request/3proposal/8192token/360second limits. Old budget ledger byte-identical; BasicAuth and other sites unchanged. Native build/service/status and browser consent/start passed. The first actual public model request was rejected upstream403 IP_LIMIT_REACHED (maximum2boundIPs), so end-to-end live AI is BLOCKED, not passed. Failure report independently verifies and is retained under evidence/sanitized/gater-public/. No automatic retries pending provider IP authorization.
+
+
+## Public live acceptance after IP unbinding
+
+After the user removed provider IP bindings, both workflows completed through the real public browser UI on application c1ac299. All model requests originated on the VPS using server-only Gater credentials. No fixture responses, output repairs or hidden model retries were used in these accepted runs.
+
+Service run b7e3e143-0dd1-42a7-b855-d192e8575d8b:2 real model requests,1 engine-tested experiment, COMPLETED, recommendation.source=model. The controlled dispatch30s assumption finished all6orders in397100ms versus502400ms baseline (105300ms lower); total wait remained614900ms. This measures a synthetic what-if assumption, not real warehouse savings. Exact report independently verifies with no mismatches.
+
+Physical layout run ff3f6783-8375-4ca9-9a03-f7ce71cdce8b:3 real model requests, normal user-visible PACK-1-only approval,1 valid engine-tested candidate moving centre(20500,5000)->(20500,4000), COMPLETED, recommendation.source=model selecting baseline. Both layouts shipped6orders with makespan502400ms; candidate combined waiting increased614900->623600ms (+8700ms), so it was correctly classified worse. Exact report verifies; the browser opened a verified initial-layout preview and discarded it without altering the original run. No page errors.
+
+The accepted pair used5 actual provider requests with59636 known returned tokens. This is usage reporting, not a price or invoice. Evidence: evidence/sanitized/gater-public-unbound/ and evidence/sanitized/gater-layout-public/. Prior IP/schema/timeout/gateway failures remain preserved and are not relabeled as successes. This is one controlled scenario per workflow, not proof of broad model quality or guaranteed provider availability.

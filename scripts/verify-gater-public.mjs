@@ -1,8 +1,9 @@
+// Paid live test: requires owner Basic Auth access and explicit provider-call authorization.
 import {chromium,expect} from '@playwright/test';
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {resolve} from 'node:path';
 import assert from 'node:assert/strict';
-const base='https://layoutlab.endpx.cloud',out=resolve('evidence/sanitized/gater-public');mkdirSync(out,{recursive:true});
+const base='https://layoutlab.endpx.cloud',out=resolve(process.argv[2] ?? ('evidence/sanitized/gater-public-run-'+Date.now()));mkdirSync(out,{recursive:true});
 const access=JSON.parse(readFileSync('.coordination/layoutlab-public-access.json','utf8'));
 const browser=await chromium.launch({channel:'msedge',headless:true});const context=await browser.newContext({viewport:{width:1440,height:1000},httpCredentials:{username:access.username,password:access.password},recordVideo:{dir:resolve(out,'video')}});
 const page=await context.newPage(),posts=[],pageErrors=[];let runId=null;

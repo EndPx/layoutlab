@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-11-05T19:42:16.086Z",
+  "base": "https://layoutlab.endpx.cloud",
+  "runId": "ff3f6783-8375-4ca9-9a03-f7ce71cdce8b",
+  "state": "COMPLETED",
+  "approved": true,
+  "requests": 3,
+  "proposals": 1,
+  "recommendation": {
+    "candidateId": "baseline",
+    "source": "model"
+  },
+  "engineCandidates": 1,
+  "validCandidates": 1,
+  "verification": {
+    "ok": true,
+    "mismatches": []
+  },
+  "previewed": true,
+  "pageErrors": [],
+  "posts": [
+    "/api/operations/layout-investigations",
+    "/api/operations/layout-investigations/ff3f6783-8375-4ca9-9a03-f7ce71cdce8b/approve",
+    "/api/operations/layout-investigations/verify"
+  ],
+  "error": null
+}
