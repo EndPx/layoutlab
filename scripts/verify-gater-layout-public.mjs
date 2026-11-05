@@ -1,14 +1,13 @@
-// Paid live test: requires owner Basic Auth access and explicit provider-call authorization.
+// Paid live test: requires explicit provider-call authorization; no account or credentials.
 import {chromium,expect} from '@playwright/test';
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {resolve} from 'node:path';
 import assert from 'node:assert/strict';
 const base='https://layoutlab.endpx.cloud',root='/api/operations/layout-investigations',out=resolve(process.argv[2] ?? ('evidence/sanitized/gater-layout-public-run-'+Date.now()));mkdirSync(out,{recursive:true});
-const access=JSON.parse(readFileSync('.coordination/layoutlab-public-access.json','utf8'));
-const browser=await chromium.launch({channel:'msedge',headless:true});const context=await browser.newContext({viewport:{width:1440,height:1000},httpCredentials:{username:access.username,password:access.password},recordVideo:{dir:resolve(out,'video')}});const page=await context.newPage();const errors=[],posts=[];
+const browser=await chromium.launch({channel:'msedge',headless:true});const context=await browser.newContext({viewport:{width:1440,height:1000},recordVideo:{dir:resolve(out,'video')}});const page=await context.newPage();const errors=[],posts=[];
 page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.method()==='POST')posts.push(new URL(r.url()).pathname)});
 try{
- await page.goto(base+'/live-access');await page.goto(base);await expect(page.getByTestId('ops-canvas')).toHaveAttribute('data-human-asset-status','loaded-cyclic-gait',{timeout:45000});
+ await page.goto(base);await expect(page.getByTestId('ops-canvas')).toHaveAttribute('data-human-asset-status','loaded-cyclic-gait',{timeout:45000});
  await page.getByTestId('assistant-action').selectOption('layout');
  await page.getByTestId('layout-question').fill('Would moving PACK-1 one metre in negative Z improve this warehouse? Compare its current centre with a centre at the same X and 1000 mm smaller Z. Only PACK-1 may move; receiving, workers, workload, inventory, service times and seed must stay fixed. Test this single change, then finish by selecting baseline or the measured candidate.');
  await page.getByTestId('layout-live').check();await page.getByTestId('layout-consent').check();await expect(page.getByTestId('layout-start')).toBeEnabled();

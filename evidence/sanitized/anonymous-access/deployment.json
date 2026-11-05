@@ -1,0 +1,13 @@
+{
+  "commit": "a307375",
+  "previousApplication": "c1ac299",
+  "nativeBuild": "passed",
+  "nginxTest": "passed",
+  "service": "active",
+  "basicAuthRemoved": true,
+  "legacyLiveAccessRedirect": "/",
+  "runtimeEnvironmentUnchanged": true,
+  "ledgerBytesUnchanged": true,
+  "otherNginxSitesUnchanged": true,
+  "modelCallsDuringDeployment": 0
+}
