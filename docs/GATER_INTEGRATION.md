@@ -33,3 +33,8 @@ Coordinator review identified and closed stale reasoning metadata, hardcoded sta
 ## Limits
 
 No real GLM completion, price/quality benchmark, new paid inference, budget refill or deployment. No simulator algorithms, assets or historical Meta measurements were changed by this milestone. The video is an independent artifact with separately labeled historical Meta evidence and ElevenLabs narration.
+
+
+## Follow-up: authorized live activation2026-11-06
+
+The user subsequently authorized real inference and unlimited application allowance. c1ac299 is deployed with Gater/GLM; local live tests and failures are retained in docs/GATER_LIVE_REVIEW.md. Public access is presently blocked by Gater IP_LIMIT_REACHED, not by the old application allowance. See docs/PUBLIC_ALLOWANCE_MODE.md and evidence/sanitized/gater-public/review.json. The fixture-only/no-paid scope above describes the earlier milestone and is superseded for this authorized follow-up; historical evidence remains unchanged.

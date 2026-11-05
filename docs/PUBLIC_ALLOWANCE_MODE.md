@@ -5,3 +5,6 @@ PUBLIC_BUDGET_MODE defaults to capped. Only the exact literal unlimited enables 
 Unlimited means no application total allowance ceiling. Provider billing still applies. Status and budget expose unlimited explicitly, and budget monetary totals are null because no accounting is performed. Historical reports remain compatible; their conservative per-run bound is not an actual charge. Actual requests and usage retain existing provenance reporting.
 
 Missing credentials and unsupported transports still deny inference. Consent, Basic Auth deployment policy, shared concurrency, rate limits, cancellation, deadlines and the four-request/three-proposal/120-second upper bounds remain unchanged. Configured status does not prove inference.
+
+
+Public activation2026-11-06: c1ac299 is configured for Gater glm-5-3-flash and unlimited app allowance. The old ledger is retained byte-for-byte. Public real inference currently fails upstream HTTP403 IP_LIMIT_REACHED (key bound to two other IPs); removing the app cap does not remove provider account/IP restrictions. Per-run bounds for this exact model are4requests/3proposals/8192tokens/request/360seconds; BasicAuth unchanged. Evidence: evidence/sanitized/gater-public/.

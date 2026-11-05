@@ -1,0 +1,96 @@
+{
+  "checkedAt": "2026-11-05T18:59:39.307Z",
+  "base": "https://layoutlab.endpx.cloud",
+  "status": {
+    "liveAvailable": true,
+    "budgetMode": "unlimited",
+    "budgetGuard": "unlimited",
+    "reason": null,
+    "status": "ready",
+    "baseUrl": "https://api.gater.ai.id/v1",
+    "modelId": "glm-5-3-flash",
+    "promptVersion": "layoutlab.m4prompt/1",
+    "apiVersion": "0.4.0",
+    "coreVersion": "0.1.0",
+    "operationsImplementationVersion": "0.1.1",
+    "budgets": {
+      "maxProposals": 3,
+      "maxRequests": 4,
+      "timeoutMs": 360000
+    },
+    "concurrency": 1,
+    "provider": "gater",
+    "providerKind": "gater",
+    "generationSettings": {
+      "reasoningEffort": "low",
+      "maxCompletionTokens": 8192
+    },
+    "contextCaps": {
+      "maxContextChars": 20000,
+      "maxResponseBytes": 65536
+    },
+    "routePolicy": "nearest-neighbor-a-star/1",
+    "heuristicMaxEvaluations": 32
+  },
+  "budget": {
+    "mode": "unlimited",
+    "guard": "unlimited",
+    "capUsd": null,
+    "reservedUsd": null,
+    "committedUsd": null,
+    "availableUsd": null,
+    "perRunReservationUsd": null,
+    "accounting": "No total allowance limit; per-run limits apply. Provider billing still applies; monetary totals unavailable."
+  },
+  "runId": "c5b7187a-9c55-4987-a8f2-027784492053",
+  "state": "FAILED",
+  "requestCount": 1,
+  "experimentCount": 0,
+  "recommendation": {
+    "candidateId": "baseline",
+    "source": "deterministic-fallback",
+    "modelSelectedCandidateId": null,
+    "deterministicBestCandidateId": "baseline",
+    "baselineCandidateId": "baseline",
+    "improvedOverBaseline": false,
+    "comparisons": {
+      "baselineCandidateId": "baseline",
+      "candidateId": "baseline",
+      "shippedDelta": 0,
+      "makespanDeltaMs": 0,
+      "makespanImprovementPercent": 0,
+      "totalWaitDeltaMs": 0,
+      "totalWaitImprovementPercent": 0
+    },
+    "explanation": "Server-computed contrast in this synthetic scenario only: candidate baseline vs baseline baseline under declared patch {}: shipped 6 vs 6 (delta 0), makespanMs 502400 vs 502400 (delta 0 ms, improvement 0%), totalWaitMs 614900 vs 614900 (delta 0 ms). No measured improvement over the baseline is claimed for this candidate. This is a bounded contrast for the declared intervention in a synthetic scenario, not causal proof, not a global optimum, and not real warehouse savings."
+  },
+  "requests": [
+    {
+      "index": 1,
+      "status": "transport-error",
+      "responseId": null,
+      "usage": null,
+      "finishReason": null,
+      "durationMs": null,
+      "model": null,
+      "errorCode": "AUTH_FAILED",
+      "error": "Model request failed: HTTP 403 {\"error\":{\"message\":\"Key ini sudah terikat ke 2 IP (maks 2). Lepas IP lewat /unbind di bot atau hubungi admin.\",\"type\":\"ip_limit_reached\",\"code\":\"IP_LIMIT_REACHED\"}}"
+    }
+  ],
+  "verification": {
+    "ok": true,
+    "mismatches": [],
+    "verifierImplementationVersion": "0.1.1"
+  },
+  "pageErrors": [],
+  "posts": [
+    "/api/operations/investigations"
+  ],
+  "realProviderRequests": 1,
+  "modelFinish": false,
+  "engineCandidateCount": 0,
+  "uiRunCompleted": true,
+  "liveAvailability": "BLOCKED_BY_PROVIDER_IP_LIMIT",
+  "blocker": "Gater HTTP403 IP_LIMIT_REACHED: key already bound to maximum2IP addresses; VPS requires provider account IP unbinding/approval.",
+  "deploymentCommit": "c1ac299"
+}

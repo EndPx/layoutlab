@@ -1,0 +1,34 @@
+{
+  "commit": "c1ac299",
+  "previousApplication": "c09947b",
+  "nativeBuild": "passed",
+  "service": "active",
+  "ledgerBytesUnchanged": true,
+  "ledgerSha256": "88a7fb6ee2351d8875ea1f1ca9fec651c530b73fda5329ba5d73260dc1befa72",
+  "provider": "gater",
+  "model": "glm-5-3-flash",
+  "budgetMode": "unlimited",
+  "budget": {
+    "mode": "unlimited",
+    "guard": "unlimited",
+    "capUsd": null,
+    "reservedUsd": null,
+    "committedUsd": null,
+    "availableUsd": null,
+    "perRunReservationUsd": null,
+    "accounting": "No total allowance limit; per-run limits apply. Provider billing still applies; monetary totals unavailable."
+  },
+  "budgets": {
+    "maxProposals": 3,
+    "maxRequests": 4,
+    "timeoutMs": 360000
+  },
+  "generationSettings": {
+    "reasoningEffort": "low",
+    "maxCompletionTokens": 8192
+  },
+  "authPolicyUnchanged": true,
+  "otherAppsChanged": false,
+  "modelCallsDuringDeployment": 0,
+  "liveInferenceProvenByDeployment": false
+}
