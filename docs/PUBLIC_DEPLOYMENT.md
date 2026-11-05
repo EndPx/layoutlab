@@ -284,3 +284,8 @@ The accepted pair used5 actual provider requests with59636 known returned tokens
 ## Anonymous public AI - 2026-11-06
 
 Application a307375 replaces c1ac299. Owner explicitly removed username/password access. LayoutLab-only Nginx BasicAuth removed; /live-access redirects to/. Runtime key/config and ledger unchanged, other site hashes unchanged. Fresh no-credential/no-Authorization Edge run completed with2real model requests,1engineexperiment and model selection, accurate report verification and zero page errors. Empty anonymous request bodies still reject400before inference across all4creation/proposal prefixes. Per-run limits/rate/concurrency remain. See docs/ANONYMOUS_ACCESS.md and evidence/sanitized/anonymous-access/. Earlier authenticated release records remain historical.
+
+
+## Layout assistant copy removal - 2026-11-06
+
+Application e1a3a69 removes the Configured model/provider/completion-compatibility line from the layout assistant. Browser verified the element and text are absent with zero page errors and zero POST/model calls. Web typecheck/build pass. Deployment reused unchanged dependencies and verified all1238tracked paths against SHA256 of Git archive exported bytes before switching; runtime environment, ledger and Nginx remain unchanged. Evidence: evidence/sanitized/provider-copy-removal/.
