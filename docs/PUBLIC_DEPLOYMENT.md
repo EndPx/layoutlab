@@ -289,3 +289,8 @@ Application a307375 replaces c1ac299. Owner explicitly removed username/password
 ## Layout assistant copy removal - 2026-11-06
 
 Application e1a3a69 removes the Configured model/provider/completion-compatibility line from the layout assistant. Browser verified the element and text are absent with zero page errors and zero POST/model calls. Web typecheck/build pass. Deployment reused unchanged dependencies and verified all1238tracked paths against SHA256 of Git archive exported bytes before switching; runtime environment, ledger and Nginx remain unchanged. Evidence: evidence/sanitized/provider-copy-removal/.
+
+
+## UX/direct editor milestone - 2026-11-06
+
+Frontend29e54d1 replaces e1a3a69. VisibleAskAI/examples, disclosedadvancedcontrols, measuredrecommendation summary and directgrounddrag/snap/Undo/quarterturnbuttons are public. Rootverified draftzeroPOST and actualstationdrag/Undo/Test/Apply/Return with originalclock preserved; pages0errors. Two explicitAIattempts failed upstream429CONCURRENT_LIMIT; no freshmodelsuccess claimed. ExistingAPI/provider/env/ledger/nginx unchanged; sourceexport manifest andwebbuildpassed. Nativephysics and planning-v2 HTTP code were excluded fromthisrelease. Evidence: evidence/sanitized/quality-wave1-public/ and retry/.
