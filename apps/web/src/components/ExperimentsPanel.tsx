@@ -97,8 +97,8 @@ function stateBadge(state: string | null): { label: string; cls: string } {
   return { label: state, cls: "invalid" };
 }
 
-const AUTH_RECOVERY =
-  "Sign-in required (401): live investigation routes need Basic Auth, even though this page, status, budget, baseline, recorded replay, export, and verify are public. Open “Live access sign-in” in a new tab, complete the browser sign-in prompt, return here, press Refresh status, then deliberately press Start again. Nothing was resubmitted automatically and no credentials are stored in this page.";
+const ACCESS_ERROR =
+  "Request denied (HTTP 401). Public AI access should not require credentials. Refresh status and try again; nothing was resubmitted automatically.";
 
 export function ExperimentsPanel(props: {
   holder: ExperimentsHolder;
@@ -196,7 +196,7 @@ export function ExperimentsPanel(props: {
       } catch (e) {
         if (stopped || ctrl.signal.aborted) return;
         if (e instanceof ApiError && e.status === 401) {
-          setActionError(AUTH_RECOVERY);
+          setActionError(ACCESS_ERROR);
           return;
         }
         if (e instanceof ApiError && e.status === 404) {
@@ -256,7 +256,7 @@ export function ExperimentsPanel(props: {
       setInspectRun(null);
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) {
-        setActionError(AUTH_RECOVERY);
+        setActionError(ACCESS_ERROR);
       } else if (e instanceof ApiError) {
         const hint =
           e.status === 400 ? "Check the question and allowed-changes ranges; nothing was resubmitted."
@@ -281,7 +281,7 @@ export function ExperimentsPanel(props: {
       const rep = s.report ?? (await getInvestigationReport(holder.runId).catch(() => null));
       onChange({ summary: s, report: rep, runId: null });
     } catch (e) {
-      setActionError(e instanceof ApiError && e.status === 401 ? AUTH_RECOVERY : e instanceof Error ? `Cancel failed: ${e.message}` : "Cancel failed.");
+      setActionError(e instanceof ApiError && e.status === 401 ? ACCESS_ERROR : e instanceof Error ? `Cancel failed: ${e.message}` : "Cancel failed.");
     } finally {
       setBusy(null);
     }
@@ -590,12 +590,7 @@ export function ExperimentsPanel(props: {
               )}
             </div>
             <p className="hint" data-testid="exp-auth-note">
-              “Live available” above means the server is configured; it does not mean you are signed in. Paid investigation routes
-              additionally require Basic Auth.{" "}
-              <a href="/live-access?mode=experiments" target="_blank" rel="noreferrer" data-testid="exp-live-access">
-                Live access sign-in (new tab)
-              </a>{" "}
-              keeps this tab and its inputs untouched. After signing in, return here and refresh before a deliberate retry.{" "}
+              Public AI access. Each investigation uses the configured provider.{" "}
               <button type="button" className="mini-btn" data-testid="exp-refresh-status" onClick={() => {
                 const ctrl = new AbortController();
                 Promise.allSettled([getStatus(ctrl.signal), getBudget(ctrl.signal)]).then(([s, b]) => {

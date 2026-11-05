@@ -103,7 +103,7 @@ test("workspace live flow: slower candidate is no improvement", async ({ page })
   await expect(page.getByTestId("ws-tested-details")).toContainText("no measured improvement", { timeout: 120_000 });
 });
 
-test("workspace: 401 on Start shows sign-in recovery without resubmission", async ({ page }) => {
+test("workspace: 401 on Start shows access error without resubmission", async ({ page }) => {
   test.setTimeout(120_000);
   fixture = await startExperimentsFixture({ decide: () => expFinish("baseline") });
   let creates = 0;
@@ -116,15 +116,14 @@ test("workspace: 401 on Start shows sign-in recovery without resubmission", asyn
     await route.continue();
   });
   await page.goto("/?mode=experiments");
-  const link = page.getByTestId("ws-live-access");
-  await expect(link).toHaveAttribute("href", "/live-access");
-  await expect(link).toHaveAttribute("target", "_blank");
+  await expect(page.getByTestId("ws-live-access")).toHaveCount(0);
+  await page.getByText("Service assumptions and live investigation", { exact: true }).click();
   await page.getByTestId("ws-allow-dispatchDurationMs").check();
   await page.getByTestId("ws-live-toggle").check();
   await page.getByTestId("ws-consent").check();
   await expect(page.getByTestId("ws-start")).toBeEnabled({ timeout: 30_000 });
   await page.getByTestId("ws-start").click();
-  await expect(page.getByTestId("ws-error")).toContainText("Sign-in required (401)");
+  await expect(page.getByTestId("ws-error")).toContainText("Request denied (HTTP 401)");
   await page.waitForTimeout(1500);
   expect(creates).toBe(1);
   expect(fixture.transportRequests()).toBe(0);

@@ -34,8 +34,8 @@ const PHASE_LABELS: Record<string, string> = {
   FINALIZING: "Finalizing",
 };
 
-const AUTH_RECOVERY =
-  "Sign-in required (401): live investigation routes need Basic Auth, even though this page, status, budget, baseline, recorded replay, export, and verify are public. Open “Live access sign-in” in a new tab, complete the browser sign-in prompt, return here, press Refresh status, then deliberately press Start again. Nothing was resubmitted automatically and no credentials are stored in this page.";
+const ACCESS_ERROR =
+  "Request denied (HTTP 401). Public AI access should not require credentials. Refresh status and try again; nothing was resubmitted automatically.";
 
 export function WarehouseAssistant(props: {
   holder: ExperimentsHolder;
@@ -100,7 +100,7 @@ export function WarehouseAssistant(props: {
         onChange({ summary: s, report: rep, provenance: rep ? provenanceOf(rep, "live") : holder.provenance });
       } catch (e) {
         if (stopped || ctrl.signal.aborted) return;
-        if (e instanceof ApiError && e.status === 401) { setActionError(AUTH_RECOVERY); return; }
+        if (e instanceof ApiError && e.status === 401) { setActionError(ACCESS_ERROR); return; }
         if (e instanceof ApiError && e.status === 404) {
           setActionError(`Run ${runId} is unknown to this server (it may have restarted). Its local evidence is kept; no new run was submitted.`);
           onChange({ runId: null });
@@ -140,7 +140,7 @@ export function WarehouseAssistant(props: {
         selectedCandidateId: "baseline",
       });
     } catch (e) {
-      if (e instanceof ApiError && e.status === 401) setActionError(AUTH_RECOVERY);
+      if (e instanceof ApiError && e.status === 401) setActionError(ACCESS_ERROR);
       else if (e instanceof ApiError) {
         const hint = e.status === 400 ? "Check the question and allowed-changes ranges; nothing was resubmitted."
           : e.status === 402 ? "The public allowance cannot fund this run; nothing was resubmitted."
@@ -160,7 +160,7 @@ export function WarehouseAssistant(props: {
       const rep = s.report ?? (await getInvestigationReport(holder.runId).catch(() => null));
       onChange({ summary: s, report: rep, runId: null });
     } catch (e) {
-      setActionError(e instanceof ApiError && e.status === 401 ? AUTH_RECOVERY : e instanceof Error ? `Cancel failed: ${e.message}` : "Cancel failed.");
+      setActionError(e instanceof ApiError && e.status === 401 ? ACCESS_ERROR : e instanceof Error ? `Cancel failed: ${e.message}` : "Cancel failed.");
     } finally { setBusy(null); }
   };
 
@@ -267,12 +267,12 @@ export function WarehouseAssistant(props: {
         <label className="exp-check"><input type="checkbox" data-testid="ws-live-toggle" checked={holder.liveSelected} onChange={(e) => onChange({ liveSelected: e.target.checked })} /> Live investigation (may spend from the public allowance)</label>
         <label className="exp-check"><input type="checkbox" data-testid="ws-consent" checked={holder.consent} onChange={(e) => onChange({ consent: e.target.checked })} /> I consent to send this question and scenario to the configured model</label>
         <div data-testid="ws-server-status" className="hint">
-          {serverError ? <span>{serverError}</span> : status ? <span>Server model <span className="mono">{status.modelId}</span> · transport {status.providerKind} · {status.liveAvailable ? "configured (sign-in still required to spend)" : `unavailable: ${status.reason ?? "setup required"}`}</span> : <span>Checking server…</span>}
+          {serverError ? <span>{serverError}</span> : status ? <span>Server model <span className="mono">{status.modelId}</span> · transport {status.providerKind} · {status.liveAvailable ? "configured for public live requests" : `unavailable: ${status.reason ?? "setup required"}`}</span> : <span>Checking server…</span>}
         </div>
         <div data-testid="ws-allowance" className="hint">
           {budget ? (budget.guard === "unlimited" ? <span>No total allowance limit; per-run limits apply. Provider billing still applies.</span> : budget.guard === "active" ? <span>Public allowance: ${budget.availableUsd?.toFixed(2) ?? "—"} available of ${budget.capUsd?.toFixed(2) ?? "—"} · ${budget.perRunReservationUsd?.toFixed(2) ?? "—"} per investigation. {exhausted ? "Exhausted — recorded examples below remain free." : ""}</span> : <span>No public budget guard is configured on this server.</span>) : <span>Allowance unavailable; live start stays disabled until the server responds.</span>}
         </div>
-        <p className="hint" data-testid="ws-auth-note">Paid routes require Basic Auth. <a href="/live-access" target="_blank" rel="noreferrer" data-testid="ws-live-access">Live access sign-in (new tab)</a> keeps this tab untouched. <button type="button" className="mini-btn" data-testid="ws-refresh-status" onClick={() => { const c = new AbortController(); Promise.allSettled([getStatus(c.signal), getBudget(c.signal)]).then(([s, b]) => { if (s.status === "fulfilled") { setStatus(s.value); setServerError(null); } if (b.status === "fulfilled") setBudget(b.value); }); }}>Refresh status</button></p>
+        <p className="hint" data-testid="ws-auth-note">Public AI access. Each investigation uses the configured provider. <button type="button" className="mini-btn" data-testid="ws-refresh-status" onClick={() => { const c = new AbortController(); Promise.allSettled([getStatus(c.signal), getBudget(c.signal)]).then(([s, b]) => { if (s.status === "fulfilled") { setStatus(s.value); setServerError(null); } if (b.status === "fulfilled") setBudget(b.value); }); }}>Refresh status</button></p>
         <p className="actions">
           <button type="button" className="primary" data-testid="ws-start" disabled={startDisabledReasons.length > 0 || busy !== null} onClick={() => void start()}>▶ Start investigation</button>
           <button type="button" data-testid="ws-cancel" disabled={!running || busy !== null} onClick={() => void cancel()}>Cancel</button>

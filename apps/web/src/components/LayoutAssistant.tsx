@@ -120,7 +120,7 @@ export function LayoutAssistant({holder}: {holder: LayoutAssistantHolder}) {
   <label className="exp-check"><input data-testid="layout-live" type="checkbox" checked={live} onChange={e => setLive(e.target.checked)} />Live layout investigation</label>
   <label className="exp-check"><input data-testid="layout-consent" type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} />I consent to send this question and current warehouse to the configured model and spend from the bounded allowance.</label>
   <p data-testid="layout-provider-config">Configured model: {status?.modelId ?? "checking"} | provider: {status?.providerKind ?? "checking"} | setup does not confirm completion compatibility.</p>
-  <button onClick={() => void refresh()}>Refresh layout status</button> <a href="/live-access" target="_blank" rel="noreferrer">Live access sign-in</a>
+  <button onClick={() => void refresh()}>Refresh layout status</button>
   <p className="hint">{reasons.join(' ')}</p>
   <button data-testid="layout-start" disabled={busy || reasons.length > 0} onClick={() => { if (reasons.length === 0 && scenario && executionConfig) void act(s => createLayoutInvestigation({scenario,executionConfig,question,safetyCeilingMs:LAYOUT_EVALUATION_CEILING_MS,mode:'live',consent:true},s),true); }}>Interpret layout request</button>
   {error && <p role="alert" className="error">{error} No automatic resubmission.</p>}

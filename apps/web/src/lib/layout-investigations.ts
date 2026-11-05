@@ -54,7 +54,7 @@ async function request(path: string, body: unknown | undefined, signal?: AbortSi
  const data: unknown = await res.json().catch(() => null);
  if (!res.ok) {
   const e = object(data) ? data : {};
-  const message = res.status === 413 ? 'HTTP 413: the JSON request exceeds the API 1 MiB body limit (including the report wrapper). No retry was sent.' : res.status === 401 ? 'Sign-in required (401). Open Live access sign-in, complete the browser prompt, return and refresh status before deliberately trying again.' : typeof e.message === 'string' ? e.message : typeof e.reason === 'string' ? e.reason : `Request failed: HTTP ${res.status}.`;
+  const message = res.status === 413 ? 'HTTP 413: the JSON request exceeds the API 1 MiB body limit (including the report wrapper). No retry was sent.' : res.status === 401 ? 'Request denied (HTTP 401). Public AI access should not require credentials. Refresh status and try again; no automatic retry was sent.' : typeof e.message === 'string' ? e.message : typeof e.reason === 'string' ? e.reason : `Request failed: HTTP ${res.status}.`;
   throw new ApiError(typeof e.code === 'string' ? e.code : `HTTP_${res.status}`, message, res.status);
  }
  return data;

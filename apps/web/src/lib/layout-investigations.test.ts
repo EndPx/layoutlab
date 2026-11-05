@@ -25,7 +25,7 @@ describe('layout HTTP adapter', () => {
  });
  it('surfaces 401, 413 and malformed successful responses without retry',async()=>{
   const fetch=vi.fn();vi.stubGlobal('fetch',fetch);
-  for(const status of [401,413]){fetch.mockResolvedValue({ok:false,status,json:async()=>({})});await expect(getLayoutInvestigation('same')).rejects.toThrow(status===413?'1 MiB':'Sign-in');}
+  for(const status of [401,413]){fetch.mockResolvedValue({ok:false,status,json:async()=>({})});await expect(getLayoutInvestigation('same')).rejects.toThrow(status===413?'1 MiB':'HTTP 401');}
   fetch.mockResolvedValue({ok:true,json:async()=>({})});await expect(getLayoutInvestigation('same')).rejects.toThrow();expect(fetch).toHaveBeenCalledTimes(3);
  });
  it('validates corrected authority, station IDs, fixed inputs and in-room regions',()=>{
