@@ -1,0 +1,8 @@
+{
+  "target": {
+    "entity": "R1",
+    "x": 8000,
+    "z": 6000
+  },
+  "feedback": "Invalid preview ? Test and Apply blocked\nR1: OVERLAP R2 ? physical rect R1 overlaps R2 (interior overlap proven by rect arithmetic)"
+}

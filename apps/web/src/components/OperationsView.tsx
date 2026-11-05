@@ -1,3 +1,4 @@
+import { snappedDrag, type DirectEditorBridge } from "../lib/direct-editor";
 // Operations 3D viewport: the engine-connected warehouse canvas.
 //
 // Persistent static setup (ONE renderer/scene/camera/asset load per mount)
@@ -141,6 +142,7 @@ type ViewHandles = {
 };
 
 export function OperationsView(props: {
+  directEditor?: DirectEditorBridge | null;
   scene: OperationsScene;
   snapshot: OperationsSnapshot | null;
   selection: OperationsSelection;
@@ -149,6 +151,10 @@ export function OperationsView(props: {
   onSelectionChange?: (selection: OperationsSelection) => void;
 }): React.JSX.Element {
   const { scene: ops, snapshot, selection, labelLayer, onStats, onSelectionChange } = props;
+  const cancelDragRef = useRef<(()=>void)|null>(null);
+  useEffect(()=>{cancelDragRef.current?.();},[props.directEditor?.entityId,!!props.directEditor]);
+  const editorRef = useRef(props.directEditor);
+  editorRef.current = props.directEditor;
   const onSelectionChangeRef = useRef(onSelectionChange);
   onSelectionChangeRef.current = onSelectionChange;
   const [humanError, setHumanError] = useState<string | null>(null);
@@ -158,6 +164,7 @@ export function OperationsView(props: {
   const disclosureRef = useRef<HTMLDetailsElement | null>(null);
   const provenanceRef = useRef<HTMLParagraphElement | null>(null);
   const viewRef = useRef<ViewHandles | null>(null);
+  useEffect(()=>{const v=viewRef.current;if(!v)return;v.threeScene.traverse(o=>{if(o.name==='direct-editor-candidate' && o instanceof THREE.Line && o.material instanceof THREE.LineBasicMaterial)o.material.color.set(props.directEditor?.feedback?.includes('Invalid')?0xb42318:0x0b6b6e);});v.renderOnce();},[props.directEditor?.feedback]);
   const homeRef = useRef<{ pos: THREE.Vector3; target: THREE.Vector3 } | null>(null);
   const savedCamRef = useRef<{ pos: THREE.Vector3; target: THREE.Vector3 } | null>(null);
   const statsRef = useRef<OpsRenderStats>({ triangles: 0, drawCalls: 0, geometries: 0, containers: 0, loadMs: null, gpu: null, carryFit: null, cargoSolid: 0, materialSummary: null, renders: 0, renderMsTotal: 0, renderMsMax: 0, renderSpanMs: 0, assets: [] });
@@ -719,6 +726,39 @@ export function OperationsView(props: {
       }
       cb(picked);
     };
+    let drag: {bridge:DirectEditorBridge; start:{x:number;z:number}; pointer:number; ghost:THREE.Line} | null = null;
+    const ground = (e:PointerEvent) => {
+      const r=renderer.domElement.getBoundingClientRect();
+      raycaster.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);
+      const p=raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),new THREE.Vector3());
+      return p ? {x:p.x*1000,z:p.z*1000} : null;
+    };
+    const dragDown=(e:PointerEvent):void=>{
+      const b=editorRef.current;if(!b || b.canTranslate===false || e.button!==0)return;
+      const p=ground(e);if(!p)return;
+      const hits=raycaster.intersectObjects(threeScene.children,true);
+      if(hits.map(h=>resolvePick(h.object,h.instanceId)).find(Boolean)?.id!==b.entityId)return;
+      const r=ops.layoutGhost?.obstacleRectMm ?? ops.scenario.geometry.obstacles.find(o=>o.id===b.entityId);
+      const rack=ops.racks.find(r=>r.id===b.entityId);
+      if(!rack && !r)return;
+      const w=rack?.dimsMm.width ?? r!.maxXMm-r!.minXMm, depth=rack?.dimsMm.depth ?? r!.maxZMm-r!.minZMm;
+      const points=[[-w/2,-depth/2],[w/2,-depth/2],[w/2,depth/2],[-w/2,depth/2],[-w/2,-depth/2]].map(([x,z])=>new THREE.Vector3(x!*MM,0.06,z!*MM));
+      const ghost=new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineBasicMaterial({color:0x0b6b6e}));ghost.position.set(b.x*MM,0,b.z*MM);threeScene.add(ghost);
+      drag={bridge:b,start:p,pointer:e.pointerId,ghost};b.begin();controls.enabled=false;
+      renderer.domElement.setPointerCapture(e.pointerId);e.stopImmediatePropagation();
+    };
+    const dragMove=(e:PointerEvent):void=>{if(!drag)return;if(!editorRef.current || editorRef.current.entityId!==drag.bridge.entityId){finishDrag(true);return;}const p=ground(e);if(p){const next=snappedDrag(drag.bridge,drag.start,p);drag.ghost.position.set(next.x*MM,0,next.z*MM);renderOnce();drag.bridge.move(next.x,next.z);}e.stopImmediatePropagation();};
+    const finishDrag=(cancel:boolean):void=>{if(!drag)return;const d=drag;drag=null;threeScene.remove(d.ghost);d.ghost.geometry.dispose();(d.ghost.material as THREE.Material).dispose();if(cancel)d.bridge.cancel();else d.bridge.commit();controls.enabled=true;downInfo=null;if(renderer.domElement.hasPointerCapture(d.pointer))renderer.domElement.releasePointerCapture(d.pointer);};
+    cancelDragRef.current=()=>finishDrag(true);
+    const dragUp=(e:PointerEvent):void=>{if(drag){finishDrag(false);e.stopImmediatePropagation();}};
+    const dragCancel=():void=>finishDrag(true);
+    const escapeDrag=(e:KeyboardEvent):void=>{if(e.key==='Escape')finishDrag(true);};
+    renderer.domElement.addEventListener('pointerdown',dragDown,true);
+    renderer.domElement.addEventListener('pointermove',dragMove,true);
+    renderer.domElement.addEventListener('pointerup',dragUp,true);
+    renderer.domElement.addEventListener('pointercancel',dragCancel);
+    renderer.domElement.addEventListener('lostpointercapture',dragCancel);
+    window.addEventListener('keydown',escapeDrag);
     renderer.domElement.addEventListener("pointerdown", onDown);
     renderer.domElement.addEventListener("pointerup", onUp);
 
@@ -1266,6 +1306,7 @@ export function OperationsView(props: {
           const candidatePoints = rack ? (()=>{const c=rack.positionMm,d=rack.dimsMm;return [[c.x-d.width/2,c.z-d.depth/2],[c.x+d.width/2,c.z-d.depth/2],[c.x+d.width/2,c.z+d.depth/2],[c.x-d.width/2,c.z+d.depth/2],[c.x-d.width/2,c.z-d.depth/2]].map(([x,z])=>new THREE.Vector3(x!*MM,0.04,z!*MM));})() : points.map(p => p.clone().add(new THREE.Vector3(dx, 0, dz)));
           mount.dataset['layoutGhost'] = JSON.stringify({original:points.map(p=>[p.x/MM,p.z/MM]),candidate:candidatePoints.map(p=>[p.x/MM,p.z/MM])});
           const proposed = new THREE.Line(new THREE.BufferGeometry().setFromPoints(candidatePoints), new THREE.LineBasicMaterial({ color: 0x0b6b6e }));
+          proposed.name="direct-editor-candidate";
           threeScene.add(proposed);
         }
 
@@ -1448,6 +1489,13 @@ export function OperationsView(props: {
         : savedCamRef.current;
       cancelled = true;
       resizer.disconnect();
+      finishDrag(true);
+      renderer.domElement.removeEventListener('pointerdown',dragDown,true);
+      renderer.domElement.removeEventListener('pointermove',dragMove,true);
+      renderer.domElement.removeEventListener('pointerup',dragUp,true);
+      renderer.domElement.removeEventListener('pointercancel',dragCancel);
+      renderer.domElement.removeEventListener('lostpointercapture',dragCancel);
+      window.removeEventListener('keydown',escapeDrag);
       renderer.domElement.removeEventListener("pointerdown", onDown);
       renderer.domElement.removeEventListener("pointerup", onUp);
       handles.humanOf.forEach(({ rig }) => disposeHumanSkeletons(rig));
@@ -1558,6 +1606,7 @@ export function OperationsView(props: {
   return (
     <div className="three-wrap">
       <div ref={mountRef} data-testid="ops-canvas" aria-label="3D operations warehouse view (Y-up)" />
+      {props.directEditor && <div role="group" aria-label="Selected object editing controls"><p role="status">Editing {props.directEditor.entityId}: drag its model on the ground; 100 mm grid. {props.directEditor.feedback}</p><button disabled={!props.directEditor.canUndo} onClick={props.directEditor.undo}>Undo last move</button>{props.directEditor.rotateQuarterTurn && <button disabled={!!props.directEditor.rotationDisabledReason} title={props.directEditor.rotationDisabledReason} onClick={props.directEditor.rotateQuarterTurn}>Rotate selected rack +90 degrees</button>}</div>}
       <div className="camrow cam3d ops-presets" role="group" aria-label="Operations camera presets">
         <button type="button" onClick={() => applyPreset("overview")} data-testid="ops-preset-overview">Overview</button>
         <button type="button" onClick={() => applyPreset("top")} data-testid="ops-preset-top">Top</button>

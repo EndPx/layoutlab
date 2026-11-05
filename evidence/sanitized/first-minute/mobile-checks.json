@@ -1,0 +1,22 @@
+{
+  "channel": "msedge",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "phases": [
+    "Running · AI reviewing / planning · requests 1/4 · experiments 0/3"
+  ],
+  "posts": [
+    "http://127.0.0.1:5173/api/operations/investigations"
+  ],
+  "transportRequests": 2,
+  "fixtureOnly": true,
+  "realInference": false,
+  "publicDeployment": false,
+  "draftOnlyNoPost": true,
+  "inspectorBack": true,
+  "manualEntry": true,
+  "recordedReplay": true,
+  "noOverflow": true
+}

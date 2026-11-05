@@ -846,3 +846,10 @@ The document owns scrolling at desktop and 390px, using existing wrapping action
 ## Human heading and carried cargo integration
 
 Workers now use a deterministic source-length0.5m two-step cycle from authoritative snapshot distance; snapshot clock controls movement/waits and Pause/Reset. Source forward -Z uses shared PI plus engine heading for the entire worker/cart/tote assembly, with identical cargo offset/yaw transforms. Engine anchors and accounting are unchanged. Heading changes are instantaneous visualization; current traffic clearance uses cart footprints and does not certify human-body safety. Archived snapshots without movement segments retain a disclosed grounded stopped pose. See docs/HUMAN_VIEWER_INTEGRATION.md and new human-main-viewer/release evidence for validation and limitations; earlier static-only integration notes are superseded.
+
+## First-minute AI entry
+Question controls open by default. Supported example clicks fill text only; consent and Start remain explicit. Progress labels follow server phases without percentages. Layout proposals require separate approval.
+
+First-minute refinement: visible question and Start, disclosed advanced ranges, saved evidence after AI entry, recommendation before comparisons, manual editor after assistant. Playback controls remain in document flow to avoid covering questions on narrow screens. Direct editing guards playback, replay, busy and historical contexts.
+
+Desktop first-minute acceptance: bound side panel to 680px with internal scrolling and results directly below viewer (target document top <1200px at 1440x900); below 1024px retain document flow. Secondary metadata, saved evidence and manual controls disclose separately. Before/after separators use escaped ASCII arrows, validated against real fixture values; no replacement question marks. Corrected paired Edge captures live in evidence/sanitized/first-minute.

@@ -1,0 +1,15 @@
+{
+  "browser": "installed msedge headless",
+  "dragged": {
+    "x": "20500",
+    "z": "3600"
+  },
+  "numericAndDragSameTarget": true,
+  "rackDrag": true,
+  "escape": true,
+  "undo": true,
+  "rotation": true,
+  "invalidOutside": true,
+  "apply": true,
+  "errors": []
+}

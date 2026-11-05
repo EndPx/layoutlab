@@ -1,0 +1,10 @@
+{
+  "browser": "installed msedge headless",
+  "width": 390,
+  "rackDrag": true,
+  "undo": true,
+  "rotation": true,
+  "invalidOutside": true,
+  "noOverflow": true,
+  "errors": []
+}

@@ -113,7 +113,9 @@ export type LayoutAssistantHolder = ReturnType<typeof useLayoutAssistant>;
 export function LayoutAssistant({holder}: {holder: LayoutAssistantHolder}) {
  const {scenario, executionConfig, question, setQuestion, live, setLive, consent, setConsent, refresh, reasons, busy, act, run, stale, now, error, draft, setDraft, identityBlocked, toggleStation, updateConstraint, errors, active, status, budget, previous} = holder;
  return <section data-testid="layout-assistant">
-  <h2>Packing-station layout testing</h2>
+  <h2>Ask AI to test a packing-station move</h2>
+  <div className="actions">{["Can moving the packing station reduce waiting?", "Test one packing-station move within the allowed region."].map(example => <button type="button" key={example} disabled={active || busy} onClick={() => setQuestion(example)}>{example}</button>)}</div>
+  <p className="hint">Examples fill the question only. Interpretation requires consent; simulation requires a separate proposal approval. Receiving, racks, staff and workload stay fixed.</p>
   <p className="hint">Simulation evaluation uses the same 7,200,000 ms (2 hour) ceiling as manual layout tests. Results are truncated if work remains at that ceiling; this is separate from the server request deadline.</p>
   <p className="hint">Interpret your request, review the proposal, then separately approve testing. Review measured results before choosing a verified initial preview and explicitly applying it.</p>
   <label>Layout question<textarea data-testid="layout-question" maxLength={2000} rows={3} value={question} onChange={e => setQuestion(e.target.value)} /></label>

@@ -22,7 +22,8 @@ test("workspace: recorded replay, candidate inspection, export (offline, 0 paid)
 
   await page.getByTestId("ws-recorded-load").click();
   await expect(page.getByTestId("ws-results-provenance")).toContainText("Recorded", { timeout: 30_000 });
-  await expect(page.getByTestId("ws-results-provenance")).toContainText("fd2247b1-8335-4575-a55b-1f579cc3717b");
+  await page.getByTestId("ws-result-tech").locator("summary").click();
+  await expect(page.getByTestId("ws-result-tech")).toContainText("fd2247b1-8335-4575-a55b-1f579cc3717b");
   await page.getByTestId("ws-compare-details").locator("summary").click();
   await expect(page.getByTestId("ws-compare-table")).toContainText("8min 22sec");
   await page.getByTestId("ws-tested-details").locator("summary").click();
@@ -66,6 +67,7 @@ test("workspace live flow: fixture feedback, recommendation, zero-spend verify",
     decide: (fb) => (fb.results.some((r) => r.candidateId === "exp-1") ? expFinish("exp-1") : expRunExp({ dispatchDurationMs: 1000 })),
   });
   await page.goto("/?mode=experiments");
+  if (!(await page.getByTestId("ws-allow-dispatchDurationMs").isVisible())) await page.getByText("Allowed changes and advanced ranges", { exact: true }).click();
   await page.getByTestId("ws-allow-dispatchDurationMs").check();
   await page.getByTestId("ws-live-toggle").check();
   await page.getByTestId("ws-consent").check();
@@ -95,6 +97,7 @@ test("workspace live flow: slower candidate is no improvement", async ({ page })
     decide: (_fb, call) => (call === 1 ? expRunExp({ dispatchDurationMs: 300000 }) : expFinish("baseline")),
   });
   await page.goto("/?mode=experiments");
+  if (!(await page.getByTestId("ws-allow-dispatchDurationMs").isVisible())) await page.getByText("Allowed changes and advanced ranges", { exact: true }).click();
   await page.getByTestId("ws-allow-dispatchDurationMs").check();
   await page.getByTestId("ws-live-toggle").check();
   await page.getByTestId("ws-consent").check();
@@ -117,7 +120,8 @@ test("workspace: 401 on Start shows access error without resubmission", async ({
   });
   await page.goto("/?mode=experiments");
   await expect(page.getByTestId("ws-live-access")).toHaveCount(0);
-  await page.getByText("Service assumptions and live investigation", { exact: true }).click();
+  await page.getByText("Allowed changes and advanced ranges", { exact: true }).click();
+  if (!(await page.getByTestId("ws-allow-dispatchDurationMs").isVisible())) await page.getByText("Allowed changes and advanced ranges", { exact: true }).click();
   await page.getByTestId("ws-allow-dispatchDurationMs").check();
   await page.getByTestId("ws-live-toggle").check();
   await page.getByTestId("ws-consent").check();
@@ -137,6 +141,7 @@ test("workspace: no-key server disables Start with its reason", async ({ page })
   await page.goto("/?mode=experiments");
   await page.getByTestId("ws-live-toggle").check();
   await page.getByTestId("ws-consent").check();
+  if (!(await page.getByTestId("ws-allow-dispatchDurationMs").isVisible())) await page.getByText("Allowed changes and advanced ranges", { exact: true }).click();
   await page.getByTestId("ws-allow-dispatchDurationMs").check();
   await expect(page.getByTestId("ws-start")).toBeDisabled();
   await expect(page.getByTestId("ws-start-reason")).toContainText("MODEL_API_KEY", { timeout: 30_000 });

@@ -28,10 +28,10 @@ import type { ExperimentsHolder } from "./ExperimentsPanel";
 import { permissionsFromPolicy } from "./ExperimentsPanel";
 
 const PHASE_LABELS: Record<string, string> = {
-  EVALUATING_BASELINE: "Evaluating baseline (local engine)",
-  REQUESTING_MODEL: "Requesting model",
-  EVALUATING_EXPERIMENT: "Evaluating experiment (engine)",
-  FINALIZING: "Finalizing",
+  EVALUATING_BASELINE: "Reading baseline (local engine)",
+  REQUESTING_MODEL: "AI reviewing / planning",
+  EVALUATING_EXPERIMENT: "Simulating proposal (engine)",
+  FINALIZING: "Comparing measured results",
 };
 
 const ACCESS_ERROR =
@@ -210,35 +210,27 @@ export function WarehouseAssistant(props: {
 
   return (
     <>
-      <fieldset>
-        <legend>Recorded AI example (free)</legend>
-        <p className="actions">
-          <button type="button" data-testid="ws-recorded-load" disabled={busy !== null || running} onClick={() => void loadRecorded()}>Open recorded AI example (free)</button>
-          <label className="filebtn">Import report<input type="file" accept="application/json" disabled={running} data-testid="ws-import" onChange={(e) => { const f = e.target.files?.[0]; if (f) void importFile(f); e.target.value = ""; }} /></label>
-        </p>
-        <p className="hint">Recorded and imported reports replay with zero paid requests. A recorded Meta example is not fresh inference; fixture stays labeled fixture.</p>
-        {report && <p role="status" data-testid="ws-recorded-result-cue">{holder.provenance?.label ?? "Report loaded"}. <a href="#workspace-results">Inspect comparison, export or verify results below</a>.</p>}
-        {importError && <p className="error" role="alert" data-testid="ws-import-error">{importError}</p>}
-      </fieldset>
-
     <label>AI experiment type<select data-testid="assistant-action" value={action} onChange={e => setAction(e.target.value)}><option value="service">Explore service-time assumptions</option><option value="layout">Try a layout change</option></select></label>
     <div hidden={action !== "layout"}><LayoutAssistant holder={props.layoutHolder} /><LayoutResults holder={props.layoutResults} /></div>
     <div hidden={action !== "service"}>
     <div data-testid="ws-assistant">
-      <h2>Warehouse assistant</h2>
-      <p className="hint">Use the free recorded example above, or expand service assumptions to prepare an investigation. Opening evidence makes no new inference request.</p>
+      <h2>Ask AI about this warehouse</h2>
+      <p className="hint">Ask a supported question, review permissions, then explicitly start. Saved examples below make no new inference request.</p>
       {props.loadError && <p className="error" role="alert">{props.loadError}</p>}
         <p className="hint" aria-live="polite" data-testid="ws-run-status">
           {running ? `Running${summary?.phase ? ` · ${PHASE_LABELS[summary.phase] ?? summary.phase}` : ""} · requests ${requestCount}/${limits.maxModelRequests} · experiments ${experimentCount}/${limits.maxExperiments}`
             : report ? `${report.state} · requests ${requestCount}/${limits.maxModelRequests} · experiments ${experimentCount}/${limits.maxExperiments}`
             : "No investigation running. Only Start can spend; running, pausing, selecting, replay, export, and verify never create a run."}
         </p>
-      <details className="ws-service-settings"><summary>Service assumptions and live investigation</summary>
+      <div className="ws-service-settings">
+      <div className="actions" data-testid="ws-example-questions">{["Would faster dispatch reduce waiting?", "What if packing took less time per order?", "Compare the allowed service-time changes."].map(question => <button type="button" key={question} disabled={running} onClick={() => onChange({ question })}>{question}</button>)}</div>
+      <p className="hint">Examples only fill the question. Review allowed changes and consent, then press Start to send it. Results describe hypothetical assumptions, not proven physical improvements.</p>
       <label htmlFor="ws-question">What would you like to improve?</label>
       <textarea id="ws-question" data-testid="ws-question" rows={3} maxLength={2000} value={holder.question} onChange={(e) => onChange({ question: e.target.value })} />
       <p className="hint">{holder.question.length}/2000. Choose the supported changes below that LayoutLab may test.</p>
 
-      <fieldset data-testid="ws-permissions">
+      <p className="hint" data-testid="ws-permission-summary">Allowed: {DURATION_FIELDS.filter(field => holder.permissions[field].checked).map(field => DURATION_LABELS[field]).join(", ") || "none"}. Staff, stock and traffic rules stay fixed.</p>
+      <details><summary>Allowed changes and advanced ranges</summary><fieldset data-testid="ws-permissions">
         <legend>Choose which changes LayoutLab may test</legend>
         <p className="hint">Only hypothetical service-time assumptions. Example: “Assume dispatch takes 30 seconds per order” — not a discovered physical improvement.</p>
         {DURATION_FIELDS.map((field) => {
@@ -260,19 +252,13 @@ export function WarehouseAssistant(props: {
         <p className="hint">Additional workers, storage-assignment and traffic-policy changes are not supported in this workspace yet, so they are not offered.</p>
       </fieldset>
 
+      </details>
       {staleDraft && <p className="notice" data-testid="ws-stale-banner" role="status">Inputs changed since this investigation — the results below are previous results, not current measurements. Start a new investigation to test the edited inputs.</p>}
 
       <fieldset>
         <legend>Test a change</legend>
         <label className="exp-check"><input type="checkbox" data-testid="ws-live-toggle" checked={holder.liveSelected} onChange={(e) => onChange({ liveSelected: e.target.checked })} /> Live investigation (may spend from the public allowance)</label>
         <label className="exp-check"><input type="checkbox" data-testid="ws-consent" checked={holder.consent} onChange={(e) => onChange({ consent: e.target.checked })} /> I consent to send this question and scenario to the configured model</label>
-        <div data-testid="ws-server-status" className="hint">
-          {serverError ? <span>{serverError}</span> : status ? <span>Server model <span className="mono">{status.modelId}</span> · transport {status.providerKind} · {status.liveAvailable ? "configured for public live requests" : `unavailable: ${status.reason ?? "setup required"}`}</span> : <span>Checking server…</span>}
-        </div>
-        <div data-testid="ws-allowance" className="hint">
-          {budget ? (budget.guard === "unlimited" ? <span>No total allowance limit; per-run limits apply. Provider billing still applies.</span> : budget.guard === "active" ? <span>Public allowance: ${budget.availableUsd?.toFixed(2) ?? "—"} available of ${budget.capUsd?.toFixed(2) ?? "—"} · ${budget.perRunReservationUsd?.toFixed(2) ?? "—"} per investigation. {exhausted ? "Exhausted — recorded examples below remain free." : ""}</span> : <span>No public budget guard is configured on this server.</span>) : <span>Allowance unavailable; live start stays disabled until the server responds.</span>}
-        </div>
-        <p className="hint" data-testid="ws-auth-note">Public AI access. Each investigation uses the configured provider. <button type="button" className="mini-btn" data-testid="ws-refresh-status" onClick={() => { const c = new AbortController(); Promise.allSettled([getStatus(c.signal), getBudget(c.signal)]).then(([s, b]) => { if (s.status === "fulfilled") { setStatus(s.value); setServerError(null); } if (b.status === "fulfilled") setBudget(b.value); }); }}>Refresh status</button></p>
         <p className="actions">
           <button type="button" className="primary" data-testid="ws-start" disabled={startDisabledReasons.length > 0 || busy !== null} onClick={() => void start()}>▶ Start investigation</button>
           <button type="button" data-testid="ws-cancel" disabled={!running || busy !== null} onClick={() => void cancel()}>Cancel</button>
@@ -282,13 +268,31 @@ export function WarehouseAssistant(props: {
         {(summary?.lastError || report?.lastError) && <p className="hint" role="alert">{summary?.lastError ?? report?.lastError}</p>}
       </fieldset>
 
-      </details>
+      </div>
 
       <details className="ws-tech" data-testid="ws-tech">
         <summary>Technical details</summary>
-        <p className="hint mono">Server operations implementation: {status?.operationsImplementationVersion ?? "unavailable"} ? Trace entries: {trace.length} · submitted policy: {holder.submitted ? JSON.stringify(holder.submitted.policy) : "none"} · provider config, raw patches, schemas/versions, budgets and request metadata stay here or in Settings, not in the main story.</p>
+        <div data-testid="ws-server-status" className="hint">
+          {serverError ? <span>{serverError}</span> : status ? <span>Server model <span className="mono">{status.modelId}</span> · transport {status.providerKind} · {status.liveAvailable ? "configured for public live requests" : `unavailable: ${status.reason ?? "setup required"}`}</span> : <span>Checking server…</span>}
+        </div>
+        <div data-testid="ws-allowance" className="hint">
+          {budget ? (budget.guard === "unlimited" ? <span>No total allowance limit; per-run limits apply. Provider billing still applies.</span> : budget.guard === "active" ? <span>Public allowance: ${budget.availableUsd?.toFixed(2) ?? "—"} available of ${budget.capUsd?.toFixed(2) ?? "—"} · ${budget.perRunReservationUsd?.toFixed(2) ?? "—"} per investigation. {exhausted ? "Exhausted — recorded examples below remain free." : ""}</span> : <span>No public budget guard is configured on this server.</span>) : <span>Allowance unavailable; live start stays disabled until the server responds.</span>}
+        </div>
+        <p className="hint" data-testid="ws-auth-note">Public AI access. Each investigation uses the configured provider. <button type="button" className="mini-btn" data-testid="ws-refresh-status" onClick={() => { const c = new AbortController(); Promise.allSettled([getStatus(c.signal), getBudget(c.signal)]).then(([s, b]) => { if (s.status === "fulfilled") { setStatus(s.value); setServerError(null); } if (b.status === "fulfilled") setBudget(b.value); }); }}>Refresh status</button></p>
+        <p className="hint mono">Server operations implementation: {status?.operationsImplementationVersion ?? "unavailable"} | Trace entries: {trace.length} · submitted policy: {holder.submitted ? JSON.stringify(holder.submitted.policy) : "none"} · provider config, raw patches, schemas/versions, budgets and request metadata stay here or in Settings, not in the main story.</p>
       </details>
     </div>
-    </div></>
+    </div>      <details data-testid="ws-saved-details"><summary>Saved evidence and import (free)</summary><fieldset>
+        <legend>Explore saved evidence (free)</legend>
+        <p className="actions">
+          <button type="button" data-testid="ws-recorded-load" disabled={busy !== null || running} onClick={() => void loadRecorded()}>Open recorded AI example (free)</button>
+          <label className="filebtn">Import report<input type="file" accept="application/json" disabled={running} data-testid="ws-import" onChange={(e) => { const f = e.target.files?.[0]; if (f) void importFile(f); e.target.value = ""; }} /></label>
+        </p>
+        <p className="hint">Recorded and imported reports replay with zero paid requests. A recorded Meta example is not fresh inference; fixture stays labeled fixture.</p>
+        {report && <p role="status" data-testid="ws-recorded-result-cue">Report loaded. <a href="#workspace-results">Inspect comparison, export or verify results below</a>.</p>}
+        {importError && <p className="error" role="alert" data-testid="ws-import-error">{importError}</p>}
+      </fieldset></details>
+
+</>
   );
 }

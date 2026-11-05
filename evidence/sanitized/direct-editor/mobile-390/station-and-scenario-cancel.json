@@ -1,0 +1,17 @@
+{
+  "width": 390,
+  "stationDrag": true,
+  "before": {
+    "x": "20500",
+    "z": "5000"
+  },
+  "moved": {
+    "x": "20500",
+    "z": "3600"
+  },
+  "undo": true,
+  "scenarioCancels": true,
+  "noStaleValidation": true,
+  "runDisabledDuringEditing": true,
+  "errors": []
+}

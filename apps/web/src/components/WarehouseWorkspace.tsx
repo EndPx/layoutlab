@@ -1,3 +1,5 @@
+import "./first-minute.css";
+import type { DirectEditorBridge } from "../lib/direct-editor";
 // One canonical warehouse workspace: a single dominant Operations viewer
 // stays visible through running, selection, asking, testing and comparison.
 // One active scenario + execution config feeds the viewer, baseline,
@@ -73,6 +75,7 @@ export function WarehouseWorkspace(props: {
   const [verifyResult, setVerifyResult] = useState<{ ok: boolean; mismatches: string[]; verifierImplementationVersion: string | null } | null>(null);
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [directEditor, setDirectEditor] = useState<DirectEditorBridge | null>(null);
   const [assistantFocus, setAssistantFocus] = useState(false);
 
   const currentOk = "error" in current ? null : current;
@@ -268,7 +271,7 @@ export function WarehouseWorkspace(props: {
           </select>
         </label>
         <span className="badge sample" data-testid="ws-sample-badge">Sample data</span>
-        {holder.provenance && report && <span className="badge fixture" data-testid="ws-provenance-badge">{holder.provenance.label}</span>}
+        {holder.provenance && report && <span className="badge fixture" data-testid="ws-provenance-badge">Results available</span>}
         {inspect && <span className="badge selected" data-testid="ws-viewing-badge">Viewing: {inspect.label}</span>}
         <span className="spacer" />
         <details className="menu" data-testid="ws-settings">
@@ -319,14 +322,10 @@ export function WarehouseWorkspace(props: {
         <div className="ws-workspace">
           <div className="panel ws-viewport" data-testid="ws-viewport-panel" data-layout-centres={JSON.stringify((layoutPreview ?? displayedScene)?.stations.map(s=>({id:s.id,centerMm:s.centerMm})))} data-layout-racks={JSON.stringify((layoutPreview ?? displayedScene)?.racks)} data-layout-units={JSON.stringify((layoutPreview ?? displayedScene)?.units)} data-current-layout-units={JSON.stringify(currentOk?.scene.units)} data-layout-locations={JSON.stringify((layoutPreview ?? displayedScene)?.locations)} data-current-layout-racks={JSON.stringify(currentOk?.scene.racks)} data-current-layout-centres={JSON.stringify(currentOk?.scene.stations.map(s=>({id:s.id,centerMm:s.centerMm})))}>
             <div className="warehouse-head"><h2>Warehouse</h2><span className="proxy-ribbon">{layoutEditing || assistantPreview ? "Proposed initial layout (paused)" : inspect ? inspect.label : "Current · live engine"}</span></div>
-            <OperationsView scene={layoutPreview ?? displayedScene} snapshot={layoutEditing || assistantPreview ? null : snapshot} selection={selection} labelLayer={labelLayer} onStats={setStats} onSelectionChange={(sel) => { setSelection(sel); if (sel) setAssistantFocus(false); }} />
+            <OperationsView directEditor={layoutEditing && !playing && !inspect && !assistantPreview && !busy && !layoutHolder.active ? directEditor : null} scene={layoutPreview ?? displayedScene} snapshot={layoutEditing || assistantPreview ? null : snapshot} selection={selection} labelLayer={labelLayer} onStats={setStats} onSelectionChange={(sel) => { setSelection(sel); if (sel) setAssistantFocus(false); }} />
             <p className="hint">Click a worker, slot, rack or station in the warehouse to inspect it. Click empty ground to return to the assistant. Top / Overview / Inspect views are in the viewer controls.</p>
           </div>
           <div className="panel ws-side" data-testid="ws-side">
-            <p className="hint ws-layout-guide">Run a baseline before testing a layout; your current playback is preserved. Then choose Edit layout.</p>
-            <LayoutEditor key={layoutEpoch} scene={currentOk.scene} executionConfig={activeExec} implementationVersion={implVersion} selection={selection} onResult={r => setLayoutHistory(h => [...h, r])}
-              onEditing={editing => { if(editing)layoutResults.clearPreview(); setLayoutEditing(editing); setPlaying(false); setInspect(null); }} onPreview={setLayoutPreview}
-              onApply={scene => { if (!originalContext.current) originalContext.current = currentOk; setLayoutEditing(false); setLayoutEpoch(e => e+1); setPlaying(false); setInspect(null); setCurrent({ ...currentOk, scene: { ...scene, layoutGhost: undefined }, controller: createControllerForVersioned(scene.scenario, activeExec, implVersion) }); }} />
             {layoutEditing ? null : selection ? (
               <div data-testid="ws-inspector">
                 <div className="warehouse-head"><h2>Inspector</h2><button type="button" className="mini-btn" data-testid="ws-clear-selection" onClick={() => setSelection(null)}>Clear selection</button></div>
@@ -359,6 +358,12 @@ export function WarehouseWorkspace(props: {
                 </label>
               </div>
             )}
+            <details data-testid="ws-manual-details" open={layoutEditing || undefined}><summary>Manual layout controls</summary>
+            <p className="hint ws-layout-guide">Run a baseline before testing a layout; your current playback is preserved. Then choose Edit layout.</p>
+            <LayoutEditor onDirectEditorChange={setDirectEditor} disabled={playing || !!inspect || assistantPreview || !!busy || layoutHolder.active || implVersion !== currentImplementationVersion()} key={layoutEpoch} scene={currentOk.scene} executionConfig={activeExec} implementationVersion={implVersion} selection={selection} onResult={r => setLayoutHistory(h => [...h, r])}
+              onEditing={editing => { if(editing)layoutResults.clearPreview(); setLayoutEditing(editing); setPlaying(false); setInspect(null); }} onPreview={setLayoutPreview}
+              onApply={scene => { if (!originalContext.current) originalContext.current = currentOk; setLayoutEditing(false); setLayoutEpoch(e => e+1); setPlaying(false); setInspect(null); setCurrent({ ...currentOk, scene: { ...scene, layoutGhost: undefined }, controller: createControllerForVersioned(scene.scenario, activeExec, implVersion) }); }} />
+            </details>
           </div>
         </div>
 
@@ -366,9 +371,10 @@ export function WarehouseWorkspace(props: {
           <details><summary>Layout test history ({layoutHistory.length})</summary>{layoutHistory.map((r,i) => <p key={i}>Previous evidence {i+1}: {r.commonInputs.scenario.id}, {r.improvement}; {r.schema}; input {r.schema !== "layoutlab.layout-comparison/2" ? r.parentHash : r.parentIdentity.scenarioContentSha256}.<button onClick={() => { const url=URL.createObjectURL(new Blob([JSON.stringify(r,null,2)],{type:"application/json"})); const a=document.createElement("a"); a.href=url; a.download=`layout-test-${i+1}.json`; a.click(); URL.revokeObjectURL(url); }}>Export history {i+1}</button></p>)}</details>
           <h2>Service-duration results</h2>
           {!report && !comparison && <p className="hint">No test results yet. Run the warehouse, then test a supported change in the assistant. Results stay here — the warehouse above never changes pages.</p>}
-          {holder.provenance && report && <p className="hint" data-testid="ws-results-provenance"><strong>{holder.provenance.label}</strong> · run <span className="mono">{report.runId}</span> · {report.providerKind === "meta" ? `${report.realMetaRequests} historical Meta requests (not new inference)` : "0 real Meta requests"} · {stale ? "previous results for another warehouse input" : report.versions.simulation !== implVersion ? `recorded on engine ${report.versions.simulation} (current ${implVersion}); inspection replays the recorded engine` : "matches the current warehouse input"}</p>}
+          {holder.provenance && report && <p className="hint" data-testid="ws-results-provenance"><strong>{holder.provenance.label}</strong>. {stale ? "Previous results for another warehouse input." : report.versions.simulation !== implVersion ? "Historical engine; inspection replays its recorded implementation." : "Matches the current warehouse input."}</p>}
           {candidates.length > 0 && (
             <>
+              {recommendation && (() => { const chosen = candidates.find(c => c.candidateId === recommendation.candidateId); const base = candidates.find(c => c.isBaseline); return <section data-testid="ws-recommendation" aria-label="Recommendation"><h3>{chosen ? humanOptionName(chosen.candidateId, chosen.patch, chosen.isBaseline) : "Recommended option unavailable"}</h3><p>{recommendation.improvedOverBaseline ? "Measured improvement under the report ranking." : "No measured improvement over Current is claimed."} {recommendation.source === "model" ? "Model-selected recommendation." : "Deterministic fallback recommendation."}</p><p>Shipped: {base?.shipped ?? "unmeasured"} before -&gt; after {chosen?.shipped ?? "unmeasured"}. Time to finish: {formatFinishTime(base?.makespanMs ?? null) ?? "unavailable"} before -&gt; after {formatFinishTime(chosen?.makespanMs ?? null) ?? "unavailable"}. Combined waiting: {formatSeconds(base?.totalWaitMs ?? null)} before -&gt; after {formatSeconds(chosen?.totalWaitMs ?? null)}.</p><p>Measured change: shipped {recommendation.comparisons.shippedDelta ?? "unmeasured"}; finish time {recommendation.comparisons.makespanDeltaMs === null ? "unmeasured" : `${recommendation.comparisons.makespanDeltaMs} ms`}; waiting {recommendation.comparisons.totalWaitDeltaMs === null ? "unmeasured" : `${recommendation.comparisons.totalWaitDeltaMs} ms`}. Lower time and waiting are preferable; shipped work must also be considered.</p><p className="hint">Scope: embedded scenario and allowed service assumptions only; incomplete options do not establish a full-run improvement. {stale ? "Previous warehouse input." : "Current warehouse input."}</p><details><summary>Why this recommendation and exact evidence</summary><p>{recommendation.explanation}</p><pre>{JSON.stringify(recommendation,null,2)}</pre></details></section>; })()}
               <div className="exp-cards" data-testid="ws-cards">
                 {candidates.map((c) => (
                   <div key={c.candidateId} className={`metric exp-card${holder.selectedCandidateId === c.candidateId ? " exp-card-on" : ""}`}>
@@ -406,7 +412,7 @@ export function WarehouseWorkspace(props: {
           {!report && <p className="hint">Export and Verify need a test result (live, recorded, or imported). Displayed rounded times always match the exact milliseconds in the export (hover any time to see them).</p>}
           {verifyResult && <div data-testid="ws-verify-result" role="status">{verifyResult.ok ? <p className="okline">✓ Verified — saved measurements follow from the embedded inputs (engine replay only; inference provenance is recorded metadata).</p> : <p className="error">× Verify mismatches: {verifyResult.mismatches.join("; ")}</p>}</div>}
           {verifyError && <p className="error" role="alert">{verifyError}</p>}
-          <details className="ws-tech" data-testid="ws-result-tech"><summary>Technical details</summary><p className="hint mono">Replay implementation: {inspect?.implementationVersion ?? implVersion} | Verifier implementation: {verifyResult ? (verifyResult.verifierImplementationVersion ?? "unavailable (no verifier selected)") : "not verified"} | Renderer: {stats ? `${stats.drawCalls} draws · ${(stats.triangles / 1_000_000).toFixed(1)}M tris · ${stats.renders} renders` : "render pending"} · Viewing {displayedLabel} · Input {inputIdentity({ scenarioId: activeScenario!.id, seed: activeScenario!.seed, executionConfig: activeExec, implementationVersion: implVersion })}. Raw candidate statuses: {candidates.map(c => `${c.candidateId}: ${c.status}`).join("; ") || "none"}. Offline verify: node scripts/verify-operations-investigation.mjs &lt;export.json&gt;</p></details>
+          <details className="ws-tech" data-testid="ws-result-tech"><summary>Technical details</summary><p className="hint mono">Run {report?.runId ?? "none"}. Replay implementation: {inspect?.implementationVersion ?? implVersion} | Verifier implementation: {verifyResult ? (verifyResult.verifierImplementationVersion ?? "unavailable (no verifier selected)") : "not verified"} | Renderer: {stats ? `${stats.drawCalls} draws · ${(stats.triangles / 1_000_000).toFixed(1)}M tris · ${stats.renders} renders` : "render pending"} · Viewing {displayedLabel} · Input {inputIdentity({ scenarioId: activeScenario!.id, seed: activeScenario!.seed, executionConfig: activeExec, implementationVersion: implVersion })}. Raw candidate statuses: {candidates.map(c => `${c.candidateId}: ${c.status}`).join("; ") || "none"}. Offline verify: node scripts/verify-operations-investigation.mjs &lt;export.json&gt;</p></details>
         </div>
       </div>
     </div>

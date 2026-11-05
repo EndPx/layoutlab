@@ -1,0 +1,13 @@
+# First-minute review
+
+Visible question/examples and explicit Start precede saved evidence. Advanced permissions are disclosed with a visible allowed-action summary. Server-driven stage labels carry no percentage; AI reviewing/planning does not assert every call proposes. Recommendation precedes cards/table with human names, before/after and measured deltas, model/fallback source and no-improvement wording. Assertions and raw identities are disclosed; exact exports and stale/Apply gates remain.
+
+Workspace forwards the direct-editor bridge unchanged and gates it outside editing, during playback/replay, busy operations and active layout investigations; historical editing is disabled. Optional rotation/Undo callbacks remain owned by the editor. Playback controls now stay in document flow to avoid mobile overlap.
+
+Validation: web TypeScript and isolated Vite build passed (existing bundle-size warning). Edge desktop and 390px first-minute fixture story passed: draft-only example zero POST, explicit Start one investigation POST, observed AI planning phase, local fake-provider results, inspector/back, manual baseline entry, recorded replay and no overflow. Evidence is under evidence/sanitized/first-minute. Other server phases are mapped but not all captured. No real inference or public deployment is established; root handles those acceptance gates and editor owner handles direct gesture acceptance.
+
+## Corrected visual acceptance
+
+Desktop side panel is bounded to 680px with internal scrolling; mobile below 1024px retains document flow. Secondary provider/budget/status metadata lives under Technical details. Saved evidence/import and manual layout controls are disclosed after the primary AI action. The editor bridge is unchanged. Tests opening manual controls must first open ws-manual-details; saved replay opens ws-saved-details.
+
+Paired corrected captures: evidence/sanitized/first-minute/desktop-draft.png, desktop-fixture-results.png, mobile-draft.png and mobile-fixture-results.png. Targeted assertions bound desktop side height to 681px and results document top below 1200px; actual reviewed result top is approximately 1030px. Recommendation asserts actual fixture values: Shipped 6 before -> after 6; time 8min 22sec before -> after 6min 37sec, with no replacement question-mark separators. Fixture provenance is shown once in the result summary, with header only stating Results available. Edge checks preserve explicit Start, no draft POST, inspector/back, manual entry and recorded replay. These remain local fake-provider evidence, not real inference or public release.
