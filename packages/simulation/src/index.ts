@@ -217,3 +217,5 @@ export type {
 } from "./transport.js";
 
 export * from "./layout/index.js";
+
+export { selectLayoutInvestigationRuntime } from "./layout/investigation-runtime.js";

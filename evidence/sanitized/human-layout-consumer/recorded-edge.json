@@ -1,0 +1,13 @@
+{
+  "channel": "msedge",
+  "fullOuterVerification": true,
+  "apiKeyPresent": false,
+  "transportCalls": 0,
+  "ledger": {
+    "capMicroUsd": 1000000,
+    "reservedMicroUsd": 0,
+    "committedMicroUsd": 0,
+    "availableMicroUsd": 1000000,
+    "entries": []
+  }
+}

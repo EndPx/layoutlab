@@ -1,0 +1,42 @@
+[
+  {
+    "path": "l1-public/comparison.json",
+    "status": 0,
+    "output": "{\n  \"ok\": true,\n  \"mismatches\": [],\n  \"kind\": \"measured\",\n  \"recomputedImprovement\": \"worse\",\n  \"recomputedCandidateSha256\": \"95d78c0575d2e6811b4e6d73e0f7a904f3ca061862b77c8674c77ae716082f2a\",\n  \"verifierImplementationVersion\": \"0.1.1\"\n}\n"
+  },
+  {
+    "path": "l2a/fixture-report.json",
+    "status": 1,
+    "output": "{\n  \"ok\": false,\n  \"mismatches\": [\n    \"unsupported layout schema/version pair\"\n  ],\n  \"verifierImplementationVersion\": null\n}\n"
+  },
+  {
+    "path": "l3c/main-rotation.json",
+    "status": 0,
+    "output": "{\n  \"ok\": true,\n  \"mismatches\": [],\n  \"verifierImplementationVersion\": \"0.1.1\"\n}\n"
+  },
+  {
+    "path": "agent-public/coordinator-export.json",
+    "status": 0,
+    "output": "{\n  \"ok\": true,\n  \"mismatches\": [],\n  \"verifierImplementationVersion\": \"0.1.1\"\n}\n"
+  },
+  {
+    "path": "human-layout-replay/station-rejection.json",
+    "status": 0,
+    "output": "{\n  \"ok\": true,\n  \"mismatches\": [],\n  \"kind\": \"rejection\",\n  \"recomputedImprovement\": \"not-measured\",\n  \"recomputedCandidateSha256\": \"95d78c0575d2e6811b4e6d73e0f7a904f3ca061862b77c8674c77ae716082f2a\",\n  \"verifierImplementationVersion\": \"0.1.1\"\n}\n"
+  },
+  {
+    "invalid": true,
+    "status": 1,
+    "output": "{\n  \"ok\": false,\n  \"mismatches\": [\n    \"unsupported layout schema/version pair\"\n  ],\n  \"verifierImplementationVersion\": null\n}\n"
+  },
+  {
+    "invalid": true,
+    "status": 1,
+    "output": "{\n  \"ok\": false,\n  \"mismatches\": [\n    \"unsupported layout schema/version pair\"\n  ],\n  \"verifierImplementationVersion\": null\n}\n"
+  },
+  {
+    "invalid": true,
+    "status": 1,
+    "output": "{\n  \"ok\": false,\n  \"mismatches\": [\n    \"unsupported layout schema/version pair\"\n  ],\n  \"verifierImplementationVersion\": null\n}\n"
+  }
+]

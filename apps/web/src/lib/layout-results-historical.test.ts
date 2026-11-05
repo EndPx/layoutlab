@@ -1,0 +1,11 @@
+import {it,expect,vi} from 'vitest';
+import {readFileSync} from 'node:fs';
+import {createElement} from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+vi.mock('@layoutlab/simulation',async original=>({...await original<object>(),SIMULATION_VERSION:'isolated-future-current',validateLayoutCandidate:vi.fn(),verifyLayoutReportForVersion:vi.fn()}));
+import {validateLayoutCandidate,verifyLayoutReportForVersion} from '@layoutlab/simulation';
+import {resolveMeasuredLayout} from './layout-results';
+import {useLayoutResults} from '../components/LayoutResults';
+const report=JSON.parse(readFileSync('apps/web/public/evidence/layout-investigation-fixture.json','utf8'));
+it('historical matching active context is read-only even when stale=false',async()=>{let holder:any;function Probe(){holder=useLayoutResults({assistant:{run:{report},stale:false} as any,scenario:report.input.scenario,executionConfig:report.input.executionConfig,implementationVersion:report.implementationVersion,contextRevision:0,onPreview:vi.fn(),onApply:vi.fn(),onLoadInput:vi.fn()});return null;}renderToStaticMarkup(createElement(Probe));expect(holder.stale).toBe(false);expect(holder.editable).toBe(false);expect(holder.canApply).toBe(false);await expect(resolveMeasuredLayout(report,report.proposals[1].candidateId)).rejects.toThrow('read-only');expect(validateLayoutCandidate).not.toHaveBeenCalled();expect(verifyLayoutReportForVersion).not.toHaveBeenCalled();});
+it('ordinary different active context remains stale and cannot Apply',()=>{let holder:any;function Probe(){holder=useLayoutResults({assistant:{run:{report},stale:false} as any,scenario:report.input.scenario,executionConfig:{...report.input.executionConfig,pickDurationMsPerItem:1},implementationVersion:report.implementationVersion,contextRevision:0,onPreview:vi.fn(),onApply:vi.fn(),onLoadInput:vi.fn()});return null;}renderToStaticMarkup(createElement(Probe));expect(holder.stale).toBe(true);expect(holder.canApply).toBe(false);});

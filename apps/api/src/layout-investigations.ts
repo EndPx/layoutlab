@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
-import { MAIN_WAREHOUSE_ATTACHMENTS, buildStationAttachmentMap, canonicalStringify, contentSha256, defaultApprovedConstraints, parseOperationsScenario, parseOperationsExecutionConfig, runLayoutComparison, validateLayoutCandidate, SIMULATION_VERSION, type LayoutComparisonResult, type OperationsScenario, type OperationsExecutionConfig, type StationAttachment } from "@layoutlab/simulation";
+import { selectLayoutInvestigationRuntime, MAIN_WAREHOUSE_ATTACHMENTS, buildStationAttachmentMap, canonicalStringify, contentSha256, defaultApprovedConstraints, parseOperationsScenario, parseOperationsExecutionConfig, runLayoutComparison, validateLayoutCandidate, SIMULATION_VERSION, type LayoutComparisonResult, type OperationsScenario, type OperationsExecutionConfig, type StationAttachment } from "@layoutlab/simulation";
 import { liveAvailable, sanitizeMessage, type ApiConfig, type ProviderKind } from "./config.js";
 import { chatCompletionJson, type FetchLike, type ProviderDiagnostics } from "./provider.js";
 import { parseLayoutAction, parseLayoutInterpretation, type LayoutInterpretation } from "./layout-investigation-contract.js";
@@ -25,8 +25,10 @@ export function parseProviderLayoutAction(value: unknown) {
 
 // Canonical attachment identities and relative offsets, verified by production.
 // Applied parents retain every station's rigid translation; no web dependency.
-export function resolveInvestigationAttachments(scenario: OperationsScenario): StationAttachment[] {
-  const rows = MAIN_WAREHOUSE_ATTACHMENTS.map(a => {
+const currentRuntime = { MAIN_WAREHOUSE_ATTACHMENTS, buildStationAttachmentMap, parseOperationsScenario, parseOperationsExecutionConfig, defaultApprovedConstraints, validateLayoutCandidate, runLayoutComparison };
+type ReplayRuntime = typeof currentRuntime;
+export function resolveInvestigationAttachments(scenario: OperationsScenario, runtime: ReplayRuntime = currentRuntime): StationAttachment[] {
+  const rows = runtime.MAIN_WAREHOUSE_ATTACHMENTS.map(a => {
     const o = scenario.geometry.obstacles.find(o => o.id === a.obstacleId);
     if (!o) throw new Error(`missing canonical obstacle ${a.obstacleId}`);
     const x = (o.minXMm + o.maxXMm) / 2, z = (o.minZMm + o.maxZMm) / 2;
@@ -34,31 +36,31 @@ export function resolveInvestigationAttachments(scenario: OperationsScenario): S
     const slots = (rows: typeof a.servicePositions) => rows.map(p => ({ ...p, x: p.x + dx, z: p.z + dz }));
     return { ...a, centreMm: { x, z }, obstacleRectMm: { minXMm: a.obstacleRectMm.minXMm + dx, maxXMm: a.obstacleRectMm.maxXMm + dx, minZMm: a.obstacleRectMm.minZMm + dz, maxZMm: a.obstacleRectMm.maxZMm + dz }, servicePositions: slots(a.servicePositions), queueSlots: slots(a.queueSlots) };
   });
-  buildStationAttachmentMap(scenario, rows);
+  runtime.buildStationAttachmentMap(scenario, rows);
   return rows;
 }
 const inputSchema = z.strictObject({ scenario: z.unknown(), executionConfig: z.unknown(), question: z.string().min(1).max(2000), safetyCeilingMs: z.number().int().min(1).max(2147483647), mode: z.literal("live"), consent: z.literal(true) });
 export type LayoutInvestigationInput = { scenario: OperationsScenario; executionConfig: OperationsExecutionConfig; question: string; safetyCeilingMs: number; mode: "live"; consent: true };
-export function parseLayoutInvestigationInput(value: unknown): LayoutInvestigationInput {
+export function parseLayoutInvestigationInput(value: unknown, runtime: ReplayRuntime = currentRuntime): LayoutInvestigationInput {
   const p = inputSchema.parse(value);
-  return { ...p, scenario: parseOperationsScenario(structuredClone(p.scenario)), executionConfig: parseOperationsExecutionConfig(structuredClone(p.executionConfig)) };
+  return { ...p, scenario: runtime.parseOperationsScenario(structuredClone(p.scenario)), executionConfig: runtime.parseOperationsExecutionConfig(structuredClone(p.executionConfig)) };
 }
-export function parseLayoutApproval(value: unknown, input: LayoutInvestigationInput): LayoutInterpretation {
-  const p = parseLayoutInterpretation(value, resolveInvestigationAttachments(input.scenario).map(a => a.stationId));
+export function parseLayoutApproval(value: unknown, input: LayoutInvestigationInput, runtime: ReplayRuntime = currentRuntime): LayoutInterpretation {
+  const p = parseLayoutInterpretation(value, resolveInvestigationAttachments(input.scenario, runtime).map(a => a.stationId));
   for (const r of p.allowedRegions) if (r.maxXMm > input.scenario.geometry.room.widthMm || r.maxZMm > input.scenario.geometry.room.depthMm) throw new Error("allowed region exceeds room bounds");
   return p;
 }
 export type Evaluation = { validation: Awaited<ReturnType<typeof validateLayoutCandidate>>; regionIssues: string[]; comparison: LayoutComparisonResult | null };
-export async function evaluateLayoutProposal(input: LayoutInvestigationInput, approval: LayoutInterpretation, proposal: unknown, isActive: () => boolean = () => true): Promise<Evaluation> {
+export async function evaluateLayoutProposal(input: LayoutInvestigationInput, approval: LayoutInterpretation, proposal: unknown, isActive: () => boolean = () => true, runtime: ReplayRuntime = currentRuntime): Promise<Evaluation> {
   if (!isActive()) throw new Error("RUN_CLOSED");
-  const attachments = resolveInvestigationAttachments(input.scenario);
-  const validation = await validateLayoutCandidate({ baselineScenario: input.scenario, executionConfig: input.executionConfig, attachments: buildStationAttachmentMap(input.scenario, attachments), approvedConstraints: approval.constraints, proposal });
+  const attachments = resolveInvestigationAttachments(input.scenario, runtime);
+  const validation = await runtime.validateLayoutCandidate({ baselineScenario: input.scenario, executionConfig: input.executionConfig, attachments: runtime.buildStationAttachmentMap(input.scenario, attachments), approvedConstraints: approval.constraints, proposal });
   if (!isActive()) throw new Error("RUN_CLOSED");
   const regionIssues: string[] = [];
   const p = proposal as { entityId?: string; target?: { centerMm?: { x: number; z: number } } };
   const centre = p?.target?.centerMm, r = approval.allowedRegions.find(r => r.entityId === p?.entityId);
   if (!r || !centre || centre.x < r.minXMm || centre.x > r.maxXMm || centre.z < r.minZMm || centre.z > r.maxZMm) regionIssues.push("OUTSIDE_APPROVED_REGION");
-  const comparison = validation.ok && regionIssues.length === 0 ? await runLayoutComparison({ baselineScenario: input.scenario, executionConfig: input.executionConfig, proposal, attachments, approvedConstraints: approval.constraints, safetyCeilingMs: input.safetyCeilingMs }) : null;
+  const comparison = validation.ok && regionIssues.length === 0 ? await runtime.runLayoutComparison({ baselineScenario: input.scenario, executionConfig: input.executionConfig, proposal, attachments, approvedConstraints: approval.constraints, safetyCeilingMs: input.safetyCeilingMs }) : null;
   return { validation, regionIssues, comparison };
 }
 type State = "RUNNING" | "AWAITING_APPROVAL" | "COMPLETED" | "FAILED" | "CANCELLED" | "TIMED_OUT";
@@ -196,7 +198,7 @@ export async function verifyLayoutInvestigationExport(value: unknown): Promise<{
   try {
     if(!exactKeys(value,reportKeys))throw new Error("report envelope keys");
     const r=value as LayoutInvestigationReport;
-    check(r.schema===LAYOUT_INVESTIGATION_SCHEMA && r.promptVersion===LAYOUT_PROMPT_VERSION && r.implementationVersion===SIMULATION_VERSION,"versions");
+    check(r.schema===LAYOUT_INVESTIGATION_SCHEMA && r.promptVersion===LAYOUT_PROMPT_VERSION && r.implementationVersion==="0.1.1","versions");
     check(typeof r.runId==="string" && r.runId.length>0,"runId");
     check(["RUNNING","AWAITING_APPROVAL","COMPLETED","FAILED","CANCELLED","TIMED_OUT"].includes(r.state),"state");
     check(Number.isSafeInteger(r.createdAt)&&Number.isSafeInteger(r.deadlineAt)&&r.deadlineAt-r.createdAt===r.limits.timeoutMs,"deadline");
@@ -243,9 +245,13 @@ export async function verifyLayoutInvestigationExport(value: unknown): Promise<{
       check(!rejectionLinks.has(row.requestIndex),"exact derived rejection evidence");rejectionLinks.add(row.requestIndex);
     }
     if(mismatches.length)return {ok:false,mismatches};
-    const input=parseLayoutInvestigationInput(r.input);
+    const runtime=selectLayoutInvestigationRuntime(r.implementationVersion);
+    const input=parseLayoutInvestigationInput(r.input,runtime);
     equal(await contentSha256(input),r.inputSha256,"fixed input hash");
-    const attachments=resolveInvestigationAttachments(input.scenario);
+    const attachments=resolveInvestigationAttachments(input.scenario,runtime);
+    for (const comparison of [r.baseline, ...r.proposals.map(p=>p.evaluation.comparison)]) {
+      if (comparison) check(comparison.schema === "layoutlab.layout-comparison/2" && comparison.versions.simulation === r.implementationVersion && comparison.versions.operationsSchema === input.scenario.schemaVersion && comparison.versions.operationsEngine === input.scenario.engineVersion, "nested layout versions");
+    }
     // Reject mismatched fixed-input evidence before expensive engine replay.
     if(r.baseline)equal(r.baseline.commonInputs,{scenario:input.scenario,executionConfig:input.executionConfig},"baseline fixed inputs");
     for(const p of r.proposals)if(p.evaluation.comparison) {
@@ -256,12 +262,12 @@ export async function verifyLayoutInvestigationExport(value: unknown): Promise<{
     check(r.modelRequestsUsed===r.requests.length&&r.budget.dispatched===r.requests.length&&r.proposalsUsed===r.proposals.length,"counter identities");
     if(mismatches.length)return {ok:false,mismatches};
     equal(attachments,r.attachments,"canonical attachments");
-    if(r.interpreted)equal(parseLayoutApproval(r.interpreted,input),r.interpreted,"interpretation");
-    if(r.approved)equal(parseLayoutApproval(r.approved,input),r.approved,"approval");
+    if(r.interpreted)equal(parseLayoutApproval(r.interpreted,input,runtime),r.interpreted,"interpretation");
+    if(r.approved)equal(parseLayoutApproval(r.approved,input,runtime),r.approved,"approval");
     if(mismatches.length)return {ok:false,mismatches};
     if(r.baseline) {
       const first=attachments[0]!,s=input.scenario;
-      const baseline=await runLayoutComparison({baselineScenario:s,executionConfig:input.executionConfig,attachments,approvedConstraints:defaultApprovedConstraints(attachments.map(a=>a.stationId)),safetyCeilingMs:input.safetyCeilingMs,proposal:{kind:"PACKING_STATION_TRANSLATION",proposalId:"baseline",parent:{scenarioId:s.id,scenarioContentSha256:await contentSha256(s),schemaVersion:s.schemaVersion,engineVersion:s.engineVersion},entityId:first.stationId,target:{mode:"ABSOLUTE_CENTER_MM",centerMm:first.centreMm}}});
+      const baseline=await runtime.runLayoutComparison({baselineScenario:s,executionConfig:input.executionConfig,attachments,approvedConstraints:runtime.defaultApprovedConstraints(attachments.map(a=>a.stationId)),safetyCeilingMs:input.safetyCeilingMs,proposal:{kind:"PACKING_STATION_TRANSLATION",proposalId:"baseline",parent:{scenarioId:s.id,scenarioContentSha256:await contentSha256(s),schemaVersion:s.schemaVersion,engineVersion:s.engineVersion},entityId:first.stationId,target:{mode:"ABSOLUTE_CENTER_MM",centerMm:first.centreMm}}});
       equal(baseline,r.baseline,"baseline recomputation");
     }
     const seen=new Set<number>();
@@ -275,7 +281,7 @@ export async function verifyLayoutInvestigationExport(value: unknown): Promise<{
         if(row.status==="aborted")check(["CANCELLED","TIMED_OUT"].includes(r.state),"aborted request lifecycle");
         continue;
       }
-      if(row.phase==="interpretation") { try { const parsed = parseLayoutApproval(row.output,input); if(r.interpreted===null && ["CANCELLED","TIMED_OUT"].includes(r.state))check(row.index===r.requests.length&&r.approved===null,"cancelled interpretation settlement"); else equal(parsed,r.interpreted,"interpreted output");} catch {check(r.interpreted===null&&r.state==="FAILED","failed interpretation evidence");} continue;}
+      if(row.phase==="interpretation") { try { const parsed = parseLayoutApproval(row.output,input,runtime); if(r.interpreted===null && ["CANCELLED","TIMED_OUT"].includes(r.state))check(row.index===r.requests.length&&r.approved===null,"cancelled interpretation settlement"); else equal(parsed,r.interpreted,"interpreted output");} catch {check(r.interpreted===null&&r.state==="FAILED","failed interpretation evidence");} continue;}
       check(r.approved!==null,"proposal requires approved authority");
       try {
         const a=parseProviderLayoutAction(row.output);
@@ -295,7 +301,7 @@ export async function verifyLayoutInvestigationExport(value: unknown): Promise<{
           check(r.proposals.filter(x=>x.requestIndex<row.index).length<r.limits.proposals,"proposal beyond cap");
           seen.add(row.index);
           equal(p.proposal,a.proposal,"proposal action equality");equal(p.hypothesis,a.hypothesis,"hypothesis equality");
-          equal(await evaluateLayoutProposal(input,r.approved!,p.proposal),p.evaluation,"candidate recomputation");
+          equal(await evaluateLayoutProposal(input,r.approved!,p.proposal,()=>true,runtime),p.evaluation,"candidate recomputation");
         }
       } catch(e) {
         derivedRejections.push({requestIndex:row.index,reason:rejectionReason(e)});

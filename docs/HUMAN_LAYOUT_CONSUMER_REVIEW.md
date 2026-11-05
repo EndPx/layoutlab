@@ -1,0 +1,11 @@
+# H2d consumer acceptance
+
+Version-aware facade wiring is complete in CLI, manual browser recompute and measured helper. Historical reports remain verifiable through full outer HTTP API; preview/Apply explicitly require current implementation on both report and active context. Helper rejects historical scene construction before current validation. Existing stale/discard/sequence controls and P1 metrics remain.
+
+Executed: web-only typecheck and direct Vite build passed; 3 focused helper files / 7 tests passed, including identical unchanged-object facade spy, isolated future-current mock proving stale=false still read-only, early validation refusal and ordinary stale context. All four CLI families plus rejection pass, and each geometry/version mutation returns nonzero (cli-all.json); unknown/missing schema/version failures in cli.json.
+
+Actual Edge manual story passed in 40.3s, including recompute, export, invalid preview and discard (edge.txt). Actual Edge recorded full-report verification used local createApp with literal empty MODEL_API_KEY and isolated initialized ledger, zero model transport calls, zero reservations/commits and empty entries (recorded-edge.json/png). No paid requests.
+
+Bundle graph: 115 mapped sources, frozen archive/0.1.1/runtime.mjs present, no Node builtin/browser-external imports found. Same-dist baseline rebuilt with original HEAD callers: 2079853 raw / 555643 Node-gzip bytes; final 2080073 raw / 555743 gzip, delta +220 raw / +100 gzip (bundle.json). Initial saved pre-H2d bundle was 1769123 raw bytes, so total artifact growth is 310950 bytes; its gzip was not retained. Vite reports 560.32 kB gzip using its settings and warns about chunks over 500 kB. No FPS claim.
+
+The automatic cleanup attempt was rejected. The coordinator subsequently preserved both disposable measurement copies under ignored .coordination/retained-h2d-baselines using checked native filesystem moves; no source or historical evidence was deleted. No shared/core/API builds, new dependencies, version bump, commit or deployment. Operations adapter, body/gait and appearance prerequisites remain separate/frozen; this is versioned replay wiring, not human simulation completion. P1/P2 appearance remains preserved.

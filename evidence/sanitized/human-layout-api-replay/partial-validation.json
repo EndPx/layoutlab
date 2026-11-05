@@ -1,0 +1,28 @@
+{
+  "status": "superseded-by-completed-validation",
+  "simulationTypecheck": "passed",
+  "simulationBuild": "passed",
+  "apiTypecheck": "passed",
+  "apiBuild": "passed",
+  "focusedRegression": {
+    "passed": 12,
+    "failed": 0
+  },
+  "expandedCurrentAdmission": {
+    "passed": 2,
+    "failed": 0
+  },
+  "lifecycleSubset": {
+    "passed": 2,
+    "failed": 0,
+    "unselected": 8
+  },
+  "futureCurrentMock": "passed: immutable 0.1.1 fixture/Gater/early-cancel replay",
+  "http": "passed: keyless existing response contract, zero transport calls",
+  "archiveBundlesModified": false,
+  "archiveHashes": "archive-hashes.json",
+  "facadeAndRegistryRegression": {
+    "passed": 8,
+    "failed": 0
+  }
+}

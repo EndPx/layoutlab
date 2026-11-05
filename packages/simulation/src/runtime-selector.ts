@@ -1,11 +1,4 @@
-// Explicit implementation-version selector. Exactly two operations
-// implementations are supported: the archived 0.1.0 runtime (immutable
-// bundle in archive/0.1.0, statically imported so this stays synchronous
-// and browser-compatible) and the current source implementation.
-// New runs use the current implementation via createOperationsController;
-// recorded reports/experiments are reexecuted with the implementation
-// they record. An unsupported or absent version fails honestly here —
-// nothing silently falls back to the latest engine.
+// Explicit current-source routing with immutable historical runtime registration.
 import {
   createOperationsController,
   recomputeOperationsReport,
@@ -20,7 +13,32 @@ import {
 } from "./experiments.js";
 import type { OperationsScenario } from "./schema.js";
 import { SIMULATION_VERSION } from "./version.js";
-import * as archived from "../archive/0.1.0/runtime.mjs";
+import * as archived010 from "../archive/0.1.0/runtime.mjs";
+import * as archived011 from "../archive/0.1.1/runtime.mjs";
+
+export interface OperationsReplayRuntime {
+ createOperationsController: typeof createOperationsController;
+ recomputeOperationsReport: typeof recomputeOperationsReport;
+ verifyOperationsExperiment: typeof verifyOperationsExperiment;
+}
+export interface LayoutReplayRuntime {
+ parseOperationsScenario: typeof import("./schema.js").parseOperationsScenario;
+ parseOperationsExecutionConfig: typeof import("./operations.js").parseOperationsExecutionConfig;
+ MAIN_WAREHOUSE_ATTACHMENTS: typeof import("./layout/attachments.js").MAIN_WAREHOUSE_ATTACHMENTS;
+ buildStationAttachmentMap: typeof import("./layout/attachments.js").buildStationAttachmentMap;
+ defaultApprovedConstraints: typeof import("./layout/contract.js").defaultApprovedConstraints;
+ validateLayoutCandidate: typeof import("./layout/validator.js").validateLayoutCandidate;
+ runLayoutComparison: typeof import("./layout/compare.js").runLayoutComparison;
+ verifyLayoutComparison: typeof import("./layout/compare.js").verifyLayoutComparison;
+ verifyRackLayoutComparison: typeof import("./layout/rack.js").verifyRackLayoutComparison;
+ verifyRackRotationComparison: typeof import("./layout/rack-rotation.js").verifyRackRotationComparison;
+ verifyAgentPlacementComparison: typeof import("./layout/agent-placement.js").verifyAgentPlacementComparison;
+}
+// Prepared historical entries; CURRENT still takes precedence in every public route.
+export const ARCHIVED_RUNTIMES: Readonly<{ "0.1.0": OperationsReplayRuntime; "0.1.1": OperationsReplayRuntime & LayoutReplayRuntime }> = Object.freeze({
+  "0.1.0": archived010,
+  "0.1.1": archived011,
+});
 
 export const SUPPORTED_IMPLEMENTATION_VERSIONS = ["0.1.0", "0.1.1"] as const;
 export type ImplementationVersion =
@@ -68,7 +86,7 @@ export function createOperationsControllerForVersion(
   const version = requireSupported(implementationVersion);
   return version === CURRENT_IMPLEMENTATION_VERSION
     ? createOperationsController(opts)
-    : archived.createOperationsController(opts);
+    : ARCHIVED_RUNTIMES[version].createOperationsController(opts);
 }
 
 export type OperationsReportVerificationForVersion =
@@ -105,7 +123,7 @@ export function recomputeOperationsReportForVersion(
   const result =
     recorded === CURRENT_IMPLEMENTATION_VERSION
       ? recomputeOperationsReport(report)
-      : archived.recomputeOperationsReport(report);
+      : ARCHIVED_RUNTIMES[recorded].recomputeOperationsReport(report);
   return { ...result, verifierImplementationVersion: recorded };
 }
 
@@ -139,6 +157,6 @@ export function verifyOperationsExperimentForVersion(
   const result =
     recorded === CURRENT_IMPLEMENTATION_VERSION
       ? verifyOperationsExperiment(exported)
-      : archived.verifyOperationsExperiment(exported);
+      : ARCHIVED_RUNTIMES[recorded].verifyOperationsExperiment(exported);
   return { ...result, verifierImplementationVersion: recorded };
 }

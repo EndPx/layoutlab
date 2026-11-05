@@ -1,0 +1,204 @@
+[
+  {
+    "file": "l1-public/comparison.json",
+    "mode": "original",
+    "status": 0,
+    "result": {
+      "ok": true,
+      "mismatches": [],
+      "kind": "measured",
+      "recomputedImprovement": "worse",
+      "recomputedCandidateSha256": "95d78c0575d2e6811b4e6d73e0f7a904f3ca061862b77c8674c77ae716082f2a",
+      "verifierImplementationVersion": "0.1.1"
+    }
+  },
+  {
+    "file": "l1-public/comparison.json",
+    "mode": "geometry",
+    "status": 1,
+    "result": {
+      "ok": false,
+      "mismatches": [
+        "parentIdentity.scenarioContentSha256: saved hash != recomputed baseline content hash",
+        "candidateScenario: saved value differs from recomputed value",
+        "validation: saved value differs from recomputed value",
+        "baselineValid/candidateValid: saved value differs from recomputed value",
+        "measurement: saved value differs from recomputed value",
+        "evaluationScope: saved value differs from recomputed value",
+        "explanation: saved value differs from recomputed value",
+        "baselineReport: saved value differs from recomputed value",
+        "candidateReport: saved value differs from recomputed value",
+        "baselineMetrics: saved value differs from recomputed value",
+        "candidateMetrics: saved value differs from recomputed value",
+        "baselineTermination: saved value differs from recomputed value",
+        "candidateTermination: saved value differs from recomputed value",
+        "delta: saved value differs from recomputed value",
+        "improvement: saved worse != recomputed not-measured",
+        "candidateIdentity: saved candidate hash differs from reconstruction",
+        "candidateScenario reconstruction drift at: /geometry/room/widthMm"
+      ],
+      "kind": "rejection",
+      "recomputedImprovement": "not-measured",
+      "recomputedCandidateSha256": "a6c08066425fe683e034b723b52dc9311337d64e2369affe9561bb95440d0d11",
+      "verifierImplementationVersion": "0.1.1"
+    }
+  },
+  {
+    "file": "l1-public/comparison.json",
+    "mode": "version",
+    "status": 1,
+    "result": {
+      "ok": false,
+      "mismatches": [
+        "unsupported layout schema/version pair"
+      ],
+      "verifierImplementationVersion": null
+    }
+  },
+  {
+    "file": "r2-runtime11/rack-report.json",
+    "mode": "original",
+    "status": 0,
+    "result": {
+      "ok": true,
+      "mismatches": [],
+      "verifierImplementationVersion": "0.1.1"
+    }
+  },
+  {
+    "file": "r2-runtime11/rack-report.json",
+    "mode": "geometry",
+    "status": 1,
+    "result": {
+      "ok": false,
+      "mismatches": [
+        "layout replay mismatch"
+      ],
+      "verifierImplementationVersion": "0.1.1"
+    }
+  },
+  {
+    "file": "r2-runtime11/rack-report.json",
+    "mode": "version",
+    "status": 1,
+    "result": {
+      "ok": false,
+      "mismatches": [
+        "unsupported layout schema/version pair"
+      ],
+      "verifierImplementationVersion": null
+    }
+  },
+  {
+    "file": "l3c/main-rotation.json",
+    "mode": "original",
+    "status": 0,
+    "result": {
+      "ok": true,
+      "mismatches": [],
+      "verifierImplementationVersion": "0.1.1"
+    }
+  },
+  {
+    "file": "l3c/main-rotation.json",
+    "mode": "geometry",
+    "status": 1,
+    "result": {
+      "ok": false,
+      "mismatches": [
+        "layout replay mismatch"
+      ],
+      "verifierImplementationVersion": "0.1.1"
+    }
+  },
+  {
+    "file": "l3c/main-rotation.json",
+    "mode": "version",
+    "status": 1,
+    "result": {
+      "ok": false,
+      "mismatches": [
+        "unsupported layout schema/version pair"
+      ],
+      "verifierImplementationVersion": null
+    }
+  },
+  {
+    "file": "agent-public/coordinator-export.json",
+    "mode": "original",
+    "status": 0,
+    "result": {
+      "ok": true,
+      "mismatches": [],
+      "verifierImplementationVersion": "0.1.1"
+    }
+  },
+  {
+    "file": "agent-public/coordinator-export.json",
+    "mode": "geometry",
+    "status": 1,
+    "result": {
+      "ok": false,
+      "mismatches": [
+        "layout replay mismatch"
+      ],
+      "verifierImplementationVersion": "0.1.1"
+    }
+  },
+  {
+    "file": "agent-public/coordinator-export.json",
+    "mode": "version",
+    "status": 1,
+    "result": {
+      "ok": false,
+      "mismatches": [
+        "unsupported layout schema/version pair"
+      ],
+      "verifierImplementationVersion": null
+    }
+  },
+  {
+    "file": "human-layout-replay/station-rejection.json",
+    "mode": "original",
+    "status": 0,
+    "result": {
+      "ok": true,
+      "mismatches": [],
+      "kind": "rejection",
+      "recomputedImprovement": "not-measured",
+      "recomputedCandidateSha256": "95d78c0575d2e6811b4e6d73e0f7a904f3ca061862b77c8674c77ae716082f2a",
+      "verifierImplementationVersion": "0.1.1"
+    }
+  },
+  {
+    "file": "human-layout-replay/station-rejection.json",
+    "mode": "geometry",
+    "status": 1,
+    "result": {
+      "ok": false,
+      "mismatches": [
+        "parentIdentity.scenarioContentSha256: saved hash != recomputed baseline content hash",
+        "candidateScenario: saved value differs from recomputed value",
+        "validation: saved value differs from recomputed value",
+        "candidateIdentity: saved candidate hash differs from reconstruction",
+        "candidateScenario reconstruction drift at: /geometry/room/widthMm"
+      ],
+      "kind": "rejection",
+      "recomputedImprovement": "not-measured",
+      "recomputedCandidateSha256": "a6c08066425fe683e034b723b52dc9311337d64e2369affe9561bb95440d0d11",
+      "verifierImplementationVersion": "0.1.1"
+    }
+  },
+  {
+    "file": "human-layout-replay/station-rejection.json",
+    "mode": "version",
+    "status": 1,
+    "result": {
+      "ok": false,
+      "mismatches": [
+        "unsupported layout schema/version pair"
+      ],
+      "verifierImplementationVersion": null
+    }
+  }
+]

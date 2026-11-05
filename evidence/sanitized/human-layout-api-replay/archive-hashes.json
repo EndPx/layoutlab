@@ -1,0 +1,10 @@
+{
+  "0.1.0": {
+    "sha256": "8540d76d3a7b788c1a321c0f8ed7487b7e88593c53355007715766e54113eeef",
+    "manifestMatches": true
+  },
+  "0.1.1": {
+    "sha256": "9224ce9eb18b88d267bb1eab79767e0f31db2dad6f180d42152cb1df58fd4605",
+    "manifestMatches": true
+  }
+}

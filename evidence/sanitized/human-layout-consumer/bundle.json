@@ -1,0 +1,20 @@
+{
+  "baseline": {
+    "raw": 2079853,
+    "gzip": 555643
+  },
+  "current": {
+    "raw": 2080073,
+    "gzip": 555743
+  },
+  "delta": {
+    "raw": 220,
+    "gzip": 100
+  },
+  "frozen": [
+    "../../../../packages/simulation/archive/0.1.1/runtime.mjs"
+  ],
+  "browserNodeImports": [],
+  "sourceCount": 115,
+  "temporaryBaseline": "apps/.h2d-baseline-2Wp6MN"
+}

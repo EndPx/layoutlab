@@ -1,5 +1,6 @@
 import { layoutMetricLabels, formatLayoutMetric, exactLayoutMetric } from "../lib/layout-metric-copy";
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { SIMULATION_VERSION } from '@layoutlab/simulation';
 import type { LayoutComparisonResult, OperationsScenario } from '@layoutlab/simulation';
 import { layoutContext, verifyLayoutReport, type LayoutReport } from '../lib/layout-investigations';
 import { layoutRows, layoutReportIdentity, resolveMeasuredLayout } from '../lib/layout-results';
@@ -34,9 +35,10 @@ export function useLayoutResults(props: Props) {
  try { if(report) rows=layoutRows(report); } catch(e) { malformed=e instanceof Error?e.message:String(e); }
  const row=rows.find(r=>r.candidateId===selected);
  const valid=!!row?.evaluation.validation.ok && !row.evaluation.regionIssues.length && !!row.evaluation.comparison?.candidateValid;
+ const editable=props.implementationVersion===SIMULATION_VERSION && report?.implementationVersion===SIMULATION_VERSION;
  const stale=!!report && (props.assistant.stale || layoutContext(report.input.scenario,report.input.executionConfig,report.implementationVersion)!==parent);
  async function verify(preview:boolean,loadInput=false) {
-  if(!report||busy|| (preview&&!valid))return;
+  if(!report||busy|| (preview&&(!valid||!editable)))return;
   const captured=key, seq=++sequence.current, c=new AbortController();controller.current?.abort();controller.current=c;
   setBusy(true);setError('');setProof(null);setVerification(null);
   try {
@@ -57,7 +59,7 @@ export function useLayoutResults(props: Props) {
   setProof(null);setVerification(null);setBusy(false);setPreviewing(false);setError('');
   callbacks.current.onPreview(null);
  }
- function apply(){if(!report||!proof||proof.key!==key||proof.sequence!==sequence.current||stale||props.assistant.stale||report.state!=='COMPLETED'||busy||!valid)return;callbacks.current.onApply(proof.scene,proof.comparison);previewOwned.current=false;setPreviewing(false);setProof(null);}
+ function apply(){if(!report||!proof||proof.key!==key||proof.sequence!==sequence.current||!editable||stale||props.assistant.stale||report.state!=='COMPLETED'||busy||!valid)return;callbacks.current.onApply(proof.scene,proof.comparison);previewOwned.current=false;setPreviewing(false);setProof(null);}
  function exportReport(){if(!report)return;const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`layout-investigation-${report.runId}.json`;a.click();URL.revokeObjectURL(url);}
  async function importReport(file:File|undefined){
   if(!file)return;
@@ -73,7 +75,7 @@ export function useLayoutResults(props: Props) {
  }
 
  async function recorded(){controller.current?.abort();setBusy(false);setProof(null);setVerification(null);if(previewOwned.current){previewOwned.current=false;callbacks.current.onPreview(null);setPreviewing(false);}const captured=key,seq=++sequence.current;try{const r=await fetch('/evidence/layout-investigation-fixture.json');if(!r.ok)throw new Error('Recorded FIXTURE example unavailable');const value=await r.json();if(current.current!==captured||seq!==sequence.current)return;callbacks.current.assistant.loadReport(value,'Recorded FIXTURE example; no live Meta inference');setError('');}catch(e){if(current.current===captured&&seq===sequence.current)setError(e instanceof Error?e.message:String(e));}}
- return {report,rows,malformed,selected,setSelected,row,valid,stale,proof,verification,key,error,busy,verify,apply,exportReport,importReport,recorded,previewing,clearPreview,canApply:!!proof&&proof.key===key&&proof.sequence===sequence.current&&!stale&&!props.assistant.stale&&report?.state==='COMPLETED'&&!busy&&valid,origin:props.assistant.origin,active:props.assistant.active,loadInput:()=>void verify(false,true)};
+ return {editable,report,rows,malformed,selected,setSelected,row,valid,stale,proof,verification,key,error,busy,verify,apply,exportReport,importReport,recorded,previewing,clearPreview,canApply:!!proof&&proof.key===key&&proof.sequence===sequence.current&&editable&&!stale&&!props.assistant.stale&&report?.state==='COMPLETED'&&!busy&&valid,origin:props.assistant.origin,active:props.assistant.active,loadInput:()=>void verify(false,true)};
 }
 export type LayoutResultsHolder=ReturnType<typeof useLayoutResults>;
 const fields=['shipped','makespanMs','totalWaitMs','backlog'] as const;
@@ -91,7 +93,7 @@ export function LayoutResults({holder:h}:{holder:LayoutResultsHolder}) {
   {(h.error||h.malformed)&&<p role="alert" className="error">{h.error||h.malformed}</p>}
   {h.report&&<>
    <p data-testid="layout-source">{h.origin} · {provider?.kind==='fixture'?'LOCAL fake-provider FIXTURE':provider?.kind==='meta'?(h.origin==='Server investigation'?'Live Meta server response':'Declared Meta provenance (recorded/imported; unauthenticated)'):provider?.kind==='gater'?(h.origin==='Server investigation'?'Gater server response this session (transport origin unverified)':'Declared Gater provenance (recorded/imported; unauthenticated)'):'Provider provenance unavailable'}</p>
-   <p>{h.stale?'Previous context: inspect/export allowed; Apply blocked.':'Report parent matches current scenario/config/version.'}</p>
+   <p>{!h.editable?'Historical implementation: inspection and full verification allowed; preview and Apply blocked.':h.stale?'Previous context: inspect/export allowed; Apply blocked.':'Report parent matches current scenario/config/version.'}</p>
    <button data-testid="layout-export" onClick={h.exportReport}>Export complete layout report</button>
    <button data-testid="layout-verify-report" disabled={h.busy} onClick={()=>void h.verify(false)}>Verify full report (no inference)</button>
    {h.stale&&<button data-testid="layout-load-input" disabled={h.active||h.busy} onClick={h.loadInput}>Load this report input as current warehouse</button>}
@@ -104,7 +106,7 @@ export function LayoutResults({holder:h}:{holder:LayoutResultsHolder}) {
    </tbody></table></div>
    <label>Inspect proposal<select data-testid="layout-result-select" value={h.selected} onChange={e=>h.setSelected(e.target.value)}><option value="">Choose evidence</option>{h.rows.map(r=><option key={r.candidateId} value={r.candidateId}>{r.candidateId} · {r.evaluation.comparison?.improvement??'invalid / not measured'}</option>)}</select></label>
    {h.row&&<><p>{h.row.hypothesis} (provider assertion)</p>{h.row.evaluation.validation.issues.map((i,n)=><p className="error" key={n}>{i.code}: {i.message}</p>)}{h.row.evaluation.regionIssues.map((i,n)=><p key={n}>{i}</p>)}{h.row.evaluation.comparison&&<><p>{h.row.evaluation.comparison.explanation}</p><p data-testid="layout-relocation">{h.row.evaluation.comparison.transform ? `${h.row.evaluation.comparison.transform.entityId}: (${h.row.evaluation.comparison.transform.fromCentreMm?.x}, ${h.row.evaluation.comparison.transform.fromCentreMm?.z}) to (${h.row.evaluation.comparison.transform.toCentreMm?.x}, ${h.row.evaluation.comparison.transform.toCentreMm?.z}) mm` : 'No relocation'}</p><p>{h.row.evaluation.comparison.evaluationScope.truncated?'Truncated evaluation scope':'Full declared evaluation scope'}</p></>}
-    <button data-testid="layout-preview" disabled={!h.valid||h.busy||!!h.malformed} onClick={()=>void h.verify(true)}>Verify and preview initial candidate</button>
+    <button data-testid="layout-preview" disabled={!h.editable||!h.valid||h.busy||!!h.malformed} onClick={()=>void h.verify(true)}>Verify and preview initial candidate</button>
     <button data-testid="layout-result-apply" disabled={!h.canApply} onClick={h.apply}>Apply verified layout as new initial run</button>
    </>}
    {h.previewing&&<><p className="notice" data-testid="layout-preview-notice">Verified candidate INITIAL conditions; current controller is untouched and paused. Original footprint is the dashed ghost.</p><button data-testid="layout-preview-clear" onClick={h.clearPreview}>Return to current run (discard preview)</button></>}

@@ -1,4 +1,4 @@
-import { applyPackingStationTranslation, buildStationAttachmentMap, canonicalStringify, parseApprovedConstraints, parseLayoutProposal, validateLayoutCandidate, verifyLayoutComparison, type LayoutComparisonResult, type LayoutValidation } from '@layoutlab/simulation';
+import { SIMULATION_VERSION, applyPackingStationTranslation, buildStationAttachmentMap, canonicalStringify, parseApprovedConstraints, parseLayoutProposal, validateLayoutCandidate, verifyLayoutReportForVersion, type LayoutComparisonResult, type LayoutValidation } from '@layoutlab/simulation';
 import { buildLayoutScene, resolveLayoutAttachments } from './operations';
 import type { LayoutReport } from './layout-investigations';
 export type LayoutProposalRow = { candidateId: string; hypothesis: string; requestIndex: number; proposal: unknown; evaluation: { validation: LayoutValidation; regionIssues: string[]; comparison: LayoutComparisonResult | null } };
@@ -19,6 +19,7 @@ export function layoutReportIdentity(report: LayoutReport): string { return cano
 // Called only after full-report HTTP verification; local production validation
 // independently derives the rigid bundle and checks its measured comparison.
 export async function resolveMeasuredLayout(report: LayoutReport, candidateId: string) {
+ if (report.implementationVersion !== SIMULATION_VERSION) throw new Error('Historical report is read-only; current implementation required for preview and Apply.');
  const row = layoutRows(report).find(r => r.candidateId === candidateId);
  if (!row || !row.evaluation.validation.ok || row.evaluation.regionIssues.length || !row.evaluation.comparison?.candidateValid || !report.approved) throw new Error('Candidate is invalid or has no successful measured comparison.');
  const parsed = parseLayoutProposal(row.proposal), authority = parseApprovedConstraints(report.approved.constraints);
@@ -28,7 +29,7 @@ export async function resolveMeasuredLayout(report: LayoutReport, candidateId: s
  const attachments = buildStationAttachmentMap(report.input.scenario, resolveLayoutAttachments(report.input.scenario));
  const validation = await validateLayoutCandidate({baselineScenario:report.input.scenario, executionConfig:report.input.executionConfig, proposal:parsed.proposal, approvedConstraints:authority.constraints, attachments});
  if (!validation.ok) throw new Error(validation.issues.map(i => i.message).join('; '));
- const verified = await verifyLayoutComparison(comparison);
+ const verified = await verifyLayoutReportForVersion(comparison);
  if (!verified.ok) throw new Error('Local comparison mismatch: '+verified.mismatches.join('; '));
  const bundle = applyPackingStationTranslation(report.input.scenario, parsed.proposal, attachments);
  if (canonicalStringify(bundle.scenario) !== canonicalStringify(comparison.candidateScenario)) throw new Error('Resolved scene differs from measured candidate scenario.');

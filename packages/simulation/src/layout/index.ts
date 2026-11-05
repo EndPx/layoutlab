@@ -73,3 +73,5 @@ export type { QuarterTurns, RackQuarterTurnProposal, ApprovedRackRotation, RackR
 
 export { applyAgentInitialPlacement, runAgentPlacementComparison, verifyAgentPlacementComparison } from './agent-placement.js';
 export type { AgentInitialPlacementProposal, AgentPlacementComparisonInput, AgentPlacementComparison } from './agent-placement.js';
+
+export { verifyLayoutReportForVersion, type LayoutVerificationForVersion } from './runtime-verifier.js';
