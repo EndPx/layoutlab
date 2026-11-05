@@ -1,0 +1,20 @@
+import { test, expect } from "@playwright/test";
+test("main cyclic walking bones, pause, reset and closeup", async ({ page }, info) => {
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route("**/api/status",r=>r.fulfill({json:{configured:false}}));
+ await page.route("**/api/budget",r=>r.fulfill({json:{}}));
+ await page.goto('/');const canvas=page.getByTestId('ops-canvas');
+ await expect(canvas).toHaveAttribute('data-human-asset-status','loaded-cyclic-gait',{timeout:30000});
+ const initial=await canvas.getAttribute('data-human-bones');
+ await page.getByTestId('ws-select-assistant').selectOption({index:1});await page.getByTestId('ops-preset-inspect').click();
+ await page.getByTestId('ops-zoom-out').click();await page.getByTestId('ops-zoom-out').click();
+ await page.screenshot({path:`../../evidence/sanitized/human-main-viewer/cycle-v3/${info.project.name}-initial-closeup.png`,fullPage:true});
+ await page.getByTestId('ws-run').click();
+ await expect.poll(()=>canvas.getAttribute('data-human-bones'),{timeout:10000}).not.toBe(initial);
+ await page.waitForTimeout(350);
+ await page.getByTestId('ws-pause').click();const paused=await canvas.getAttribute('data-human-bones');
+ await page.screenshot({path:`../../evidence/sanitized/human-main-viewer/cycle-v3/${info.project.name}-walking-closeup.png`,fullPage:true});
+ await page.waitForTimeout(600);expect(await canvas.getAttribute('data-human-bones')).toBe(paused);
+ await page.getByTestId('ws-reset').click();expect(await canvas.getAttribute('data-human-bones')).toBe(initial);
+ expect(errors).toEqual([]);
+});

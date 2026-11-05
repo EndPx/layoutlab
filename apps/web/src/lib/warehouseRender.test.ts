@@ -147,3 +147,7 @@ describe("honest empty / partial / overflow / unknown / misfit", () => {
     expect(cargoFamilyTint("plastic")).not.toEqual([1, 1, 1]);
   });
 });
+it("rotates cargo in the exact shared unit frame at cardinal headings",()=>{
+ const run=(yawRad:number)=>planCargoTransforms({units:[{unitId:'U',pose:{x:3000,z:5000},yawRad,carried:[{productId:'P01',quantity:1}]}],docks:carry.docksUnitM,cells:carry.cellsCrateLocalMm,floorTopYMm:FLOOR_TOP_MM,cargoYawDeg:carry.cargoYawDeg,skuDims:new Map(scene.scenario.products.map(p=>[p.id,p.itemDimensionsMm])),cartonSizeM:CARTON_SIZE_M,familyOf:new Map()}).items[0]!;
+ const base=run(0);for(const yaw of [Math.PI/2,Math.PI,Math.PI*1.5]){const item=run(yaw);const x=item.centerM.x-3,z=item.centerM.z-5;expect(Math.cos(yaw)*x-Math.sin(yaw)*z).toBeCloseTo(base.centerM.x-3,12);expect(Math.sin(yaw)*x+Math.cos(yaw)*z).toBeCloseTo(base.centerM.z-5,12);expect(item.scale).toEqual(base.scale);expect(item.centerM.y).toBe(base.centerM.y);expect(item.yawDeg-base.yawDeg).toBeCloseTo(yaw*180/Math.PI,12);}
+});

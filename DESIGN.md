@@ -842,3 +842,7 @@ the sourced rack model; labels, cargo anchors and approaches use the same candid
 scene. Invalid previews name proven blocker IDs and disable Test/Apply. Rotation
 and initial-agent placement remain explicit later gates; Muse remains station-only.
 The document owns scrolling at desktop and 390px, using existing wrapping actions.
+
+## Human heading and carried cargo integration
+
+Workers now use a deterministic source-length0.5m two-step cycle from authoritative snapshot distance; snapshot clock controls movement/waits and Pause/Reset. Source forward -Z uses shared PI plus engine heading for the entire worker/cart/tote assembly, with identical cargo offset/yaw transforms. Engine anchors and accounting are unchanged. Heading changes are instantaneous visualization; current traffic clearance uses cart footprints and does not certify human-body safety. Archived snapshots without movement segments retain a disclosed grounded stopped pose. See docs/HUMAN_VIEWER_INTEGRATION.md and new human-main-viewer/release evidence for validation and limitations; earlier static-only integration notes are superseded.

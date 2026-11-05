@@ -208,6 +208,7 @@ export function planCargoTransforms(args: {
   units: {
     unitId: string;
     pose: { x: number; z: number };
+    yawRad?: number;
     carried: { productId: string; quantity: number }[];
   }[];
   docks: CarryDock[];
@@ -249,6 +250,9 @@ export function planCargoTransforms(args: {
         });
         continue;
       }
+      const localX = dock.xM + pose.xMm * MM;
+      const localZ = dock.zM + pose.zMm * MM;
+      const yaw = u.yawRad ?? 0;
       items.push({
         unitId: u.unitId,
         productId: pl.productId,
@@ -256,16 +260,16 @@ export function planCargoTransforms(args: {
         crateIndex: pl.crateIndex,
         cellId: pl.cellId,
         centerM: {
-          x: u.pose.x * MM + (dock.xM + pose.xMm * MM),
+          x: u.pose.x * MM + Math.cos(yaw) * localX + Math.sin(yaw) * localZ,
           y: dock.yM + pose.yMm * MM,
-          z: u.pose.z * MM + (dock.zM + pose.zMm * MM),
+          z: u.pose.z * MM - Math.sin(yaw) * localX + Math.cos(yaw) * localZ,
         },
         scale: {
           x: (dims.width / 1000) / args.cartonSizeM.x,
           y: (dims.height / 1000) / args.cartonSizeM.y,
           z: (dims.depth / 1000) / args.cartonSizeM.z,
         },
-        yawDeg: pose.yawDeg,
+        yawDeg: pose.yawDeg + yaw * 180 / Math.PI,
         family: args.familyOf.get(pl.productId) ?? "cardboard",
       });
     }

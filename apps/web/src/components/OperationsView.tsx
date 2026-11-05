@@ -4,8 +4,8 @@
 // plus dynamic-only updates from the live engine snapshot: cart poses,
 // shelf-stock visibility, carried loads, route overlays, approach markers,
 // and labels. Snapshots, frames, and selections NEVER recreate the
-// renderer, reload GLBs, or rebuild static geometry. Carts keep canonical
-// yaw; only positions follow snapshot poses. Routes show the selected
+// renderer, reload GLBs, or rebuild static geometry. Cart, worker and cargo
+// share source-normalized heading while positions follow snapshot poses. Routes show the selected
 // unit's CURRENT authorized granted plan split at the exact engine pose;
 // pick stops are numbered done/todo markers with no connecting lines. A
 // GLB that fails to load is reported truthfully in the status line and
@@ -24,10 +24,15 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { CSS2DObject, CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { clone as cloneSkeleton } from "three/addons/utils/SkeletonUtils.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import type { OperationsSnapshot } from "@layoutlab/simulation";
 import { allocateCarryCells, pickStopStates, sparseRouteArrowheads, splitRouteAtPose, unitOperationalLabel, visualContainersForQty, type OperationsScene, type OperationsSelection } from "../lib/operations";
 import { cargoFamilyTint, derivativeUrlFor, planCargoTransforms, prepareAssetGroup, type CargoFamily } from "../lib/warehouseRender";
+
+import { bindHumanGait, decodeHumanGait } from "../lib/humanGait";
+import { sampleHumanMotions } from "../lib/humanMotion";
+import { decodeHumanPose, disposeHumanSkeletons, type HumanPosePacket } from "../lib/humanPose";
 
 const MM = 0.001;
 const LABEL_GAP_PX = 10;
@@ -60,7 +65,10 @@ const glbCache = new Map<string, Promise<THREE.Group>>();
 function loadGlb(url: string): Promise<THREE.Group> {
   let p = glbCache.get(url);
   if (!p) {
-    p = new GLTFLoader().loadAsync(url).then((gltf) => gltf.scene);
+    p = new GLTFLoader().loadAsync(url).then((gltf) => gltf.scene).catch((error: unknown) => {
+      glbCache.delete(url);
+      throw error;
+    });
     glbCache.set(url, p);
   }
   return p;
@@ -119,6 +127,7 @@ type ViewHandles = {
   markerGroup: THREE.Group;
   carryGroup: THREE.Group;
   cartOf: Map<string, THREE.Group>;
+  humanOf: Map<string, { rig: THREE.Object3D; packet: HumanPosePacket; gait: ReturnType<typeof bindHumanGait> }>;
   containerMeshes: ContainerMeshState[];
   cargoPool: CargoPool | null;
   assetModes: Map<string, string>;
@@ -142,6 +151,7 @@ export function OperationsView(props: {
   const { scene: ops, snapshot, selection, labelLayer, onStats, onSelectionChange } = props;
   const onSelectionChangeRef = useRef(onSelectionChange);
   onSelectionChangeRef.current = onSelectionChange;
+  const [humanError, setHumanError] = useState<string | null>(null);
   const [preset, setPreset] = useState<"overview" | "top" | "inspect" | null>(null);
   const mountRef = useRef<HTMLDivElement | null>(null);
   const statusRef = useRef<HTMLParagraphElement | null>(null);
@@ -196,13 +206,28 @@ export function OperationsView(props: {
       return `${u.id}:${p.x},${p.z}`;
     }).join(";");
 
-    // Cart poses follow snapshot poses exactly (canonical yaw kept).
+    const humanUpdateStart = performance.now();
+    const motions = snap ? sampleHumanMotions(snap, ops.units.map(u => u.id)) : new Map();
+    // Source forward -Z becomes +Z through shared PI, then engine heading.
     for (const [id, cart] of v.cartOf) {
       const p = poseOf(id);
       cart.position.set(p.x * MM, 0, p.z * MM);
+      const motion = motions.get(id);
+      cart.rotation.y = motion?.source === "history" && (motion.distanceM > 0 || motion.moving) ? Math.PI + motion.heading : 0;
     }
 
-    mount.dataset['unitTransforms'] = JSON.stringify([...v.cartOf].map(([id, cart]) => ({ id, xMm: cart.position.x / MM, zMm: cart.position.z / MM })));
+    for (const [id, human] of v.humanOf) {
+      const motion = motions.get(id);
+      human.gait.apply(motion?.distanceM ?? 0, motion?.moving ?? false);
+    }
+    mount.dataset["humanBones"] = JSON.stringify([...v.humanOf].map(([id, human]) => ({ id, bones: human.gait.diagnostics() })));
+    mount.dataset["humanMotion"] = JSON.stringify([...v.humanOf].map(([id]) => ({ id, ...(motions.get(id) ?? { source: "initial-stopped", phase: 0, moving: false }) })));
+    const humanUpdateMs = performance.now() - humanUpdateStart;
+    mount.dataset["humanUpdateTiming"] = JSON.stringify({ count: Number(mount.dataset["humanUpdateCount"] ?? 0) + 1, lastMs: humanUpdateMs, totalMs: Number(mount.dataset["humanUpdateTotal"] ?? 0) + humanUpdateMs, maxMs: Math.max(Number(mount.dataset["humanUpdateMax"] ?? 0), humanUpdateMs), workers: v.humanOf.size });
+    mount.dataset["humanUpdateCount"] = String(Number(mount.dataset["humanUpdateCount"] ?? 0) + 1);
+    mount.dataset["humanUpdateTotal"] = String(Number(mount.dataset["humanUpdateTotal"] ?? 0) + humanUpdateMs);
+    mount.dataset["humanUpdateMax"] = String(Math.max(Number(mount.dataset["humanUpdateMax"] ?? 0), humanUpdateMs));
+    mount.dataset['unitTransforms'] = JSON.stringify([...v.cartOf].map(([id, cart]) => ({ id, xMm: cart.position.x / MM, zMm: cart.position.z / MM, yawRad: cart.rotation.y })));
     mount.dataset['unitScreenPositions'] = JSON.stringify([...v.cartOf].map(([id, cart]) => {
       const point = new THREE.Vector3(cart.position.x, 0.15, cart.position.z).project(v.camera);
       return { id, x: (point.x + 1) * v.size.w / 2, y: (1 - point.y) * v.size.h / 2 };
@@ -265,6 +290,7 @@ export function OperationsView(props: {
           units: snap.units.map((u) => ({
             unitId: u.unitId,
             pose: { x: u.pose.x, z: u.pose.z },
+            yawRad: v.cartOf.get(u.unitId)?.rotation.y ?? 0,
             carried: u.carried.map((l) => ({ productId: l.productId, quantity: l.quantity })),
           })),
           docks: ops.carry.docksUnitM,
@@ -539,14 +565,15 @@ export function OperationsView(props: {
         ops.carry.cellsCrateLocalMm.length,
         ops.carry.cellsCrateLocalMm.map((c) => c.id),
       );
+      const carryYaw = v.cartOf.get(unitId)?.rotation.y ?? 0;
       ops.carry.docksUnitM.forEach((dock, crateIndex) => {
         const inside = placements.filter((pl) => pl.crateIndex === crateIndex).map((pl) => `${pl.productId}#${pl.itemOrdinal}`);
         addLabel(
           `crate ${dock.id} · ${inside.length > 0 ? inside.join("+") : "empty equipment"}`,
           "pack selected",
-          p.x * MM + dock.xM,
+          p.x * MM + Math.cos(carryYaw) * dock.xM + Math.sin(carryYaw) * dock.zM,
           dock.yM + 0.45,
-          p.z * MM + dock.zM,
+          p.z * MM - Math.sin(carryYaw) * dock.xM + Math.cos(carryYaw) * dock.zM,
         );
       });
     }
@@ -568,6 +595,7 @@ export function OperationsView(props: {
     const mount = mountRef.current;
     if (!mount) return;
     let cancelled = false;
+    setHumanError(null);
     const t0 = performance.now();
     delete mount.dataset["cam"];
     delete mount.dataset["camPos"];
@@ -740,6 +768,7 @@ export function OperationsView(props: {
       markerGroup: new THREE.Group(),
       carryGroup: new THREE.Group(),
       cartOf: new Map(),
+      humanOf: new Map(),
       containerMeshes: [],
       cargoPool: null,
       assetModes: new Map(),
@@ -1047,7 +1076,8 @@ export function OperationsView(props: {
     const wallUrl = ops.walls[0]?.glbUrl ?? "";
     const entranceUrl = ops.entrances[0]?.glbUrl ?? "";
     const stationUrls = [...new Set(ops.stations.map((s) => s.glbUrl))];
-    const allUrls = [...new Set([rackUrl, floorUrl, cartUrl, wallUrl, entranceUrl, ...stationUrls, ...ops.containerGlbs.map((c) => c.glbUrl)].filter(Boolean))];
+    const humanUrl = "/assets/humans/worker-articulated-workwear-v2.gltf";
+    const allUrls = [...new Set([humanUrl, rackUrl, floorUrl, cartUrl, wallUrl, entranceUrl, ...stationUrls, ...ops.containerGlbs.map((c) => c.glbUrl)].filter(Boolean))];
     for (const u of allUrls) assetStatus.set(u, { status: "loading", detail: "pending" });
     reportStatus();
 
@@ -1061,6 +1091,16 @@ export function OperationsView(props: {
     };
 
     void (async () => {
+      let humanPosePacket: unknown = null;
+      let humanGaitPacket: ReturnType<typeof decodeHumanGait> | null = null;
+      try {
+        const response = await fetch("/assets/humans/main-pose-v1.json");
+        if (!response.ok) throw new Error(`Human pose HTTP ${response.status}`);
+        humanPosePacket = await response.json();
+        const gaitResponse = await fetch("/assets/humans/main-gait-v1.json");
+        if (!gaitResponse.ok) throw Error(`Human gait HTTP ${gaitResponse.status}`);
+        humanGaitPacket = decodeHumanGait(await gaitResponse.json());
+      } catch (error) { mount.dataset["humanAssetStatus"] = String(error); if (!cancelled) setHumanError(String(error)); }
       const loaded = handles.loaded;
       const maxAniso = renderer.capabilities.getMaxAnisotropy();
       await Promise.all(allUrls.map(async (u) => {
@@ -1082,13 +1122,14 @@ export function OperationsView(props: {
             loaded.set(u, await loadGlb(u));
           }
           const group = loaded.get(u)!;
-          const prepared = prepareAssetGroup(group, u, maxAniso);
+          const prepared = u === humanUrl ? { mode: "frozen workwear source materials" } : prepareAssetGroup(group, u, maxAniso);
           handles.assetModes.set(u, usedV2 ? `v2 (${prepared.mode})` : prepared.mode);
           assetStatus.set(u, {
             status: "loaded",
             detail: usedV2 ? "ok (v2 derivative)" : v2 ? "ok (v1 fallback, v2 failed)" : "ok",
           });
         } catch (e) {
+          if (u === humanUrl && !cancelled) setHumanError(String(e));
           assetStatus.set(u, { status: "error", detail: e instanceof Error ? e.message.slice(0, 160) : String(e).slice(0, 160) });
         }
         if (!cancelled) reportStatus();
@@ -1283,6 +1324,41 @@ export function OperationsView(props: {
           const cartMesh = cartGroup.clone(true);
           cartMesh.position.set(ops.carry.normalizationM.x, ops.carry.normalizationM.y, ops.carry.normalizationM.z);
           assembly.add(cartMesh);
+          const humanSource = loaded.get(humanUrl);
+          if (humanSource) {
+            const human = cloneSkeleton(humanSource);
+            let unitFrame: THREE.Group | null = null;
+            try {
+              const packet = decodeHumanPose(humanPosePacket, human);
+              human.position.fromArray(packet.root.position);
+              human.quaternion.fromArray(packet.root.quaternion);
+              human.scale.fromArray(packet.root.scale);
+              for (const transform of packet.transforms) {
+                const bone = human.getObjectByName(transform.name);
+                if (bone) {
+                  bone.position.fromArray(transform.position);
+                  bone.quaternion.fromArray(transform.quaternion);
+                  bone.scale.fromArray(transform.scale);
+                }
+              }
+              unitFrame = new THREE.Group();
+              unitFrame.position.set(ops.carry.normalizationM.x, ops.carry.normalizationM.y, ops.carry.normalizationM.z);
+              unitFrame.add(human);
+              assembly.add(unitFrame);
+              if (!humanGaitPacket) throw Error("Human gait unavailable");
+              const gait = bindHumanGait(human, humanGaitPacket);
+              gait.apply(0, false);
+              handles.humanOf.set(u.id, { rig: human, packet, gait });
+              mount.dataset["humanAssetStatus"] = "loaded-cyclic-gait";
+              if (!cancelled) setHumanError(null);
+            } catch (error) {
+              unitFrame?.removeFromParent();
+              disposeHumanSkeletons(human);
+              mount.dataset["humanAssetStatus"] = String(error);
+              if (!cancelled) setHumanError(String(error));
+            }
+          }
+
           for (const dock of ops.carry.docksUnitM) {
             const tote = crateGroup.clone(true);
             tote.position.set(dock.xM, dock.yM, dock.zM);
@@ -1374,6 +1450,8 @@ export function OperationsView(props: {
       resizer.disconnect();
       renderer.domElement.removeEventListener("pointerdown", onDown);
       renderer.domElement.removeEventListener("pointerup", onUp);
+      handles.humanOf.forEach(({ rig }) => disposeHumanSkeletons(rig));
+      handles.humanOf.clear();
       controls.dispose();
       renderer.dispose();
       labelRenderer.domElement.remove();
@@ -1497,8 +1575,10 @@ export function OperationsView(props: {
         <button type="button" onClick={() => zoom(1.25)} data-testid="ops-zoom-out" aria-label="Zoom operations view out">−</button>
       </div>
       <p ref={provenanceRef} role="status" data-testid="ops-provenance">Loading sourced warehouse geometry…</p>
+      {humanError && <p role="alert">Human model unavailable: {humanError}. Cart operations remain available.</p>}
       <details ref={disclosureRef} data-testid="ops-render-details">
         <summary>Renderer and asset details</summary>
+        <p>Worker visualization follows the simulation. Traffic clearance currently uses cart footprints; human-body clearance and walking kinematics are not qualified. Workers, carts, totes and cargo share instantaneous heading from authorized movement history. Turning has no modeled duration or human-body clearance. Archived replay without detailed motion history uses a stable stopped worker pose.</p>
       <p className="mono" ref={statusRef} data-testid="ops-asset-status">
         Environment: loading sourced geometry…
       </p>

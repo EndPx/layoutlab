@@ -54,6 +54,7 @@ import {
   stationaryVsStationaryConflict,
   trajectoriesConflict,
   type Trajectory,
+  type TimedSegment,
 } from "./traffic.js";
 import {
   createTransportDomain,
@@ -262,6 +263,7 @@ export type OperationsSnapshot = {
     startMs: number;
     endMs: number;
     segmentCount: number;
+    segments?: TimedSegment[];
   }[];
   maxConcurrentMoving: { count: number; atMs: number | null };
   counts: OperationsCounts;
@@ -3558,6 +3560,7 @@ export function createOperationsController(opts: {
         startMs: t.trajectory.startMs,
         endMs: t.trajectory.endMs,
         segmentCount: t.trajectory.segments.length,
+        segments: t.trajectory.segments.map((segment) => ({ ...segment })),
       })),
       maxConcurrentMoving: { ...S.maxConcurrentMoving },
       counts: {

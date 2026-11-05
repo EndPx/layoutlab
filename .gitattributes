@@ -14,3 +14,7 @@ packages/simulation/archive/0.1.0/runtime.mjs -text
 packages/simulation/archive/0.1.1/** -text
 packages/simulation/archive/build-archive11.mjs -text
 packages/simulation/archive/archive11.vite.config.mjs -text
+
+# Human source and pose bytes are pinned by asset/gait provenance.
+apps/web/public/assets/humans/** -text
+apps/web/src/lib/humanBake*.mjs text eol=lf
