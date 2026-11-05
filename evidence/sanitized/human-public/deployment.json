@@ -1,0 +1,20 @@
+{
+  "commit": "c09947b",
+  "nativeBuild": "passed",
+  "service": "active",
+  "ledgerBytesUnchanged": true,
+  "runtimeEnvironmentUnchanged": true,
+  "budget": {
+    "guard": "active",
+    "perRunReservationUsd": 0.25,
+    "capUsd": 1,
+    "reservedUsd": 0,
+    "committedUsd": 1,
+    "availableUsd": 0,
+    "entries": 4,
+    "accounting": "reservedUsd is a held conservative bound; committedUsd is that bound charged after dispatch. Neither is an invoice or a confirmed provider price."
+  },
+  "configuredProvider": "meta",
+  "otherAppsChanged": false,
+  "modelCalls": 0
+}

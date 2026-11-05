@@ -15,3 +15,8 @@ The release browser tests use installed Edge at 1440 px and 390 px and a real lo
 Commit inputs: OperationsView.tsx; warehouseRender.ts and focused tests; humanPose.ts, humanMotion.ts/tests, humanGait.ts/tests, humanBake.mjs and humanBakeDriver.mjs; public assets worker-articulated-workwear-v2.gltf/.bin, main-pose-v1.json and main-gait-v1.json; approved assets/manifests/human-workwear-v2.json and assets/licenses/human-universal-base-standard-CC0-1.0.txt; integration docs and new release evidence/tests. The original gait/evidence sources were read-only. Engine telemetry and its parity/isolation tests were independently accepted by the coordinator; no engine calculations, report schema/version or archived implementation changed here.
 
 Human asset provenance: a locally authored workwear derivative of Quaternius Universal Base Characters Standard (free package), licensed CC0 1.0. The unchanged source body/rig is preserved in the derivative; clothes and boot shells are added. The source package hash and derivative triangle mapping are retained in assets/manifests/human-workwear-v2.json, with the verbatim license in assets/licenses/human-universal-base-standard-CC0-1.0.txt. Source: https://quaternius.itch.io/universal-base-characters .
+
+
+## Public rollout
+
+Deployed application `c09947b` on 2026-11-06 at https://layoutlab.endpx.cloud. Public desktop and 390px checks passed with exact asset hashes, actual bone movement, cargo, Pause/Reset and recorded 0.1.0 verification. Desktop manual candidate Apply/Return also passed. Each context performed one verification POST and zero model-generation POSTs; budget was unchanged. See `evidence/sanitized/human-public/smoke.json` and `docs/PUBLIC_DEPLOYMENT.md`. The physical-model limitations above remain in force.

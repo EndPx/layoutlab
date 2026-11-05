@@ -254,3 +254,12 @@ Application8d6bf4c deployed natively over b8d4ec5; persisted budget ledger bytes
 ## Initial-agent placement public release — 2026-11-05
 
 Applicationd263533 replaces8d6bf4c using native build/service; ledger bytes unchanged and other apps untouched. Independent public Edge advances current run to5seconds, previews PK1 initialparking3000,2200 while its original livepose1200,4400 remains retained, verifies exported comparison, Apply/Reset/Returnoriginal all pass. No POST or pageexception; budget unchanged. Evidence evidence/sanitized/agent-public/coordinator-review.json and restored-edge.png. No live teleport, heading control, human-plus-cart safety or model-agent placement claim. Existing protected inference/public verification split unchanged; no model call.
+
+
+## Animated worker public release - 2026-11-06
+
+Application `c09947b` replaces `a37b127` on the existing native service. The main workspace renders six clothed human workers with distance-driven cyclic gait and shared heading for worker/cart/totes/carried cargo. Optional copied timed-segment telemetry is read-only; frozen report parity, accounting, schema and simulation implementation remain unchanged.
+
+Native server build and service health passed. Runtime configuration and persistent budget ledger stayed byte-identical; no allowance refill, provider change, inference or other-site configuration change occurred. Public installed-Edge desktop (1440x1000) and mobile (390x844) checks passed for actual bone movement, loaded cargo, Pause, Reset, selected-worker inspection, archived 0.1.0 inspection/return and anonymous report verification. Desktop additionally tested a parking-position candidate with validation, simulation, exact local recomputation, Apply and restoration. Each browser context sent exactly one free verification POST, no generation request, and had zero page/console errors. All four production human asset hashes match the reviewed local files; public budget before/after was identical. Evidence: `evidence/sanitized/human-public/`; reproduce with `node scripts/verify-human-public.mjs` from the repository root.
+
+This is operational visualization, not certified human-body traffic. Existing cart footprints still govern clearance; heading changes have no turn duration; archived runtimes without detailed history retain a stable worker animation. Physical human reservations, turn sweeps and calibrated handling remain separate work. Local six-worker CPU observations are not FPS guarantees.

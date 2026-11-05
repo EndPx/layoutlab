@@ -33,3 +33,6 @@ Local timing observations are CPU submission samples on the reported AMD Radeon 
 ## Public release
 
 Application `a37b127` is deployed. Native build and service health passed; runtime environment and ledger bytes are unchanged. Public Edge smoke passed with one recorded-report verification POST, no generation POST, zero browser errors, matching cargo dimensions/attachment and unchanged allowance. Evidence: `evidence/sanitized/workspace-quality-public/`. Human integration remains excluded pending its gates.
+
+
+Follow-up release `c09947b` (2026-11-06) adds engine-synchronized human visualization and shared cart/cargo heading. It is publicly verified; see docs/HUMAN_VIEWER_INTEGRATION.md and evidence/sanitized/human-public/. The earlier exclusion of human visualization applies only to release a37b127; physical human-body clearance remains unqualified.

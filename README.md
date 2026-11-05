@@ -51,7 +51,9 @@ Open `http://127.0.0.1:3001/`. Sample/manual controls and replay need no key. De
 | [Gater integration](docs/GATER_INTEGRATION.md) | Local glm-5-3-flash fixtures; no real completion or deployment proof |
 | [Deployment record](docs/PUBLIC_DEPLOYMENT.md) | Release and anonymous review history, including earlier failures |
 
-> Last verified public application: `a37b127`, with the unified workspace, manual translations, rack quarter-turns, initial parking, separate candidates and export/recompute. Source milestone `574eee8` added fixture-tested Gater support; that code is now included in the release, while public runtime configuration remains Meta and no real Gater completion has been tested. Sample/replay/manual controls are anonymous; paid routes require Basic Auth. Public allowance is exhausted and account billing is blocked, so current live inference is unavailable. Judges can review and verify recorded examples without a key.
+> Last verified public application: `c09947b`, with animated clothed workers, aligned carts/carried cargo, the unified workspace, manual translations, rack quarter-turns, initial parking, separate candidates and export/recompute. Source milestone `574eee8` added fixture-tested Gater support; that code is now included in the release, while public runtime configuration remains Meta and no real Gater completion has been tested. Sample/replay/manual controls are anonymous; paid routes require Basic Auth. Public allowance is exhausted and account billing is blocked, so current live inference is unavailable. Judges can review and verify recorded examples without a key.
+
+Worker animation follows engine distance and heading. Traffic still reserves cart footprints; turns are instantaneous, and archived reports without segment telemetry use a stable worker pose. See the [human visualization release](docs/HUMAN_VIEWER_INTEGRATION.md) and [public verification](evidence/sanitized/human-public/smoke.json).
 
 Stubs and HTTP fixtures prove integration behavior, not live inference. Historical Meta reports retain their provider identity. Replay establishes measurement consistency, not authenticated provider provenance.
 

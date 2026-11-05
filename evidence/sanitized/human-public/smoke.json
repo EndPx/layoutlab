@@ -1,0 +1,63 @@
+{
+  "commit": "c09947b",
+  "base": "https://layoutlab.endpx.cloud",
+  "checkedAt": "2026-11-05T17:30:37.468Z",
+  "pass": true,
+  "modelGenerationPosts": 0,
+  "budgetUnchanged": true,
+  "budget": {
+    "guard": "active",
+    "perRunReservationUsd": 0.25,
+    "capUsd": 1,
+    "reservedUsd": 0,
+    "committedUsd": 1,
+    "availableUsd": 0,
+    "entries": 4,
+    "accounting": "reservedUsd is a held conservative bound; committedUsd is that bound charged after dispatch. Neither is an invoice or a confirmed provider price."
+  },
+  "assets": {
+    "main-pose-v1.json": {
+      "bytes": 15324,
+      "sha256": "73792a099a581727e5f031a0995e4e49b634175dff8ab54760d778ae017c4688"
+    },
+    "main-gait-v1.json": {
+      "bytes": 101725,
+      "sha256": "78db6c8f659500dacb04d61b2220507d62cc518bb3fca2aebaead3a440f53c9c"
+    },
+    "worker-articulated-workwear-v2.gltf": {
+      "bytes": 33414,
+      "sha256": "8c151dfe1c8cdd5cfadfd3397be694a3f31af462156973e92d01c90c5008c4e7"
+    },
+    "worker-articulated-workwear-v2.bin": {
+      "bytes": 2306092,
+      "sha256": "4b035378f0038a3d5450d848e0b854775d3b69d26e3eacf89e12d35adcc965d0"
+    }
+  },
+  "results": [
+    {
+      "name": "desktop",
+      "workers": 6,
+      "errors": [],
+      "posts": [
+        "https://layoutlab.endpx.cloud/api/operations/investigations/verify"
+      ],
+      "manual": {
+        "unitId": "PK-1",
+        "fromZ": 1200,
+        "toZ": 2200,
+        "verified": true,
+        "applied": true,
+        "restored": true
+      }
+    },
+    {
+      "name": "mobile",
+      "workers": 6,
+      "errors": [],
+      "posts": [
+        "https://layoutlab.endpx.cloud/api/operations/investigations/verify"
+      ],
+      "manual": null
+    }
+  ]
+}
