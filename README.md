@@ -1,140 +1,72 @@
-# LayoutLab
+<p align="center"><img src="docs/media/layoutlab-logo.png" width="360" alt="LayoutLab" /></p>
 
-Test warehouse changes before making them.
+# Test warehouse changes before making them.
 
-LayoutLab is a warehouse planning workspace for inspecting a synthetic operation,
-testing physical layout changes, and comparing reproducible results. Manual edits
-support packing-station and rack translation, rack quarter-turns, and initial agent
-parking. Candidates preserve the original run and use the same workload and
-operating assumptions unless an explicitly permitted experiment changes them.
-The legacy product-assignment planner remains an advanced compatibility workflow.
+**[Watch the 2m20 demo](https://youtu.be/webE5e5WNbo)**
 
-Last verified public application release: `fbe5cf6` (2026-11-05), at the
-[web preview](https://layoutlab.endpx.cloud). The public release includes the
-unified workspace and manual layout controls. Human/cart coupling remains isolated
-research and is not integrated operational physics.
+LayoutLab is a warehouse decision workspace: inspect an operation, propose a change, and compare it with a preserved baseline using reproducible measurements.
 
-Gater `glm-5-3-flash` support is implemented and checked locally with injected
-transport fixtures, including actual HTTP and Microsoft Edge workflows. It is
-not yet deployed or proven against real Gater completions. Meta historical reports
-remain distinguishable and replayable. The user selected configuration and
-fixtures only, with no paid Gater inference. See the
-[provider integration review](docs/GATER_INTEGRATION.md).
+[Open the workspace](https://layoutlab.endpx.cloud) · [Judge guide](docs/JUDGES_GUIDE.md) · [Demo](docs/DEMO.md) · [Documentation](docs/README.md)
 
-The public guard and bounded investigation backend passed independent review.
-One actual Meta investigation tested two service-time alternatives and then
-recommended a measured candidate using three model requests. The complete
-report reruns offline without mismatches. Its synthetic six-order baseline
-was 502.4s; the selected dispatch assumption produced 397.1s (20.959395%
-modeled makespan reduction). This is one integration run, not evidence of
-real warehouse savings or AI superiority over a fixed search strategy.
-See [investigation evidence](docs/OPERATIONS_INVESTIGATION_REVIEW.md).
+![Actual accepted warehouse workspace showing a worse rack rotation retained for comparison](docs/media/warehouse-workspace.png)
 
-Public inference is password-restricted with a persistent US$1 allowance.
-The ledger now has US$1 conservatively committed and US$0 available;
-these claims are not invoices. [Deployment evidence](docs/PUBLIC_DEPLOYMENT.md)
-keeps earlier failures and later successful runs visible.
+## Inspect, propose, compare, verify
 
-The [v3 brief](docs/IMPLEMENTATION_BRIEF_V3.md) and
-[delivery plan](docs/EXPERIMENTER_DELIVERY_PLAN.md) define the remaining work.
-Controlled comparisons enforce explicit permissions, retain invalid/incomplete
-candidates, and export replayable reports. The bounded Meta backend now uses
-engine feedback and run-linked recommendations. The Experiments UI is now public: recorded replay, candidate inspection,
-export and recomputation passed anonymous Microsoft Edge checks.
-Equal-budget AI contribution evaluation and warehouse realism remain in progress.
+Run the synthetic warehouse and inspect workers, stations, orders and waiting. Translate racks or packing stations, rotate racks in quarter-turns, or change initial parking. Validate and test a separate candidate, compare original and proposed measurements, then apply a compatible tested layout or discard it. Export and recompute the comparison from saved inputs.
 
-The website, sample simulation and recorded evidence are open without login.
-The root URL opens Operations. Only routes that start or manage live Meta
-inference require judge access; use the private credentials supplied by the
-project owner. Never publish the password in a public submission description.
+For example, a historical live Meta investigation used three model requests to test service-duration assumptions. The six-order baseline finished in **502,400 ms**, versus **397,100 ms** under a selected **30-second dispatch** assumption. This is hypothetical synthetic performance, not measured facility savings or a physical-layout improvement.
 
-The current realism work is tracked in
-[warehouse requirements](docs/WAREHOUSE_REALISM_REQUIREMENTS.md): human
-workers, solid visible cargo, better source-material rendering, physical
-movement and shared planning/operations inputs. The current cart-based
-synthetic view does not yet satisfy that expanded acceptance gate.
+```mermaid
+flowchart LR
+    U[User question or manual edit] --> P[Bounded proposal]
+    M[Model assistant] --> P
+    P --> V[Deterministic policy and geometry validators]
+    V --> E[Deterministic simulation engine]
+    B[Frozen baseline and common inputs] --> E
+    E --> C[Separate candidate comparison]
+    C --> R[Export and offline recomputation]
+```
 
-## Native start (Node 24.18 tested, no Docker)
+The user or model proposes; validators enforce allowed changes and the engine computes measurements. Inputs stay matched except for the permitted intervention. The legacy storage-assignment planner remains an advanced compatibility workflow.
+
+## Native quickstart
+
+Tested on **Node v24.18.0**; manifest range: `^22.12.0 || ^24.0.0 || >=26.0.0`. No Docker required.
 
 ```sh
 npm ci
-npm run build      # core -> simulation -> api -> web
-npm start          # planner + API at http://127.0.0.1:3001/
+npm run build
+npm start
 ```
 
-One loopback origin serves the built planner (`/`) and the API (`/api/*`).
-Tested on Node v24.18.0; root `engines` is
-`^22.12.0 || ^24.0.0 || >=26.0.0` (the installed Vitest 5.0.5 floor — older
-Node 20 releases are not supported). Development uses two terminals instead:
+Open `http://127.0.0.1:3001/`. Sample/manual controls and replay need no key. Development uses `npm run dev` and `npm run dev:api` in separate terminals. See [local runtime](docs/LOCAL_RUNTIME.md).
 
-```sh
-npm run dev          # planner at http://127.0.0.1:5173/ (Vite)
-npm run dev:api      # API at http://127.0.0.1:3001/ (separate terminal)
-```
+## Evidence and current scope
 
-Details: `docs/LOCAL_RUNTIME.md`. Demo walkthrough: `docs/DEMO.md`.
+| Record | What it establishes |
+|---|---|
+| [Live operations report](evidence/sanitized/e4a-live-investigation-f24a6a1.json) | 3 actual Meta requests; synthetic service-duration investigation |
+| [Live storage benchmark](evidence/sanitized/m5-benchmark-live.md) | 18 runs, 72 requests, 54 attempts: 38 valid, 16 unparseable; beat heuristic in 2 runs; all outcomes retained |
+| [Layout assistant](docs/LAYOUT_ASSISTANT_REVIEW.md) | Bounded packing translation; HTTP fixture proof, not live physical-layout inference |
+| [Gater integration](docs/GATER_INTEGRATION.md) | Local glm-5-3-flash fixtures; no real completion or deployment proof |
+| [Deployment record](docs/PUBLIC_DEPLOYMENT.md) | Release and anonymous review history, including earlier failures |
 
-## Configuration
+> Last verified public application: `fbe5cf6`, with the unified workspace, manual translations, rack quarter-turns, initial parking, separate candidates and export/recompute. Source milestone `574eee8` adds local Gater fixtures only. Sample/replay/manual controls are anonymous; paid routes require Basic Auth. Public allowance is exhausted and account billing is blocked, so current live inference is unavailable. Judges can review and verify recorded examples without a key.
 
-Copy `.env.example` to `.env` (git-ignored) and fill `MODEL_API_KEY` locally;
-the key never leaves the server. Without a key, `/api/status` reports
-`setup_required` and sample/manual/stub mode stays fully usable. `-contributor`
-model ids are discounted in exchange for training-data use; the planner
-discloses this and requires consent before any live request.
+Stubs and HTTP fixtures prove integration behavior, not live inference. Historical Meta reports retain their provider identity. Replay establishes measurement consistency, not authenticated provider provenance.
 
-| Mode | Inference | Description |
-|---|---|---|
-| Sample/manual | 0 model requests | Synthetic `warehouse-basic` (36.8 m baseline); edits re-evaluate locally |
-| Stub | 0 model requests | Deterministic labeled proposals plus the demand heuristic (29.8 m, 15/32 evals) |
-| Live | Bounded Meta API | At most 3 proposals / 4 requests per run; approval gate, cancellation, budgets |
+## Repository map
 
-## Checks
+| Location | Responsibility |
+|---|---|
+| [apps/web](apps/web) | Interactive workspace |
+| [apps/api](apps/api) | Server-side proposals and reports |
+| [packages/core](packages/core) | Storage evaluation and replay |
+| [packages/simulation](packages/simulation) | Deterministic operations engine |
+| [scripts](scripts) | Verification tooling |
+| [docs](docs/README.md) | Product, methodology and reviews |
+| [evidence/sanitized](evidence/sanitized) | Curated reports and captures |
 
-On a fresh checkout, build once before typechecking: browser integration
-helpers import the compiled API. Install Playwright Chromium once if its
-browser binary is not already available on the machine.
+Read [methodology](docs/METHODOLOGY.md), [evaluation](docs/EVALUATION.md) and [limitations](docs/LIMITATIONS.md). Assets have [license records](assets/licenses) and [provenance](docs/ASSET_PROVENANCE.md); no code license is declared here.
 
-```sh
-npm run build      # core + api + web
-npm run typecheck  # core + api + web, after the first build
-npm test           # deterministic core tests + API fixture tests
-npx playwright install chromium  # first browser-test setup only
-npm run test:e2e   # Playwright (desktop 1440 + mobile 390; reuses :5173 if up)
-```
-
-## Evidence (exact links)
-
-- One authorized live smoke (`docs/LIVE_SMOKE.md`): 4 real requests —
-  interpretation plus 3 attempts, of which 2 had no parseable content and 1
-  was valid but worse (45,600 mm vs 36,800 mm baseline). Outcome
-  `NO_IMPROVEMENT_FOUND`, baseline retained, usage incomplete.
-  Artifacts: `evidence/sanitized/m3-live-smoke.json`,
-  `m3-live-smoke-run.json`, `m3-live-smoke-report.json`,
-  `m3-live-smoke-replay.png`.
-- Offline benchmark (`docs/EVALUATION.md`): 6 frozen scenarios,
-  baseline+heuristic, 0 model calls —
-  `evidence/sanitized/m5-benchmark-offline.{json,md}`.
-- Fixture benchmark: 18/18 trials, 72 loopback requests, **0 real** Meta
-  requests, replay matched —
-  `evidence/sanitized/m5-benchmark-fixture.{json,md}`.
-- Actual Meta benchmark: 18/18 runs, 72 real requests, all 54 proposal
-  attempts retained (38 valid, 16 unparseable); 18 reports replayed and 71
-  valid assignments independently checked. Meta beat the heuristic in two
-  synthetic runs; ties and failures are included, without a general
-  superiority claim. `evidence/sanitized/m5-benchmark-live.{json,md}` and
-  `docs/EVALUATION.md` document the phased execution and original local
-  infrastructure refusals.
-- Reference UI (M6A): `evidence/sanitized/m6a-1440-reference.png`,
-  `m6a-390-reference.png`, `m6a-run-desktop-1440.png`, gates in
-  `evidence/sanitized/m6-browser-gates.json`.
-- Rack mesh: pinned NVIDIA SimReady `rack_large_empty_a01` converted to GLB
-  (3,176,476 bytes) under CC-BY-4.0 — `docs/ASSET_PROVENANCE.md`.
-
-Fixtures are synthetic. The Conservative 2D clearance model is not a safety
-certification. Modeled travel reductions are not measured customer savings,
-and nothing here claims model superiority. Limits:
-`docs/LIMITATIONS.md`. External-source boundaries:
-`docs/EVIDENCE_BASE.md`.
-
-Verify any downloaded report without an API key (pure core replay from
-embedded inputs): `node scripts/verify-report.mjs <report.json>`.
+The demonstrated simulation is cart-based; human physics drafts are outside this milestone. Synthetic geometry is not safety certification. Results establish neither real-facility validation, global optimality nor universal Meta superiority. Equal-budget AI contribution and warehouse realism remain open work.
